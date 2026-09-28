@@ -395,7 +395,8 @@ function salvarEmpregador(){
   if(o.tipo==='CPF'&&soNum.length!==11) return $('e-msg').innerHTML='<div class="alert err">CPF deve ter 11 dígitos.</div>';
   set('empregador',o); log('Empregador salvo/atualizado');
   $('e-msg').innerHTML='<div class="alert ok">Empregador salvo.</div>';
-  setTimeout(telaHome,700);
+  if($('tela-gestor').classList.contains('hidden')) setTimeout(telaHome,700);
+  else { $('logo-empresa').src=o.logo||'/vip-logo.png'; $('home-fantasia').textContent=o.fantasia||o.razao||''; }
 }
 function renderGerenciadores(){
   const gs=get('gerenciadores',[]);
