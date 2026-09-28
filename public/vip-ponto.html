@@ -63,7 +63,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 /* ===================== HOME / PIN ===================== */
 .topbar{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--navy);color:#fff;position:sticky;top:0;z-index:20}
 .topbar img{height:42px;width:auto;background:#fff;border-radius:8px;padding:3px}
-.icon-btn{background:rgba(255,255,255,.14);border:0;color:#fff;font-size:20px;width:44px;height:44px;border-radius:12px;cursor:pointer}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:20px;width:44px;height:44px;border-radius:12px;cursor:pointer}
 .pin-display{display:flex;justify-content:center;gap:14px;margin:14px 0}
 .pin-dot{width:46px;height:56px;border-radius:12px;border:2px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800}
 .pin-dot.on{border-color:var(--navy2)}
@@ -89,7 +89,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .folha{background:#fff;padding:14px;border:1px solid var(--line);border-radius:10px;margin-bottom:18px;page-break-after:always}
 .folha h3{text-align:center;text-transform:uppercase;font-size:15px}
 .folha .cab{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;border:1px solid var(--line);padding:8px;border-radius:8px;margin-bottom:8px}
-.folha .cab img{height:46px}
+.folha .cab img{height:56px;max-width:160px;object-fit:contain;display:block;margin-bottom:4px}
 .folha table{font-size:11.5px}
 .folha .rodape{font-size:11.5px;margin-top:10px}
 .assin{display:flex;gap:30px;margin-top:26px;justify-content:space-between;font-size:12px;text-align:center}
@@ -111,6 +111,22 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   body.print-folha #area-impressao{position:absolute;left:0;top:0;width:100%}
   body.print-folha @page{size:A4;margin:8mm}
 }
+
+/* ===== Visual referência (layouts enviados) ===== */
+#tela-gestor .inner{background:#f7f9fc;padding:0;overflow:auto}
+#tela-gestor .inner>.row{background:#0f172a;color:#cbd5e1;padding:12px 16px;margin:0!important;font-family:ui-monospace,Consolas,monospace;font-size:13px}
+#tela-gestor .inner>.row .btn.ghost{background:transparent;color:#fff;border:0}
+#gestor-tabs{background:#0f172a;padding:0 12px 10px;margin:0;gap:8px}
+#gestor-tabs .tab{background:transparent;border:0;border-radius:10px;color:#cbd5e1;font-family:ui-monospace,Consolas,monospace;font-weight:600}
+#gestor-tabs .tab.active{background:#10e07a;color:#0f172a}
+#gestor-body{padding:20px}
+#gestor-body .tabs{background:#fff;border:1px solid #e5e9f0;border-radius:14px;padding:6px;gap:4px}
+#gestor-body .tab{background:transparent;border:0;border-radius:10px;font-weight:600;color:#334155}
+#gestor-body .tab.active{background:#2f7cf6;color:#fff}
+#gestor-body .card{border-radius:14px;border-color:#e5e9f0;box-shadow:none}
+#gestor-body h3{font-size:24px;font-weight:800;color:#0f172a}
+#gestor-body .btn:not(.ghost):not(.red):not(.gold){background:#2f7cf6}
+#gestor-body th{text-transform:uppercase;font-size:12px;color:#475569;background:#fff}
 </style>
 </head>
 <body>
@@ -161,18 +177,18 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 <!-- ======================= MÓDULO 1 — EMPREGADOR ======================= -->
 <div id="tela-empregador" class="hidden">
   <div class="topbar"><strong>Cadastro do Empregador (obrigatório)</strong>
-    <button class="icon-btn right" title="Sair" onclick="logoff()">⏻</button></div>
+    <button class="icon-btn right" title="Sair" onclick="logoff()" aria-label="Sair"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v10"/><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/></svg></button></div>
   <div class="wrap" id="empregador-form"></div>
 </div>
 
 <!-- ======================= TELA INICIAL ======================= -->
 <div id="tela-home" class="hidden">
   <div class="topbar">
-    <button class="icon-btn" title="Gestor de ponto" onclick="pedirPinGestor()">⚙️</button>
+    <button class="icon-btn" title="Gestor de ponto" onclick="pedirPinGestor()" aria-label="Gestor"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     <img id="logo-empresa" src="/vip-logo.png" alt="Logo empresa"/>
     <div style="line-height:1.1"><div id="home-fantasia" style="font-weight:800"></div><div id="home-hora" class="muted" style="color:#cfd8e8"></div></div>
-    <button class="icon-btn right" title="Portal do Empregado" onclick="pedirPinPortal()">👤</button>
-    <button class="icon-btn" title="Sair da conta" onclick="logoff()">⏻</button>
+    <button class="icon-btn right" title="Portal do Empregado" onclick="pedirPinPortal()" aria-label="Portal do Empregado"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></button>
+    <button class="icon-btn" title="Sair da conta" onclick="logoff()" aria-label="Sair"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v10"/><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/></svg></button>
   </div>
   <div class="wrap" style="max-width:640px">
     <div class="card">
@@ -646,16 +662,18 @@ function novoPin(){
   const usados=[...get('funcionarios',[]).map(f=>f.pin),...get('gerenciadores',[]).map(g=>g.pin)];
   let p; do{p=pad(Math.floor(Math.random()*10000),4);}while(usados.includes(p)); return p;
 }
+let SUBF='lista';
 function abaFunc(){
   const fs=get('funcionarios',[]);
-  $('gestor-body').innerHTML=`<div class="row"><h3>Empregados — ${fs.length}/12 vagas</h3>
-    <button class="btn right" ${fs.length>=12?'disabled':''} onclick="formFunc(-1)">+ Novo empregado</button>
-    <button class="btn ghost" onclick="gerirListas()">Departamentos e Funções</button></div>
-    <div class="tbl-wrap"><table><tr><th>#</th><th>Nome</th><th>CPF</th><th>Cargo/Função</th><th>Depto</th><th>Escala</th><th>Status</th><th>PIN (só gestor)</th><th></th></tr>
+  const tabs=`<div class="tabs" style="margin-bottom:10px">${[['lista','Empregados'],['listas','Funções, Cargos e Departamentos']].map(([k,t])=>`<div class="tab ${SUBF===k?'active':''}" onclick="SUBF='${k}';abaFunc()">${t}</div>`).join('')}</div>`;
+  if(SUBF==='listas'){ $('gestor-body').innerHTML=tabs+'<div id="listas-body"></div>'; return gerirListas(); }
+  $('gestor-body').innerHTML=tabs+`<div class="row"><h3>Empregados — ${fs.length}/12 vagas</h3>
+    <button class="btn right" ${fs.length>=12?'disabled':''} onclick="formFunc(-1)">+ Novo empregado</button></div>
+    <div class="tbl-wrap"><table><tr><th>#</th><th>Nome</th><th>CPF</th><th>Cargo/Função</th><th>Depto</th><th>Escala</th><th>Banco desde</th><th>Status</th><th>PIN (só gestor)</th><th></th></tr>
     ${fs.map((f,i)=>`<tr><td>${i+1}</td><td>${esc(f.nome)}</td><td>${esc(f.cpf)}</td><td>${esc(f.funcao||f.cargo)}</td><td>${esc(f.departamento)}</td>
-    <td>${esc(f.escala)}</td><td>${esc(statusTexto(f))}</td><td><b>${esc(f.pin)}</b></td>
+    <td>${esc(f.escala)}</td><td>${brOf(f.bancoInicio||f.admissao)}</td><td>${esc(statusTexto(f))}</td><td><b>${esc(f.pin)}</b></td>
     <td class="row"><button class="btn sm ghost" onclick="formFunc(${i})">Editar</button><button class="btn sm red" onclick="delFunc(${i})">Excluir</button></td></tr>`).join('')
-    ||'<tr><td colspan=9 class="muted">Nenhum empregado cadastrado.</td></tr>'}</table></div>`;
+    ||'<tr><td colspan=10 class="muted">Nenhum empregado cadastrado.</td></tr>'}</table></div>`;
 }
 function statusTexto(f){
   if(f.status==='Desligado') return `Desligado em ${brOf(f.dataDesligamento)}`;
@@ -665,7 +683,7 @@ function statusTexto(f){
 }
 function gerirListas(){
   const c=get('cargos',[]),d=get('departamentos',[]);
-  abrirModal(`<div class="row"><h3>Departamentos e Funções</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
+  $('listas-body').innerHTML=(`<h3>Funções, Cargos e Departamentos</h3>
   <div class="card grid g2">
     <div><h4>Funções/Cargos</h4><ul>${c.map((x,i)=>`<li>${esc(x)} <span class="link" onclick="delLista('cargos',${i})">excluir</span></li>`).join('')}</ul>
       <input id="nv-cargo" placeholder="Novo cargo"/><button class="btn sm" style="margin-top:6px" onclick="addLista('cargos','nv-cargo')">Adicionar</button></div>
@@ -692,6 +710,7 @@ function formFunc(i){
     <div><label>Cidade</label><input id="f-cidade" value="${esc(f.cidade||'')}"/></div>
     <div><label>UF</label><select id="f-uf">${UFS.map(u=>`<option ${f.uf===u?'selected':''}>${u}</option>`).join('')}</select></div>
     <div><label>PIN (automático, único — visível só ao gestor)</label><input id="f-pin" value="${esc(f.pin)}" readonly/></div>
+    <div><label>Início vigência banco de horas *</label><input type="date" id="f-bh" value="${f.bancoInicio||''}"/></div>
     <div><label>Data de admissão *</label><input type="date" id="f-adm" value="${f.admissao||''}"/></div>
     <div><label>Escala MTE *</label><select id="f-escala">${ESCALAS.map(e=>`<option value="${e[0]}" ${f.escala===e[0]?'selected':''}>${e[1]}</option>`).join('')}</select></div>
     <div><label>Status *</label><select id="f-status" onchange="statusCond()">${['Ativo','Desligado','Afastamento','Férias'].map(s=>`<option ${f.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
@@ -715,7 +734,7 @@ function salvarFunc(i){
   const fs=get('funcionarios',[]), v=id=>($(id)?$(id).value.trim():'');
   const o={nome:v('f-nome'),cpf:v('f-cpf'),email:v('f-email'),cargo:v('f-cargo'),funcao:v('f-funcao'),departamento:v('f-dep'),
     rua:v('f-rua'),numero:v('f-num'),bairro:v('f-bairro'),cidade:v('f-cidade'),uf:v('f-uf'),pin:v('f-pin'),
-    admissao:v('f-adm'),escala:v('f-escala'),status:v('f-status'),
+    admissao:v('f-adm'),bancoInicio:v('f-bh')||v('f-adm'),escala:v('f-escala'),status:v('f-status'),
     dataDesligamento:v('f-desl'),afastDe:v('f-ade'),afastAte:v('f-aate'),motivoAfast:v('f-amot'),feriasIni:v('f-fi'),feriasFim:v('f-ff')};
   const err=[];
   if(!o.nome||!o.cpf||!o.funcao||!o.departamento||!o.admissao) err.push('Nome, CPF, Função, Departamento e Admissão são obrigatórios.');
@@ -753,8 +772,10 @@ function previstoDia(f,iso){
   if(iso<f.admissao) return 0;
   if(feriadoDe(iso)) return 0;
   if(folgaEscala(f.pin,iso)) return 0;
+  const escSem=escalaDaSemana(iso), temEsc=escSem&&(escSem.folgas||[]).some(x=>x.pin===f.pin);
   if(f.status==='Férias'&&iso>=f.feriasIni&&iso<=f.feriasFim) return 0;
   if(f.status==='Afastamento'&&iso>=f.afastDe&&iso<=f.afastAte) return 0;
+  if(temEsc) return cargaEscala(f.escala); // escala da semana prevalece sobre o DSR padrão (ex.: DSR na terça libera o domingo)
   const d=dow(iso);
   if(f.escala==='5x2'&&(d===0||d===6)) return 0;
   if(f.escala==='6x1'&&d===0) return 0;
@@ -800,7 +821,7 @@ function dadosFolha(pin,ini,fim){
     // atraso com tolerância 10min
     const prevEntrada=horarioEscala(pin,d)||(get('empregador',{})||{}).hEntrada||'08:00';
     let atrasoMin=0;
-    if(bs.length&&g('Entrada')){const at=toMin(g('Entrada').hora)-toMin(prevEntrada);if(at>10){atrasoMin=at;tot.atrasos++;oc=(oc?oc+' | ':'')+`ATRASO ${toHHMM(at)}`;cls=cls||'t-atraso';}}
+    if(prev>0&&bs.length&&g('Entrada')){const at=toMin(g('Entrada').hora)-toMin(prevEntrada);if(at>10){atrasoMin=at;tot.atrasos++;oc=(oc?oc+' | ':'')+`ATRASO ${toHHMM(at)}`;cls=cls||'t-atraso';}}
     if(bs.length){
       tot.trabalhado+=trab;
       if(prev>0){ if(trab>prev) tot.extras+=trab-prev; else if(trab<prev) tot.faltantes+=prev-trab; }
@@ -834,8 +855,9 @@ function calcBanco(pin,ini,fim){
     for(let i=0;i<extrasFolga;i++){const it=folgas[folgas.length-1-i];deb+=cargaEscala(f.escala);det.push(`Débito - Folga Compensatória dia ${brOf(it.d)}`);}
     return {cred,deb,det};
   };
-  const ant=f.admissao&&f.admissao<ini?soma(f.admissao,addDias(ini,-1)):{cred:0,deb:0,det:[]};
-  const per=soma(ini,fim);
+  const vig=f.bancoInicio||f.admissao||ini;
+  const ant=vig<ini?soma(vig,addDias(ini,-1)):{cred:0,deb:0,det:[]};
+  const per=vig>fim?{cred:0,deb:0,det:[`Banco de horas vigente a partir de ${brOf(vig)}`]}:soma(vig>ini?vig:ini,fim);
   const anterior=ant.cred-ant.deb;
   return {anterior,creditos:per.cred,debitos:per.deb,atual:anterior+per.cred-per.deb,detalhes:per.det};
 }
@@ -844,14 +866,14 @@ function calcBanco(pin,ini,fim){
 let SUB='dash';
 function abaPonto(){
   $('gestor-body').innerHTML=`<div class="tabs" style="margin-bottom:10px">
-    ${[['fer','A) Feriados'],['bat','B) Batidas'],['esc','C) Escala Semanal'],['ban','D) Banco de Horas'],['rel','F) Relatórios PDF/XML']]
-    .map(([k,t])=>`<div class="tab ${SUB===k?'active':''}" onclick="irSub('${k}')">${t}</div>`).join('')}</div>
+    ${[['fer','Feriados'],['bat','Batidas'],['esc','Escala Semanal'],['ban','Banco de Horas'],['rel','Relatórios PDF/XML']]
+    .map(([k,t])=>`<div class="tab ${SUB===k?'active':''}" data-sub="${k}" onclick="irSub('${k}')">${t}</div>`).join('')}</div>
     <div id="sub-body"></div>`;
   if(!['fer','bat','esc','ban','rel'].includes(SUB))SUB='fer'; irSub(SUB);
 }
 function irSub(k){SUB=k;abaPonto2();}
 function abaPonto2(){
-  $('gestor-body').querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.textContent.startsWith(({fer:'A',bat:'B',esc:'C',ban:'D',rel:'F'})[SUB])));
+  $('gestor-body').querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.sub===SUB));
   ({fer:subFeriados,bat:subBatidas,esc:subEscala,ban:subBanco,rel:subRelatorios})[SUB]();
 }
 /* A) Feriados */
@@ -1152,7 +1174,7 @@ function cabecalhoFolhaHTML(f,ini,fim){
   const e=get('empregador',{})||{},d=getHoraOficial();
   const escLabel=(ESCALAS.find(x=>x[0]===f.escala)||['','—'])[1];
   return `<div class="cab">
-    <div>${e.logo?`<img src="${e.logo}"/>`:''}
+    <div><img src="${e.logo||'/vip-logo.png'}" alt="Logo"/>
       <div><b>${esc(e.razao||'')}</b> — ${esc(e.fantasia||'')}</div>
       <div>${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'')} • CEI/CAEPF/CNO: ${esc(e.cei||'—')}</div>
       <div>${esc(e.logradouro||'')}, ${esc(e.numero||'')} ${esc(e.complemento||'')} — ${esc(e.bairro||'')}, ${esc(e.cidade||'')}/${esc(e.uf||'')} — CEP ${esc(e.cep||'')}</div>
@@ -1200,6 +1222,7 @@ function pdfFolhas(pins,ini,fim,nomeArq){
     const d=dadosFolha(pin,ini,fim),f=d.f,dt=getHoraOficial();
     if(!first)doc.addPage(); first=false;
     let y=12;
+    if(e.logo){try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),170,6,30,18);}catch(_){}}
     const L=(t,s=9,b=false)=>{if(y>272){doc.setFontSize(8);doc.text(`Página ${doc.getNumberOfPages()}`,200,290,{align:'right'});doc.addPage();y=12;}doc.setFont('helvetica',b?'bold':'normal');doc.setFontSize(s);doc.text(String(t),10,y);y+=s<9?4:4.6;};
     L(`${e.razao||''} — ${e.fantasia||''}`,11,true);
     L(`${e.tipo}: ${e.doc} • CEI/CAEPF/CNO: ${e.cei||'—'}`);
