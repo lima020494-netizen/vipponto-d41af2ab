@@ -319,7 +319,8 @@ function feriadosNacionais(){
 let NTP_OK=false;
 function getHoraOficial(){return new Date(Date.now()+(get('ntpOffset',0)||0));}
 async function sincronizarNTP(){
-  const urls=['https://worldtimeapi.org/api/timezone/America/Belem','https://timeapi.io/api/Time/current/zone?timeZone=America/Belem'];
+  // Sempre comparamos em UTC para não deslocar o fuso do aparelho
+  const urls=['https://worldtimeapi.org/api/timezone/America/Belem','https://timeapi.io/api/Time/current/zone?timeZone=Etc/UTC'];
   for(const u of urls){
     try{
       const t0=Date.now(); const r=await fetch(u,{cache:'no-store'}); const j=await r.json();
