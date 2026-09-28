@@ -1228,7 +1228,8 @@ function xmlConteudo(pin,ini,fim){
   x+=t('razaoSocial',e.razao)+t('nomeFantasia',e.fantasia)+t('tipoInscricao',e.tipo)+t('inscricao',e.doc)+t('ceiCaepfCno',e.cei)
    +t('endereco',`${e.logradouro}, ${e.numero} ${e.complemento||''} - ${e.bairro} - ${e.cidade}/${e.uf} - CEP ${e.cep}`)+t('email',e.email);
   x+=`  </empregador>\n  <trabalhador>\n`+t('nome',f.nome)+t('cpf',f.cpf)+t('funcao',f.funcao)+t('departamento',f.departamento)+t('admissao',f.admissao)+t('escala',f.escala)+`  </trabalhador>\n`;
-  x+=`  <relatorio>\n`+t('emissao',`${brOf(isoOf(dt))} ${hhmm(dt)}`)+t('periodoInicio',ini)+t('periodoFim',fim)+t('fonteHorario',NTP_OK?'SERVIDOR NTP':'LOCAL')+t('gerado por',undefined).replace('gerado por','geradoPor').replace('></','>'+esc(assinaGerenciador())+'</')+`  </relatorio>\n  <marcacoes>\n`;
+  x+=`  <relatorio>\n`+t('emissao',`${brOf(isoOf(dt))} ${hhmm(dt)}`)+t('periodoInicio',ini)+t('periodoFim',fim)
+   +t('fonteHorario',NTP_OK?'SERVIDOR NTP':'LOCAL')+t('geradoPor',assinaGerenciador())+`  </relatorio>\n  <marcacoes>\n`;
   d.linhas.forEach(l=>{
     x+=`    <dia data="${l.data}" semana="${esc(l.dia)}">\n`;
     [['entrada',l.e1],['saidaIntervalo',l.e2],['entradaIntervalo',l.e3],['saida',l.e4],['entradaExtra',l.ex1],['saidaExtra',l.ex2]]
