@@ -324,7 +324,9 @@ async function sincronizarNTP(){
   for(const u of urls){
     try{
       const t0=Date.now(); const r=await fetch(u,{cache:'no-store'}); const j=await r.json();
-      const sv=new Date(j.datetime||j.dateTime||`${j.date}T${j.time}`).getTime();
+      // usa sempre um instante UTC absoluto (utc_datetime ou dateTime + Z)
+      const iso=j.utc_datetime||j.datetime||(j.dateTime?j.dateTime.replace(/Z?$/,'Z'):null)||`${j.date}T${j.time}Z`;
+      const sv=new Date(iso).getTime();
       if(!isNaN(sv)){ set('ntpOffset',sv-(t0+(Date.now()-t0)/2)); NTP_OK=true; break; }
     }catch(e){}
   }
