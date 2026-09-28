@@ -1,0 +1,1328 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>VIP PONTO — Registro Eletrônico de Ponto (Portaria MTE 671/2021)</title>
+<link rel="icon" href="/favicon.png" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+/* ===================== DESIGN SYSTEM ===================== */
+:root{
+  --navy:#0d2murder; /* placeholder removido abaixo */
+}
+:root{
+  --navy:#0c2246; --navy2:#123a73; --gold:#c9992b; --gold2:#e9c05a;
+  --bg:#f4f6fb; --card:#ffffff; --txt:#12203a; --muted:#6b7a93;
+  --green:#12823c; --red:#c62828; --orange:#e07c1f; --blue:#1565c0; --gray:#78849a;
+  --line:#dfe5ef; --radius:14px; --shadow:0 6px 24px rgba(12,34,70,.09);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);font-size:15px}
+h1,h2,h3,h4{margin:0 0 8px}
+.hidden{display:none !important}
+.wrap{max-width:1280px;margin:0 auto;padding:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:8px 0 4px;text-transform:uppercase;letter-spacing:.3px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:#fff;color:var(--txt);font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--navy2);outline-offset:1px}
+.grid{display:grid;gap:10px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:820px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff}
+.btn:hover{filter:brightness(1.08)}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#2b1d00}
+.btn.green{background:var(--green);color:#fff}
+.btn.red{background:var(--red);color:#fff}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.btn.sm{padding:7px 11px;font-size:13px;border-radius:9px}
+.btn.big{width:100%;padding:18px;font-size:20px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.right{margin-left:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border:1px solid var(--line);padding:6px 7px;text-align:left;vertical-align:top}
+th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;color:#3b4a66}
+.tbl-wrap{overflow:auto;-webkit-overflow-scrolling:touch}
+.tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:800;color:#fff}
+.t-falta{background:var(--red)}.t-feriado{background:var(--orange)}.t-folga{background:var(--blue)}
+.t-deslig{background:var(--gray)}.t-afast{background:#6d28d9}.t-ferias{background:#0f766e}.t-atraso{background:#b45309}
+.muted{color:var(--muted);font-size:12.5px}
+.hr{height:1px;background:var(--line);margin:12px 0}
+.badge{font-size:12px;font-weight:800;padding:5px 10px;border-radius:99px;background:#eef2f9;color:var(--navy)}
+/* ===================== LOGIN ===================== */
+#tela-login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(1200px 600px at 50% -10%,#16396f,#0c2246)}
+#tela-login .box{width:100%;max-width:430px;background:#fff;border-radius:20px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.logo-login{display:block;margin:0 auto 10px;width:190px;max-width:70%;height:auto}
+.link{color:var(--navy2);font-weight:700;text-decoration:underline;cursor:pointer;font-size:13.5px}
+.alert{padding:10px 12px;border-radius:10px;font-size:13.5px;font-weight:700;margin:8px 0}
+.alert.err{background:#fdecea;color:var(--red)}.alert.ok{background:#e7f6ec;color:var(--green)}
+.alert.warn{background:#fff6e5;color:#8a5b00}
+/* ===================== HOME / PIN ===================== */
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--navy);color:#fff;position:sticky;top:0;z-index:20}
+.topbar img{height:42px;width:auto;background:#fff;border-radius:8px;padding:3px}
+.icon-btn{background:rgba(255,255,255,.14);border:0;color:#fff;font-size:20px;width:44px;height:44px;border-radius:12px;cursor:pointer}
+.pin-display{display:flex;justify-content:center;gap:14px;margin:14px 0}
+.pin-dot{width:46px;height:56px;border-radius:12px;border:2px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800}
+.pin-dot.on{border-color:var(--navy2)}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:420px;margin:0 auto}
+.key{height:56px;font-size:24px;font-weight:800;border-radius:14px;border:1px solid var(--line);background:#fff;cursor:pointer}
+@media(min-width:640px){.key{height:64px}}
+@media(min-width:900px){.key{height:76px;font-size:28px}}
+.key:active{background:#eef2f9}
+.key.wide{font-size:16px}
+#nome-func{font-size:27px;font-weight:900;text-align:center;margin:10px 0 2px}
+.status-ntp{text-align:center;font-weight:800;font-size:13px;margin:6px 0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--navy);color:#fff;padding:14px 18px;border-radius:14px;z-index:999;font-weight:700;max-width:92vw;box-shadow:var(--shadow)}
+/* ===================== MODAL ===================== */
+.modal{position:fixed;inset:0;background:rgba(8,18,36,.6);z-index:100;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:12px}
+.modal .inner{background:var(--bg);width:100%;max-width:1280px;border-radius:16px;padding:12px;margin:10px 0}
+.modal.small .inner{max-width:420px;background:#fff;padding:20px}
+.tabs{display:flex;gap:6px;overflow:auto;padding-bottom:6px}
+.tab{padding:10px 14px;border-radius:12px 12px 0 0;background:#e6ebf4;border:1px solid var(--line);border-bottom:0;font-weight:800;font-size:13.5px;cursor:pointer;white-space:nowrap}
+.tab.active{background:#fff;color:var(--navy)}
+.dept-head{background:var(--navy2);color:#fff;font-weight:800}
+.lock{color:var(--red);font-weight:800}
+/* ===================== FOLHA MTE ===================== */
+.folha{background:#fff;padding:14px;border:1px solid var(--line);border-radius:10px;margin-bottom:18px;page-break-after:always}
+.folha h3{text-align:center;text-transform:uppercase;font-size:15px}
+.folha .cab{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;border:1px solid var(--line);padding:8px;border-radius:8px;margin-bottom:8px}
+.folha .cab img{height:46px}
+.folha table{font-size:11.5px}
+.folha .rodape{font-size:11.5px;margin-top:10px}
+.assin{display:flex;gap:30px;margin-top:26px;justify-content:space-between;font-size:12px;text-align:center}
+.assin div{flex:1;border-top:1px solid #333;padding-top:4px}
+/* ===================== COMPROVANTE TÉRMICO ===================== */
+#comprovante{display:none}
+#comprovante .cp{width:58mm;font-family:"Courier New",monospace;font-size:11px;line-height:1.28;color:#000}
+#comprovante .cp img{width:34mm;display:block;margin:0 auto 2mm}
+#comprovante .cp .c{text-align:center}
+#comprovante .cp .b{font-weight:bold}
+#comprovante .cp hr{border:0;border-top:1px dashed #000;margin:1.5mm 0}
+@media print{
+  body *{visibility:hidden !important}
+  #comprovante,#comprovante *{visibility:visible !important}
+  #comprovante{display:block !important;position:absolute;left:0;top:0;width:58mm}
+  @page{size:58mm auto;margin:0}
+  body.print-folha #comprovante{display:none !important}
+  body.print-folha #area-impressao,body.print-folha #area-impressao *{visibility:visible !important}
+  body.print-folha #area-impressao{position:absolute;left:0;top:0;width:100%}
+  body.print-folha @page{size:A4;margin:8mm}
+}
+</style>
+</head>
+<body>
+
+<!-- ======================= MÓDULO 0 — LOGIN MULTI-EMPRESA ======================= -->
+<div id="tela-login">
+  <div class="box">
+    <img class="logo-login" id="logo-login" src="/vip-logo.png" alt="VIP PONTO" />
+    <div id="login-view">
+      <h3 style="text-align:center">Acesso ao sistema</h3>
+      <div id="saudacao" class="muted" style="text-align:center;font-weight:800;color:var(--navy)"></div>
+      <label>E-mail</label><input id="l-email" type="email" autocomplete="email" placeholder="seu@email.com"/>
+      <label>Senha</label><input id="l-senha" type="password" autocomplete="current-password" placeholder="••••••••"/>
+      <div id="l-msg"></div>
+      <button class="btn big gold" style="margin-top:12px" onclick="fazerLogin()">ACESSAR</button>
+      <div class="row" style="justify-content:space-between;margin-top:12px">
+        <span class="link" onclick="mostrarView('cad')">Criar conta</span>
+        <span class="link" onclick="mostrarView('esq')">Esqueci a senha</span>
+      </div>
+    </div>
+    <div id="cad-view" class="hidden">
+      <h3 style="text-align:center">Criar conta</h3>
+      <label>Nome completo</label><input id="c-nome"/>
+      <label>E-mail</label><input id="c-email" type="email"/>
+      <label>Senha</label><input id="c-senha" type="password" oninput="dicaSenha()"/>
+      <div id="c-dica" class="muted">Mínimo 8 caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 especial (!@#$%&amp;_)</div>
+      <div id="c-msg"></div>
+      <button class="btn big" style="margin-top:10px" onclick="criarConta()">CRIAR CONTA</button>
+      <div style="margin-top:10px;text-align:center"><span class="link" onclick="mostrarView('login')">Voltar ao login</span></div>
+    </div>
+    <div id="esq-view" class="hidden">
+      <h3 style="text-align:center">Recuperar senha</h3>
+      <label>E-mail da conta</label><input id="e-email" type="email"/>
+      <div id="e-msg"></div>
+      <button class="btn big" style="margin-top:10px" onclick="gerarReset()">GERAR LINK (expira em 1h)</button>
+      <div id="e-reset" class="hidden">
+        <label>Token recebido</label><input id="e-token"/>
+        <label>Nova senha</label><input id="e-nova" type="password"/>
+        <button class="btn big green" style="margin-top:10px" onclick="redefinirSenha()">REDEFINIR SENHA</button>
+      </div>
+      <div style="margin-top:10px;text-align:center"><span class="link" onclick="mostrarView('login')">Voltar ao login</span></div>
+    </div>
+    <div class="hr"></div>
+    <div class="muted" style="text-align:center">Portaria MTE 671/2021 • Limite de 3 contas por aparelho • Dados isolados por conta</div>
+  </div>
+</div>
+
+<!-- ======================= MÓDULO 1 — EMPREGADOR ======================= -->
+<div id="tela-empregador" class="hidden">
+  <div class="topbar"><strong>Cadastro do Empregador (obrigatório)</strong>
+    <button class="icon-btn right" title="Sair" onclick="logoff()">⏻</button></div>
+  <div class="wrap" id="empregador-form"></div>
+</div>
+
+<!-- ======================= TELA INICIAL ======================= -->
+<div id="tela-home" class="hidden">
+  <div class="topbar">
+    <button class="icon-btn" title="Gestor de ponto" onclick="pedirPinGestor()">⚙️</button>
+    <img id="logo-empresa" src="/vip-logo.png" alt="Logo empresa"/>
+    <div style="line-height:1.1"><div id="home-fantasia" style="font-weight:800"></div><div id="home-hora" class="muted" style="color:#cfd8e8"></div></div>
+    <button class="icon-btn right" title="Portal do Empregado" onclick="pedirPinPortal()">👤</button>
+    <button class="icon-btn" title="Sair da conta" onclick="logoff()">⏻</button>
+  </div>
+  <div class="wrap" style="max-width:640px">
+    <div class="card">
+      <div class="status-ntp" id="status-ntp">⏳ Sincronizando hora oficial…</div>
+      <div class="pin-display" id="pin-display"></div>
+      <div id="nome-func"></div>
+      <div id="hist-dia"></div>
+      <div class="keys" style="margin-top:12px">
+        <button class="key" onclick="pinAdd('1')">1</button><button class="key" onclick="pinAdd('2')">2</button><button class="key" onclick="pinAdd('3')">3</button>
+        <button class="key" onclick="pinAdd('4')">4</button><button class="key" onclick="pinAdd('5')">5</button><button class="key" onclick="pinAdd('6')">6</button>
+        <button class="key" onclick="pinAdd('7')">7</button><button class="key" onclick="pinAdd('8')">8</button><button class="key" onclick="pinAdd('9')">9</button>
+        <button class="key wide" onclick="pinLimpar()">LIMPAR</button><button class="key" onclick="pinAdd('0')">0</button><button class="key" onclick="pinBack()">⌫</button>
+      </div>
+      <button class="btn big green" style="margin-top:14px;font-size:22px" onclick="registrarPonto()">✓ REGISTRAR</button>
+      <div class="muted" id="status-impressora" style="text-align:center;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= GESTOR (4 MÓDULOS) ======================= -->
+<div id="tela-gestor" class="modal hidden">
+  <div class="inner">
+    <div class="row" style="margin-bottom:8px">
+      <strong id="gestor-quem"></strong>
+      <button class="btn sm ghost right" onclick="fecharGestor()">✕ Fechar</button>
+    </div>
+    <div class="tabs" id="gestor-tabs"></div>
+    <div class="card" id="gestor-body" style="border-radius:0 12px 12px 12px"></div>
+  </div>
+</div>
+
+<div id="modal-generico" class="modal hidden"><div class="inner" id="modal-generico-inner"></div></div>
+<div id="modal-pin" class="modal small hidden"><div class="inner" id="modal-pin-inner"></div></div>
+<div id="area-impressao" class="hidden"></div>
+<div id="comprovante"></div>
+
+<script>
+/* ============================================================================
+   VIP PONTO — App completo em arquivo único. 100% localStorage, sem backend.
+   Padrão MTE Portaria 671/2021.
+   ========================================================================== */
+
+/* ---------- utilitários ---------- */
+const $ = id => document.getElementById(id);
+const pad = (n,l=2) => String(n).padStart(l,'0');
+const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const hojeISO = () => isoOf(getHoraOficial());
+const isoOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const brOf = iso => iso ? iso.split('-').reverse().join('/') : '';
+const hhmm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const toMin = h => { if(!h) return 0; const [a,b]=h.split(':').map(Number); return a*60+(b||0); };
+const toHHMM = m => `${pad(Math.floor(Math.abs(m)/60))}:${pad(Math.abs(m)%60)}`;
+const toSaldo = m => (m<0?'-':'+')+toHHMM(m);
+const DIAS = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+const dow = iso => new Date(iso+'T12:00:00').getDay();
+const addDias = (iso,n)=>{const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return isoOf(d);};
+function toast(msg,ms=5000){const t=document.createElement('div');t.className='toast';t.innerHTML=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),ms);}
+function baixar(nome,conteudo,tipo){const b=new Blob([conteudo],{type:tipo||'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nome;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
+
+/* ---------- storage isolado por conta (RLS local) ---------- */
+let CONTA=null;                                     // e-mail da conta logada
+const K  = k => `vip:${CONTA}:${k}`;
+const get = (k,d) => { try{ const v=localStorage.getItem(K(k)); return v?JSON.parse(v):d; }catch(e){ return d; } };
+const set = (k,v) => localStorage.setItem(K(k),JSON.stringify(v));
+const contas    = () => { try{ return JSON.parse(localStorage.getItem('vip:contas')||'[]'); }catch(e){ return []; } };
+const salvaContas = c => localStorage.setItem('vip:contas',JSON.stringify(c));
+
+/* ---------- log de auditoria ---------- */
+let GERENCIADOR = null;                              // gerenciador autenticado na sessão
+function log(acao){
+  const l=get('logs',[]);
+  const g=GERENCIADOR?`${GERENCIADOR.nome} - Função ${GERENCIADOR.funcao}`:'Sistema';
+  l.unshift({quando:new Date().toISOString(),por:g,acao});
+  set('logs',l.slice(0,3000));
+}
+const assinaGerenciador = () => GERENCIADOR?`Gerenciador: ${GERENCIADOR.nome} - Função: ${GERENCIADOR.funcao}`:'Gerenciador: (não identificado)';
+
+/* ============================== MÓDULO 0 — LOGIN ============================== */
+function mostrarView(v){['login','cad','esq'].forEach(x=>$(x+'-view').classList.toggle('hidden',x!==v));}
+const hash = s => btoa(unescape(encodeURIComponent('vip#'+s)));
+function validaSenha(s){return s.length>=8&&/[A-Z]/.test(s)&&/[a-z]/.test(s)&&/[0-9]/.test(s)&&/[!@#$%&_]/.test(s);}
+function dicaSenha(){const s=$('c-senha').value;$('c-dica').innerHTML=validaSenha(s)?'<span style="color:var(--green);font-weight:800">Senha válida ✔</span>':'Mínimo 8 caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 especial (!@#$%&amp;_)';}
+$('l-email').addEventListener('input',()=>{const c=contas().find(c=>c.email===$('l-email').value.trim().toLowerCase());$('saudacao').textContent=c?`Olá, ${c.nome.split(' ')[0]}!`:'';});
+function criarConta(){
+  const nome=$('c-nome').value.trim(), email=$('c-email').value.trim().toLowerCase(), senha=$('c-senha').value;
+  const m=$('c-msg'); m.innerHTML='';
+  if(!nome||!email) return m.innerHTML='<div class="alert err">Informe nome e e-mail.</div>';
+  if(!/^\S+@\S+\.\S+$/.test(email)) return m.innerHTML='<div class="alert err">E-mail inválido.</div>';
+  const cs=contas();
+  if(cs.length>=3) return m.innerHTML='<div class="alert err">Limite de 3 usuários por aparelho atingido</div>';
+  if(cs.some(c=>c.email===email)) return m.innerHTML='<div class="alert err">E-mail já cadastrado neste aparelho.</div>';
+  if(!validaSenha(senha)) return m.innerHTML='<div class="alert err">Senha fora do padrão exigido.</div>';
+  cs.push({nome,email,senha:hash(senha)}); salvaContas(cs);
+  m.innerHTML='<div class="alert ok">Conta criada! Faça o login.</div>';
+  setTimeout(()=>{mostrarView('login');$('l-email').value=email;$('saudacao').textContent=`Olá, ${nome.split(' ')[0]}!`;},900);
+}
+function fazerLogin(){
+  const email=$('l-email').value.trim().toLowerCase(), senha=$('l-senha').value, m=$('l-msg'); m.innerHTML='';
+  const c=contas().find(c=>c.email===email);
+  if(!c||c.senha!==hash(senha)) return m.innerHTML='<div class="alert err">E-mail ou senha inválidos.</div>';
+  CONTA=email; localStorage.setItem('vip:sessao',email); iniciarApp();
+}
+function gerarReset(){
+  const email=$('e-email').value.trim().toLowerCase(),cs=contas(),c=cs.find(c=>c.email===email);
+  if(!c) return $('e-msg').innerHTML='<div class="alert err">Conta não encontrada.</div>';
+  const token=String(Math.floor(100000+Math.random()*900000));
+  c.reset={token,exp:Date.now()+3600000}; salvaContas(cs);
+  $('e-msg').innerHTML=`<div class="alert ok">Token: <b>${token}</b> — válido por 1 hora.</div>`;
+  $('e-reset').classList.remove('hidden');
+}
+function redefinirSenha(){
+  const cs=contas(),c=cs.find(c=>c.email===$('e-email').value.trim().toLowerCase());
+  if(!c||!c.reset) return $('e-msg').innerHTML='<div class="alert err">Gere o link primeiro.</div>';
+  if(c.reset.token!==$('e-token').value.trim()||Date.now()>c.reset.exp) return $('e-msg').innerHTML='<div class="alert err">Token inválido ou expirado (1h).</div>';
+  if(!validaSenha($('e-nova').value)) return $('e-msg').innerHTML='<div class="alert err">Senha fora do padrão exigido.</div>';
+  c.senha=hash($('e-nova').value); delete c.reset; salvaContas(cs);
+  $('e-msg').innerHTML='<div class="alert ok">Senha redefinida. Faça login.</div>';
+}
+function logoff(){localStorage.removeItem('vip:sessao');location.reload();}
+
+/* ============================== BOOT ============================== */
+function iniciarApp(){
+  $('tela-login').classList.add('hidden');
+  // garante gerenciador inicial exigido
+  if(!get('gerenciadores',[]).length) set('gerenciadores',[{nome:'Carlos Lima',funcao:'Gerente RH',pin:'1000'}]);
+  if(!get('cargos',[]).length) set('cargos',['Garçom','Cozinheiro','Barman','Auxiliar','Caixa','Gerente']);
+  if(!get('departamentos',[]).length) set('departamentos',['Bar','Cozinha','Salão','Administrativo']);
+  if(!get('feriados',[]).length) set('feriados',feriadosNacionais());
+  if(!get('funcionarios',[]).length) set('funcionarios',[]);
+  sincronizarNTP();
+  detectarImpressora();
+  if(!get('empregador',null)) return telaEmpregador();
+  telaHome();
+}
+function feriadosNacionais(){
+  const y=new Date().getFullYear();
+  return [['01-01','Confraternização Universal'],['04-21','Tiradentes'],['05-01','Dia do Trabalho'],
+  ['09-07','Independência do Brasil'],['10-12','Nossa Senhora Aparecida'],['11-02','Finados'],
+  ['11-15','Proclamação da República'],['11-20','Consciência Negra'],['12-25','Natal']]
+  .flatMap(([md,n])=>[{data:`${y}-${md}`,nome:n,tipo:'Nacional'},{data:`${y+1}-${md}`,nome:n,tipo:'Nacional'}]);
+}
+
+/* ============================== HORA OFICIAL (NTP) ============================== */
+let NTP_OK=false;
+function getHoraOficial(){return new Date(Date.now()+(get('ntpOffset',0)||0));}
+async function sincronizarNTP(){
+  // Sempre comparamos em UTC para não deslocar o fuso do aparelho
+  const urls=['https://worldtimeapi.org/api/timezone/America/Belem','https://timeapi.io/api/Time/current/zone?timeZone=Etc/UTC'];
+  for(const u of urls){
+    try{
+      const t0=Date.now(); const r=await fetch(u,{cache:'no-store'}); const j=await r.json();
+      // usa sempre um instante UTC absoluto (utc_datetime ou dateTime + Z)
+      const iso=j.utc_datetime||j.datetime||(j.dateTime?j.dateTime.replace(/Z?$/,'Z'):null)||`${j.date}T${j.time}Z`;
+      const sv=new Date(iso).getTime();
+      if(!isNaN(sv)){ set('ntpOffset',sv-(t0+(Date.now()-t0)/2)); NTP_OK=true; break; }
+    }catch(e){}
+  }
+  $('status-ntp').innerHTML=NTP_OK?'🟢 SERVIDOR NTP OK — hora oficial não manipulável':'🟡 LOCAL SEM NTP — hora do aparelho';
+  relogio();
+}
+function relogio(){const d=getHoraOficial();if($('home-hora'))$('home-hora').textContent=`${brOf(isoOf(d))} ${hhmm(d)}:${pad(d.getSeconds())}`;setTimeout(relogio,1000);}
+
+/* ============================== MÓDULO 1 — EMPREGADOR ============================== */
+const UFS=['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+function telaEmpregador(alvo){
+  if(!alvo){ $('tela-home').classList.add('hidden'); $('tela-empregador').classList.remove('hidden'); alvo='empregador-form'; }
+  const e=get('empregador',{})||{};
+  $(alvo).innerHTML=`
+  <div class="card"><h3>Dados do Empregador</h3>
+    <div class="grid g3">
+      <div><label>Tipo de inscrição *</label><select id="e-tipo">${['CNPJ','CPF'].map(t=>`<option ${e.tipo===t?'selected':''}>${t}</option>`).join('')}</select></div>
+      <div><label>CNPJ / CPF *</label><input id="e-doc" value="${esc(e.doc||'')}"/></div>
+      <div><label>CEI / CAEPF / CNO (caso exista — exigido MTE)</label><input id="e-cei" value="${esc(e.cei||'')}"/></div>
+      <div><label>Razão Social *</label><input id="e-razao" value="${esc(e.razao||'')}"/></div>
+      <div><label>Nome Fantasia *</label><input id="e-fantasia" value="${esc(e.fantasia||'')}"/></div>
+      <div><label>E-mail do empregador *</label><input id="e-mail" type="email" value="${esc(e.email||'')}"/></div>
+      <div><label>Logradouro *</label><input id="e-log" value="${esc(e.logradouro||'')}"/></div>
+      <div><label>Número *</label><input id="e-num" value="${esc(e.numero||'')}"/></div>
+      <div><label>Bairro *</label><input id="e-bairro" value="${esc(e.bairro||'')}"/></div>
+      <div><label>Cidade *</label><input id="e-cidade" value="${esc(e.cidade||'Salinópolis')}"/></div>
+      <div><label>UF *</label><select id="e-uf">${UFS.map(u=>`<option ${(e.uf||'PA')===u?'selected':''}>${u}</option>`).join('')}</select></div>
+      <div><label>CEP *</label><input id="e-cep" value="${esc(e.cep||'')}"/></div>
+      <div><label>Complemento</label><input id="e-compl" value="${esc(e.complemento||'')}"/></div>
+      <div><label>Atividade da empresa</label><input id="e-ativ" value="${esc(e.atividade||'')}"/></div>
+      <div><label>DSR (domingo)</label><select id="e-dsr"><option ${e.dsr!=='Não'?'selected':''}>Sim</option><option ${e.dsr==='Não'?'selected':''}>Não</option></select></div>
+    </div>
+    <div class="hr"></div><h4>Horário padrão Seg–Sáb</h4>
+    <div class="grid g4">
+      <div><label>Entrada</label><input id="e-h1" type="time" value="${e.hEntrada||'08:00'}"/></div>
+      <div><label>Saída intervalo</label><input id="e-h2" type="time" value="${e.hSaiInt||'12:00'}"/></div>
+      <div><label>Entrada intervalo</label><input id="e-h3" type="time" value="${e.hEntInt||'14:00'}"/></div>
+      <div><label>Saída</label><input id="e-h4" type="time" value="${e.hSaida||'18:00'}"/></div>
+    </div>
+    <label>Logo da empresa (salva em base64)</label><input type="file" accept="image/*" id="e-logo-file" onchange="lerLogo(this)"/>
+    <img id="e-logo-prev" src="${e.logo||'/vip-logo.png'}" style="height:60px;margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px"/>
+    <div id="e-msg"></div>
+    <button class="btn big gold" style="margin-top:12px" onclick="salvarEmpregador()">SALVAR EMPREGADOR</button>
+  </div>
+  <div class="card"><h3>Gerenciadores — Regra dos 4 (mín. 1 / máx. 4)</h3><div id="ger-lista"></div>
+    <div class="hr"></div>
+    <div class="grid g3">
+      <div><label>Nome *</label><input id="g-nome"/></div>
+      <div><label>Função *</label><input id="g-funcao"/></div>
+      <div><label>PIN 4 dígitos único *</label><input id="g-pin" maxlength="4" inputmode="numeric"/></div>
+    </div>
+    <div id="g-msg"></div>
+    <button class="btn" id="btn-add-ger" style="margin-top:10px" onclick="addGerenciador()">+ Adicionar Novo Gerenciador</button>
+  </div>`;
+  renderGerenciadores();
+}
+let LOGO_TMP=null;
+function lerLogo(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{LOGO_TMP=r.result;$('e-logo-prev').src=r.result;};r.readAsDataURL(f);}
+function salvarEmpregador(){
+  const v=id=>$(id).value.trim();
+  const o={tipo:v('e-tipo'),doc:v('e-doc'),cei:v('e-cei'),razao:v('e-razao'),fantasia:v('e-fantasia'),email:v('e-mail'),
+    logradouro:v('e-log'),numero:v('e-num'),bairro:v('e-bairro'),cidade:v('e-cidade'),uf:v('e-uf'),cep:v('e-cep'),
+    complemento:v('e-compl'),atividade:v('e-ativ'),dsr:v('e-dsr'),hEntrada:v('e-h1'),hSaiInt:v('e-h2'),hEntInt:v('e-h3'),hSaida:v('e-h4'),
+    logo:LOGO_TMP||(get('empregador',{})||{}).logo||''};
+  const falta=['doc','razao','fantasia','email','logradouro','numero','bairro','cidade','uf','cep'].filter(k=>!o[k]);
+  if(falta.length) return $('e-msg').innerHTML='<div class="alert err">Preencha todos os campos obrigatórios (*).</div>';
+  const soNum=o.doc.replace(/\D/g,'');
+  if(o.tipo==='CNPJ'&&soNum.length!==14) return $('e-msg').innerHTML='<div class="alert err">CNPJ deve ter 14 dígitos.</div>';
+  if(o.tipo==='CPF'&&soNum.length!==11) return $('e-msg').innerHTML='<div class="alert err">CPF deve ter 11 dígitos.</div>';
+  set('empregador',o); log('Empregador salvo/atualizado');
+  $('e-msg').innerHTML='<div class="alert ok">Empregador salvo.</div>';
+  if($('tela-gestor').classList.contains('hidden')) setTimeout(telaHome,700);
+  else { $('logo-empresa').src=o.logo||'/vip-logo.png'; $('home-fantasia').textContent=o.fantasia||o.razao||''; }
+}
+function renderGerenciadores(){
+  const gs=get('gerenciadores',[]);
+  $('ger-lista').innerHTML=`<div class="tbl-wrap"><table><tr><th>Nome</th><th>Função</th><th>PIN</th><th>Ações</th></tr>
+  ${gs.map((g,i)=>`<tr><td>${esc(g.nome)}</td><td>${esc(g.funcao)}</td><td>${esc(g.pin)}</td>
+  <td class="row"><button class="btn sm ghost" onclick="editarGer(${i})">Editar</button>
+  <button class="btn sm red" onclick="excluirGer(${i})">Excluir</button></td></tr>`).join('')}</table></div>`;
+  const b=$('btn-add-ger'); if(b){b.disabled=gs.length>=4;b.textContent=gs.length>=4?'Limite de 4 gerenciadores atingido':'+ Adicionar Novo Gerenciador';}
+}
+function addGerenciador(){
+  const gs=get('gerenciadores',[]),nome=$('g-nome').value.trim(),funcao=$('g-funcao').value.trim(),pin=$('g-pin').value.trim();
+  if(gs.length>=4) return $('g-msg').innerHTML='<div class="alert err">Limite de 4 gerenciadores atingido</div>';
+  if(!nome||!funcao||!/^\d{4}$/.test(pin)) return $('g-msg').innerHTML='<div class="alert err">Nome, Função e PIN de 4 dígitos são obrigatórios.</div>';
+  if(gs.some(g=>g.pin===pin)||get('funcionarios',[]).some(f=>f.pin===pin)) return $('g-msg').innerHTML='<div class="alert err">PIN já utilizado.</div>';
+  gs.push({nome,funcao,pin}); set('gerenciadores',gs); log(`Gerenciador cadastrado: ${nome} - ${funcao}`);
+  $('g-nome').value=$('g-funcao').value=$('g-pin').value='';$('g-msg').innerHTML='';renderGerenciadores();
+}
+function editarGer(i){
+  const gs=get('gerenciadores',[]),g=gs[i];
+  const nome=prompt('Nome:',g.nome); if(nome===null)return; const funcao=prompt('Função:',g.funcao); if(funcao===null)return;
+  const pin=prompt('PIN 4 dígitos:',g.pin); if(pin===null)return;
+  if(!/^\d{4}$/.test(pin))return alert('PIN inválido');
+  if(gs.some((x,j)=>j!==i&&x.pin===pin))return alert('PIN já usado');
+  gs[i]={nome:nome.trim(),funcao:funcao.trim(),pin};set('gerenciadores',gs);log(`Gerenciador editado: ${nome}`);renderGerenciadores();
+}
+function excluirGer(i){
+  const gs=get('gerenciadores',[]);
+  if(gs.length<=1) return alert('É obrigatório manter no mínimo 1 gerenciador.');
+  if(!confirm('Excluir '+gs[i].nome+'?'))return;
+  log(`Gerenciador excluído: ${gs[i].nome}`); gs.splice(i,1); set('gerenciadores',gs); renderGerenciadores();
+}
+
+/* ============================== TELA INICIAL — PIN ============================== */
+let PIN='', PIN_TIMERS=[], LIMPA_TIMER=null;
+function telaHome(){
+  $('tela-empregador').classList.add('hidden'); $('tela-login').classList.add('hidden');
+  $('tela-home').classList.remove('hidden');
+  const e=get('empregador',{})||{};
+  $('logo-empresa').src=e.logo||'/vip-logo.png'; $('logo-login').src='/vip-logo.png';
+  $('home-fantasia').textContent=e.fantasia||e.razao||'VIP PONTO';
+  pinLimpar();
+}
+function renderPin(){
+  const d=$('pin-display'); d.innerHTML='';
+  for(let i=0;i<4;i++){
+    const c=document.createElement('div'); c.className='pin-dot'+(PIN[i]?' on':'');
+    c.textContent=PIN[i]?(PIN_VIS[i]?PIN[i]:'•'):''; d.appendChild(c);
+  }
+}
+let PIN_VIS=[];
+function pinAdd(n){
+  if(PIN.length>=4) return;
+  PIN+=n; const idx=PIN.length-1; PIN_VIS[idx]=true; renderPin();
+  // REGRA OURO: número visível 1 segundo, depois vira bolinha
+  PIN_TIMERS.push(setTimeout(()=>{PIN_VIS[idx]=false;renderPin();},1000));
+  if(PIN.length===4) setTimeout(buscarFuncionario,250);
+}
+function pinBack(){PIN=PIN.slice(0,-1);PIN_VIS.pop();renderPin();$('nome-func').textContent='';$('hist-dia').innerHTML='';}
+function pinLimpar(){PIN='';PIN_VIS=[];PIN_TIMERS.forEach(clearTimeout);PIN_TIMERS=[];clearTimeout(LIMPA_TIMER);renderPin();$('nome-func').textContent='';$('hist-dia').innerHTML='';}
+function agendarLimpeza(){clearTimeout(LIMPA_TIMER);LIMPA_TIMER=setTimeout(pinLimpar,5000);} // limpeza automática em 5s
+function funcPorPin(p){return get('funcionarios',[]).find(f=>f.pin===p);}
+function buscarFuncionario(){
+  const f=funcPorPin(PIN);
+  if(!f){$('nome-func').innerHTML='<span style="color:var(--red)">PIN não encontrado</span>';agendarLimpeza();return;}
+  $('nome-func').textContent=f.nome;
+  mostrarHistoricoDia(f); agendarLimpeza();
+}
+function mostrarHistoricoDia(f){
+  const d=jornadaAtualISO(f.pin);
+  const bs=get('batidas',[]).filter(b=>b.pin===f.pin&&b.data===d).sort((a,b)=>a.hora.localeCompare(b.hora));
+  $('hist-dia').innerHTML=`<div class="muted" style="text-align:center">Batidas de hoje (${brOf(d)})</div>
+  <div class="tbl-wrap"><table><tr><th>Hora</th><th>Tipo</th><th>NSR</th><th>Fonte</th><th></th></tr>
+  ${bs.length?bs.map(b=>`<tr><td><b>${b.hora}</b></td><td>${esc(b.tipo)}</td><td>${b.nsr}</td><td>${b.fonte}</td>
+  <td class="row"><button class="btn sm ghost" onclick="reimprimir('${b.nsr}')">🖨 Reimprimir</button>
+  <button class="btn sm ghost" onclick="emailComprovante('${b.nsr}')">✉ E-mail</button></td></tr>`).join('')
+  :'<tr><td colspan="5" class="muted">Nenhuma batida hoje.</td></tr>'}</table></div>`;
+}
+/* Virada noturna (item E): jornada iniciada à noite continua no dia anterior */
+function jornadaAtualISO(pin){
+  const agora=getHoraOficial(), hoje=isoOf(agora), ontem=addDias(hoje,-1);
+  if(agora.getHours()<6){
+    const bs=get('batidas',[]).filter(b=>b.pin===pin&&b.data===ontem);
+    if(bs.length){
+      const ent=bs.find(b=>b.tipo==='Entrada');
+      if(ent&&toMin(ent.hora)>=720&&bs.length<6) return ontem; // entrada após 12:00 => jornada noturna do dia anterior
+    }
+  }
+  return hoje;
+}
+const TIPOS=['Entrada','Saída Intervalo','Entrada Intervalo','Saída','Entrada Extra','Saída Extra'];
+function proximoNSR(){const n=(get('nsr',0)||0)+1;set('nsr',n);return pad(n,9);}
+async function registrarPonto(){
+  if(PIN.length!==4) return toast('Digite o PIN de 4 dígitos.',3000);
+  const f=funcPorPin(PIN); if(!f) return toast('PIN não encontrado.',3000);
+  if(f.status==='Desligado') return toast('Funcionário desligado — registro bloqueado.',4000);
+  if(!NTP_OK){ await sincronizarNTP();
+    if(!NTP_OK && !confirm('Sem servidor de hora oficial (NTP). Art. 82 — risco de invalidade do registro. Confirmar registro com hora LOCAL?')) return;
+  }
+  const data=jornadaAtualISO(f.pin), agora=getHoraOficial();
+  const bs=get('batidas',[]).filter(b=>b.pin===f.pin&&b.data===data);
+  if(bs.length>=6) return toast('Limite 6 batidas',4000);
+  const b={pin:f.pin,nome:f.nome,cpf:f.cpf,data,hora:hhmm(agora),tipo:TIPOS[bs.length],nsr:proximoNSR(),
+    fonte:NTP_OK?'SERVIDOR':'LOCAL',sync:NTP_OK,offset:get('ntpOffset',0),gerenciador:GERENCIADOR?GERENCIADOR.nome:'—',
+    criadoEm:new Date().toISOString()};
+  const all=get('batidas',[]); all.push(b); set('batidas',all);
+  log(`Batida registrada NSR ${b.nsr} — ${f.nome} ${b.hora} (${b.tipo})`);
+  toast(`Ponto registrado ${b.hora} — Fonte ${b.fonte} — NSR ${b.nsr}`,5000);
+  mostrarHistoricoDia(f); agendarLimpeza();
+  imprimirComprovante(b);
+}
+
+/* ============================== COMPROVANTE TÉRMICO ============================== */
+let SUNMI=null;
+function detectarImpressora(tent=0){
+  const el=$('status-impressora'); if(!el) return;
+  if(window.woyouService||window.sunmiPrinterService){SUNMI=window.woyouService||window.sunmiPrinterService;el.innerHTML='🖨️ SUNMI D2 MINI detectada (58mm nativa)';return;}
+  if(tent<5) return setTimeout(()=>detectarImpressora(tent+1),1200);
+  el.innerHTML='🖨️ Impressora: modo navegador (USB térmica 58/80mm ou PDF)';
+}
+function comprovanteTexto(b){
+  const e=get('empregador',{})||{};
+  const hashAss=btoa(b.nsr+b.data+b.hora).slice(0,24);
+  return {hashAss,linhas:[
+    (e.razao||'').toUpperCase(), (e.fantasia||''), `${e.tipo||'CNPJ'}: ${e.doc||''}`, e.cei?`CEI/CAEPF/CNO: ${e.cei}`:'',
+    '','COMPROVANTE DE REGISTRO DE','PONTO DO TRABALHADOR','',
+    `Nome: ${b.nome}`,`CPF: ${b.cpf||''}`,`Data: ${brOf(b.data)}`,`Hora: ${b.hora}`,
+    `NSR: ${b.nsr}`,`Marcacao: ${b.tipo}`,`Fonte: ${b.fonte==='SERVIDOR'?'SERVIDOR NTP':'LOCAL'}`,'',
+    'Este comprovante e prova da','marcacao de ponto.','Portaria MTE 671/2021','',`Hash: ${hashAss}`
+  ].filter(x=>x!==undefined)};
+}
+function imprimirComprovante(b){
+  const e=get('empregador',{})||{}, {linhas}=comprovanteTexto(b);
+  $('comprovante').innerHTML=`<div class="cp">
+    ${e.logo?`<img src="${e.logo}"/>`:''}
+    ${linhas.map((l,i)=>`<div class="c ${i<2?'b':''}">${esc(l)}</div>`).join('')}
+    <hr/><div class="c">VIP PONTO</div>
+    <pre style="margin:0">\n\n\n\n</pre></div>`; /* 4 linhas para serrilha manual (D2 Mini sem guilhotina) */
+  if(SUNMI){
+    try{
+      SUNMI.printerInit&&SUNMI.printerInit();
+      linhas.forEach(l=>SUNMI.printOriginalText?SUNMI.printOriginalText(l+'\n'):SUNMI.printText&&SUNMI.printText(l+'\n'));
+      SUNMI.lineWrap&&SUNMI.lineWrap(4);
+      return toast('Comprovante enviado à impressora SUNMI.',3000);
+    }catch(err){ console.warn('SUNMI falhou, usando window.print()',err); }
+  }
+  document.body.classList.remove('print-folha');
+  setTimeout(()=>window.print(),120);
+}
+function reimprimir(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);if(b)imprimirComprovante(b);}
+function comprovantePDF(b){
+  const {jsPDF}=window.jspdf, {linhas,hashAss}=comprovanteTexto(b);
+  const doc=new jsPDF({unit:'mm',format:[58,120]}); doc.setFont('courier','normal'); doc.setFontSize(9);
+  let y=8; linhas.forEach(l=>{doc.text(String(l),29,y,{align:'center'});y+=4;});
+  doc.save(`Comprovante_${b.nsr}.pdf`);
+}
+function emailComprovante(nsr){
+  const b=get('batidas',[]).find(x=>x.nsr===nsr); if(!b) return;
+  const f=funcPorPin(b.pin)||{}, {linhas}=comprovanteTexto(b);
+  const corpo=encodeURIComponent(linhas.join('\n'));
+  location.href=`mailto:${f.email||''}?subject=${encodeURIComponent('Comprovante de Ponto NSR '+b.nsr)}&body=${corpo}`;
+}
+
+/* ============================== PIN GESTOR / PORTAL ============================== */
+function pedirPinGestor(){
+  abrirPinModal('Gestor de Ponto','PIN do gerenciador',pin=>{
+    const g=get('gerenciadores',[]).find(g=>g.pin===pin);
+    if(!g) return 'PIN inválido.';
+    GERENCIADOR=g; fecharPinModal(); abrirGestor(); return null;
+  });
+}
+function pedirPinPortal(){
+  abrirPinModal('Portal do Empregado','Seu PIN',pin=>{
+    const f=funcPorPin(pin); if(!f) return 'PIN não encontrado.';
+    fecharPinModal(); portalEmpregado(f); return null;
+  });
+}
+function abrirPinModal(titulo,lbl,cb){
+  $('modal-pin').classList.remove('hidden');
+  $('modal-pin-inner').innerHTML=`<h3>${titulo}</h3><label>${lbl}</label>
+    <input id="mp-pin" type="password" maxlength="4" inputmode="numeric" style="font-size:24px;text-align:center;letter-spacing:8px"/>
+    <div id="mp-msg"></div>
+    <div class="row" style="margin-top:12px"><button class="btn" onclick="confirmarPinModal()">Entrar</button>
+    <button class="btn ghost" onclick="fecharPinModal()">Cancelar</button></div>`;
+  window.__pinCb=cb; setTimeout(()=>$('mp-pin').focus(),80);
+  $('mp-pin').addEventListener('keydown',ev=>{if(ev.key==='Enter')confirmarPinModal();});
+}
+function confirmarPinModal(){const r=window.__pinCb($('mp-pin').value.trim());if(r)$('mp-msg').innerHTML=`<div class="alert err">${r}</div>`;}
+function fecharPinModal(){$('modal-pin').classList.add('hidden');}
+function portalEmpregado(f){
+  const hoje=hojeISO(), ini=hoje.slice(0,8)+'01';
+  abrirModal(`<div class="row"><h3>Portal do Empregado — ${esc(f.nome)}</h3>
+    <button class="btn sm ghost right" onclick="fecharModal()">✕ Fechar</button></div>
+    <div class="card"><div class="grid g3">
+      <div><label>Início</label><input type="date" id="pe-ini" value="${ini}"/></div>
+      <div><label>Fim</label><input type="date" id="pe-fim" value="${hoje}"/></div>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <button class="btn" onclick="portalGerar('${f.pin}')">Ver minha folha</button>
+        <button class="btn gold" onclick="portalEmail('${f.pin}')">✉ Enviar folha para meu e-mail</button>
+      </div></div></div>
+    <div id="pe-out"></div>`);
+  portalGerar(f.pin);
+}
+function portalGerar(pin){$('pe-out').innerHTML=htmlFolha(pin,$('pe-ini').value,$('pe-fim').value);}
+function portalEmail(pin){
+  const f=funcPorPin(pin), d=dadosFolha(pin,$('pe-ini').value,$('pe-fim').value);
+  const corpo=[`Folha de Ponto — ${f.nome}`,`Período: ${brOf(d.ini)} a ${brOf(d.fim)}`,'',
+    ...d.linhas.map(l=>`${brOf(l.data)} ${l.dia.slice(0,3)} | ${l.e1||'--:--'} ${l.e2||'--:--'} ${l.e3||'--:--'} ${l.e4||'--:--'} | Trab: ${toHHMM(l.trabalhado)} | Saldo: ${toSaldo(l.saldo)} | ${l.ocorrencia}`),
+    '',`Total Faltas: ${d.tot.faltas} | Justificadas: ${d.tot.faltasJust} | Injustificadas: ${d.tot.faltasInj}`,
+    `Folgas: ${d.tot.folgas} | Feriados: ${d.tot.feriados}`,
+    `Horas Extras: ${toHHMM(d.tot.extras)} | Horas Faltantes/Atrasos: ${toHHMM(d.tot.faltantes)}`,
+    `Banco de Horas — Saldo Anterior ${toSaldo(d.banco.anterior)} | Créditos ${toHHMM(d.banco.creditos)} | Débitos ${toHHMM(d.banco.debitos)} | Saldo Atual ${toSaldo(d.banco.atual)}`].join('\n');
+  location.href=`mailto:${f.email||''}?subject=${encodeURIComponent('Minha Folha de Ponto')}&body=${encodeURIComponent(corpo)}`;
+}
+function abrirModal(html){$('modal-generico').classList.remove('hidden');$('modal-generico-inner').innerHTML=html;}
+function fecharModal(){$('modal-generico').classList.add('hidden');}
+
+/* ============================== GESTOR — ABAS ============================== */
+const ABAS=[['dash','📊 Dashboard Frequência'],['func','👥 Empregados (12 vagas)'],['ponto','🕒 Gerenciamento de Ponto'],['folha','📄 Folha de Ponto MTE'],['emp','🏢 Empregador/Gerenciadores'],['logs','📜 Histórico/Logs']];
+let ABA='dash';
+function abrirGestor(){
+  $('tela-gestor').classList.remove('hidden');
+  $('gestor-quem').textContent=`Gestor: ${GERENCIADOR.nome} — ${GERENCIADOR.funcao}`;
+  $('gestor-tabs').innerHTML=ABAS.map(([k,t])=>`<div class="tab ${ABA===k?'active':''}" onclick="irAba('${k}')">${t}</div>`).join('');
+  irAba(ABA);
+}
+function fecharGestor(){$('tela-gestor').classList.add('hidden');GERENCIADOR=null;}
+function irAba(k){
+  ABA=k; $('gestor-tabs').innerHTML=ABAS.map(([a,t])=>`<div class="tab ${ABA===a?'active':''}" onclick="irAba('${a}')">${t}</div>`).join('');
+  ({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs})[k]();
+}
+/* Empregador/Gerenciadores dentro do gestor (reutiliza o mesmo formulário) */
+function abaEmp(){ $('empregador-form').innerHTML=''; telaEmpregador('gestor-body'); }
+function abaLogs(){
+  const l=get('logs',[]);
+  $('gestor-body').innerHTML=`<h3>Histórico de ações (auditoria)</h3><div class="tbl-wrap"><table><tr><th>Quando</th><th>Por</th><th>Ação</th></tr>
+  ${l.map(x=>`<tr><td>${new Date(x.quando).toLocaleString('pt-BR')}</td><td>${esc(x.por)}</td><td>${esc(x.acao)}</td></tr>`).join('')||'<tr><td colspan=3 class="muted">Sem registros.</td></tr>'}</table></div>`;
+}
+
+/* ============================== MÓDULO 2 — EMPREGADOS ============================== */
+const ESCALAS=[['5x2','5x2 44h/8h',480],['6x1','6x1 44h/7h20m',440],['4x3','4x3 36h/9h',540],['12x36','12x36 12h',720],['22x10','22x10 plantão',720]];
+const cargaEscala = cod => (ESCALAS.find(e=>e[0]===cod)||ESCALAS[0])[2];
+const MOTIVOS_AFAST=['Atestado médico','Licença maternidade','Licença paternidade','Suspensão'];
+function novoPin(){
+  const usados=[...get('funcionarios',[]).map(f=>f.pin),...get('gerenciadores',[]).map(g=>g.pin)];
+  let p; do{p=pad(Math.floor(Math.random()*10000),4);}while(usados.includes(p)); return p;
+}
+function abaFunc(){
+  const fs=get('funcionarios',[]);
+  $('gestor-body').innerHTML=`<div class="row"><h3>Empregados — ${fs.length}/12 vagas</h3>
+    <button class="btn right" ${fs.length>=12?'disabled':''} onclick="formFunc(-1)">+ Novo empregado</button>
+    <button class="btn ghost" onclick="gerirListas()">Departamentos e Funções</button></div>
+    <div class="tbl-wrap"><table><tr><th>#</th><th>Nome</th><th>CPF</th><th>Cargo/Função</th><th>Depto</th><th>Escala</th><th>Status</th><th>PIN (só gestor)</th><th></th></tr>
+    ${fs.map((f,i)=>`<tr><td>${i+1}</td><td>${esc(f.nome)}</td><td>${esc(f.cpf)}</td><td>${esc(f.funcao||f.cargo)}</td><td>${esc(f.departamento)}</td>
+    <td>${esc(f.escala)}</td><td>${esc(statusTexto(f))}</td><td><b>${esc(f.pin)}</b></td>
+    <td class="row"><button class="btn sm ghost" onclick="formFunc(${i})">Editar</button><button class="btn sm red" onclick="delFunc(${i})">Excluir</button></td></tr>`).join('')
+    ||'<tr><td colspan=9 class="muted">Nenhum empregado cadastrado.</td></tr>'}</table></div>`;
+}
+function statusTexto(f){
+  if(f.status==='Desligado') return `Desligado em ${brOf(f.dataDesligamento)}`;
+  if(f.status==='Afastamento') return `Afastamento (${f.motivoAfast}) ${brOf(f.afastDe)}–${brOf(f.afastAte)}`;
+  if(f.status==='Férias') return `Férias ${brOf(f.feriasIni)}–${brOf(f.feriasFim)}`;
+  return 'Ativo';
+}
+function gerirListas(){
+  const c=get('cargos',[]),d=get('departamentos',[]);
+  abrirModal(`<div class="row"><h3>Departamentos e Funções</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
+  <div class="card grid g2">
+    <div><h4>Funções/Cargos</h4><ul>${c.map((x,i)=>`<li>${esc(x)} <span class="link" onclick="delLista('cargos',${i})">excluir</span></li>`).join('')}</ul>
+      <input id="nv-cargo" placeholder="Novo cargo"/><button class="btn sm" style="margin-top:6px" onclick="addLista('cargos','nv-cargo')">Adicionar</button></div>
+    <div><h4>Departamentos</h4><ul>${d.map((x,i)=>`<li>${esc(x)} <span class="link" onclick="delLista('departamentos',${i})">excluir</span></li>`).join('')}</ul>
+      <input id="nv-dep" placeholder="Novo departamento"/><button class="btn sm" style="margin-top:6px" onclick="addLista('departamentos','nv-dep')">Adicionar</button></div>
+  </div>`);
+}
+function addLista(k,inp){const v=$(inp).value.trim();if(!v)return;const l=get(k,[]);l.push(v);set(k,l);log(`Item adicionado em ${k}: ${v}`);gerirListas();}
+function delLista(k,i){const l=get(k,[]);log(`Item removido de ${k}: ${l[i]}`);l.splice(i,1);set(k,l);gerirListas();}
+function formFunc(i){
+  const fs=get('funcionarios',[]), f=i>=0?fs[i]:{pin:novoPin(),status:'Ativo',escala:'5x2'};
+  const opt=(arr,v)=>arr.map(x=>`<option ${v===x?'selected':''}>${esc(x)}</option>`).join('');
+  abrirModal(`<div class="row"><h3>${i>=0?'Editar':'Novo'} empregado</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
+  <div class="card"><div class="grid g3">
+    <div><label>Nome *</label><input id="f-nome" value="${esc(f.nome||'')}"/></div>
+    <div><label>CPF *</label><input id="f-cpf" value="${esc(f.cpf||'')}"/></div>
+    <div><label>E-mail</label><input id="f-email" value="${esc(f.email||'')}"/></div>
+    <div><label>Cargo</label><select id="f-cargo">${opt(get('cargos',[]),f.cargo)}</select></div>
+    <div><label>Função *</label><select id="f-funcao">${opt(get('cargos',[]),f.funcao)}</select></div>
+    <div><label>Departamento *</label><select id="f-dep">${opt(get('departamentos',[]),f.departamento)}</select></div>
+    <div><label>Rua</label><input id="f-rua" value="${esc(f.rua||'')}"/></div>
+    <div><label>Nº</label><input id="f-num" value="${esc(f.numero||'')}"/></div>
+    <div><label>Bairro</label><input id="f-bairro" value="${esc(f.bairro||'')}"/></div>
+    <div><label>Cidade</label><input id="f-cidade" value="${esc(f.cidade||'')}"/></div>
+    <div><label>UF</label><select id="f-uf">${UFS.map(u=>`<option ${f.uf===u?'selected':''}>${u}</option>`).join('')}</select></div>
+    <div><label>PIN (automático, único — visível só ao gestor)</label><input id="f-pin" value="${esc(f.pin)}" readonly/></div>
+    <div><label>Data de admissão *</label><input type="date" id="f-adm" value="${f.admissao||''}"/></div>
+    <div><label>Escala MTE *</label><select id="f-escala">${ESCALAS.map(e=>`<option value="${e[0]}" ${f.escala===e[0]?'selected':''}>${e[1]}</option>`).join('')}</select></div>
+    <div><label>Status *</label><select id="f-status" onchange="statusCond()">${['Ativo','Desligado','Afastamento','Férias'].map(s=>`<option ${f.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+  </div>
+  <div id="cond" class="grid g4"></div><div id="f-msg"></div>
+  <button class="btn big gold" style="margin-top:10px" onclick="salvarFunc(${i})">SALVAR</button></div>`);
+  window.__fedit=f; statusCond();
+}
+function statusCond(){
+  const f=window.__fedit||{}, s=$('f-status').value;
+  let h='';
+  if(s==='Desligado') h=`<div><label>Data de desligamento *</label><input type="date" id="f-desl" value="${f.dataDesligamento||''}"/></div>`;
+  if(s==='Afastamento') h=`<div><label>De *</label><input type="date" id="f-ade" value="${f.afastDe||''}"/></div>
+    <div><label>Até *</label><input type="date" id="f-aate" value="${f.afastAte||''}"/></div>
+    <div><label>Motivo *</label><select id="f-amot">${MOTIVOS_AFAST.map(m=>`<option ${f.motivoAfast===m?'selected':''}>${m}</option>`).join('')}</select></div>`;
+  if(s==='Férias') h=`<div><label>Início *</label><input type="date" id="f-fi" value="${f.feriasIni||''}"/></div>
+    <div><label>Término *</label><input type="date" id="f-ff" value="${f.feriasFim||''}"/></div>`;
+  $('cond').innerHTML=h;
+}
+function salvarFunc(i){
+  const fs=get('funcionarios',[]), v=id=>($(id)?$(id).value.trim():'');
+  const o={nome:v('f-nome'),cpf:v('f-cpf'),email:v('f-email'),cargo:v('f-cargo'),funcao:v('f-funcao'),departamento:v('f-dep'),
+    rua:v('f-rua'),numero:v('f-num'),bairro:v('f-bairro'),cidade:v('f-cidade'),uf:v('f-uf'),pin:v('f-pin'),
+    admissao:v('f-adm'),escala:v('f-escala'),status:v('f-status'),
+    dataDesligamento:v('f-desl'),afastDe:v('f-ade'),afastAte:v('f-aate'),motivoAfast:v('f-amot'),feriasIni:v('f-fi'),feriasFim:v('f-ff')};
+  const err=[];
+  if(!o.nome||!o.cpf||!o.funcao||!o.departamento||!o.admissao) err.push('Nome, CPF, Função, Departamento e Admissão são obrigatórios.');
+  if(o.status==='Desligado'&&!o.dataDesligamento) err.push('Data de desligamento obrigatória.');
+  if(o.status==='Afastamento'&&(!o.afastDe||!o.afastAte||!o.motivoAfast)) err.push('Período e motivo do afastamento obrigatórios.');
+  if(o.status==='Férias'&&(!o.feriasIni||!o.feriasFim)) err.push('Início e término das férias obrigatórios.');
+  if(err.length) return $('f-msg').innerHTML=`<div class="alert err">${err.join('<br>')}</div>`;
+  if(i>=0) fs[i]=o; else { if(fs.length>=12) return $('f-msg').innerHTML='<div class="alert err">12 vagas ativas preenchidas.</div>'; fs.push(o); }
+  set('funcionarios',fs); log(`${i>=0?'Editou':'Cadastrou'} empregado ${o.nome} (${statusTexto(o)})`); fecharModal(); abaFunc();
+}
+function delFunc(i){const fs=get('funcionarios',[]);if(!confirm('Excluir '+fs[i].nome+'?'))return;log(`Excluiu empregado ${fs[i].nome}`);fs.splice(i,1);set('funcionarios',fs);abaFunc();}
+
+/* ============================== CÁLCULO — NÚCLEO ============================== */
+const feriadoDe = iso => get('feriados',[]).find(f=>f.data===iso);
+function escalaDaSemana(iso){
+  const ini=inicioSemana(iso);
+  return (get('escalas',{})||{})[ini]||null;
+}
+function inicioSemana(iso){
+  const base=get('config',{inicioSemana:1}).inicioSemana??1;
+  const d=new Date(iso+'T12:00:00'); const diff=(d.getDay()-base+7)%7; d.setDate(d.getDate()-diff); return isoOf(d);
+}
+function folgaEscala(pin,iso){
+  const e=escalaDaSemana(iso); if(!e) return null;
+  const f=(e.folgas||[]).find(x=>x.pin===pin&&x.dia===iso);
+  return f&&f.tipo!=='Trabalhado'?f:null;
+}
+function horarioEscala(pin,iso){
+  const e=escalaDaSemana(iso); if(!e) return null;
+  const f=(e.folgas||[]).find(x=>x.pin===pin&&x.dia===iso);
+  return f&&f.tipo==='Trabalhado'?(f.horarioEntrada||null):null;
+}
+function previstoDia(f,iso){
+  if(f.status==='Desligado'&&iso>f.dataDesligamento) return 0;
+  if(iso<f.admissao) return 0;
+  if(feriadoDe(iso)) return 0;
+  if(folgaEscala(f.pin,iso)) return 0;
+  if(f.status==='Férias'&&iso>=f.feriasIni&&iso<=f.feriasFim) return 0;
+  if(f.status==='Afastamento'&&iso>=f.afastDe&&iso<=f.afastAte) return 0;
+  const d=dow(iso);
+  if(f.escala==='5x2'&&(d===0||d===6)) return 0;
+  if(f.escala==='6x1'&&d===0) return 0;
+  if(f.escala==='4x3'&&(d===0||d===6)) return 0;
+  return cargaEscala(f.escala);
+}
+function batidasDia(pin,iso){return get('batidas',[]).filter(b=>b.pin===pin&&b.data===iso).sort((a,b)=>toMin(a.hora)-toMin(b.hora));}
+function minutosTrabalhados(bs){
+  let t=0;
+  const m=t=>toMin(t);
+  const byTipo=tp=>bs.filter(b=>b.tipo===tp)[0];
+  const e1=byTipo('Entrada'),s1=byTipo('Saída Intervalo'),e2=byTipo('Entrada Intervalo'),s2=byTipo('Saída'),
+        e3=byTipo('Entrada Extra'),s3=byTipo('Saída Extra');
+  const dif=(a,b)=>{if(!a||!b)return 0;let d=m(b.hora)-m(a.hora);if(d<0)d+=1440;return d;}; // virada noturna
+  if(e1&&s1&&e2&&s2) t=dif(e1,s1)+dif(e2,s2); else t=dif(e1,s2||s1);
+  t+=dif(e3,s3);
+  return t;
+}
+/* Linhas da folha + totais + banco de horas */
+function dadosFolha(pin,ini,fim){
+  const f=funcPorPin(pin)||{}; const linhas=[];
+  let tot={faltas:0,faltasJust:0,faltasInj:0,folgas:0,feriados:0,extras:0,faltantes:0,trabalhado:0,atrasos:0};
+  const just=[];
+  for(let d=ini; d<=fim; d=addDias(d,1)){
+    const bs=batidasDia(pin,d), prev=previstoDia(f,d), trab=minutosTrabalhados(bs);
+    const fer=feriadoDe(d), folga=folgaEscala(pin,d);
+    let oc='', cls='';
+    const por=b=>b?(b.hora):'';
+    const g=tp=>bs.filter(b=>b.tipo===tp)[0];
+    if(f.status==='Desligado'&&d>f.dataDesligamento){oc='DESLIGADO';cls='t-deslig';}
+    else if(f.status==='Férias'&&d>=f.feriasIni&&d<=f.feriasFim){oc='FÉRIAS';cls='t-ferias';}
+    else if(f.status==='Afastamento'&&d>=f.afastDe&&d<=f.afastAte){oc=`AFASTAMENTO (${f.motivoAfast})`;cls='t-afast';just.push(`${brOf(d)} - AFASTAMENTO - ${(f.motivoAfast||'').toUpperCase()}`);}
+    else if(folga){oc=`${folga.tipo.toUpperCase()} - Folga prevista em escala`;cls='t-folga';tot.folgas++;}
+    else if(fer){oc=`FERIADO - ${fer.nome}`;cls='t-feriado';tot.feriados++;}
+    const ocorr=get('ocorrencias',[]).find(o=>o.pin===pin&&o.data===d);
+    if(ocorr){ oc=ocorr.tipo.toUpperCase()+(ocorr.motivo?` - Motivo: ${ocorr.motivo}`:''); cls=ocorr.tipo==='Falta'?'t-falta':'t-folga';
+      if(ocorr.tipo==='Falta Justificada'){tot.faltas++;tot.faltasJust++;just.push(`${brOf(d)} - FALTA JUSTIFICADA - ${(ocorr.motivo||'').toUpperCase()}`);}
+      else if(ocorr.tipo==='Falta'){tot.faltas++;tot.faltasInj++;}
+      else tot.folgas++;
+    }
+    if(!oc&&!bs.length&&prev>0){oc='FALTA';cls='t-falta';tot.faltas++;tot.faltasInj++;}
+    if(!oc&&!bs.length&&prev===0){oc='FOLGA';cls='t-folga';tot.folgas++;}
+    // atraso com tolerância 10min
+    const prevEntrada=horarioEscala(pin,d)||(get('empregador',{})||{}).hEntrada||'08:00';
+    let atrasoMin=0;
+    if(bs.length&&g('Entrada')){const at=toMin(g('Entrada').hora)-toMin(prevEntrada);if(at>10){atrasoMin=at;tot.atrasos++;oc=(oc?oc+' | ':'')+`ATRASO ${toHHMM(at)}`;cls=cls||'t-atraso';}}
+    if(bs.length){
+      tot.trabalhado+=trab;
+      if(prev>0){ if(trab>prev) tot.extras+=trab-prev; else if(trab<prev) tot.faltantes+=prev-trab; }
+      else tot.extras+=trab; // trabalho em folga/feriado credita
+    } else if(prev>0) tot.faltantes+=prev;
+    // movimentações/observações de tratamento
+    const mov=bs.filter(b=>b.movimento).map(b=>`_${b.hora} ${b.movimento}`).join(' | ');
+    linhas.push({data:d,dia:DIAS[dow(d)],e1:por(g('Entrada')),e2:por(g('Saída Intervalo')),e3:por(g('Entrada Intervalo')),e4:por(g('Saída')),
+      ex1:por(g('Entrada Extra')),ex2:por(g('Saída Extra')),trabalhado:trab,previsto:prev,saldo:bs.length?trab-prev:(prev>0?-prev:0),
+      ocorrencia:oc||'NORMAL',cls,fonte:bs[0]?bs[0].fonte:'—',mov,nsr:bs.map(b=>b.nsr).join(' / ')});
+  }
+  const banco=calcBanco(pin,ini,fim);
+  return {f,ini,fim,linhas,tot,just,banco};
+}
+function calcBanco(pin,ini,fim){
+  const f=funcPorPin(pin)||{};
+  const soma=(de,ate)=>{
+    let cred=0,deb=0,det=[];
+    for(let d=de; d<=ate; d=addDias(d,1)){
+      const bs=batidasDia(pin,d),prev=previstoDia(f,d),trab=minutosTrabalhados(bs);
+      if(bs.length){
+        if(trab>prev){cred+=trab-prev;det.push(`Crédito - Hora Extra dia ${brOf(d)} - Previsto ${toHHMM(prev)} / Realizado ${toHHMM(trab)}`);}
+        else if(trab<prev){deb+=prev-trab;det.push(`Débito - Carga incompleta dia ${brOf(d)}`);}
+      } else if(prev>0){deb+=prev;det.push(`Débito - Falta dia ${brOf(d)}`);}
+    }
+    // folgas extras além do direito semanal
+    const folgas=[]; for(let d=de;d<=ate;d=addDias(d,1)){const g=folgaEscala(pin,d);if(g)folgas.push({d,g});}
+    const semanas=Math.max(1,Math.ceil((new Date(ate)-new Date(de))/(7*864e5)));
+    const direito=semanas*(f.escala==='6x1'?1:2);
+    const extrasFolga=Math.max(0,folgas.length-direito);
+    for(let i=0;i<extrasFolga;i++){const it=folgas[folgas.length-1-i];deb+=cargaEscala(f.escala);det.push(`Débito - Folga Compensatória dia ${brOf(it.d)}`);}
+    return {cred,deb,det};
+  };
+  const ant=f.admissao&&f.admissao<ini?soma(f.admissao,addDias(ini,-1)):{cred:0,deb:0,det:[]};
+  const per=soma(ini,fim);
+  const anterior=ant.cred-ant.deb;
+  return {anterior,creditos:per.cred,debitos:per.deb,atual:anterior+per.cred-per.deb,detalhes:per.det};
+}
+
+/* ============================== MÓDULO 3 — GERENCIAMENTO ============================== */
+let SUB='dash';
+function abaPonto(){
+  $('gestor-body').innerHTML=`<div class="tabs" style="margin-bottom:10px">
+    ${[['fer','A) Feriados'],['bat','B) Batidas'],['esc','C) Escala Semanal'],['ban','D) Banco de Horas'],['rel','F) Relatórios PDF/XML']]
+    .map(([k,t])=>`<div class="tab ${SUB===k?'active':''}" onclick="irSub('${k}')">${t}</div>`).join('')}</div>
+    <div id="sub-body"></div>`;
+  if(!['fer','bat','esc','ban','rel'].includes(SUB))SUB='fer'; irSub(SUB);
+}
+function irSub(k){SUB=k;abaPonto2();}
+function abaPonto2(){
+  $('gestor-body').querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.textContent.startsWith(({fer:'A',bat:'B',esc:'C',ban:'D',rel:'F'})[SUB])));
+  ({fer:subFeriados,bat:subBatidas,esc:subEscala,ban:subBanco,rel:subRelatorios})[SUB]();
+}
+/* A) Feriados */
+function subFeriados(){
+  const fs=get('feriados',[]).slice().sort((a,b)=>a.data.localeCompare(b.data));
+  $('sub-body').innerHTML=`<h3>Feriados</h3>
+  <div class="grid g3"><div><label>Data</label><input type="date" id="fr-data"/></div>
+  <div><label>Nome</label><input id="fr-nome"/></div>
+  <div><label>Tipo</label><select id="fr-tipo"><option>Municipal</option><option>Estadual</option><option>Nacional</option></select></div></div>
+  <button class="btn sm" style="margin:8px 0" onclick="addFeriado()">Cadastrar feriado extra</button>
+  <div class="tbl-wrap"><table><tr><th>Data</th><th>Nome</th><th>Tipo</th><th></th></tr>
+  ${fs.map(f=>`<tr><td>${brOf(f.data)}</td><td>${esc(f.nome)}</td><td>${esc(f.tipo)}</td>
+  <td><button class="btn sm red" onclick="delFeriado('${f.data}','${esc(f.nome)}')">Excluir</button></td></tr>`).join('')}</table></div>`;
+}
+function addFeriado(){
+  const d=$('fr-data').value,n=$('fr-nome').value.trim(),t=$('fr-tipo').value;
+  if(!d||!n)return alert('Informe data e nome.');
+  const fs=get('feriados',[]);fs.push({data:d,nome:n,tipo:t});set('feriados',fs);log(`Feriado cadastrado ${brOf(d)} - ${n} (${t})`);subFeriados();
+}
+function delFeriado(d,n){const fs=get('feriados',[]).filter(f=>!(f.data===d&&f.nome===n));set('feriados',fs);log(`Feriado excluído ${brOf(d)} - ${n}`);subFeriados();}
+/* B) Batidas */
+function subBatidas(){
+  const bs=get('batidas',[]).slice().sort((a,b)=>(b.data+b.hora).localeCompare(a.data+a.hora));
+  $('sub-body').innerHTML=`<div class="row"><h3>Batidas registradas</h3>
+    <button class="btn sm right" onclick="inserirBatidaManual()">+ Inserir batida manual</button>
+    <button class="btn sm ghost" onclick="lancarOcorrencia()">Lançar ocorrência</button></div>
+  <div class="alert warn">REGRA MTE: hora, data e NSR originais são intocáveis. Alterações de TIPO exigem MOTIVO (mín. 5 caracteres) e ficam registradas.</div>
+  <div class="tbl-wrap"><table><tr><th>Data</th><th>Hora</th><th>Nome</th><th>Tipo</th><th>NSR</th><th>Fonte</th><th>Tratamento</th><th></th></tr>
+  ${bs.map(b=>`<tr><td>${brOf(b.data)}</td><td><b>${b.hora}</b></td><td>${esc(b.nome)}</td>
+  <td><select onchange="moverTipo('${b.nsr}',this.value,this)">${TIPOS.map(t=>`<option ${b.tipo===t?'selected':''}>${t}</option>`).join('')}</select></td>
+  <td>${b.nsr}</td><td>${b.fonte}</td><td class="muted">${esc(b.movimento||'')}</td>
+  <td class="row"><button class="btn sm ghost" onclick="reimprimir('${b.nsr}')">🖨</button><button class="btn sm ghost" onclick="emailComprovante('${b.nsr}')">✉</button></td></tr>`).join('')
+  ||'<tr><td colspan=8 class="muted">Sem batidas.</td></tr>'}</table></div>`;
+}
+function moverTipo(nsr,novo,sel){
+  const all=get('batidas',[]),b=all.find(x=>x.nsr===nsr),antigo=b.tipo;
+  if(antigo===novo)return;
+  const motivo=(prompt('MOTIVO obrigatório (mín. 5 caracteres) para mover a marcação:')||'').trim();
+  if(motivo.length<5){alert('Sem motivo válido a alteração não é salva.');sel.value=antigo;return;}
+  b.tipo=novo; b.movimento=`Movido de ${antigo} p/ ${novo} - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`;
+  set('batidas',all); log(`Batida NSR ${nsr} movida de ${antigo} para ${novo} - Motivo: ${motivo}`); subBatidas();
+}
+function inserirBatidaManual(){
+  const fs=get('funcionarios',[]);
+  abrirModal(`<div class="row"><h3>Inserir batida manual</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
+  <div class="card grid g2">
+    <div><label>Funcionário</label><select id="ib-pin">${fs.map(f=>`<option value="${f.pin}">${esc(f.nome)}</option>`).join('')}</select></div>
+    <div><label>Data</label><input type="date" id="ib-data" value="${hojeISO()}"/></div>
+    <div><label>Hora</label><input type="time" id="ib-hora"/></div>
+    <div><label>Tipo</label><select id="ib-tipo">${TIPOS.map(t=>`<option>${t}</option>`).join('')}</select></div>
+    <div style="grid-column:1/-1"><label>Motivo (obrigatório, mín. 5 caracteres)</label><textarea id="ib-motivo" rows="2"></textarea></div>
+  </div><button class="btn gold" onclick="salvarBatidaManual()">Salvar batida manual</button>`);
+}
+function salvarBatidaManual(){
+  const pin=$('ib-pin').value,data=$('ib-data').value,hora=$('ib-hora').value,tipo=$('ib-tipo').value,motivo=$('ib-motivo').value.trim();
+  if(!data||!hora)return alert('Informe data e hora.');
+  if(motivo.length<5)return alert('Motivo obrigatório (mín. 5 caracteres).');
+  const f=funcPorPin(pin), all=get('batidas',[]);
+  if(all.filter(b=>b.pin===pin&&b.data===data).length>=6)return alert('Limite 6 batidas no dia.');
+  all.push({pin,nome:f.nome,cpf:f.cpf,data,hora,tipo,nsr:proximoNSR(),fonte:'MANUAL',sync:false,offset:get('ntpOffset',0),
+    gerenciador:GERENCIADOR.nome,movimento:`Inserida manualmente - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`,criadoEm:new Date().toISOString()});
+  set('batidas',all); log(`Batida manual inserida ${brOf(data)} ${hora} ${f.nome} - Motivo: ${motivo}`); fecharModal(); subBatidas();
+}
+function lancarOcorrencia(){
+  const fs=get('funcionarios',[]);
+  abrirModal(`<div class="row"><h3>Lançar ocorrência</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
+  <div class="card grid g2">
+    <div><label>Funcionário</label><select id="oc-pin">${fs.map(f=>`<option value="${f.pin}">${esc(f.nome)}</option>`).join('')}</select></div>
+    <div><label>Data</label><input type="date" id="oc-data" value="${hojeISO()}"/></div>
+    <div><label>Tipo</label><select id="oc-tipo">${['Falta Justificada','Férias','Folga','Compensada','Falta'].map(t=>`<option>${t}</option>`).join('')}</select></div>
+    <div><label>Motivo (obrigatório, mín. 5 caracteres)</label><input id="oc-motivo"/></div>
+  </div><button class="btn gold" onclick="salvarOcorrencia()">Salvar ocorrência</button>`);
+}
+function salvarOcorrencia(){
+  const pin=$('oc-pin').value,data=$('oc-data').value,tipo=$('oc-tipo').value,motivo=$('oc-motivo').value.trim();
+  if(motivo.length<5)return alert('Motivo obrigatório (mín. 5 caracteres).');
+  const l=get('ocorrencias',[]); l.push({pin,data,tipo,motivo,por:GERENCIADOR.nome}); set('ocorrencias',l);
+  log(`Ocorrência ${tipo} em ${brOf(data)} - Motivo: ${motivo}`); fecharModal(); subBatidas();
+}
+/* C) Escala semanal */
+function subEscala(){
+  const cfg=get('config',{inicioSemana:1});
+  const ref=window.__semanaRef||inicioSemana(hojeISO());
+  const ini=ref, fim=addDias(ini,6);
+  const esc_=(get('escalas',{})||{})[ini]||{semanaInicio:ini,semanaFim:fim,criacaoData:null,folgas:[]};
+  const travada=esc_.criacaoData?((Date.now()-new Date(esc_.criacaoData).getTime())/864e5)>7:false;
+  const fs=get('funcionarios',[]).filter(f=>f.status!=='Desligado');
+  const deps=[...new Set(fs.map(f=>f.departamento))];
+  const dias=[...Array(7)].map((_,i)=>addDias(ini,i));
+  let rows='';
+  deps.forEach(dp=>{
+    const lista=fs.filter(f=>f.departamento===dp);
+    rows+=`<tr><td class="dept-head" colspan="8">${esc(dp)} · ${lista.length} funcionário(s)</td></tr>`;
+    lista.forEach(f=>{
+      rows+=`<tr><td><b>${esc(f.nome)}</b><div class="muted">${esc(f.funcao)}</div></td>`+
+      dias.map(d=>{
+        const it=(esc_.folgas||[]).find(x=>x.pin===f.pin&&x.dia===d)||{tipo:'Trabalhado',horarioEntrada:''};
+        return `<td>
+          <select ${travada?'disabled':''} onchange="setCelula('${ini}','${f.pin}','${d}',this.value)">
+            ${['Trabalhado','DSR','Folga Domingo','Folga Compensada'].map(t=>`<option ${it.tipo===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+          ${it.tipo==='Trabalhado'?`<input ${travada?'disabled':''} type="time" value="${it.horarioEntrada||''}" onchange="setHora('${ini}','${f.pin}','${d}',this.value)" style="margin-top:4px"/>`:''}
+        </td>`;
+      }).join('')+'</tr>';
+    });
+  });
+  const hist=get('logsEscala',[]).filter(h=>h.semana===ini);
+  $('sub-body').innerHTML=`<div class="row"><h3>Escala Semanal ${brOf(ini)} a ${brOf(fim)} ${travada?'<span class="lock">🔒 travada (7 dias após criação)</span>':''}</h3>
+    <div class="right row">
+      <select onchange="setInicioSemana(this.value)"><option value="0" ${cfg.inicioSemana===0?'selected':''}>Semana inicia Domingo</option><option value="1" ${cfg.inicioSemana===1?'selected':''}>Semana inicia Segunda</option></select>
+      <button class="btn sm ghost" onclick="navSemana(-7)">◀ Semana anterior</button>
+      <button class="btn sm ghost" onclick="navSemana(7)">Próxima semana ▶</button>
+      <button class="btn sm" onclick="salvarEscala('${ini}','${fim}')" ${travada?'disabled':''}>Salvar escala</button>
+      <button class="btn sm gold" onclick="csvEscala('${ini}')">⬇ Baixar CSV</button>
+    </div></div>
+  <div class="muted">Semana mesclada entre meses é exibida na mesma tela. Máx. 3 folgas por funcionário na semana.</div>
+  <div class="tbl-wrap"><table><tr><th>Funcionário</th>${dias.map(d=>`<th>${DIAS[dow(d)].slice(0,3)}<br>${brOf(d).slice(0,5)}</th>`).join('')}</tr>${rows}</table></div>
+  <div class="hr"></div><h4>Histórico de alterações da escala</h4>
+  <div class="tbl-wrap"><table><tr><th>Registro</th></tr>${hist.map(h=>`<tr><td>${esc(h.texto)}</td></tr>`).join('')||'<tr><td class="muted">Sem alterações.</td></tr>'}</table></div>`;
+}
+function navSemana(n){window.__semanaRef=addDias(window.__semanaRef||inicioSemana(hojeISO()),n);subEscala();}
+function setInicioSemana(v){const c=get('config',{});c.inicioSemana=Number(v);set('config',c);window.__semanaRef=null;subEscala();}
+function escalaObj(ini,fim){
+  const all=get('escalas',{})||{};
+  if(!all[ini]) all[ini]={semanaInicio:ini,semanaFim:fim||addDias(ini,6),criacaoData:new Date().toISOString(),folgas:[]};
+  return {all,e:all[ini]};
+}
+function setCelula(ini,pin,dia,tipo){
+  const {all,e}=escalaObj(ini);
+  const i=(e.folgas||[]).findIndex(x=>x.pin===pin&&x.dia===dia);
+  const antigo=i>=0?e.folgas[i].tipo:'Trabalhado';
+  if(tipo!=='Trabalhado'){
+    const qtd=e.folgas.filter(x=>x.pin===pin&&x.tipo!=='Trabalhado'&&x.dia!==dia).length;
+    if(qtd>=3){alert('Máximo de 3 folgas por funcionário na mesma semana.');subEscala();return;}
+  }
+  const item={pin,dia,tipo,horarioEntrada:tipo==='Trabalhado'?(i>=0?e.folgas[i].horarioEntrada:''):''}; // folga remove horário
+  if(i>=0) e.folgas[i]=item; else e.folgas.push(item);
+  set('escalas',all); histEscala(ini,pin,dia,antigo,tipo); subEscala();
+}
+function setHora(ini,pin,dia,h){
+  const {all,e}=escalaObj(ini); const i=e.folgas.findIndex(x=>x.pin===pin&&x.dia===dia);
+  if(i>=0) e.folgas[i].horarioEntrada=h; else e.folgas.push({pin,dia,tipo:'Trabalhado',horarioEntrada:h});
+  set('escalas',all); histEscala(ini,pin,dia,'horário',h);
+}
+function histEscala(semana,pin,dia,de,para){
+  const f=funcPorPin(pin)||{nome:pin}, l=get('logsEscala',[]);
+  const d=getHoraOficial();
+  l.unshift({semana,texto:`Escala alterada em ${brOf(isoOf(d))} ${hhmm(d)} por ${assinaGerenciador()} - De: ${de} para: ${para} no dia ${brOf(dia).slice(0,5)} funcionário ${f.nome}`});
+  set('logsEscala',l); log(`Escala ${brOf(dia)} ${f.nome}: ${de} → ${para}`);
+}
+function salvarEscala(ini,fim){const {all}=escalaObj(ini,fim);set('escalas',all);histEscala(ini,'—',ini,'salvamento','escala salva');toast('Escala salva. Alterações livres por 7 dias.',4000);subEscala();}
+function csvEscala(ini){
+  const e=(get('escalas',{})||{})[ini]; const dias=[...Array(7)].map((_,i)=>addDias(ini,i));
+  const fs=get('funcionarios',[]).filter(f=>f.status!=='Desligado');
+  let csv='\uFEFFDepartamento;Funcionario;PIN;'+dias.map(d=>`${DIAS[dow(d)]} ${brOf(d)}`).join(';')+';Total Folgas\n';
+  fs.forEach(f=>{
+    let folgas=0;
+    const cols=dias.map(d=>{const it=((e&&e.folgas)||[]).find(x=>x.pin===f.pin&&x.dia===d);
+      if(!it||it.tipo==='Trabalhado')return (it&&it.horarioEntrada)||'Trabalhado'; folgas++; return it.tipo;});
+    csv+=`${f.departamento};${f.nome};${f.pin};${cols.join(';')};${folgas}\n`;
+  });
+  baixar(`Escala_${ini}.csv`,csv,'text/csv;charset=utf-8');
+}
+/* D) Banco de horas */
+function subBanco(){
+  const fs=get('funcionarios',[]),hoje=hojeISO();
+  $('sub-body').innerHTML=`<h3>Banco de Horas automático</h3>
+  <div class="grid g4"><div><label>Funcionário</label><select id="bh-pin">${fs.map(f=>`<option value="${f.pin}">${esc(f.nome)}</option>`).join('')}</select></div>
+  <div><label>Período inicial</label><input type="date" id="bh-ini" value="${hoje.slice(0,8)}01"/></div>
+  <div><label>Período final</label><input type="date" id="bh-fim" value="${hoje}"/></div>
+  <div style="display:flex;align-items:flex-end"><button class="btn" onclick="calcBancoView()">Calcular</button></div></div>
+  <div id="bh-out" style="margin-top:12px"></div>`;
+  if(fs.length)calcBancoView();
+}
+function calcBancoView(){
+  const b=calcBanco($('bh-pin').value,$('bh-ini').value,$('bh-fim').value);
+  $('bh-out').innerHTML=`<div class="grid g4">
+    ${[['Saldo Anterior',toSaldo(b.anterior)],['Créditos','+'+toHHMM(b.creditos)],['Débitos','-'+toHHMM(b.debitos)],['Saldo Atual',toSaldo(b.atual)]]
+    .map(([t,v])=>`<div class="card" style="margin:0;text-align:center"><div class="muted">${t}</div><div style="font-size:26px;font-weight:900">${v}</div></div>`).join('')}
+  </div><div class="muted" style="margin-top:6px">Saldo Anterior + Créditos − Débitos = Saldo Atual</div>
+  <div class="tbl-wrap" style="margin-top:10px"><table><tr><th>Movimentações do período</th></tr>
+  ${b.detalhes.map(d=>`<tr><td>${esc(d)}</td></tr>`).join('')||'<tr><td class="muted">Sem movimentações.</td></tr>'}</table></div>`;
+}
+/* F) Relatórios */
+function subRelatorios(){
+  const fs=get('funcionarios',[]),hoje=hojeISO();
+  $('sub-body').innerHTML=`<h3>Relatórios por funcionário/período</h3>
+  <div class="grid g4"><div><label>Funcionário</label><select id="rp-pin">${fs.map(f=>`<option value="${f.pin}">${esc(f.nome)}</option>`).join('')}</select></div>
+  <div><label>Início</label><input type="date" id="rp-ini" value="${hoje.slice(0,8)}01"/></div>
+  <div><label>Fim</label><input type="date" id="rp-fim" value="${hoje}"/></div>
+  <div style="display:flex;align-items:flex-end;gap:6px"><button class="btn" onclick="pdfFolhas([$('rp-pin').value],$('rp-ini').value,$('rp-fim').value)">PDF</button>
+  <button class="btn ghost" onclick="xmlFolha($('rp-pin').value,$('rp-ini').value,$('rp-fim').value)">XML</button></div></div>`;
+}
+
+/* ============================== DASHBOARD ============================== */
+function abaDash(){
+  const hoje=hojeISO();
+  $('gestor-body').innerHTML=`<div class="row"><h3>Dashboard de Frequência</h3>
+    <div class="right row"><button class="btn sm ghost" onclick="printDash()">Imprimir</button>
+    <button class="btn sm gold" onclick="pdfDash()">Exportar PDF</button></div></div>
+  <div class="grid g4">
+    <div><label>Período</label><select id="d-per" onchange="calcDash()"><option value="sem">Esta Semana</option><option value="mes" selected>Este Mês</option><option value="ano">Este Ano</option><option value="pers">Personalizado</option></select></div>
+    <div><label>De</label><input type="date" id="d-ini" value="${hoje.slice(0,8)}01" onchange="calcDash()"/></div>
+    <div><label>Até</label><input type="date" id="d-fim" value="${hoje}" onchange="calcDash()"/></div>
+    <div><label>Funcionário</label><select id="d-func" onchange="calcDash()"><option value="">Todos Funcionários</option>
+      ${get('funcionarios',[]).map(f=>`<option value="${f.pin}">${esc(f.nome)}</option>`).join('')}</select></div>
+  </div><div id="dash-out" style="margin-top:12px"></div>`;
+  calcDash();
+}
+function periodoDash(){
+  const p=$('d-per').value,hoje=hojeISO();
+  if(p==='sem')return [inicioSemana(hoje),addDias(inicioSemana(hoje),6)];
+  if(p==='mes')return [hoje.slice(0,8)+'01',hoje];
+  if(p==='ano')return [hoje.slice(0,4)+'-01-01',hoje];
+  return [$('d-ini').value,$('d-fim').value];
+}
+function calcDash(){
+  const [ini,fim]=periodoDash(); $('d-ini').value=ini; $('d-fim').value=fim;
+  const filtro=$('d-func').value;
+  const fs=get('funcionarios',[]).filter(f=>!filtro||f.pin===filtro);
+  const res=fs.map(f=>{
+    const d=dadosFolha(f.pin,ini,fim);
+    const prevTot=d.linhas.reduce((s,l)=>s+l.previsto,0);
+    const diasPrev=d.linhas.filter(l=>l.previsto>0).length;
+    const trabalhados=d.linhas.filter(l=>l.trabalhado>0).length;
+    const atrasos=d.linhas.filter(l=>/ATRASO/.test(l.ocorrencia));
+    const atrasoMin=atrasos.reduce((s,l)=>s+(toMin((l.ocorrencia.match(/ATRASO (\d+:\d+)/)||[])[1]||'0:00')),0);
+    const incompletos=d.linhas.filter(l=>l.trabalhado>0&&l.previsto>0&&l.trabalhado<l.previsto);
+    return {f,d,prevTot,diasPrev,trabalhados,pres:diasPrev?Math.round(trabalhados/diasPrev*100):0,
+      faltas:d.tot.faltas,atrasosQtd:atrasos.length,atrasoMedio:atrasos.length?Math.round(atrasoMin/atrasos.length):0,
+      incQtd:incompletos.length,incMin:incompletos.reduce((s,l)=>s+(l.previsto-l.trabalhado),0)};
+  });
+  const totPrev=res.reduce((s,r)=>s+r.diasPrev,0), totFaltas=res.reduce((s,r)=>s+r.faltas,0);
+  const card=(t,c)=>`<div class="card" style="margin:0"><h4>${t}</h4>${c}</div>`;
+  const ord=[...res].sort((a,b)=>b.pres-a.pres);
+  $('dash-out').innerHTML=`<div class="muted">Período: ${brOf(ini)} a ${brOf(fim)} • Filtro: ${filtro?(funcPorPin(filtro)||{}).nome:'Todos Funcionários'}</div>
+  <div class="grid g3" style="margin-top:10px">
+  ${card('🏆 Mais Presentes (Trabalhados/Previstos)',ord.map(r=>`<div>${esc(r.f.nome)} — <b>${r.pres}%</b> <span class="muted">(${r.trabalhados}/${r.diasPrev})</span></div>`).join('')||'<div class="muted">—</div>')}
+  ${card('❌ Faltas por Funcionário',res.map(r=>`<div>${esc(r.f.nome)} — <b>${r.faltas}</b> falta(s) ${r.diasPrev?`(${Math.round(r.faltas/r.diasPrev*100)}%)`:''}</div>`).join('')||'<div class="muted">—</div>')}
+  ${card('📉 Absenteísmo Geral',`<div style="font-size:28px;font-weight:900">${totFaltas} faltas</div><div class="muted">${totPrev?((totFaltas/totPrev)*100).toFixed(1):0}% dos dias previstos</div>`)}
+  ${card('⏰ Atrasos (tolerância 10min)',res.filter(r=>r.atrasosQtd).map(r=>`<div>${esc(r.f.nome)} — <b>${r.atrasosQtd}</b> • médio ${toHHMM(r.atrasoMedio)}</div>`).join('')||'<div class="muted">Sem atrasos.</div>')}
+  ${card('⚠️ Carga Incompleta',res.filter(r=>r.incQtd).map(r=>`<div>${esc(r.f.nome)} — <b>${r.incQtd}</b> dia(s) • faltam ${toHHMM(r.incMin)}</div>`).join('')||'<div class="muted">—</div>')}
+  ${card('🏅 Ranking Índice de Presença','<canvas id="dash-canvas" width="360" height="200"></canvas>')}
+  </div>`;
+  desenharRanking(ord);
+}
+function desenharRanking(ord){
+  const c=$('dash-canvas'); if(!c)return; const x=c.getContext('2d');
+  x.clearRect(0,0,c.width,c.height); const lista=ord.slice(0,8); const h=Math.max(12,(c.height-20)/Math.max(1,lista.length)-6);
+  lista.forEach((r,i)=>{const y=10+i*(h+6),w=(c.width-120)*(r.pres/100);
+    x.fillStyle='#123a73';x.fillRect(110,y,Math.max(2,w),h);
+    x.fillStyle='#12203a';x.font='11px sans-serif';x.textAlign='right';x.fillText(r.f.nome.slice(0,16),105,y+h-2);
+    x.textAlign='left';x.fillText(r.pres+'%',114+Math.max(2,w),y+h-2);});
+}
+function printDash(){imprimirArea($('dash-out').innerHTML,'Dashboard de Frequência');}
+function pdfDash(){
+  const {jsPDF}=window.jspdf,e=get('empregador',{})||{},[ini,fim]=periodoDash();
+  const doc=new jsPDF({unit:'mm',format:'a4'});let y=14;
+  doc.setFontSize(12);doc.text(`${e.razao||''} — ${e.fantasia||''}`,10,y);y+=5;
+  doc.setFontSize(9);doc.text(`${e.tipo}: ${e.doc}  CEI/CAEPF/CNO: ${e.cei||'—'}`,10,y);y+=5;
+  doc.text(`Dashboard de Frequência — Período ${brOf(ini)} a ${brOf(fim)} — Filtro: ${$('d-func').value?(funcPorPin($('d-func').value)||{}).nome:'Todos'}`,10,y);y+=6;
+  const txt=$('dash-out').innerText.split('\n').filter(Boolean);
+  doc.setFontSize(9);txt.forEach(l=>{if(y>275){doc.text(`Página ${doc.getNumberOfPages()}`,190,290,{align:'right'});doc.addPage();y=14;}doc.text(l.slice(0,110),10,y);y+=4.5;});
+  const d=getHoraOficial();
+  doc.setFontSize(8);doc.text(`Relatório gerado em ${brOf(isoOf(d))} ${hhmm(d)} por ${assinaGerenciador()}`,10,288);
+  doc.text(`Página ${doc.getNumberOfPages()}`,200,288,{align:'right'});
+  doc.save('Dashboard_Frequencia.pdf');
+}
+function imprimirArea(html,titulo){
+  $('area-impressao').innerHTML=`<h3 style="text-align:center">${titulo}</h3>${html}`;
+  $('area-impressao').classList.remove('hidden'); document.body.classList.add('print-folha');
+  setTimeout(()=>{window.print();document.body.classList.remove('print-folha');$('area-impressao').classList.add('hidden');},200);
+}
+
+/* ============================== MÓDULO 4 — FOLHA MTE ============================== */
+const LEGENDA='FALTA = dia sem batida e sem folga/feriado | FOLGA = folga prevista em escala | FERIADO = feriado cadastrado | _ = batida tratada/movida com motivo obrigatório';
+function abaFolha(){
+  const fs=get('funcionarios',[]),hoje=hojeISO();
+  $('gestor-body').innerHTML=`<h3>Folha de Ponto — Padrão MTE Portaria 671/2021</h3>
+  <div class="grid g4">
+    <div><label>Funcionário (inclui desligados)</label><select id="fl-pin">${fs.map(f=>`<option value="${f.pin}">${esc(f.nome)}${f.status==='Desligado'?' (desligado)':''}</option>`).join('')}</select></div>
+    <div><label>Período — início</label><input type="date" id="fl-ini" value="${hoje.slice(0,8)}01"/></div>
+    <div><label>Período — fim</label><input type="date" id="fl-fim" value="${hoje}"/></div>
+    <div style="display:flex;align-items:flex-end;gap:6px"><button class="btn gold" onclick="gerarFolha()">Gerar</button></div>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button class="btn sm ghost" onclick="imprimirFolhaTela()">🖨 Imprimir</button>
+    <button class="btn sm" onclick="pdfFolhas([$('fl-pin').value],$('fl-ini').value,$('fl-fim').value)">Exportar PDF</button>
+    <button class="btn sm" onclick="xmlFolha($('fl-pin').value,$('fl-ini').value,$('fl-fim').value)">Exportar XML (AFD/ACJEF)</button>
+    <button class="btn sm ghost right" onclick="telaLote()">📦 Exportação em Lote</button>
+  </div>
+  <div id="fl-out" style="margin-top:12px"></div>`;
+  if(fs.length)gerarFolha();
+}
+function gerarFolha(){$('fl-out').innerHTML=htmlFolha($('fl-pin').value,$('fl-ini').value,$('fl-fim').value);}
+function imprimirFolhaTela(){imprimirArea($('fl-out').innerHTML,'');}
+function cabecalhoFolhaHTML(f,ini,fim){
+  const e=get('empregador',{})||{},d=getHoraOficial();
+  const escLabel=(ESCALAS.find(x=>x[0]===f.escala)||['','—'])[1];
+  return `<div class="cab">
+    <div>${e.logo?`<img src="${e.logo}"/>`:''}
+      <div><b>${esc(e.razao||'')}</b> — ${esc(e.fantasia||'')}</div>
+      <div>${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'')} • CEI/CAEPF/CNO: ${esc(e.cei||'—')}</div>
+      <div>${esc(e.logradouro||'')}, ${esc(e.numero||'')} ${esc(e.complemento||'')} — ${esc(e.bairro||'')}, ${esc(e.cidade||'')}/${esc(e.uf||'')} — CEP ${esc(e.cep||'')}</div>
+      <div>E-mail: ${esc(e.email||'')}</div></div>
+    <div><div><b>Trabalhador:</b> ${esc(f.nome)}</div><div><b>CPF:</b> ${esc(f.cpf||'')}</div>
+      <div><b>Função:</b> ${esc(f.funcao||'')} • <b>Departamento:</b> ${esc(f.departamento||'')}</div>
+      <div><b>Admissão:</b> ${brOf(f.admissao)}</div>
+      <div><b>Emissão:</b> ${brOf(isoOf(d))} ${hhmm(d)} • <b>Período:</b> ${brOf(ini)} a ${brOf(fim)}</div>
+      <div><b>Jornada contratual:</b> ${e.hEntrada||''}–${e.hSaiInt||''} / ${e.hEntInt||''}–${e.hSaida||''} • <b>Escala:</b> ${esc(escLabel)}</div></div>
+  </div>`;
+}
+function htmlFolha(pin,ini,fim){
+  if(!pin||!ini||!fim) return '<div class="alert err">Selecione funcionário e período.</div>';
+  const d=dadosFolha(pin,ini,fim),f=d.f,dt=getHoraOficial(),e=get('empregador',{})||{};
+  const histEsc=get('logsEscala',[]).filter(h=>h.semana>=inicioSemana(ini)&&h.semana<=inicioSemana(fim));
+  return `<div class="folha">
+    <h3>Folha de Ponto — Portaria MTE 671/2021</h3>
+    ${cabecalhoFolhaHTML(f,ini,fim)}
+    <div class="tbl-wrap"><table>
+    <tr><th>Dia</th><th>Dia Semana</th><th>Entrada</th><th>Saída Interv.</th><th>Entrada Interv.</th><th>Saída</th><th>Horas Trab.</th><th>Saldo Dia</th><th>Ocorrência</th><th>Fonte</th></tr>
+    ${d.linhas.map(l=>`<tr><td>${brOf(l.data).slice(0,5)}</td><td>${l.dia}</td><td>${l.e1||'--:--'}</td><td>${l.e2||'--:--'}</td><td>${l.e3||'--:--'}</td><td>${l.e4||'--:--'}</td>
+      <td>${toHHMM(l.trabalhado)}</td><td>${toSaldo(l.saldo)}</td>
+      <td>${l.cls?`<span class="tag ${l.cls}">${esc(l.ocorrencia)}</span>`:esc(l.ocorrencia)}${l.mov?`<div class="muted">${esc(l.mov)}</div>`:''}</td>
+      <td>${l.fonte}</td></tr>`).join('')}
+    </table></div>
+    <div class="rodape">
+      <h4>Totais do período</h4>
+      <div>Total de Faltas: <b>${d.tot.faltas}</b> • Justificadas: <b>${d.tot.faltasJust}</b> • Injustificadas: <b>${d.tot.faltasInj}</b></div>
+      <div>Total de Folgas: <b>${d.tot.folgas}</b> • Total de Feriados: <b>${d.tot.feriados}</b></div>
+      <div>Total de Horas Extras: <b>${toHHMM(d.tot.extras)}</b> • Total de Horas Faltantes/Atrasos: <b>${toHHMM(d.tot.faltantes)}</b></div>
+      <div>Banco de Horas — Saldo Anterior: <b>${toSaldo(d.banco.anterior)}</b> • Créditos: <b>+${toHHMM(d.banco.creditos)}</b> • Débitos: <b>-${toHHMM(d.banco.debitos)}</b> • Saldo Atual: <b>${toSaldo(d.banco.atual)}</b></div>
+      ${d.just.length?`<div style="margin-top:6px"><b>Justificativas:</b><br>${d.just.map(j=>esc(j)).join('<br>')}</div>`:''}
+      ${histEsc.length?`<div style="margin-top:6px"><b>Alterações de escala no período:</b><br>${histEsc.map(h=>esc(h.texto)).join('<br>')}</div>`:''}
+      <div class="muted" style="margin-top:6px"><b>Legenda:</b> ${LEGENDA}</div>
+      <div style="margin-top:6px">Gerado em ${brOf(isoOf(dt))} às ${hhmm(dt)} por ${assinaGerenciador()} — Portaria MTE 671/2021</div>
+      <div>${esc(e.cidade||'Salinópolis')}-${esc(e.uf||'PA')}, ${brOf(isoOf(dt))}</div>
+      <div class="assin"><div>Assinatura do Diretor</div><div>Assinatura do Empregado</div></div>
+    </div></div>`;
+}
+/* PDF (jsPDF) individual e em lote */
+function pdfFolhas(pins,ini,fim,nomeArq){
+  const {jsPDF}=window.jspdf,e=get('empregador',{})||{},doc=new jsPDF({unit:'mm',format:'a4'});
+  let first=true;
+  pins.forEach(pin=>{
+    const d=dadosFolha(pin,ini,fim),f=d.f,dt=getHoraOficial();
+    if(!first)doc.addPage(); first=false;
+    let y=12;
+    const L=(t,s=9,b=false)=>{if(y>272){doc.setFontSize(8);doc.text(`Página ${doc.getNumberOfPages()}`,200,290,{align:'right'});doc.addPage();y=12;}doc.setFont('helvetica',b?'bold':'normal');doc.setFontSize(s);doc.text(String(t),10,y);y+=s<9?4:4.6;};
+    L(`${e.razao||''} — ${e.fantasia||''}`,11,true);
+    L(`${e.tipo}: ${e.doc} • CEI/CAEPF/CNO: ${e.cei||'—'}`);
+    L(`${e.logradouro}, ${e.numero} ${e.complemento||''} - ${e.bairro}, ${e.cidade}/${e.uf} - CEP ${e.cep} • ${e.email}`,8);
+    L(`FOLHA DE PONTO — PORTARIA MTE 671/2021`,11,true);
+    L(`Trabalhador: ${f.nome} • CPF: ${f.cpf||''} • Função: ${f.funcao||''} • Depto: ${f.departamento||''} • Admissão: ${brOf(f.admissao)}`,8);
+    L(`Emissão: ${brOf(isoOf(dt))} ${hhmm(dt)} • Período: ${brOf(ini)} a ${brOf(fim)} • Jornada: ${e.hEntrada}-${e.hSaiInt}/${e.hEntInt}-${e.hSaida} • Escala: ${f.escala}`,8);
+    y+=2; L('Dia  Sem  Ent   SaiI  EntI  Sai   Trab  Saldo Ocorrência',8,true);
+    d.linhas.forEach(l=>L(`${brOf(l.data).slice(0,5)} ${l.dia.slice(0,3)} ${(l.e1||'--:--')} ${(l.e2||'--:--')} ${(l.e3||'--:--')} ${(l.e4||'--:--')} ${toHHMM(l.trabalhado)} ${toSaldo(l.saldo)} ${l.ocorrencia}`.slice(0,118),7.5));
+    y+=2; L('TOTAIS DO PERÍODO',9,true);
+    L(`Faltas: ${d.tot.faltas} (Just.: ${d.tot.faltasJust} / Injust.: ${d.tot.faltasInj}) • Folgas: ${d.tot.folgas} • Feriados: ${d.tot.feriados}`,8);
+    L(`Horas Extras: ${toHHMM(d.tot.extras)} • Horas Faltantes/Atrasos: ${toHHMM(d.tot.faltantes)}`,8);
+    L(`Banco de Horas — Anterior ${toSaldo(d.banco.anterior)} | Créditos +${toHHMM(d.banco.creditos)} | Débitos -${toHHMM(d.banco.debitos)} | Atual ${toSaldo(d.banco.atual)}`,8);
+    d.just.forEach(j=>L(j,8));
+    L(`Legenda: ${LEGENDA}`,7);
+    L(`Gerado em ${brOf(isoOf(dt))} às ${hhmm(dt)} por ${assinaGerenciador()} — Portaria MTE 671/2021`,8);
+    L(`${e.cidade||'Salinópolis'}-${e.uf||'PA'}, ${brOf(isoOf(dt))}`,8); y+=10;
+    L('____________________________        ____________________________',8);
+    L('Assinatura do Diretor                        Assinatura do Empregado',8);
+    doc.setFontSize(8);doc.text(`Página ${doc.getNumberOfPages()}`,200,290,{align:'right'});
+  });
+  doc.save(nomeArq||`Folha_MTE_${pins.length>1?'Lote':(funcPorPin(pins[0])||{}).nome.replace(/\s+/g,'_')}_${ini}_${fim}.pdf`);
+  log(`Exportou PDF de folha (${pins.length} funcionário(s)) ${brOf(ini)}–${brOf(fim)}`);
+}
+/* XML AFD/ACJEF bem-formado */
+function xmlConteudo(pin,ini,fim){
+  const d=dadosFolha(pin,ini,fim),f=d.f,e=get('empregador',{})||{},dt=getHoraOficial();
+  const t=(tag,v)=>`    <${tag}>${esc(v??'')}</${tag}>\n`;
+  let x=`<?xml version="1.0" encoding="UTF-8"?>\n<folhaPonto portaria="671/2021">\n  <empregador>\n`;
+  x+=t('razaoSocial',e.razao)+t('nomeFantasia',e.fantasia)+t('tipoInscricao',e.tipo)+t('inscricao',e.doc)+t('ceiCaepfCno',e.cei)
+   +t('endereco',`${e.logradouro}, ${e.numero} ${e.complemento||''} - ${e.bairro} - ${e.cidade}/${e.uf} - CEP ${e.cep}`)+t('email',e.email);
+  x+=`  </empregador>\n  <trabalhador>\n`+t('nome',f.nome)+t('cpf',f.cpf)+t('funcao',f.funcao)+t('departamento',f.departamento)+t('admissao',f.admissao)+t('escala',f.escala)+`  </trabalhador>\n`;
+  x+=`  <relatorio>\n`+t('emissao',`${brOf(isoOf(dt))} ${hhmm(dt)}`)+t('periodoInicio',ini)+t('periodoFim',fim)
+   +t('fonteHorario',NTP_OK?'SERVIDOR NTP':'LOCAL')+t('geradoPor',assinaGerenciador())+`  </relatorio>\n  <marcacoes>\n`;
+  d.linhas.forEach(l=>{
+    x+=`    <dia data="${l.data}" semana="${esc(l.dia)}">\n`;
+    [['entrada',l.e1],['saidaIntervalo',l.e2],['entradaIntervalo',l.e3],['saida',l.e4],['entradaExtra',l.ex1],['saidaExtra',l.ex2]]
+      .forEach(([k,v])=>{ if(v) x+=`      <${k}>${v}</${k}>\n`; });
+    x+=`      <horasTrabalhadas>${toHHMM(l.trabalhado)}</horasTrabalhadas>\n      <saldoDia>${toSaldo(l.saldo)}</saldoDia>\n`;
+    x+=`      <ocorrencia>${esc(l.ocorrencia)}</ocorrencia>\n      <fonte>${esc(l.fonte)}</fonte>\n`;
+    if(l.mov) x+=`      <tratamento>${esc(l.mov)}</tratamento>\n`;
+    if(l.nsr) x+=`      <nsr>${esc(l.nsr)}</nsr>\n`;
+    x+=`    </dia>\n`;
+  });
+  x+=`  </marcacoes>\n  <resumo>\n`;
+  x+=`    <totalFaltas>${d.tot.faltas}</totalFaltas>\n    <faltasJustificadas>${d.tot.faltasJust}</faltasJustificadas>\n    <faltasInjustificadas>${d.tot.faltasInj}</faltasInjustificadas>\n`;
+  x+=`    <totalFolgas>${d.tot.folgas}</totalFolgas>\n    <totalFeriados>${d.tot.feriados}</totalFeriados>\n`;
+  x+=`    <totalHorasExtras>${toHHMM(d.tot.extras)}</totalHorasExtras>\n    <totalHorasFaltantes>${toHHMM(d.tot.faltantes)}</totalHorasFaltantes>\n`;
+  x+=`    <saldoAnterior>${toSaldo(d.banco.anterior)}</saldoAnterior>\n    <creditos>${toHHMM(d.banco.creditos)}</creditos>\n    <debitos>${toHHMM(d.banco.debitos)}</debitos>\n    <saldoAtual>${toSaldo(d.banco.atual)}</saldoAtual>\n`;
+  d.just.forEach(j=>x+=`    <justificativa>${esc(j)}</justificativa>\n`);
+  x+=`    <legenda>${esc(LEGENDA)}</legenda>\n  </resumo>\n`;
+  x+=`  <rodape>${esc(`Gerado em ${brOf(isoOf(dt))} às ${hhmm(dt)} por ${assinaGerenciador()} - Portaria MTE 671/2021`)}</rodape>\n</folhaPonto>\n`;
+  return x;
+}
+const nomeXML=(f,ini)=>`${(f.nome||'FUNC').toUpperCase().replace(/[^A-Z]+/g,'_')}_${ini.slice(5,7)}_${ini.slice(0,4)}.xml`;
+function xmlFolha(pin,ini,fim){
+  const f=funcPorPin(pin); baixar(nomeXML(f,ini),xmlConteudo(pin,ini,fim),'application/xml;charset=utf-8');
+  log(`Exportou XML de ${f.nome} ${brOf(ini)}–${brOf(fim)}`);
+}
+/* Exportação em lote */
+function telaLote(){
+  const fs=get('funcionarios',[]),hoje=hojeISO();
+  abrirModal(`<div class="row"><h3>Exportação em Lote — Folhas MTE</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
+  <div class="card"><div class="grid g2">
+    <div><label>Data inicial *</label><input type="date" id="lt-ini" value="${hoje.slice(0,8)}01"/></div>
+    <div><label>Data final *</label><input type="date" id="lt-fim" value="${hoje}"/></div></div>
+    <div class="row" style="margin:8px 0"><button class="btn sm ghost" onclick="lotSelAll(true)">Selecionar Todos</button>
+      <button class="btn sm ghost" onclick="lotSelAll(false)">Limpar seleção</button></div>
+    <div class="grid g3" id="lt-list">${fs.map(f=>`<label class="row" style="text-transform:none"><input type="checkbox" class="lt-cb" value="${f.pin}" style="width:auto"/> ${esc(f.nome)}</label>`).join('')}</div>
+    <div class="hr"></div>
+    <div class="row">
+      <button class="btn" onclick="loteVisualizar()">Visualizar em Lote na Tela</button>
+      <button class="btn ghost" onclick="loteImprimir()">Imprimir em Lote</button>
+      <button class="btn gold" onclick="lotePDF()">Exportar PDF em Lote</button>
+      <button class="btn gold" onclick="lotePDFZip()">PDF por funcionário (ZIP)</button>
+      <button class="btn gold" onclick="loteXML()">Exportar XML em Lote (ZIP)</button>
+    </div></div><div id="lt-out"></div>`);
+}
+function lotSelAll(v){document.querySelectorAll('.lt-cb').forEach(c=>c.checked=v);}
+const lotePins=()=>[...document.querySelectorAll('.lt-cb:checked')].map(c=>c.value);
+function loteValida(){const p=lotePins();if(!$('lt-ini').value||!$('lt-fim').value){alert('Período obrigatório.');return null;}if(!p.length){alert('Selecione ao menos 1 funcionário.');return null;}return p;}
+function loteVisualizar(){const p=loteValida();if(!p)return;$('lt-out').innerHTML=p.map(x=>htmlFolha(x,$('lt-ini').value,$('lt-fim').value)).join('');}
+function loteImprimir(){const p=loteValida();if(!p)return;imprimirArea(p.map(x=>htmlFolha(x,$('lt-ini').value,$('lt-fim').value)).join(''),'');}
+function lotePDF(){const p=loteValida();if(!p)return;const ini=$('lt-ini').value;
+  const mes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][Number(ini.slice(5,7))-1];
+  pdfFolhas(p,ini,$('lt-fim').value,`Folhas_MTE_${mes}_${ini.slice(0,4)}.pdf`);}
+async function lotePDFZip(){
+  const p=loteValida();if(!p)return;const zip=new JSZip(),ini=$('lt-ini').value,fim=$('lt-fim').value;
+  const {jsPDF}=window.jspdf;
+  for(const pin of p){
+    const f=funcPorPin(pin);
+    const blobUrl=await new Promise(res=>{ // gera PDF individual em memória
+      const doc=new jsPDF({unit:'mm',format:'a4'}); res({doc,f});
+    });
+    // reaproveita pdfFolhas em memória:
+    const doc=new jsPDF({unit:'mm',format:'a4'});
+    const html=dadosFolha(pin,ini,fim); let y=12;
+    doc.setFontSize(10);doc.text(`Folha MTE — ${f.nome} — ${brOf(ini)} a ${brOf(fim)}`,10,y);y+=6;
+    doc.setFontSize(8);
+    html.linhas.forEach(l=>{if(y>285){doc.addPage();y=12;}doc.text(`${brOf(l.data).slice(0,5)} ${l.dia.slice(0,3)} ${(l.e1||'--:--')} ${(l.e2||'--:--')} ${(l.e3||'--:--')} ${(l.e4||'--:--')} ${toHHMM(l.trabalhado)} ${toSaldo(l.saldo)} ${l.ocorrencia}`.slice(0,115),10,y);y+=4;});
+    y+=4;doc.text(`Faltas ${html.tot.faltas} | Just ${html.tot.faltasJust} | Injust ${html.tot.faltasInj} | Folgas ${html.tot.folgas} | Feriados ${html.tot.feriados}`,10,y);y+=4;
+    doc.text(`Banco: Anterior ${toSaldo(html.banco.anterior)} Créditos +${toHHMM(html.banco.creditos)} Débitos -${toHHMM(html.banco.debitos)} Atual ${toSaldo(html.banco.atual)}`,10,y);y+=4;
+    doc.text(`Gerado por ${assinaGerenciador()} — Portaria MTE 671/2021`,10,y);
+    zip.file(`${(f.nome||'').toUpperCase().replace(/[^A-Z]+/g,'_')}.pdf`,doc.output('blob'));
+  }
+  const b=await zip.generateAsync({type:'blob'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`Folhas_MTE_${ini}_${fim}.zip`;a.click();
+  log(`Exportou ZIP de PDFs em lote (${p.length})`);
+}
+async function loteXML(){
+  const p=loteValida();if(!p)return;const zip=new JSZip(),ini=$('lt-ini').value,fim=$('lt-fim').value;
+  p.forEach(pin=>zip.file(nomeXML(funcPorPin(pin),ini),xmlConteudo(pin,ini,fim)));
+  const b=await zip.generateAsync({type:'blob'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`XML_Folhas_${ini}_${fim}.zip`;a.click();
+  log(`Exportou ZIP de XMLs em lote (${p.length})`);
+}
+
+/* ============================== SESSÃO ============================== */
+(function boot(){
+  const s=localStorage.getItem('vip:sessao');
+  if(s&&contas().some(c=>c.email===s)){CONTA=s;iniciarApp();}
+  else{mostrarView('login');relogio();}
+})();
+</script>
+</body>
+</html>
