@@ -805,7 +805,7 @@ function dadosFolha(pin,ini,fim){
     // atraso com tolerância 10min
     const prevEntrada=horarioEscala(pin,d)||(get('empregador',{})||{}).hEntrada||'08:00';
     let atrasoMin=0;
-    if(bs.length&&g('Entrada')){const at=toMin(g('Entrada').hora)-toMin(prevEntrada);if(at>10){atrasoMin=at;tot.atrasos++;oc=(oc?oc+' | ':'')+`ATRASO ${toHHMM(at)}`;cls=cls||'t-atraso';}}
+    if(prev>0&&bs.length&&g('Entrada')){const at=toMin(g('Entrada').hora)-toMin(prevEntrada);if(at>10){atrasoMin=at;tot.atrasos++;oc=(oc?oc+' | ':'')+`ATRASO ${toHHMM(at)}`;cls=cls||'t-atraso';}}
     if(bs.length){
       tot.trabalhado+=trab;
       if(prev>0){ if(trab>prev) tot.extras+=trab-prev; else if(trab<prev) tot.faltantes+=prev-trab; }
@@ -1158,7 +1158,7 @@ function cabecalhoFolhaHTML(f,ini,fim){
   const e=get('empregador',{})||{},d=getHoraOficial();
   const escLabel=(ESCALAS.find(x=>x[0]===f.escala)||['','—'])[1];
   return `<div class="cab">
-    <div>${e.logo?`<img src="${e.logo}"/>`:''}
+    <div><img src="${e.logo||'/vip-logo.png'}" alt="Logo"/>
       <div><b>${esc(e.razao||'')}</b> — ${esc(e.fantasia||'')}</div>
       <div>${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'')} • CEI/CAEPF/CNO: ${esc(e.cei||'—')}</div>
       <div>${esc(e.logradouro||'')}, ${esc(e.numero||'')} ${esc(e.complemento||'')} — ${esc(e.bairro||'')}, ${esc(e.cidade||'')}/${esc(e.uf||'')} — CEP ${esc(e.cep||'')}</div>
