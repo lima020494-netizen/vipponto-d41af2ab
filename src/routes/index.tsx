@@ -1,24 +1,34 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "VIP PONTO — Registro Eletrônico de Ponto (Portaria MTE 671/2021)" },
+      {
+        name: "description",
+        content:
+          "Controle de ponto multi-empresa: PIN, comprovante térmico 58mm, escala semanal, banco de horas e folha de ponto padrão MTE em PDF e XML.",
+      },
+      { property: "og:title", content: "VIP PONTO — Registro Eletrônico de Ponto" },
+      {
+        property: "og:description",
+        content:
+          "Registro de ponto com hora oficial, NSR, comprovante térmico SUNMI, escala, banco de horas e folha MTE 671/2021.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  // O aplicativo completo é um único arquivo HTML/CSS/JS puro em /vip-ponto.html
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <iframe
+      src="/vip-ponto.html"
+      title="VIP PONTO"
+      style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: 0 }}
+    />
   );
 }
