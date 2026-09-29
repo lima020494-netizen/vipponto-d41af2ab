@@ -7,6 +7,7 @@
 <link rel="icon" href="/favicon.png" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ===================== DESIGN SYSTEM ===================== */
 :root{
@@ -255,7 +256,51 @@ function baixar(nome,conteudo,tipo){const b=new Blob([conteudo],{type:tipo||'tex
 let CONTA=null;                                     // e-mail da conta logada
 const K  = k => `vip:${CONTA}:${k}`;
 const get = (k,d) => { try{ const v=localStorage.getItem(K(k)); return v?JSON.parse(v):d; }catch(e){ return d; } };
-const set = (k,v) => localStorage.setItem(K(k),JSON.stringify(v));
+let CARREGANDO=false; // evita eco de gravação durante a carga da nuvem
+const set = (k,v) => { localStorage.setItem(K(k),JSON.stringify(v)); if(!CARREGANDO) nuvemPush(k,v); };
+
+/* ---------- Supabase (nuvem) — espelho online de todos os dados ----------
+   O app continua rápido e funciona offline (localStorage é o cache local);
+   cada gravação é enviada ao Supabase e, ao entrar, os dados são baixados. */
+const SUPA_URL='https://kvbidsfnisegtqjagsld.supabase.co';
+const SUPA_KEY='sb_publishable_3YjKTF1rODb9lczyeRillA_Sm1BgP5g'; // chave publishable (pública)
+const sb = window.supabase ? window.supabase.createClient(SUPA_URL,SUPA_KEY) : null;
+let NUVEM_OK=false;
+async function carregarNuvem(){
+  if(!sb||!CONTA) return;
+  CARREGANDO=true;
+  try{
+    const [emp,fun,bat,fer,gen]=await Promise.all([
+      sb.from('empresas').select('dados').eq('conta',CONTA).maybeSingle(),
+      sb.from('funcionarios').select('dados').eq('conta',CONTA),
+      sb.from('batidas').select('dados').eq('conta',CONTA),
+      sb.from('feriados').select('dados').eq('conta',CONTA),
+      sb.from('dados').select('chave,valor').eq('conta',CONTA)]);
+    if(emp.data&&emp.data.dados) set('empregador',emp.data.dados);
+    if(fun.data&&fun.data.length) set('funcionarios',fun.data.map(r=>r.dados));
+    if(bat.data&&bat.data.length) set('batidas',bat.data.map(r=>r.dados));
+    if(fer.data&&fer.data.length) set('feriados',fer.data.map(r=>r.dados));
+    (gen.data||[]).forEach(r=>set(r.chave,r.valor));
+    NUVEM_OK=true;
+  }catch(e){ console.warn('Nuvem indisponível — usando dados locais.',e); }
+  CARREGANDO=false;
+}
+const NUVEM_TIMERS={};
+function nuvemPush(k,v){
+  if(!sb||!CONTA) return;
+  clearTimeout(NUVEM_TIMERS[k]);
+  NUVEM_TIMERS[k]=setTimeout(()=>nuvemPushAgora(k,v),400); // agrupa gravações seguidas
+}
+async function nuvemPushAgora(k,v){
+  try{
+    if(k==='empregador') await sb.from('empresas').upsert({conta:CONTA,dados:v,atualizado_em:new Date().toISOString()});
+    else if(k==='funcionarios'){ await sb.from('funcionarios').delete().eq('conta',CONTA); if(v.length) await sb.from('funcionarios').insert(v.map(f=>({conta:CONTA,pin:f.pin,dados:f}))); }
+    else if(k==='batidas'){ await sb.from('batidas').delete().eq('conta',CONTA); if(v.length) await sb.from('batidas').insert(v.map(b=>({conta:CONTA,nsr:b.nsr,dados:b}))); }
+    else if(k==='feriados'){ await sb.from('feriados').delete().eq('conta',CONTA); if(v.length) await sb.from('feriados').insert(v.map(f=>({conta:CONTA,data:f.data,nome:f.nome,tipo:f.tipo,dados:f}))); }
+    else await sb.from('dados').upsert({conta:CONTA,chave:k,valor:v,atualizado_em:new Date().toISOString()});
+    NUVEM_OK=true;
+  }catch(e){ console.warn('Falha ao sincronizar com a nuvem:',k,e); }
+}
 const contas    = () => { try{ return JSON.parse(localStorage.getItem('vip:contas')||'[]'); }catch(e){ return []; } };
 const salvaContas = c => localStorage.setItem('vip:contas',JSON.stringify(c));
 
@@ -313,8 +358,9 @@ function redefinirSenha(){
 function logoff(){localStorage.removeItem('vip:sessao');location.reload();}
 
 /* ============================== BOOT ============================== */
-function iniciarApp(){
+async function iniciarApp(){
   $('tela-login').classList.add('hidden');
+  await carregarNuvem(); // baixa os dados da conta no Supabase antes de abrir
   // garante gerenciador inicial exigido
   if(!get('gerenciadores',[]).length) set('gerenciadores',[{nome:'Carlos Lima',funcao:'Gerente RH',pin:'1000'}]);
   if(!get('cargos',[]).length) set('cargos',['Garçom','Cozinheiro','Barman','Auxiliar','Caixa','Gerente']);
@@ -349,7 +395,7 @@ async function sincronizarNTP(){
       if(!isNaN(sv)){ set('ntpOffset',sv-(t0+(Date.now()-t0)/2)); NTP_OK=true; break; }
     }catch(e){}
   }
-  $('status-ntp').innerHTML=NTP_OK?'🟢 SERVIDOR NTP OK — hora oficial não manipulável':'🟡 LOCAL SEM NTP — hora do aparelho';
+  $('status-ntp').innerHTML=(NTP_OK?'🟢 SERVIDOR NTP OK — hora oficial não manipulável':'🟡 LOCAL SEM NTP — hora do aparelho')+(NUVEM_OK?' • ☁️ Nuvem sincronizada':' • ⚠️ Nuvem offline (dados locais)');
   relogio();
 }
 function relogio(){const d=getHoraOficial();if($('home-hora'))$('home-hora').textContent=`${brOf(isoOf(d))} ${hhmm(d)}:${pad(d.getSeconds())}`;setTimeout(relogio,1000);}
