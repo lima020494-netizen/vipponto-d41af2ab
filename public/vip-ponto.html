@@ -358,8 +358,9 @@ function redefinirSenha(){
 function logoff(){localStorage.removeItem('vip:sessao');location.reload();}
 
 /* ============================== BOOT ============================== */
-function iniciarApp(){
+async function iniciarApp(){
   $('tela-login').classList.add('hidden');
+  await carregarNuvem(); // baixa os dados da conta no Supabase antes de abrir
   // garante gerenciador inicial exigido
   if(!get('gerenciadores',[]).length) set('gerenciadores',[{nome:'Carlos Lima',funcao:'Gerente RH',pin:'1000'}]);
   if(!get('cargos',[]).length) set('cargos',['Garçom','Cozinheiro','Barman','Auxiliar','Caixa','Gerente']);
@@ -394,7 +395,7 @@ async function sincronizarNTP(){
       if(!isNaN(sv)){ set('ntpOffset',sv-(t0+(Date.now()-t0)/2)); NTP_OK=true; break; }
     }catch(e){}
   }
-  $('status-ntp').innerHTML=NTP_OK?'🟢 SERVIDOR NTP OK — hora oficial não manipulável':'🟡 LOCAL SEM NTP — hora do aparelho';
+  $('status-ntp').innerHTML=(NTP_OK?'🟢 SERVIDOR NTP OK — hora oficial não manipulável':'🟡 LOCAL SEM NTP — hora do aparelho')+(NUVEM_OK?' • ☁️ Nuvem sincronizada':' • ⚠️ Nuvem offline (dados locais)');
   relogio();
 }
 function relogio(){const d=getHoraOficial();if($('home-hora'))$('home-hora').textContent=`${brOf(isoOf(d))} ${hhmm(d)}:${pad(d.getSeconds())}`;setTimeout(relogio,1000);}
