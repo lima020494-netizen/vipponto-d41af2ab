@@ -320,42 +320,55 @@ const hash = s => btoa(unescape(encodeURIComponent('vip#'+s)));
 function validaSenha(s){return s.length>=8&&/[A-Z]/.test(s)&&/[a-z]/.test(s)&&/[0-9]/.test(s)&&/[!@#$%&_]/.test(s);}
 function dicaSenha(){const s=$('c-senha').value;$('c-dica').innerHTML=validaSenha(s)?'<span style="color:var(--green);font-weight:800">Senha válida ✔</span>':'Mínimo 8 caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 especial (!@#$%&amp;_)';}
 $('l-email').addEventListener('input',()=>{const c=contas().find(c=>c.email===$('l-email').value.trim().toLowerCase());$('saudacao').textContent=c?`Olá, ${c.nome.split(' ')[0]}!`:'';});
-function criarConta(){
+/* Login via Supabase Auth: cada empresa só enxerga seus dados (RLS por e-mail do usuário). */
+async function criarConta(){
   const nome=$('c-nome').value.trim(), email=$('c-email').value.trim().toLowerCase(), senha=$('c-senha').value;
   const m=$('c-msg'); m.innerHTML='';
   if(!nome||!email) return m.innerHTML='<div class="alert err">Informe nome e e-mail.</div>';
   if(!/^\S+@\S+\.\S+$/.test(email)) return m.innerHTML='<div class="alert err">E-mail inválido.</div>';
   const cs=contas();
-  if(cs.length>=3) return m.innerHTML='<div class="alert err">Limite de 3 usuários por aparelho atingido</div>';
-  if(cs.some(c=>c.email===email)) return m.innerHTML='<div class="alert err">E-mail já cadastrado neste aparelho.</div>';
+  if(cs.length>=3&&!cs.some(c=>c.email===email)) return m.innerHTML='<div class="alert err">Limite de 3 usuários por aparelho atingido</div>';
   if(!validaSenha(senha)) return m.innerHTML='<div class="alert err">Senha fora do padrão exigido.</div>';
-  cs.push({nome,email,senha:hash(senha)}); salvaContas(cs);
-  m.innerHTML='<div class="alert ok">Conta criada! Faça o login.</div>';
-  setTimeout(()=>{mostrarView('login');$('l-email').value=email;$('saudacao').textContent=`Olá, ${nome.split(' ')[0]}!`;},900);
+  m.innerHTML='<div class="alert">Criando conta...</div>';
+  const {data,error}=await sb.auth.signUp({email,password:senha,options:{data:{nome},emailRedirectTo:location.origin+location.pathname}});
+  if(error) return m.innerHTML=`<div class="alert err">${/registered/i.test(error.message)?'E-mail já cadastrado.':error.message}</div>`;
+  if(!cs.some(c=>c.email===email)){cs.push({nome,email});salvaContas(cs);}
+  if(data.session){CONTA=email;iniciarApp();return;}
+  m.innerHTML='<div class="alert ok">Conta criada! Confirme pelo link enviado ao seu e-mail e depois faça o login.</div>';
+  setTimeout(()=>{mostrarView('login');$('l-email').value=email;$('saudacao').textContent=`Olá, ${nome.split(' ')[0]}!`;},2500);
 }
-function fazerLogin(){
+async function fazerLogin(){
   const email=$('l-email').value.trim().toLowerCase(), senha=$('l-senha').value, m=$('l-msg'); m.innerHTML='';
-  const c=contas().find(c=>c.email===email);
-  if(!c||c.senha!==hash(senha)) return m.innerHTML='<div class="alert err">E-mail ou senha inválidos.</div>';
-  CONTA=email; localStorage.setItem('vip:sessao',email); iniciarApp();
+  const cs=contas();
+  if(cs.length>=3&&!cs.some(c=>c.email===email)) return m.innerHTML='<div class="alert err">Limite de 3 usuários por aparelho atingido</div>';
+  const {data,error}=await sb.auth.signInWithPassword({email,password:senha});
+  if(error) return m.innerHTML=`<div class="alert err">${/confirm/i.test(error.message)?'Confirme seu e-mail pelo link recebido.':'E-mail ou senha inválidos.'}</div>`;
+  if(!cs.some(c=>c.email===email)){cs.push({nome:data.user.user_metadata?.nome||email,email});salvaContas(cs);}
+  CONTA=email; iniciarApp();
 }
-function gerarReset(){
-  const email=$('e-email').value.trim().toLowerCase(),cs=contas(),c=cs.find(c=>c.email===email);
-  if(!c) return $('e-msg').innerHTML='<div class="alert err">Conta não encontrada.</div>';
-  const token=String(Math.floor(100000+Math.random()*900000));
-  c.reset={token,exp:Date.now()+3600000}; salvaContas(cs);
-  $('e-msg').innerHTML=`<div class="alert ok">Token: <b>${token}</b> — válido por 1 hora.</div>`;
+async function gerarReset(){
+  const email=$('e-email').value.trim().toLowerCase();
+  if(!email) return $('e-msg').innerHTML='<div class="alert err">Informe o e-mail.</div>';
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  if(error) return $('e-msg').innerHTML=`<div class="alert err">${error.message}</div>`;
+  $('e-msg').innerHTML='<div class="alert ok">Enviamos um link para seu e-mail. Abra o link para definir a nova senha (ou digite o código recebido abaixo).</div>';
   $('e-reset').classList.remove('hidden');
 }
-function redefinirSenha(){
-  const cs=contas(),c=cs.find(c=>c.email===$('e-email').value.trim().toLowerCase());
-  if(!c||!c.reset) return $('e-msg').innerHTML='<div class="alert err">Gere o link primeiro.</div>';
-  if(c.reset.token!==$('e-token').value.trim()||Date.now()>c.reset.exp) return $('e-msg').innerHTML='<div class="alert err">Token inválido ou expirado (1h).</div>';
-  if(!validaSenha($('e-nova').value)) return $('e-msg').innerHTML='<div class="alert err">Senha fora do padrão exigido.</div>';
-  c.senha=hash($('e-nova').value); delete c.reset; salvaContas(cs);
+async function redefinirSenha(){
+  const email=$('e-email').value.trim().toLowerCase(), tk=$('e-token').value.trim(), nova=$('e-nova').value;
+  if(!validaSenha(nova)) return $('e-msg').innerHTML='<div class="alert err">Senha fora do padrão exigido.</div>';
+  const {data:s}=await sb.auth.getSession();
+  if(!s.session){
+    if(!tk) return $('e-msg').innerHTML='<div class="alert err">Abra o link do e-mail ou informe o código.</div>';
+    const {error}=await sb.auth.verifyOtp({email,token:tk,type:'recovery'});
+    if(error) return $('e-msg').innerHTML='<div class="alert err">Código inválido ou expirado.</div>';
+  }
+  const {error}=await sb.auth.updateUser({password:nova});
+  if(error) return $('e-msg').innerHTML=`<div class="alert err">${error.message}</div>`;
+  await sb.auth.signOut();
   $('e-msg').innerHTML='<div class="alert ok">Senha redefinida. Faça login.</div>';
 }
-function logoff(){localStorage.removeItem('vip:sessao');location.reload();}
+async function logoff(){try{await sb.auth.signOut();}catch(e){} localStorage.removeItem('vip:sessao');location.reload();}
 
 /* ============================== BOOT ============================== */
 async function iniciarApp(){
@@ -1393,9 +1406,15 @@ async function loteXML(){
 }
 
 /* ============================== SESSÃO ============================== */
-(function boot(){
-  const s=localStorage.getItem('vip:sessao');
-  if(s&&contas().some(c=>c.email===s)){CONTA=s;iniciarApp();}
+(async function boot(){
+  localStorage.removeItem('vip:sessao');
+  // Link de recuperação de senha: abre a tela de nova senha
+  if(/type=recovery/.test(location.hash)){
+    mostrarView('esq');relogio();$('e-reset').classList.remove('hidden');
+    $('e-msg').innerHTML='<div class="alert ok">Digite a nova senha.</div>';return;
+  }
+  const {data}=await sb.auth.getUser();
+  if(data&&data.user){CONTA=data.user.email.toLowerCase();iniciarApp();}
   else{mostrarView('login');relogio();}
 })();
 </script>
