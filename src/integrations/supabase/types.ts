@@ -16,45 +16,21 @@ export type Database = {
     Tables: {
       batidas: {
         Row: {
-          empresa_id: string
-          funcionario_id: string
-          horario_utc: string | null
-          id: string
-          nsr: number
-          tipo: string
+          conta: string
+          dados: Json
+          nsr: string
         }
         Insert: {
-          empresa_id: string
-          funcionario_id: string
-          horario_utc?: string | null
-          id?: string
-          nsr: number
-          tipo: string
+          conta: string
+          dados: Json
+          nsr: string
         }
         Update: {
-          empresa_id?: string
-          funcionario_id?: string
-          horario_utc?: string | null
-          id?: string
-          nsr?: number
-          tipo?: string
+          conta?: string
+          dados?: Json
+          nsr?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "batidas_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "batidas_funcionario_id_fkey"
-            columns: ["funcionario_id"]
-            isOneToOne: false
-            referencedRelation: "funcionarios"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       dados: {
         Row: {
@@ -80,30 +56,18 @@ export type Database = {
       empresas: {
         Row: {
           atualizado_em: string
-          cnpj: string
-          criado_em: string
-          id: string
-          nsr_atual: number
-          razao_social: string
-          user_id: string
+          conta: string
+          dados: Json
         }
         Insert: {
           atualizado_em?: string
-          cnpj: string
-          criado_em?: string
-          id?: string
-          nsr_atual?: number
-          razao_social: string
-          user_id: string
+          conta: string
+          dados: Json
         }
         Update: {
           atualizado_em?: string
-          cnpj?: string
-          criado_em?: string
-          id?: string
-          nsr_atual?: number
-          razao_social?: string
-          user_id?: string
+          conta?: string
+          dados?: Json
         }
         Relationships: []
       }
@@ -133,51 +97,28 @@ export type Database = {
       }
       funcionarios: {
         Row: {
-          ativo: boolean
-          cpf: string
-          criado_em: string
-          empresa_id: string
-          id: string
-          nome: string
+          conta: string
+          dados: Json
           pin: string
         }
         Insert: {
-          ativo?: boolean
-          cpf: string
-          criado_em?: string
-          empresa_id: string
-          id?: string
-          nome: string
+          conta: string
+          dados: Json
           pin: string
         }
         Update: {
-          ativo?: boolean
-          cpf?: string
-          criado_em?: string
-          empresa_id?: string
-          id?: string
-          nome?: string
+          conta?: string
+          dados?: Json
           pin?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "funcionarios_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      registrar_ponto: {
-        Args: { p_empresa_id: string; p_pin: string; p_tipo: string }
-        Returns: Json
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never

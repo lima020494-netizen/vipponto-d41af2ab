@@ -5,13 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>VIP PONTO — Registro Eletrônico de Ponto (Portaria MTE 671/2021)</title>
 <link rel="icon" href="/favicon.png" />
-<link id="manifest-link" rel="manifest" />
-<meta name="theme-color" content="#0f172a" />
-<link rel="apple-touch-icon" href="/favicon.png" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 /* ===================== DESIGN SYSTEM ===================== */
 :root{
@@ -81,23 +77,6 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 #nome-func{font-size:27px;font-weight:900;text-align:center;margin:10px 0 2px}
 .status-ntp{text-align:center;font-weight:800;font-size:13px;margin:6px 0}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--navy);color:#fff;padding:14px 18px;border-radius:14px;z-index:999;font-weight:700;max-width:92vw;box-shadow:var(--shadow)}
-/* ===================== TEMA / TELA DE PONTO ===================== */
-:root[data-theme="dark"]{--bg:#0f172a;--card:#111c31;--txt:#f8fafc;--muted:#94a3b8;--line:#334155;--navy:#0f172a;--navy2:#2563eb}
-:root[data-theme="dark"] input,:root[data-theme="dark"] select,:root[data-theme="dark"] textarea{background:#172238;color:var(--txt)}
-#tela-ponto{min-height:100vh;background:#0f172a;color:#f8fafc}
-#tela-ponto .topbar{background:#0f172a;border-bottom:1px solid #26344d;position:relative}
-#tela-ponto .wrap{max-width:720px;padding-top:28px}
-#tela-ponto .card{background:transparent;border:0;box-shadow:none}
-#tela-ponto .pin-dot{width:72px;height:88px;background:#111c31;border:3px solid #334155;color:#f8fafc;font-size:48px}
-#tela-ponto .key{height:82px;background:#1e293b;border-color:#334155;color:#f8fafc;font-size:34px;border-radius:14px}
-#tela-ponto .key:active{background:#334155}
-#tela-ponto .key.wide{font-size:14px}
-#btn-logoff{background:#7f1d1d;border-color:#ef4444;color:#fecaca}
-#btn-tema{font-size:13px;width:auto;min-width:74px;padding:0 10px}
-.password-wrap{display:flex;gap:6px}.password-wrap input{flex:1}.password-wrap .btn{padding:0 13px}
-.check-row{display:flex;align-items:center;gap:8px;text-transform:none}.check-row input{width:auto}
-#logo-app{object-fit:contain;width:120px;height:120px;display:block;margin:0 auto 10px}
-@media(max-width:640px){#tela-ponto .pin-dot{width:58px;height:72px;font-size:40px}#tela-ponto .key{height:68px;font-size:28px}}
 /* ===================== MODAL ===================== */
 .modal{position:fixed;inset:0;background:rgba(8,18,36,.6);z-index:100;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:12px}
 .modal .inner{background:var(--bg);width:100%;max-width:1280px;border-radius:16px;padding:12px;margin:10px 0}
@@ -156,18 +135,17 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 <!-- ======================= MÓDULO 0 — LOGIN MULTI-EMPRESA ======================= -->
 <div id="tela-login">
   <div class="box">
-    <img class="logo-login" id="logo-app" src="/vip-logo.png" alt="VIP PONTO" />
+    <img class="logo-login" id="logo-login" src="/vip-logo.png" alt="VIP PONTO" />
     <div id="login-view">
       <h3 style="text-align:center">Acesso ao sistema</h3>
       <div id="saudacao" class="muted" style="text-align:center;font-weight:800;color:var(--navy)"></div>
       <label>E-mail</label><input id="l-email" type="email" autocomplete="email" placeholder="seu@email.com"/>
-      <label>Senha</label><div class="password-wrap"><input id="l-senha" type="password" autocomplete="current-password" placeholder="••••••••"/><button class="btn ghost" id="toggle-senha" type="button" onclick="toggleSenha()" aria-label="Mostrar senha">👁️</button></div>
+      <label>Senha</label><input id="l-senha" type="password" autocomplete="current-password" placeholder="••••••••"/>
       <div id="l-msg"></div>
       <button class="btn big gold" style="margin-top:12px" onclick="fazerLogin()">ACESSAR</button>
       <div class="row" style="justify-content:space-between;margin-top:12px">
         <span class="link" onclick="mostrarView('cad')">Criar conta</span>
         <span class="link" onclick="mostrarView('esq')">Esqueci a senha</span>
-        <span class="link" style="color:var(--red)" onclick="abrirExcluirConta()">Excluir Conta</span>
       </div>
     </div>
     <div id="cad-view" class="hidden">
@@ -206,14 +184,13 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 </div>
 
 <!-- ======================= TELA INICIAL ======================= -->
-<div id="tela-ponto" class="hidden">
+<div id="tela-home" class="hidden">
   <div class="topbar">
-    <button class="icon-btn" id="btn-tema" title="Alternar tema" onclick="alternarTema()">Auto</button>
     <button class="icon-btn" title="Gestor de ponto" onclick="pedirPinGestor()" aria-label="Gestor"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     <img id="logo-empresa" src="/vip-logo.png" alt="Logo empresa"/>
     <div style="line-height:1.1"><div id="home-fantasia" style="font-weight:800"></div><div id="home-hora" class="muted" style="color:#cfd8e8"></div></div>
     <button class="icon-btn right" title="Portal do Empregado" onclick="pedirPinPortal()" aria-label="Portal do Empregado"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></button>
-    <button class="icon-btn" id="btn-logoff" title="Sair da conta" onclick="logoff()" aria-label="Sair"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v10"/><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/></svg></button>
+    <button class="icon-btn" title="Sair da conta" onclick="logoff()" aria-label="Sair"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v10"/><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/></svg></button>
   </div>
   <div class="wrap" style="max-width:640px">
     <div class="card">
@@ -439,7 +416,7 @@ function relogio(){const d=getHoraOficial();if($('home-hora'))$('home-hora').tex
 /* ============================== MÓDULO 1 — EMPREGADOR ============================== */
 const UFS=['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 function telaEmpregador(alvo){
-  if(!alvo){ $('tela-ponto').classList.add('hidden'); $('tela-empregador').classList.remove('hidden'); alvo='empregador-form'; }
+  if(!alvo){ $('tela-home').classList.add('hidden'); $('tela-empregador').classList.remove('hidden'); alvo='empregador-form'; }
   const e=get('empregador',{})||{};
   $(alvo).innerHTML=`
   <div class="card"><h3>Dados do Empregador</h3>
@@ -537,9 +514,9 @@ function excluirGer(i){
 let PIN='', PIN_TIMERS=[], LIMPA_TIMER=null;
 function telaHome(){
   $('tela-empregador').classList.add('hidden'); $('tela-login').classList.add('hidden');
-  $('tela-ponto').classList.remove('hidden');
+  $('tela-home').classList.remove('hidden');
   const e=get('empregador',{})||{};
-  $('logo-empresa').src=e.logo||'/vip-logo.png'; $('logo-app').src=logoAppAtual();
+  $('logo-empresa').src=e.logo||'/vip-logo.png'; $('logo-login').src='/vip-logo.png';
   $('home-fantasia').textContent=e.fantasia||e.razao||'VIP PONTO';
   pinLimpar();
 }
@@ -601,8 +578,7 @@ async function registrarPonto(){
   }
   const data=jornadaAtualISO(f.pin), agora=getHoraOficial();
   const bs=get('batidas',[]).filter(b=>b.pin===f.pin&&b.data===data);
-  const maxBatidas=f.jornada?.usaExtra?6:4;
-  if(bs.length>=maxBatidas) return toast(`Limite de ${maxBatidas} batidas para esta jornada.`,4000);
+  if(bs.length>=6) return toast('Limite 6 batidas',4000);
   const b={pin:f.pin,nome:f.nome,cpf:f.cpf,data,hora:hhmm(agora),tipo:TIPOS[bs.length],nsr:proximoNSR(),
     fonte:NTP_OK?'SERVIDOR':'LOCAL',sync:NTP_OK,offset:get('ntpOffset',0),gerenciador:GERENCIADOR?GERENCIADOR.nome:'—',
     criadoEm:new Date().toISOString()};
@@ -751,9 +727,8 @@ function novoPin(){
 let SUBF='lista';
 function abaFunc(){
   const fs=get('funcionarios',[]);
-  const tabs=`<div class="tabs" style="margin-bottom:10px">${[['lista','Empregados'],['listas','Funções, Cargos e Departamentos'],['pins','Relatório de PINs']].map(([k,t])=>`<div class="tab ${SUBF===k?'active':''}" onclick="SUBF='${k}';abaFunc()">${t}</div>`).join('')}</div>`;
+  const tabs=`<div class="tabs" style="margin-bottom:10px">${[['lista','Empregados'],['listas','Funções, Cargos e Departamentos']].map(([k,t])=>`<div class="tab ${SUBF===k?'active':''}" onclick="SUBF='${k}';abaFunc()">${t}</div>`).join('')}</div>`;
   if(SUBF==='listas'){ $('gestor-body').innerHTML=tabs+'<div id="listas-body"></div>'; return gerirListas(); }
-  if(SUBF==='pins'){ $('gestor-body').innerHTML=tabs+'<div id="relatorio-pins"></div>'; return relatorioPins(); }
   $('gestor-body').innerHTML=tabs+`<div class="row"><h3>Empregados — ${fs.length}/12 vagas</h3>
     <button class="btn right" ${fs.length>=12?'disabled':''} onclick="formFunc(-1)">+ Novo empregado</button></div>
     <div class="tbl-wrap"><table><tr><th>#</th><th>Nome</th><th>CPF</th><th>Cargo/Função</th><th>Depto</th><th>Escala</th><th>Banco desde</th><th>Status</th><th>PIN (só gestor)</th><th></th></tr>
@@ -797,20 +772,10 @@ function formFunc(i){
     <div><label>Cidade</label><input id="f-cidade" value="${esc(f.cidade||'')}"/></div>
     <div><label>UF</label><select id="f-uf">${UFS.map(u=>`<option ${f.uf===u?'selected':''}>${u}</option>`).join('')}</select></div>
     <div><label>PIN (automático, único — visível só ao gestor)</label><input id="f-pin" value="${esc(f.pin)}" readonly/></div>
-    <div><label>Início vigência banco de horas *</label><input type="date" id="inicio-vigencia-banco" value="${f.inicioVigenciaBancoHoras||f.bancoInicio||''}" required/></div>
+    <div><label>Início vigência banco de horas *</label><input type="date" id="f-bh" value="${f.bancoInicio||''}"/></div>
     <div><label>Data de admissão *</label><input type="date" id="f-adm" value="${f.admissao||''}"/></div>
     <div><label>Escala MTE *</label><select id="f-escala">${ESCALAS.map(e=>`<option value="${e[0]}" ${f.escala===e[0]?'selected':''}>${e[1]}</option>`).join('')}</select></div>
     <div><label>Status *</label><select id="f-status" onchange="statusCond()">${['Ativo','Desligado','Afastamento','Férias'].map(s=>`<option ${f.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
-  </div>
-  <div class="card" style="margin-top:12px"><h4>Intervalo</h4>
-    <label class="check-row"><input type="checkbox" id="intervalo-pre-func" ${f.intervalo?.preAssinalado?'checked':''} onchange="toggleIntervaloFunc()"/> Pré-assinalado Art71 (não bate)</label>
-    <div id="intervalo-horas-func" class="grid g2 ${f.intervalo?.preAssinalado?'':'hidden'}">
-      <div><label>Início</label><input type="time" id="pre-inicio-func" value="${f.intervalo?.inicio||'12:00'}"/></div>
-      <div><label>Fim</label><input type="time" id="pre-fim-func" value="${f.intervalo?.fim||'13:00'}"/></div>
-    </div>
-  </div>
-  <div class="card"><h4>Jornada</h4>
-    <label class="check-row"><input type="checkbox" id="usa-extra-func" ${f.jornada?.usaExtra?'checked':''}/> 5ª Entrada Extra / 6ª Saída Extra</label>
   </div>
   <div id="cond" class="grid g4"></div><div id="f-msg"></div>
   <button class="btn big gold" style="margin-top:10px" onclick="salvarFunc(${i})">SALVAR</button></div>`);
@@ -831,11 +796,10 @@ function salvarFunc(i){
   const fs=get('funcionarios',[]), v=id=>($(id)?$(id).value.trim():'');
   const o={nome:v('f-nome'),cpf:v('f-cpf'),email:v('f-email'),cargo:v('f-cargo'),funcao:v('f-funcao'),departamento:v('f-dep'),
     rua:v('f-rua'),numero:v('f-num'),bairro:v('f-bairro'),cidade:v('f-cidade'),uf:v('f-uf'),pin:v('f-pin'),
-    admissao:v('f-adm'),inicioVigenciaBancoHoras:v('inicio-vigencia-banco'),bancoInicio:v('inicio-vigencia-banco'),escala:v('f-escala'),status:v('f-status'),
-    intervalo:{preAssinalado:$('intervalo-pre-func').checked,inicio:v('pre-inicio-func')||'12:00',fim:v('pre-fim-func')||'13:00'},jornada:{usaExtra:$('usa-extra-func').checked,max:$('usa-extra-func').checked?6:4},
+    admissao:v('f-adm'),bancoInicio:v('f-bh')||v('f-adm'),escala:v('f-escala'),status:v('f-status'),
     dataDesligamento:v('f-desl'),afastDe:v('f-ade'),afastAte:v('f-aate'),motivoAfast:v('f-amot'),feriasIni:v('f-fi'),feriasFim:v('f-ff')};
   const err=[];
-  if(!o.nome||!o.cpf||!o.funcao||!o.departamento||!o.admissao||!o.inicioVigenciaBancoHoras) err.push('Nome, CPF, Função, Departamento, Admissão e início da vigência do banco são obrigatórios.');
+  if(!o.nome||!o.cpf||!o.funcao||!o.departamento||!o.admissao) err.push('Nome, CPF, Função, Departamento e Admissão são obrigatórios.');
   if(o.status==='Desligado'&&!o.dataDesligamento) err.push('Data de desligamento obrigatória.');
   if(o.status==='Afastamento'&&(!o.afastDe||!o.afastAte||!o.motivoAfast)) err.push('Período e motivo do afastamento obrigatórios.');
   if(o.status==='Férias'&&(!o.feriasIni||!o.feriasFim)) err.push('Início e término das férias obrigatórios.');
@@ -881,21 +845,14 @@ function previstoDia(f,iso){
   return cargaEscala(f.escala);
 }
 function batidasDia(pin,iso){return get('batidas',[]).filter(b=>b.pin===pin&&b.data===iso).sort((a,b)=>toMin(a.hora)-toMin(b.hora));}
-function calculaNoturna(bs){
-  const pares=[['Entrada','Saída Intervalo'],['Entrada Intervalo','Saída'],['Entrada Extra','Saída Extra']]; let reais=0;
-  const noite=(m)=>m>=1320?m:m+1440;
-  pares.forEach(([a,b])=>{const x=bs.find(v=>v.tipo===a),y=bs.find(v=>v.tipo===b);if(!x||!y)return;let ini=toMin(x.hora),fim=toMin(y.hora);if(fim<ini)fim+=1440;const nIni=Math.max(ini,1320),nFim=Math.min(fim,1740);reais+=Math.max(0,nFim-nIni);});
-  return {reais,equivalentes:Math.round(reais*1.142857),credito:Math.round(reais*0.142857)};
-}
-function minutosTrabalhados(bs,f){
+function minutosTrabalhados(bs){
   let t=0;
   const m=t=>toMin(t);
   const byTipo=tp=>bs.filter(b=>b.tipo===tp)[0];
   const e1=byTipo('Entrada'),s1=byTipo('Saída Intervalo'),e2=byTipo('Entrada Intervalo'),s2=byTipo('Saída'),
         e3=byTipo('Entrada Extra'),s3=byTipo('Saída Extra');
   const dif=(a,b)=>{if(!a||!b)return 0;let d=m(b.hora)-m(a.hora);if(d<0)d+=1440;return d;}; // virada noturna
-  if(f?.intervalo?.preAssinalado&&e1&&s2){t=dif(e1,s2)-Math.max(0,toMin(f.intervalo.fim)-toMin(f.intervalo.inicio));}
-  else if(e1&&s1&&e2&&s2) t=dif(e1,s1)+dif(e2,s2); else t=dif(e1,s2||s1);
+  if(e1&&s1&&e2&&s2) t=dif(e1,s1)+dif(e2,s2); else t=dif(e1,s2||s1);
   t+=dif(e3,s3);
   return t;
 }
@@ -905,8 +862,8 @@ function dadosFolha(pin,ini,fim){
   let tot={faltas:0,faltasJust:0,faltasInj:0,folgas:0,feriados:0,extras:0,faltantes:0,trabalhado:0,atrasos:0};
   const just=[];
   for(let d=ini; d<=fim; d=addDias(d,1)){
-    const bs=batidasDia(pin,d), prev=previstoDia(f,d), trab=minutosTrabalhados(bs,f);
-    const fer=feriadoDe(d), folga=folgaEscala(pin,d), noturna=calculaNoturna(bs);
+    const bs=batidasDia(pin,d), prev=previstoDia(f,d), trab=minutosTrabalhados(bs);
+    const fer=feriadoDe(d), folga=folgaEscala(pin,d);
     let oc='', cls='';
     const por=b=>b?(b.hora):'';
     const g=tp=>bs.filter(b=>b.tipo===tp)[0];
@@ -936,7 +893,7 @@ function dadosFolha(pin,ini,fim){
     const mov=bs.filter(b=>b.movimento).map(b=>`_${b.hora} ${b.movimento}`).join(' | ');
     linhas.push({data:d,dia:DIAS[dow(d)],e1:por(g('Entrada')),e2:por(g('Saída Intervalo')),e3:por(g('Entrada Intervalo')),e4:por(g('Saída')),
       ex1:por(g('Entrada Extra')),ex2:por(g('Saída Extra')),trabalhado:trab,previsto:prev,saldo:bs.length?trab-prev:(prev>0?-prev:0),
-      ocorrencia:(oc||'NORMAL')+(noturna.reais?' *N':''),cls,fonte:bs[0]?bs[0].fonte:'—',mov,nsr:bs.map(b=>b.nsr).join(' / '),noturna});
+      ocorrencia:oc||'NORMAL',cls,fonte:bs[0]?bs[0].fonte:'—',mov,nsr:bs.map(b=>b.nsr).join(' / ')});
   }
   const banco=calcBanco(pin,ini,fim);
   return {f,ini,fim,linhas,tot,just,banco};
@@ -946,10 +903,9 @@ function calcBanco(pin,ini,fim){
   const soma=(de,ate)=>{
     let cred=0,deb=0,det=[];
     for(let d=de; d<=ate; d=addDias(d,1)){
-      const bs=batidasDia(pin,d),prev=previstoDia(f,d),trab=minutosTrabalhados(bs,f);
+      const bs=batidasDia(pin,d),prev=previstoDia(f,d),trab=minutosTrabalhados(bs);
       if(bs.length){
         if(trab>prev){cred+=trab-prev;det.push(`Crédito - Hora Extra dia ${brOf(d)} - Previsto ${toHHMM(prev)} / Realizado ${toHHMM(trab)}`);}
-        const nt=calculaNoturna(bs);if(nt.credito){cred+=nt.credito;det.push(`Crédito - Hora noturna reduzida dia ${brOf(d)} - +${toHHMM(nt.credito)}`);}
         else if(trab<prev){deb+=prev-trab;det.push(`Débito - Carga incompleta dia ${brOf(d)}`);}
       } else if(prev>0){deb+=prev;det.push(`Débito - Falta dia ${brOf(d)}`);}
     }
@@ -961,7 +917,7 @@ function calcBanco(pin,ini,fim){
     for(let i=0;i<extrasFolga;i++){const it=folgas[folgas.length-1-i];deb+=cargaEscala(f.escala);det.push(`Débito - Folga Compensatória dia ${brOf(it.d)}`);}
     return {cred,deb,det};
   };
-  const vig=f.inicioVigenciaBancoHoras||f.bancoInicio||f.admissao||ini;
+  const vig=f.bancoInicio||f.admissao||ini;
   const ant=vig<ini?soma(vig,addDias(ini,-1)):{cred:0,deb:0,det:[]};
   const per=vig>fim?{cred:0,deb:0,det:[`Banco de horas vigente a partir de ${brOf(vig)}`]}:soma(vig>ini?vig:ini,fim);
   const anterior=ant.cred-ant.deb;
@@ -1038,7 +994,7 @@ function salvarBatidaManual(){
   if(!data||!hora)return alert('Informe data e hora.');
   if(motivo.length<5)return alert('Motivo obrigatório (mín. 5 caracteres).');
   const f=funcPorPin(pin), all=get('batidas',[]);
-  const maxBatidas=f.jornada?.usaExtra?6:4; if(all.filter(b=>b.pin===pin&&b.data===data).length>=maxBatidas)return alert(`Limite de ${maxBatidas} batidas no dia.`);
+  if(all.filter(b=>b.pin===pin&&b.data===data).length>=6)return alert('Limite 6 batidas no dia.');
   all.push({pin,nome:f.nome,cpf:f.cpf,data,hora,tipo,nsr:proximoNSR(),fonte:'MANUAL',sync:false,offset:get('ntpOffset',0),
     gerenciador:GERENCIADOR.nome,movimento:`Inserida manualmente - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`,criadoEm:new Date().toISOString()});
   set('batidas',all); log(`Batida manual inserida ${brOf(data)} ${hora} ${f.nome} - Motivo: ${motivo}`); fecharModal(); subBatidas();
@@ -1269,7 +1225,7 @@ function abaFolha(){
     <button class="btn sm ghost" onclick="imprimirFolhaTela()">🖨 Imprimir</button>
     <button class="btn sm" onclick="pdfFolhas([$('fl-pin').value],$('fl-ini').value,$('fl-fim').value)">Exportar PDF</button>
     <button class="btn sm" onclick="xmlFolha($('fl-pin').value,$('fl-ini').value,$('fl-fim').value)">Exportar XML (AFD/ACJEF)</button>
-    <button class="btn sm" onclick="gerarAFDOficial($('fl-ini').value,$('fl-fim').value)">AFD oficial (671)</button>
+    <button class="btn sm" onclick="gerarAFD($('fl-ini').value,$('fl-fim').value)">AFD oficial (671)</button>
     <button class="btn sm" onclick="gerarAEJ($('fl-ini').value,$('fl-fim').value)">AEJ oficial (671)</button>
     <button class="btn sm ghost" onclick="atestadoTecnico()">Atestado Técnico</button>
     <button class="btn sm ghost right" onclick="telaLote()">📦 Exportação em Lote</button>
@@ -1298,14 +1254,14 @@ function cabecalhoFolhaHTML(f,ini,fim){
 function htmlFolha(pin,ini,fim){
   if(!pin||!ini||!fim) return '<div class="alert err">Selecione funcionário e período.</div>';
   const d=dadosFolha(pin,ini,fim),f=d.f,dt=getHoraOficial(),e=get('empregador',{})||{};
-  const usaExtra=!!f.jornada?.usaExtra; const intervalo=f.intervalo?.preAssinalado?`Intervalo pré-assinalado ${f.intervalo.inicio}-${f.intervalo.fim} - Art71`:'';
+  const histEsc=get('logsEscala',[]).filter(h=>h.semana>=inicioSemana(ini)&&h.semana<=inicioSemana(fim));
   return `<div class="folha">
     <h3>Folha de Ponto — Portaria MTE 671/2021</h3>
     ${cabecalhoFolhaHTML(f,ini,fim)}
     <div class="tbl-wrap"><table>
-    <tr><th>Dia</th><th>Dia Semana</th><th>Entrada</th><th>Saída Interv.</th><th>Entrada Interv.</th><th>Saída</th>${usaExtra?'<th>Extra</th>':''}<th>Horas Trab.</th><th>Saldo Dia</th><th>Ocorrência</th><th>Fonte</th></tr>
+    <tr><th>Dia</th><th>Dia Semana</th><th>Entrada</th><th>Saída Interv.</th><th>Entrada Interv.</th><th>Saída</th><th>Horas Trab.</th><th>Saldo Dia</th><th>Ocorrência</th><th>Fonte</th></tr>
     ${d.linhas.map(l=>`<tr><td>${brOf(l.data).slice(0,5)}</td><td>${l.dia}</td><td>${l.e1||'--:--'}</td><td>${l.e2||'--:--'}</td><td>${l.e3||'--:--'}</td><td>${l.e4||'--:--'}</td>
-      ${usaExtra?`<td>${l.ex1||'--:--'} / ${l.ex2||'--:--'}</td>`:''}<td>${toHHMM(l.trabalhado)}${l.noturna.reais?' *N':''}</td><td>${toSaldo(l.saldo)}</td>
+      <td>${toHHMM(l.trabalhado)}</td><td>${toSaldo(l.saldo)}</td>
       <td>${l.cls?`<span class="tag ${l.cls}">${esc(l.ocorrencia)}</span>`:esc(l.ocorrencia)}${l.mov?`<div class="muted">${esc(l.mov)}</div>`:''}</td>
       <td>${l.fonte}</td></tr>`).join('')}
     </table></div>
@@ -1316,9 +1272,9 @@ function htmlFolha(pin,ini,fim){
       <div>Total de Horas Extras: <b>${toHHMM(d.tot.extras)}</b> • Total de Horas Faltantes/Atrasos: <b>${toHHMM(d.tot.faltantes)}</b></div>
       <div>Banco de Horas — Saldo Anterior: <b>${toSaldo(d.banco.anterior)}</b> • Créditos: <b>+${toHHMM(d.banco.creditos)}</b> • Débitos: <b>-${toHHMM(d.banco.debitos)}</b> • Saldo Atual: <b>${toSaldo(d.banco.atual)}</b></div>
       ${d.just.length?`<div style="margin-top:6px"><b>Justificativas:</b><br>${d.just.map(j=>esc(j)).join('<br>')}</div>`:''}
-      ${intervalo?`<div style="margin-top:6px"><b>${esc(intervalo)}</b></div>`:''}
+      ${histEsc.length?`<div style="margin-top:6px"><b>Alterações de escala no período:</b><br>${histEsc.map(h=>esc(h.texto)).join('<br>')}</div>`:''}
       <div class="muted" style="margin-top:6px"><b>Legenda:</b> ${LEGENDA}</div>
-      <div style="margin-top:6px">${rodapeOficial(dt)}</div>
+      <div style="margin-top:6px">Gerado em ${brOf(isoOf(dt))} às ${hhmm(dt)} por ${assinaGerenciador()} — Portaria MTE 671/2021</div>
       <div>${esc(e.cidade||'Salinópolis')}-${esc(e.uf||'PA')}, ${brOf(isoOf(dt))}</div>
       <div class="assin"><div>Assinatura do Diretor</div><div>Assinatura do Empregado</div></div>
     </div></div>`;
@@ -1554,7 +1510,7 @@ function atestadoTecnico(){
 }
 
 /* ===================== MANUAL DO USUÁRIO ===================== */
-const MANUAL_ANTIGO=[
+const MANUAL=[
  ['1. Primeiro acesso','Crie sua conta (até 3 por aparelho). A senha precisa de 8 caracteres com maiúscula, minúscula, número e símbolo (!@#$%&_). Depois preencha o cadastro do Empregador: CNPJ/CPF, razão social, nome fantasia, endereço, horário padrão e logo. Cadastre de 1 a 4 gerenciadores, cada um com PIN próprio.'],
  ['2. Bater o ponto','Na tela inicial o empregado digita o PIN de 4 números. Cada número aparece por 1 segundo e vira bolinha. O nome e as batidas do dia aparecem; toque em ✓ REGISTRAR. O sistema usa a hora oficial do servidor (🟢 NTP OK), gera o NSR e imprime o comprovante. Depois de 5 segundos a tela limpa sozinha.'],
  ['3. Comprovante','A cada batida o comprovante sai na impressora térmica (SUNMI D2 Mini ou USB 58/80mm). Se não imprimir, toque na batida no histórico para reimprimir ou enviar por e-mail.'],
@@ -1584,61 +1540,6 @@ function manualPDF(){
   const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(8);doc.text(`Desenvolvido por ${d.nome}${d.email?' — '+d.email:''}`,12,290);doc.text(`Página ${i}/${n}`,198,290,{align:'right'});}
   doc.save('Manual_VIP_PONTO.pdf');
 }
-
-/* ===================== APRIMORAMENTOS 2026 ===================== */
-const MANUAL=[
- ['🔐 1. Acesso','Entre com e-mail e senha. Use o olho para conferir a senha. Cada conta mantém seus dados isolados; o botão vermelho ⏻ encerra a sessão.'],
- ['🏢 2. Empresa e equipe','Cadastre empregador, logo e gerenciadores. Em Empregados informe vigência do banco, intervalo Art. 71 e se a jornada usa 4 ou 6 marcações.'],
- ['⏱️ 3. Registro','O empregado digita o PIN e registra. O número aparece por 1 segundo, o campo limpa em 5 segundos e o comprovante usa a logo da empresa.'],
- ['📅 4. Escala','Filtre 7, 15 ou 30 dias. Marque trabalho, DSR e folgas; a escala define a folha e o atraso após 10 minutos. Importe CSV/XLSX somente após conferir a prévia.'],
- ['📄 5. Folha e banco','A folha aplica intervalo pré-assinalado, hora noturna reduzida e banco desde a vigência. Gere o mesmo PDF no gestor, em lote ou no Portal do Empregado.'],
- ['🛡️ 6. Auditoria','PINs aparecem somente no relatório confidencial do gestor. Ajustes e importações ficam no Histórico; AFD, AEJ e atestado ficam na área de Folha.']
-];
-function toggleIntervaloFunc(){const on=$('intervalo-pre-func')?.checked;$('intervalo-horas-func')?.classList.toggle('hidden',!on);}
-function toggleSenha(){const i=$('l-senha');i.type=i.type==='password'?'text':'password';$('toggle-senha').setAttribute('aria-label',i.type==='password'?'Mostrar senha':'Ocultar senha');}
-const TEMAS=['auto','claro','escuro'];
-function aplicarTema(t){localStorage.setItem('vip_ponto_tema',t);const escuro=t==='escuro'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=escuro?'dark':'light';if($('btn-tema'))$('btn-tema').textContent=t==='auto'?'Auto':t==='claro'?'Claro':'Escuro';document.querySelector('meta[name="theme-color"]').content=escuro?'#0f172a':'#f4f6fb';}
-function alternarTema(){const atual=localStorage.getItem('vip_ponto_tema')||'auto';aplicarTema(TEMAS[(TEMAS.indexOf(atual)+1)%TEMAS.length]);}
-matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if((localStorage.getItem('vip_ponto_tema')||'auto')==='auto')aplicarTema('auto')});
-function logoAppAtual(){return localStorage.getItem('vip_ponto_logo_app')||'/vip-logo.png';}
-function devCfg(){try{return Object.assign({},DEV,JSON.parse(localStorage.getItem('vip_ponto_dev_info')||'{}'));}catch{return DEV;}}
-function rodapeOficial(dt=getHoraOficial()){const d=devCfg(),g=GERENCIADOR;return `Gerado em ${brOf(isoOf(dt))} ${hhmm(dt)} por Gerenciador ${g?.nome||'Portal do Empregado'} - ${g?.funcao||'Empregado'} - MTE 671 - VIP PONTO - Dev ${d.empresa||'Atalaia'} - Manual?`;}
-function configurarManifesto(){const manifest={name:'VIP PONTO',short_name:'VIP PONTO',start_url:'/',scope:'/',display:'standalone',theme_color:'#0f172a',background_color:'#0f172a',icons:[{src:'/favicon.png',sizes:'192x192',type:'image/png',purpose:'any maskable'}]};$('manifest-link').href=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'}));}
-function abrirExcluirConta(){abrirModal(`<div class="row"><h3>Excluir Conta</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div><div class="card"><div class="alert warn">Esta ação remove os dados desta conta deste aparelho e solicita a exclusão dos dados sincronizados. A identidade de login poderá exigir remoção pelo administrador do Supabase.</div><label>Digite o e-mail</label><input id="exc-email" type="email"/><label>Digite a senha</label><input id="exc-senha" type="password"/><label class="check-row"><input id="exc-confirma" type="checkbox"/> Confirmo que desejo excluir esta conta</label><div id="exc-msg"></div><button class="btn red big" onclick="confirmarExcluirConta()">Excluir definitivamente</button></div>`);}
-async function confirmarExcluirConta(){const email=$('exc-email').value.trim().toLowerCase(),senha=$('exc-senha').value;if(!email||!senha||!$('exc-confirma').checked)return $('exc-msg').innerHTML='<div class="alert err">Preencha e confirme todos os campos.</div>';const {data,error}=await sb.auth.signInWithPassword({email,password:senha});if(error||data.user?.email?.toLowerCase()!==email)return $('exc-msg').innerHTML='<div class="alert err">E-mail ou senha inválidos.</div>';for(const tabela of ['empresas','funcionarios','batidas','feriados','dados']){const {error:e}=await sb.from(tabela).delete().eq('conta',email);if(e)return $('exc-msg').innerHTML='<div class="alert err">Não foi possível excluir todos os dados. Tente novamente.</div>';}Object.keys(localStorage).filter(k=>k.startsWith(`vip:${email}:`)).forEach(k=>localStorage.removeItem(k));salvaContas(contas().filter(c=>c.email!==email));await sb.auth.signOut();location.reload();}
-function relatorioPins(){const fs=get('funcionarios',[]);$('relatorio-pins').innerHTML=`<div class="row"><h3>Relatório de PINs</h3><span class="badge">CONFIDENCIAL</span><button class="btn sm ghost right" onclick="imprimirRelatorioPins()">Imprimir</button><button class="btn sm" onclick="pdfRelatorioPins()">PDF CONFIDENCIAL</button></div><div class="alert warn">Acesso exclusivo de gerenciadores. PINs nunca aparecem na folha.</div><div class="tbl-wrap" id="pins-print"><table><tr><th>Nome</th><th>CPF</th><th>Cargo</th><th>Depto</th><th>PIN</th><th>Status</th></tr>${fs.map(f=>`<tr><td>${esc(f.nome)}</td><td>${esc(f.cpf)}</td><td>${esc(f.cargo||f.funcao)}</td><td>${esc(f.departamento)}</td><td><b>${esc(f.pin)}</b></td><td>${esc(statusTexto(f))}</td></tr>`).join('')}</table></div>`;}
-function imprimirRelatorioPins(){imprimirArea($('pins-print').innerHTML,'RELATÓRIO CONFIDENCIAL DE PINs');log('Imprimiu relatório confidencial de PINs');}
-function pdfRelatorioPins(){const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),fs=get('funcionarios',[]);let y=14;doc.setFont('helvetica','bold');doc.setFontSize(14);doc.text('RELATÓRIO CONFIDENCIAL DE PINs',105,y,{align:'center'});y+=10;doc.setFontSize(9);fs.forEach(f=>{doc.text(`${f.nome} | CPF ${f.cpf} | ${f.cargo||f.funcao} | ${f.departamento} | PIN ${f.pin} | ${statusTexto(f)}`.slice(0,115),10,y);y+=6;if(y>280){doc.addPage();y=14;}});doc.save('PINs_CONFIDENCIAL.pdf');log('Exportou relatório confidencial de PINs');}
-function gerarPDFComLogo(dados,modo='save'){const {jsPDF}=window.jspdf,e=get('empregador',{})||{},doc=new jsPDF({unit:'mm',format:'a4'}),pins=dados.pins||[dados.pin];let first=true;pins.forEach(pin=>{const d=dadosFolha(pin,dados.ini,dados.fim),f=d.f,dt=getHoraOficial();if(!first)doc.addPage();first=false;let y=12;if(e.logo)try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),170,6,28,16)}catch{}const L=(t,z=8,b=false)=>{const ls=doc.splitTextToSize(String(t),188);if(y+ls.length*4>278){doc.addPage();y=12;}doc.setFont('helvetica',b?'bold':'normal');doc.setFontSize(z);doc.text(ls,10,y);y+=ls.length*4+1};L(`${e.razao||''} — ${e.fantasia||''}`,11,true);L(`${e.tipo||'CNPJ'}: ${e.doc||''} • CEI/CAEPF/CNO: ${e.cei||'—'}`);L(`FOLHA DE PONTO — MTE 671/2021`,11,true);L(`${f.nome} • CPF ${f.cpf||''} • ${f.funcao||''} • ${f.departamento||''} • ${brOf(dados.ini)} a ${brOf(dados.fim)}`);if(f.intervalo?.preAssinalado)L(`Intervalo pré-assinalado ${f.intervalo.inicio}-${f.intervalo.fim} - Art71`,8,true);L(`Dia  Sem  Entrada  Saída Int.  Entrada Int.  Saída${f.jornada?.usaExtra?'  Extra':''}  Trab.  Saldo  Ocorrência`,7,true);d.linhas.forEach(l=>L(`${brOf(l.data).slice(0,5)} ${l.dia.slice(0,3)} ${l.e1||'--:--'} ${l.e2||'--:--'} ${l.e3||'--:--'} ${l.e4||'--:--'}${f.jornada?.usaExtra?` ${l.ex1||'--:--'}/${l.ex2||'--:--'}`:''} ${toHHMM(l.trabalhado)}${l.noturna.reais?' *N':''} ${toSaldo(l.saldo)} ${l.ocorrencia}`,7));L(`Banco: anterior ${toSaldo(d.banco.anterior)} | créditos +${toHHMM(d.banco.creditos)} | débitos -${toHHMM(d.banco.debitos)} | atual ${toSaldo(d.banco.atual)}`,8,true);L(rodapeOficial(dt),7);y+=10;L('____________________________        ____________________________',8);L('Assinatura do Diretor                        Assinatura do Empregado',8)});if(modo==='blob')return doc.output('blob');doc.save(dados.nome||`Folha_MTE_${dados.ini}_${dados.fim}.pdf`);log(`Exportou PDF de folha (${pins.length} funcionário(s))`);return doc;}
-function pdfFolhas(pins,ini,fim,nomeArq){return gerarPDFComLogo({pins,ini,fim,nome:nomeArq});}
-async function portalEmail(pin){const f=funcPorPin(pin),blob=gerarPDFComLogo({pin,ini:$('pe-ini').value,fim:$('pe-fim').value},'blob'),url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`Folha_${f.nome.replace(/\s+/g,'_')}.pdf`;a.click();setTimeout(()=>URL.revokeObjectURL(url),4000);toast('PDF idêntico ao do app baixado. Anexe-o ao e-mail do empregado.',5000);}
-async function lotePDFZip(){const p=loteValida();if(!p)return;const zip=new JSZip(),ini=$('lt-ini').value,fim=$('lt-fim').value;for(const pin of p){const f=funcPorPin(pin);zip.file(`${f.nome.toUpperCase().replace(/[^A-Z]+/g,'_')}.pdf`,gerarPDFComLogo({pin,ini,fim},'blob'));}const b=await zip.generateAsync({type:'blob'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`Folhas_MTE_${ini}_${fim}.zip`;a.click();log(`Exportou ZIP de PDFs em lote (${p.length})`);}
-function gerarAFDOficial(ini,fim){if(!ini||!fim)return alert('Selecione o período.');const e=get('empregador',{})||{},bs=get('batidas',[]).filter(b=>b.data>=ini&&b.data<=fim).sort((a,b)=>a.nsr.localeCompare(b.nsr));const linhas=bs.map(b=>`${padL(b.nsr,9)}3${b.data.split('-').reverse().join('')}${b.hora.replace(':','')}${padL(soNum(e.doc),14)}${padL(soNum(b.cpf),11)}`);linhas.push(`${padL(linhas.length+1,9)}9VIP PONTO Atalaia Sistemas Salinópolis-PA`);baixar(`AFD_Tipo3_${ini}_${fim}.txt`,linhas.join('\r\n')+'\r\n','text/plain;charset=iso-8859-1');log(`Gerou AFD Tipo 3 ${brOf(ini)}–${brOf(fim)}`);}
-function baixarModeloEscala(){baixar('Modelo_Escala.csv','\uFEFFDepartamento;Funcionario;PIN;Data;Tipo;HorarioEntrada\nSalão;Nome completo;0000;2026-10-01;Trabalhado;08:00\n','text/csv;charset=utf-8');}
-function abrirImportEscala(){abrirModal(`<div class="row"><h3>Importar escala CSV/XLSX</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div><div class="card"><input id="escala-arquivo" type="file" accept=".csv,.xlsx,.xls" onchange="preverImportEscala(this.files[0])"/><div id="escala-preview" style="margin-top:12px"></div></div>`);}
-let IMPORT_ESCALA=[];
-async function preverImportEscala(file){if(!file)return;try{const buf=await file.arrayBuffer(),wb=XLSX.read(buf,{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});IMPORT_ESCALA=rows.map(r=>({pin:String(r.PIN||r.Pin||r.pin).padStart(4,'0'),dia:String(r.Data||r.data).slice(0,10),tipo:String(r.Tipo||r.tipo||'Trabalhado'),horarioEntrada:String(r.HorarioEntrada||r['Horário Entrada']||r.horarioEntrada||'').slice(0,5)})).filter(r=>funcPorPin(r.pin)&&/^\d{4}-\d{2}-\d{2}$/.test(r.dia));$('escala-preview').innerHTML=`<div class="alert ${IMPORT_ESCALA.length?'ok':'err'}">${IMPORT_ESCALA.length} linha(s) válida(s).</div><div class="tbl-wrap"><table><tr><th>PIN</th><th>Funcionário</th><th>Data</th><th>Tipo</th><th>Entrada</th></tr>${IMPORT_ESCALA.slice(0,50).map(r=>`<tr><td>${r.pin}</td><td>${esc(funcPorPin(r.pin).nome)}</td><td>${brOf(r.dia)}</td><td>${esc(r.tipo)}</td><td>${esc(r.horarioEntrada)}</td></tr>`).join('')}</table></div><button class="btn gold" ${IMPORT_ESCALA.length?'':'disabled'} onclick="confirmarImportEscala()">Confirmar e salvar</button>`;}catch(e){$('escala-preview').innerHTML='<div class="alert err">Arquivo inválido.</div>';}}
-function confirmarImportEscala(){const all=get('escalas',{})||{};IMPORT_ESCALA.forEach(r=>{const ini=inicioSemana(r.dia),obj=all[ini]||(all[ini]={semanaInicio:ini,semanaFim:addDias(ini,6),criacaoData:new Date().toISOString(),folgas:[]}),i=obj.folgas.findIndex(x=>x.pin===r.pin&&x.dia===r.dia),item={pin:r.pin,dia:r.dia,tipo:r.tipo,horarioEntrada:r.tipo==='Trabalhado'?r.horarioEntrada:''};if(i>=0)obj.folgas[i]=item;else obj.folgas.push(item)});set('escalas',all);log(`Importou escala por planilha (${IMPORT_ESCALA.length} linhas)`);fecharModal();subEscala();}
-const subEscalaBase=subEscala;
-subEscala=function(){
-  const hoje=hojeISO(),ini=window.__escalaIni||inicioSemana(hoje),diasQtd=Number(window.__escalaDias||7),fim=window.__escalaFim||addDias(ini,diasQtd-1);
-  const dias=[...Array(diasQtd)].map((_,i)=>addDias(ini,i)),fs=get('funcionarios',[]).filter(f=>f.status!=='Desligado'),deps=[...new Set(fs.map(f=>f.departamento))];
-  const all=get('escalas',{})||{};
-  const celula=(f,d)=>{const sem=inicioSemana(d),obj=all[sem]||{folgas:[]},it=(obj.folgas||[]).find(x=>x.pin===f.pin&&x.dia===d)||{tipo:'Trabalhado',horarioEntrada:''},travada=obj.criacaoData?((Date.now()-new Date(obj.criacaoData).getTime())/864e5)>7:false;return `<td><select ${travada?'disabled':''} onchange="setCelula('${sem}','${f.pin}','${d}',this.value)">${['Trabalhado','DSR','Folga Domingo','Folga Compensada'].map(t=>`<option ${it.tipo===t?'selected':''}>${t}</option>`).join('')}</select>${it.tipo==='Trabalhado'?`<input ${travada?'disabled':''} type="time" value="${it.horarioEntrada||''}" onchange="setHora('${sem}','${f.pin}','${d}',this.value)" style="margin-top:4px"/>`:''}</td>`;};
-  let rows='';deps.forEach(dp=>{const lista=fs.filter(f=>f.departamento===dp);rows+=`<tr><td class="dept-head" colspan="${diasQtd+1}">${esc(dp)} · ${lista.length} funcionário(s)</td></tr>`;lista.forEach(f=>rows+=`<tr><td><b>${esc(f.nome)}</b><div class="muted">${esc(f.funcao)}</div></td>${dias.map(d=>celula(f,d)).join('')}</tr>`);});
-  const hist=get('logsEscala',[]).filter(h=>h.semana>=inicioSemana(ini)&&h.semana<=inicioSemana(fim));
-  $('sub-body').innerHTML=`<div class="row"><h3>Escala ${brOf(ini)} a ${brOf(fim)}</h3><span class="badge">Trava individual 7 dias após criação</span></div><div class="card"><div class="grid g4"><div><label>Período</label><select id="escala-periodo" onchange="ajustarPeriodoEscala(this.value)"><option value="7" ${diasQtd===7?'selected':''}>7 dias</option><option value="15" ${diasQtd===15?'selected':''}>15 dias</option><option value="30" ${diasQtd===30?'selected':''}>30 dias</option></select></div><div><label>Início</label><input type="date" id="escala-inicio" value="${ini}"/></div><div><label>Fim</label><input type="date" id="escala-fim" value="${fim}"/></div><div style="display:flex;align-items:flex-end"><button class="btn" onclick="filtrarEscala()">Filtrar</button></div></div><div class="row" style="margin-top:8px"><button class="btn sm" onclick="salvarEscalaPeriodo()">Salvar escala</button><button class="btn sm ghost" onclick="baixarModeloEscala()">Baixar Modelo CSV</button><button class="btn sm gold" onclick="abrirImportEscala()">Importar CSV/XLSX</button></div></div><div class="tbl-wrap"><table><tr><th>Funcionário</th>${dias.map(d=>`<th>${DIAS[dow(d)].slice(0,3)}<br>${brOf(d).slice(0,5)}</th>`).join('')}</tr>${rows}</table></div><div class="hr"></div><h4>Histórico de alterações da escala</h4><div class="tbl-wrap"><table><tr><th>Registro</th></tr>${hist.map(h=>`<tr><td>${esc(h.texto)}</td></tr>`).join('')||'<tr><td class="muted">Sem alterações.</td></tr>'}</table></div>`;
-};
-function ajustarPeriodoEscala(v){const ini=$('escala-inicio').value||hojeISO();$('escala-fim').value=addDias(ini,Number(v)-1);}
-function filtrarEscala(){const ini=$('escala-inicio').value,fim=$('escala-fim').value;if(!ini||!fim||fim<ini)return alert('Período inválido.');const n=Math.round((new Date(fim)-new Date(ini))/864e5)+1;if(![7,15,30].includes(n))return alert('Escolha exatamente 7, 15 ou 30 dias.');window.__escalaIni=ini;window.__escalaFim=fim;window.__escalaDias=n;window.__semanaRef=inicioSemana(ini);subEscala();}
-function salvarEscalaPeriodo(){const ini=window.__escalaIni||inicioSemana(hojeISO()),fim=window.__escalaFim||addDias(ini,Number(window.__escalaDias||7)-1);for(let d=inicioSemana(ini);d<=fim;d=addDias(d,7)){const {all}=escalaObj(d,addDias(d,6));set('escalas',all);histEscala(d,'—',d,'salvamento','escala salva');}toast('Escala salva. Cada semana permanece editável por 7 dias.',4000);subEscala();}
-const abrirSobreBase=abrirSobre;
-abrirSobre=function(){const d=devCfg(),mestre=GERENCIADOR?.pin==='1000',disabled=mestre?'':'disabled';abrirModal(`<div class="row"><h3>Sobre o VIP PONTO</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div><div class="card" style="text-align:center"><img id="logo-app-dev" src="${logoAppAtual()}" style="object-fit:contain;width:120px;height:120px"/><div style="font-weight:900;font-size:20px">VIP PONTO v${esc(d.versao)}</div></div><div class="card"><h4>Desenvolvedor</h4>${mestre?'':'<div class="alert warn">Apenas desenvolvedor</div>'}<div class="grid g3"><div><label>Nome</label><input id="dv-nome" value="${esc(d.nome)}" ${disabled}/></div><div><label>Contato</label><input id="dv-contato" value="${esc(d.contato||d.email||'')}" ${disabled}/></div><div><label>Versão</label><input id="dv-versao" value="${esc(d.versao)}" ${disabled}/></div><div><label>Logo do app</label><input id="dv-logo" type="file" accept="image/*" ${disabled} onchange="salvarLogoApp(this.files[0])"/></div></div>${mestre?'<button class="btn" onclick="salvarDevGlobal()">Salvar</button>':''}</div>`);};
-function salvarLogoApp(file){if(!file||GERENCIADOR?.pin!=='1000')return;const r=new FileReader();r.onload=()=>{$('logo-app-dev').src=r.result;window.__logoAppTmp=r.result};r.readAsDataURL(file);}
-function salvarDevGlobal(){if(GERENCIADOR?.pin!=='1000')return;const o={nome:$('dv-nome').value.trim(),contato:$('dv-contato').value.trim(),versao:$('dv-versao').value.trim(),empresa:'Atalaia'};localStorage.setItem('vip_ponto_dev_info',JSON.stringify(o));if(window.__logoAppTmp)localStorage.setItem('vip_ponto_logo_app',window.__logoAppTmp);$('logo-app').src=logoAppAtual();log('Atualizou dados globais do desenvolvedor');fecharModal();}
-const iniciarAppBase=iniciarApp;iniciarApp=async function(){await iniciarAppBase();$('logo-app').src=logoAppAtual();aplicarTema(localStorage.getItem('vip_ponto_tema')||'auto');};
-configurarManifesto();aplicarTema(localStorage.getItem('vip_ponto_tema')||'auto');
-
 </script>
 </body>
 </html>
