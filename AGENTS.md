@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- Preserve `public/vip-ponto.html` as the single-file product UI; extend its existing modules rather than splitting or rewriting them, because deployed devices depend on that standalone entry point.
