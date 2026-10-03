@@ -219,7 +219,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
       <h3 style="text-align:center">Acesso ao sistema</h3>
       <div id="saudacao" class="muted" style="text-align:center;font-weight:800;color:var(--navy)"></div>
       <label>E-mail</label><input id="l-email" type="email" autocomplete="email" placeholder="seu@email.com"/>
-      <label>Senha</label><div style="position:relative"><input id="l-senha" type="password" autocomplete="current-password" placeholder="••••••••" style="padding-right:44px"/><span id="toggle-senha" onclick="toggleSenha()" title="Mostrar/ocultar senha" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;user-select:none">👁️</span></div>
+      <label>Senha</label><div style="position:relative"><input id="l-senha" type="password" autocomplete="current-password" placeholder="••••••••" style="padding-right:44px"/><span id="toggle-senha" onclick="toggleSenha()" title="Mostrar senha" role="button" aria-label="Mostrar senha" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;width:30px;height:26px;display:flex;align-items:center;justify-content:center;user-select:none"></span></div>
       <div id="l-msg"></div>
       <button class="btn big gold" style="margin-top:12px" onclick="fazerLogin()">ACESSAR</button>
       <div class="row" style="justify-content:space-between;margin-top:12px">
