@@ -1471,14 +1471,15 @@ function calcDash(){
   ${ind('ind-purple','⚠️','Carga Incompleta',totInc,`dia(s) com carga menor • faltam ${toHHMM(totIncMin)}`)}
   </div>
   <div class="grid g2" style="margin-top:12px">
-    <div class="card" style="margin:0"><h4>🎯 Assiduidade por colaborador</h4>
-    ${ord.length?ord.map(r=>`<div class="assid-row"><span class="an" title="${esc(r.f.nome)}">${esc(r.f.nome)}</span><div class="pbar ${barCls(r.pres)}" role="progressbar" aria-label="Assiduidade de ${esc(r.f.nome)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${r.pres}"><span style="width:${Math.max(2,r.pres)}%"></span></div><span class="av">${r.pres}%</span><span class="am">${r.trabalhados}/${r.diasPrev} dias</span></div>`).join(''):'<div class="muted">Sem dados no período.</div>'}</div>
-    <div class="card" style="margin:0"><h4>⚠️ Ocorrências que pedem atenção</h4>
-      <div class="tbl-wrap"><table><thead><tr><th>Colaborador</th><th>Faltas</th><th>Atrasos</th><th>Carga incompleta</th></tr></thead><tbody>
-      ${res.length?res.map(r=>`<tr><td>${esc(r.f.nome)}</td><td><b>${r.faltas}</b></td><td><b>${r.atrasosQtd}</b>${r.atrasoMedio?` <span class="muted">média ${toHHMM(r.atrasoMedio)}</span>`:''}</td><td><b>${r.incQtd}</b>${r.incMin?` <span class="muted">${toHHMM(r.incMin)}</span>`:''}</td></tr>`).join(''):'<tr><td colspan="4" class="muted">Sem dados no período.</td></tr>'}
-      </tbody></table></div>
-    </div>
+    <div class="card" style="margin:0"><h4>🏆 Ranking de Presença</h4><canvas id="dash-canvas" width="560" height="264" style="width:100%;height:auto" role="img" aria-label="Gráfico de ranking de presença por colaborador"></canvas>${ord.length?'':'<div class="muted">Sem dados no período.</div>'}</div>
+    <div class="card" style="margin:0"><h4>❌ Índice de Faltas</h4><canvas id="dash-canvas-f" width="560" height="264" style="width:100%;height:auto" role="img" aria-label="Gráfico de faltas por colaborador no período"></canvas>${ord.length?'':'<div class="muted">Sem dados no período.</div>'}</div>
+  </div>
+  <div class="card" style="margin-top:12px"><h4>⚠️ Ocorrências que pedem atenção</h4>
+    <div class="tbl-wrap"><table><thead><tr><th>Colaborador</th><th>Faltas</th><th>Atrasos</th><th>Carga incompleta</th></tr></thead><tbody>
+    ${res.length?res.map(r=>`<tr><td>${esc(r.f.nome)}</td><td><b>${r.faltas}</b></td><td><b>${r.atrasosQtd}</b>${r.atrasoMedio?` <span class="muted">média ${toHHMM(r.atrasoMedio)}</span>`:''}</td><td><b>${r.incQtd}</b>${r.incMin?` <span class="muted">${toHHMM(r.incMin)}</span>`:''}</td></tr>`).join(''):'<tr><td colspan="4" class="muted">Sem dados no período.</td></tr>'}
+    </tbody></table></div>
   </div>`;
+  desenharRanking(ord); desenharFaltas(res);
 }
 function desenharRanking(ord){
   const c=$('dash-canvas'); if(!c)return; const x=c.getContext('2d');
