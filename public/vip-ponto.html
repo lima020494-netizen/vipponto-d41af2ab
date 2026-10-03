@@ -143,11 +143,15 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 /* ===== TELA DE PONTO (kiosk) — tema escuro fixo ===== */
 #tela-home,#tela-ponto{background:#0f172a;color:#e2e8f0}
 #tela-home{min-height:100vh}
-#tela-home .topbar{background:#0f172a;border-bottom:1px solid #1e293b}
-#tela-ponto{padding-top:22px;padding-bottom:30px}
-#relogio-kiosk{font-size:72px;font-weight:bold;text-align:center;line-height:1;font-variant-numeric:tabular-nums;color:#fff;letter-spacing:1px}
+#tela-home{position:relative}
+.kiosk-rail{position:absolute;top:0;left:0;display:flex;flex-direction:column;gap:8px;padding:10px;z-index:20}
+.kiosk-corner{position:absolute;top:0;right:0;display:flex;align-items:center;gap:8px;padding:10px 12px;max-width:calc(100% - 68px);z-index:19}
+.kiosk-corner img{height:42px;width:auto;max-width:110px;object-fit:contain;background:#fff;border-radius:8px;padding:3px;flex:none}
+.kiosk-corner-name{font-weight:800;color:#f8fafc;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+#tela-ponto{padding-top:72px;padding-bottom:30px}
+#relogio-kiosk{font-size:61px;font-weight:bold;text-align:center;line-height:1;font-variant-numeric:tabular-nums;color:#fff;letter-spacing:1px}
 #data-kiosk{text-align:center;color:#94a3b8;font-size:18px;margin:8px 0 6px;text-transform:capitalize}
-@media(max-width:420px){#relogio-kiosk{font-size:56px}}
+@media(max-width:420px){#relogio-kiosk{font-size:48px}}
 #tela-ponto .status-ntp{color:#cbd5e1}
 #tela-ponto .pin-display{background:#fff;border-radius:16px;padding:12px;margin:16px auto;max-width:420px}
 #tela-ponto .pin-dot{width:64px;height:72px;font-size:48px;border:0;background:#f1f5f9;color:#0f172a;text-align:center}
@@ -179,7 +183,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 #btn-logoff{background:#dc2626!important;border-color:#dc2626!important;color:#fff;margin-left:6px}
 #logo-app{object-fit:contain;width:120px;height:120px;display:block;margin:0 auto 10px}
 @media(max-height:768px){
-  #tela-ponto{padding-top:10px;padding-bottom:12px}
+  #tela-ponto{padding-top:70px;padding-bottom:12px}
   #tela-ponto .pin-display{margin:8px auto;padding:8px}
   #tela-ponto .pin-dot{width:52px;height:58px;font-size:36px}
   #tela-ponto .keys{gap:8px;margin-top:6px!important}
@@ -189,9 +193,12 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   #status-impressora{margin-top:5px!important}
 }
 @media(max-height:620px){
-  #tela-home .topbar{padding-top:5px;padding-bottom:5px}
-  #tela-ponto{padding-top:5px;padding-bottom:6px}
-  #relogio-kiosk{font-size:48px}
+  .kiosk-rail{gap:6px;padding:6px}
+  .kiosk-corner{padding:6px 10px}
+  .kiosk-corner img{height:36px;max-width:90px}
+  .kiosk-corner-name{font-size:12px}
+  #tela-ponto{padding-top:60px;padding-bottom:6px}
+  #relogio-kiosk{font-size:41px}
   #data-kiosk{font-size:14px;margin:3px 0}
   #tela-ponto .status-ntp{font-size:11px;margin:2px 0}
   #tela-ponto .pin-display{margin:5px auto;padding:5px;gap:8px}
@@ -293,12 +300,14 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 
 <!-- ======================= TELA INICIAL ======================= -->
 <div id="tela-home" class="hidden">
-  <div class="topbar">
+  <div class="kiosk-rail" role="toolbar" aria-label="Ações do kiosk">
     <button class="icon-btn" title="Gestor de ponto" onclick="pedirPinGestor()" aria-label="Gestor"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-    <img id="logo-empresa" src="/vip-logo.png" alt="Logo empresa"/>
-    <div style="line-height:1.1"><div id="home-fantasia" style="font-weight:800"></div><div id="home-hora" class="muted" style="color:#94a3b8"></div></div>
-    <button class="icon-btn right" title="Portal do Empregado" onclick="pedirPinPortal()" aria-label="Portal do Empregado"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></button>
+    <button class="icon-btn" title="Portal do Empregado" onclick="pedirPinPortal()" aria-label="Portal do Empregado"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></button>
     <button id="btn-logoff" class="icon-btn" title="⏻ Sair — voltar ao login multi-empresa" onclick="logoff()" aria-label="⏻ Sair"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 2v10"/><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/></svg></button>
+  </div>
+  <div class="kiosk-corner">
+    <img id="logo-empresa" src="/vip-logo.png" alt="Logo empresa"/>
+    <div id="home-fantasia" class="kiosk-corner-name"></div>
   </div>
   <div id="tela-ponto" class="wrap" style="max-width:560px">
     <div id="relogio-kiosk" role="timer" aria-label="Hora atual">--:--:--</div>
@@ -313,7 +322,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
       <button class="key" type="button" onclick="pinAdd('7')" aria-label="Dígito 7">7</button><button class="key" type="button" onclick="pinAdd('8')" aria-label="Dígito 8">8</button><button class="key" type="button" onclick="pinAdd('9')" aria-label="Dígito 9">9</button>
       <button class="key wide" type="button" onclick="pinLimpar()" aria-label="Limpar PIN digitado">LIMPAR</button><button class="key" type="button" onclick="pinAdd('0')" aria-label="Dígito 0">0</button><button class="key" type="button" onclick="pinBack()" aria-label="Apagar último dígito">⌫</button>
     </div>
-    <button class="btn big green" id="btn-bater" type="button" onclick="registrarPonto()" aria-label="Registrar ponto para o PIN digitado">✓ Registrar Ponto</button>
+    <button class="btn big green" id="btn-bater" type="button" onclick="registrarPonto()" aria-label="Registrar ponto para o PIN digitado">Registrar</button>
     <div class="muted" id="status-impressora" style="text-align:center;margin-top:10px"></div>
   </div>
 </div>
