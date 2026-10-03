@@ -489,7 +489,7 @@ function log(acao){
 const assinaGerenciador = () => GERENCIADOR?`Gerenciador: ${GERENCIADOR.nome} - Função: ${GERENCIADOR.funcao}`:'Gerenciador: (não identificado)';
 
 /* ============================== MÓDULO 0 — LOGIN ============================== */
-function mostrarView(v){['login','cad','esq'].forEach(x=>$(x+'-view').classList.toggle('hidden',x!==v));}
+function mostrarView(v){['login','cad','esq'].forEach(x=>$(x+'-view').classList.toggle('hidden',x!==v));if(v==='login')setTimeout(()=>{if($('toggle-senha'))pintarOlho();},0);}
 const hash = s => btoa(unescape(encodeURIComponent('vip#'+s)));
 function validaSenha(s){return s.length>=8&&/[A-Z]/.test(s)&&/[a-z]/.test(s)&&/[0-9]/.test(s)&&/[!@#$%&_]/.test(s);}
 function dicaSenha(){const s=$('c-senha').value;$('c-dica').innerHTML=validaSenha(s)?'<span style="color:var(--green);font-weight:800">Senha válida ✔</span>':'Mínimo 8 caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 especial (!@#$%&amp;_)';}
