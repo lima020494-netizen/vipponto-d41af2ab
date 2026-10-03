@@ -1528,7 +1528,12 @@ function pdfDash(){
   doc.setFontSize(9);doc.text(`${e.tipo}: ${e.doc}  CEI/CAEPF/CNO: ${e.cei||'—'}`,10,y);y+=5;
   doc.text(`Dashboard de Frequência — Período ${brOf(ini)} a ${brOf(fim)} — Filtro: ${$('d-func').value?(funcPorPin($('d-func').value)||{}).nome:'Todos'}`,10,y);y+=6;
   const quebra=()=>{if(y>275){doc.setFontSize(8);doc.text(`Página ${doc.getNumberOfPages()}`,190,290,{align:'right'});doc.addPage();y=14;doc.setFontSize(9);}};
-  const txt=$('dash-out').innerText.split('\n').map(l=>l.replace(/[^\x20-\x7EÀ-ÿ—•]/g,'').trim()).filter(Boolean);
+  const clone=$('dash-out').cloneNode(true); clone.querySelectorAll('.tbl-wrap').forEach(t=>t.remove());
+  const txt=clone.innerText.split('\n').map(l=>l.replace(/[^\x20-\x7EÀ-ÿ—•]/g,'').trim()).filter(Boolean);
+  $('dash-out').querySelectorAll('table tbody tr').forEach(tr=>{
+    const c=[...tr.children].map(td=>td.innerText.replace(/[^\x20-\x7EÀ-ÿ—•]/g,'').trim());
+    if(c.length>=4)txt.push(`${c[0]} — Faltas: ${c[1]} | Atrasos: ${c[2]} | Carga incompleta: ${c[3]}`);
+  });
   doc.setFontSize(9);txt.forEach(l=>{quebra();doc.text(l.slice(0,110),10,y);y+=4.5;});
   [['dash-canvas','Ranking de Presença'],['dash-canvas-f','Índice de Faltas']].forEach(([id,tit])=>{
     const c=$(id); if(!c)return; let img=''; try{img=c.toDataURL('image/png');}catch(_){return;}
