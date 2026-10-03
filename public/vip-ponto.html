@@ -1461,7 +1461,6 @@ function calcDash(){
   const absPercent=totPrev?((totFaltas/totPrev)*100).toFixed(1):'0.0';
   const ord=[...res].sort((a,b)=>b.pres-a.pres);
   const ind=(cls,ico,lbl,val,sub)=>`<div class="ind ${cls}"><div class="ind-ico">${ico}</div><div class="ind-val">${val}</div><div class="ind-lbl">${lbl}</div><div class="ind-sub">${sub}</div></div>`;
-  const barCls=p=>p>=90?'':p>=75?'warn':'bad';
   $('dash-out').innerHTML=`<div class="muted">Período: ${brOf(ini)} a ${brOf(fim)} • Filtro: ${filtro?(funcPorPin(filtro)||{}).nome:'Todos Funcionários'}</div>
   <div class="ind-grid">
   ${ind('ind-green','✅','Presença',presMedia+'%',`Índice médio de assiduidade${filtro?'':' ('+res.length+' colab.)'}`)}
