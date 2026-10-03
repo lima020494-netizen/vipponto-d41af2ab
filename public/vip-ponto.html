@@ -807,6 +807,7 @@ function portalEmpregado(f){
       <div><label>Fim</label><input type="date" id="pe-fim" value="${hoje}"/></div>
       <div style="display:flex;align-items:flex-end;gap:8px">
         <button class="btn" onclick="portalGerar('${f.pin}')">Ver minha folha</button>
+        <button class="btn" onclick="baixarFolhaPortal('${f.pin}')">📄 Baixar PDF</button>
         <button class="btn gold" onclick="solicitarFolhaPorEmailPortal('${f.pin}')">✉ Enviar folha (PDF) para meu e-mail</button>
       </div></div></div>
     <div id="pe-out"></div>`);
@@ -853,7 +854,7 @@ function novoPin(){
 let SUBF='lista';
 function abaFunc(){
   const fs=get('funcionarios',[]);
-  const tabs=`<div class="tabs" style="margin-bottom:10px">${[['lista','Empregados'],['listas','Funções, Cargos e Departamentos'],['pins','🔒 Relatório de PINs']].map(([k,t])=>`<div class="tab ${SUBF===k?'active':''}" onclick="SUBF='${k}';abaFunc()">${t}</div>`).join('')}</div>`;
+  const tabs=`<div class="tabs" style="margin-bottom:10px">${[['lista','Empregados'],['listas','Funções, Cargos e Departamentos'],['pins','🔒 Relatório de PINs (Confidencial)']].map(([k,t])=>`<div class="tab ${SUBF===k?'active':''}" onclick="SUBF='${k}';abaFunc()">${t}</div>`).join('')}</div>`;
   if(SUBF==='listas'){ $('gestor-body').innerHTML=tabs+'<div id="listas-body"></div>'; return gerirListas(); }
   if(SUBF==='pins'){ $('gestor-body').innerHTML=tabs+'<div id="pins-body"></div>'; return relatorioPins(); }
   $('gestor-body').innerHTML=tabs+`<div class="row"><h3>Empregados — ${fs.length}/12 vagas</h3>
@@ -997,9 +998,9 @@ function minutosTrabalhados(bs,f){
   return t;
 }
 /* Hora noturna reduzida (Art. 73 CLT): 22h–05h, hora de 52m30s (×1,142857) */
-function calculaNoturna(bs){
+function calculaNoturna(bs,horaFim){
   let min=0;
-  paresBatidas(bs).forEach(([a,b])=>{let s=toMin(a),e=toMin(b);if(e<s)e+=1440;for(let m=s;m<e;m++){const h=m%1440;if(h>=1320||h<300)min++;}});
+  (typeof bs==='string'?[[bs,horaFim]]:paresBatidas(bs)).forEach(([a,b])=>{let s=toMin(a),e=toMin(b);if(e<s)e+=1440;for(let m=s;m<e;m++){const h=m%1440;if(h>=1320||h<300)min++;}});
   const reduzida=Math.round(min*1.142857);
   return {min,reduzida,adicional:reduzida-min};
 }
@@ -1443,7 +1444,7 @@ function abaFolha(){
     <button class="btn sm ghost" onclick="imprimirFolhaTela()">🖨 Imprimir</button>
     <button class="btn sm" onclick="pdfFolhas([$('fl-pin').value],$('fl-ini').value,$('fl-fim').value)">Exportar PDF</button>
     <button class="btn sm" onclick="xmlFolha($('fl-pin').value,$('fl-ini').value,$('fl-fim').value)">Exportar XML (AFD/ACJEF)</button>
-    <button class="btn sm" onclick="gerarAFDOficial($('fl-ini').value,$('fl-fim').value)">AFD oficial (671)</button>
+    <button class="btn sm" onclick="gerarAFDOficial($('fl-ini').value,$('fl-fim').value)">📥 Exportar AFD (MTE 671)</button>
     <button class="btn sm ghost" onclick="gerarAFD($('fl-ini').value,$('fl-fim').value)">AFD REP-P (leiaute 003)</button>
     <button class="btn sm" onclick="gerarAEJ($('fl-ini').value,$('fl-fim').value)">AEJ oficial (671)</button>
     <button class="btn sm ghost" onclick="atestadoTecnico()">Atestado Técnico</button>
@@ -1791,6 +1792,13 @@ async function enviarArquivoPorEmail({para,assunto,nome,blob,mime,base64}){
   toast(`Arquivo ${nome} baixado — anexe-o no e-mail que abriu.`,7000);
   return true;
 }
+async function baixarFolhaPortal(pin){
+  const f=funcPorPin(pin); if(!f) return toast('Funcionário não encontrado.',3000);
+  const ini=$('pe-ini').value,fim=$('pe-fim').value; if(!ini||!fim) return toast('Selecione o período.',3000);
+  const pdf=await gerarPDFComLogo({folhas:[gerarFolhaMTE(pin,ini,fim)]});
+  pdf.doc.save(`Folha_${f.nome.replace(/\s+/g,'_')}_${MESES[Number(ini.slice(5,7))-1]}.pdf`);
+  log(`Portal: ${f.nome} baixou a folha em PDF (${brOf(ini)}–${brOf(fim)})`);
+}
 /* Portal: envia o MESMO PDF oficial da Folha Individual (com logo) */
 async function solicitarFolhaPorEmailPortal(pin){
   const f=funcPorPin(pin); if(!f) return toast('Funcionário não encontrado.',3000);
@@ -1808,18 +1816,18 @@ function linhasPins(){return get('funcionarios',[]).map(f=>[f.nome,f.cpf||'',f.c
 function relatorioPins(){
   const ls=linhasPins();
   $('pins-body').innerHTML=`<div class="row"><h3>Relatório de PINs — CONFIDENCIAL</h3><div class="right row">
-    <button class="btn sm ghost" onclick="imprimirPins()">🖨 Imprimir</button><button class="btn sm gold" onclick="pdfPins()">Gerar PDF Confidencial</button></div></div>
+    <button class="btn sm ghost" onclick="imprimirPins()">🖨️ Imprimir Lista de PINs</button><button class="btn sm gold" onclick="pdfPins()">📄 Baixar PDF Confidencial</button></div></div>
   <div class="alert warn">Uso restrito aos gerenciadores. O PIN nunca é impresso na folha de ponto nem nos comprovantes.</div>
   <div class="tbl-wrap" id="pins-tbl"><table><tr><th>Nome</th><th>CPF</th><th>Cargo</th><th>Departamento</th><th>PIN</th><th>Status</th></tr>
   ${ls.map(r=>`<tr>${r.map((c,i)=>`<td>${i===4?'<b>'+esc(c)+'</b>':esc(c)}</td>`).join('')}</tr>`).join('')||'<tr><td colspan=6 class="muted">Nenhum empregado.</td></tr>'}</table></div>`;
   log('Consultou relatório confidencial de PINs');
 }
-function imprimirPins(){imprimirArea(`<div class="folha"><b>CONFIDENCIAL — uso restrito</b>${$('pins-tbl').innerHTML}<div class="muted">${esc(rodapeLegal())}</div></div>`,'Relatório de PINs');}
+function imprimirPins(){imprimirArea(`<div class="folha"><div style="background:#c62828;color:#fff;padding:6px;text-align:center;font-weight:bold">DOCUMENTO CONFIDENCIAL - USO INTERNO DO RH</div>${$('pins-tbl').innerHTML}<div class="muted">${esc(rodapeLegal())}</div></div>`,'Relatório de PINs');}
 function pdfPins(){
   const {jsPDF}=window.jspdf,e=get('empregador',{})||{},doc=new jsPDF({unit:'mm',format:'a4'});let y=14;
   if(e.logo){try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),170,6,30,18);}catch(_){}}
   doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(`${e.razao||''} — ${e.fantasia||''}`,10,y);y+=6;
-  doc.setTextColor(198,40,40);doc.text('RELATÓRIO DE PINs — CONFIDENCIAL',10,y);doc.setTextColor(0);y+=8;
+  doc.setTextColor(198,40,40);doc.text('DOCUMENTO CONFIDENCIAL - USO INTERNO DO RH',10,y);doc.setTextColor(0);y+=8;
   doc.setFontSize(8);doc.text('Nome                               CPF              Cargo            Depto          PIN    Status',10,y);y+=5;
   doc.setFont('helvetica','normal');
   linhasPins().forEach(r=>{if(y>280){doc.addPage();y=14;}
@@ -1848,7 +1856,7 @@ function gerarAFDOficial(ini,fim){
   const cnpj=padL(soNum(e.doc),14);
   const L=['000000000'+'1'+(e.tipo==='CPF'?'2':'1')+cnpj+padL(soNum(e.cei),12)+padR(e.razao,150)+dmy(ini)+dmy(fim)+dmy(isoOf(ag))+hhmm(ag).replace(':','')];
   bs.forEach(b=>L.push(padL(b.nsr,9)+'3'+dmy(b.data)+b.hora.replace(':','')+cnpj+padL(soNum(b.cpf),11)));
-  L.push('999999999'+'9'+padL(bs.length,9)+padR('VIP PONTO Atalaia Sistemas Salinopolis-PA',60));
+  L.push('999999999'+padL(bs.length,9)+'VIP PONTO Atalaia Sistemas Salinópolis-PA');
   baixar(`AFD_${soNum(e.doc)}_${ini}_${fim}.txt`,L.join('\r\n')+'\r\n');
   log(`Gerou AFD oficial ${brOf(ini)}–${brOf(fim)} (${bs.length} marcações)`);
 }
