@@ -219,7 +219,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
       <h3 style="text-align:center">Acesso ao sistema</h3>
       <div id="saudacao" class="muted" style="text-align:center;font-weight:800;color:var(--navy)"></div>
       <label>E-mail</label><input id="l-email" type="email" autocomplete="email" placeholder="seu@email.com"/>
-      <label>Senha</label><div style="position:relative"><input id="l-senha" type="password" autocomplete="current-password" placeholder="••••••••" style="padding-right:44px"/><span id="toggle-senha" onclick="toggleSenha()" title="Mostrar/ocultar senha" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;user-select:none">👁️</span></div>
+      <label>Senha</label><div style="position:relative"><input id="l-senha" type="password" autocomplete="current-password" placeholder="••••••••" style="padding-right:44px"/><span id="toggle-senha" onclick="toggleSenha()" title="Mostrar senha" role="button" aria-label="Mostrar senha" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;width:30px;height:26px;display:flex;align-items:center;justify-content:center;user-select:none"></span></div>
       <div id="l-msg"></div>
       <button class="btn big gold" style="margin-top:12px" onclick="fazerLogin()">ACESSAR</button>
       <div class="row" style="justify-content:space-between;margin-top:12px">
@@ -285,7 +285,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
       <button class="key" onclick="pinAdd('7')">7</button><button class="key" onclick="pinAdd('8')">8</button><button class="key" onclick="pinAdd('9')">9</button>
       <button class="key wide" onclick="pinLimpar()">LIMPAR</button><button class="key" onclick="pinAdd('0')">0</button><button class="key" onclick="pinBack()">⌫</button>
     </div>
-    <button class="btn big green" id="btn-bater" onclick="registrarPonto()">✓ Bater Ponto</button>
+    <button class="btn big green" id="btn-bater" onclick="registrarPonto()">✓ Registrar Ponto</button>
     <div class="muted" id="status-impressora" style="text-align:center;margin-top:10px"></div>
   </div>
 </div>
@@ -489,7 +489,10 @@ function log(acao){
 const assinaGerenciador = () => GERENCIADOR?`Gerenciador: ${GERENCIADOR.nome} - Função: ${GERENCIADOR.funcao}`:'Gerenciador: (não identificado)';
 
 /* ============================== MÓDULO 0 — LOGIN ============================== */
-function mostrarView(v){['login','cad','esq'].forEach(x=>$(x+'-view').classList.toggle('hidden',x!==v));}
+var ICO_OLHO='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2f6f9e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+var ICO_OLHO_FECHADO='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+function pintarOlho(){$('toggle-senha').innerHTML=ICO_OLHO;}
+function mostrarView(v){['login','cad','esq'].forEach(x=>$(x+'-view').classList.toggle('hidden',x!==v));if(v==='login')setTimeout(()=>{if($('toggle-senha'))pintarOlho();},0);}
 const hash = s => btoa(unescape(encodeURIComponent('vip#'+s)));
 function validaSenha(s){return s.length>=8&&/[A-Z]/.test(s)&&/[a-z]/.test(s)&&/[0-9]/.test(s)&&/[!@#$%&_]/.test(s);}
 function dicaSenha(){const s=$('c-senha').value;$('c-dica').innerHTML=validaSenha(s)?'<span style="color:var(--green);font-weight:800">Senha válida ✔</span>':'Mínimo 8 caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 especial (!@#$%&amp;_)';}
@@ -1851,7 +1854,11 @@ function manualPDF(){
 <script>
 /* ===================== EXTRAS: senha, e-mail com anexo, portal PDF, PINs, AFD, exclusão ===================== */
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-function toggleSenha(){const i=$('l-senha');i.type=i.type==='password'?'text':'password';$('toggle-senha').textContent=i.type==='password'?'👁️':'🙈';}
+
+function toggleSenha(){const i=$('l-senha');i.type=i.type==='password'?'text':'password';
+  const t=i.type==='password';$('toggle-senha').innerHTML=t?ICO_OLHO:ICO_OLHO_FECHADO;
+  $('toggle-senha').title=t?'Mostrar senha':'Ocultar senha';$('toggle-senha').setAttribute('aria-label',t?'Mostrar senha':'Ocultar senha');}
+function pintarOlho(){$('toggle-senha').innerHTML=ICO_OLHO;}
 
 /* Envio de arquivo por e-mail.
    EMAIL_SERVICO_ATIVO=true quando existir o serviço 'send-pdf' (exige domínio próprio).
