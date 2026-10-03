@@ -2000,9 +2000,15 @@ async function solicitarFolhaPorEmailPortal(pin){
   if(!response.ok) return toast(result.error||'Não foi possível criar o link.',5000);
   const mes=MESES[Number(ini.slice(5,7))-1],assunto=`Folha de Ponto — ${f.nome} — ${mes}/${ini.slice(0,4)}`;
   const texto=`Olá, ${f.nome}. Acesse sua folha de ponto de ${mes}/${ini.slice(0,4)} pelo link seguro abaixo. O acesso expira em 7 dias.\n\n${result.url}`;
+  if(f.email){
+    try{await navigator.clipboard.writeText(result.url);}catch(e){}
+    location.href=`mailto:${encodeURIComponent(f.email)}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
+    log(`Portal: link mensal gerado para ${f.nome} (${ini.slice(0,7)})`);
+    return;
+  }
   if(navigator.share){try{await navigator.share({title:assunto,text:texto});log(`Portal: link mensal compartilhado com ${f.nome}`);return;}catch(e){if(e.name==='AbortError')return;}}
-  try{await navigator.clipboard.writeText(result.url);toast('Link copiado. Abrindo seu aplicativo de e-mail…',4000);}catch(e){}
-  location.href=`mailto:${encodeURIComponent(f.email||'')}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
+  try{await navigator.clipboard.writeText(result.url);toast('Link copiado. Cadastre o e-mail do colaborador para o envio automático.',5000);}catch(e){}
+  location.href=`mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
   log(`Portal: link mensal gerado para ${f.nome} (${ini.slice(0,7)})`);
 }
 async function compartilharFolhaKiosk(pin){
@@ -2016,9 +2022,15 @@ async function compartilharFolhaKiosk(pin){
     const result=await response.json(); if(!response.ok) throw new Error(result.error||'Não foi possível criar o link.');
     const mes=MESES[Number(competencia.slice(5,7))-1],assunto=`Folha de Ponto — ${f.nome} — ${mes}/${competencia.slice(0,4)}`;
     const texto=`Olá, ${f.nome}. Acesse sua folha de ponto de ${mes}/${competencia.slice(0,4)} pelo link seguro abaixo. O acesso expira em 7 dias.\n\n${result.url}`;
+    if(f.email){
+      try{await navigator.clipboard.writeText(result.url);}catch(e){}
+      location.href=`mailto:${encodeURIComponent(f.email)}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
+      log(`Kiosk: link mensal gerado para ${f.nome} (${competencia})`);
+      return;
+    }
     if(navigator.share){try{await navigator.share({title:assunto,text:texto});log(`Kiosk: link mensal compartilhado com ${f.nome}`);return;}catch(e){if(e.name==='AbortError')return;}}
-    try{await navigator.clipboard.writeText(result.url);toast('Link copiado. Abrindo seu aplicativo de e-mail…',4000);}catch(e){}
-    location.href=`mailto:${encodeURIComponent(f.email||'')}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
+    try{await navigator.clipboard.writeText(result.url);toast('Link copiado. Cadastre o e-mail do colaborador para o envio automático.',5000);}catch(e){}
+    location.href=`mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
     log(`Kiosk: link mensal gerado para ${f.nome} (${competencia})`);
   }catch(e){toast(e.message||'Não foi possível compartilhar a folha.',5000);}
 }
