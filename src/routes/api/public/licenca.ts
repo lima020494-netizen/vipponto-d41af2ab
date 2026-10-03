@@ -4,6 +4,7 @@ import { z } from "zod";
 const DAY = 86400000;
 const TOLERANCIA_DIAS = 7;
 const TERMOS_VERSAO = "1.0";
+const DEV_EMAIL = "lima020494@gmail.com";
 
 function json(data: unknown, status = 200) {
   return Response.json(data, { status, headers: { "cache-control": "no-store, private" } });
@@ -29,11 +30,16 @@ async function auth(request: Request) {
   const { data, error } = await supabaseAdmin.auth.getUser(bearer);
   const email = data.user?.email?.toLowerCase();
   if (error || !data.user || !email) return null;
-  const { data: role } = await supabaseAdmin.from("user_roles" as never).select("role").eq("user_id", data.user.id).eq("role", "admin").maybeSingle();
+  let { data: role } = await supabaseAdmin.from("user_roles" as never).select("role").eq("user_id", data.user.id).eq("role", "admin").maybeSingle();
+  if (!role && email === DEV_EMAIL && data.user.email_confirmed_at) {
+    await supabaseAdmin.from("user_roles" as never).insert({ user_id: data.user.id, role: "admin" } as never);
+    role = { role: "admin" } as never;
+  }
   return { db: supabaseAdmin, user: data.user, email, isDev: !!role };
 }
 
-async function getConfig(db: Awaited<ReturnType<typeof auth>> extends infer A ? NonNullable<A>["db"] : never) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getConfig(db: any) {
   const { data } = await db.from("app_config" as never).select("valor").eq("chave", "cobranca").maybeSingle();
   return ((data as { valor?: unknown } | null)?.valor as Record<string, unknown>) || {};
 }
@@ -62,7 +68,7 @@ export const Route = createFileRoute("/api/public/licenca")({
           lic = ins.data;
         }
         const cfg = await getConfig(a.db);
-        return json({ licenca: view(lic as Lic), config: { pix: cfg["pix"] || "", whatsapp: cfg["whatsapp"] || "", precos: cfg["precos"] || {}, precosAnuais: cfg["precosAnuais"] || {} }, isDev: a.isDev, termosVersao: TERMOS_VERSAO });
+        return json({ licenca: view(lic as unknown as Lic), config: { pix: cfg["pix"] || "", whatsapp: cfg["whatsapp"] || "", precos: cfg["precos"] || {}, precosAnuais: cfg["precosAnuais"] || {} }, isDev: a.isDev, termosVersao: TERMOS_VERSAO });
       },
       POST: async ({ request }) => {
         const a = await auth(request);
