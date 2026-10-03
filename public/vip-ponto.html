@@ -181,6 +181,32 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   #hist-dia{max-height:54px;overflow:auto}
   #status-impressora{display:none}
 }
+/* ===================== DASHBOARD — INDICADORES & BARRAS ===================== */
+.ind-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-top:12px}
+.ind{position:relative;overflow:hidden;border-radius:16px;padding:14px 16px;color:#fff;min-height:112px;
+  box-shadow:0 6px 18px rgba(12,34,70,.14);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ind::after{content:'';position:absolute;right:-24px;top:-24px;width:88px;height:88px;border-radius:50%;background:rgba(255,255,255,.15)}
+.ind::before{content:'';position:absolute;right:18px;bottom:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.10)}
+.ind .ind-ico{font-size:20px;line-height:1}
+.ind .ind-val{font-size:30px;font-weight:900;line-height:1.15;margin:3px 0}
+.ind .ind-lbl{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.95}
+.ind .ind-sub{font-size:11.5px;opacity:.88;margin-top:2px}
+.ind-green{background:linear-gradient(135deg,#0d7a34,#19a94f)}
+.ind-red{background:linear-gradient(135deg,#9e1f1f,#d84545)}
+.ind-orange{background:linear-gradient(135deg,#a94d09,#e08a2e)}
+.ind-blue{background:linear-gradient(135deg,#0d3f86,#1f66cc)}
+.ind-purple{background:linear-gradient(135deg,#47308c,#6e51d6)}
+.ind-navy{background:linear-gradient(135deg,#0c2246,#123a73)}
+.pbar{height:10px;border-radius:99px;background:#e6ebf4;overflow:hidden;margin-top:8px}
+.pbar>span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#0d7a34,#2bb45a);transition:width .5s ease}
+.pbar.warn>span{background:linear-gradient(90deg,#a94d09,#e8a13c)}
+.pbar.bad>span{background:linear-gradient(90deg,#9e1f1f,#d84545)}
+.assid-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.assid-row .an{width:118px;min-width:118px;font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.assid-row .pbar{flex:1;margin:0}
+.assid-row .av{width:46px;min-width:46px;text-align:right;font-weight:900;font-size:13.5px}
+.assid-row .am{font-size:11px;color:var(--muted)}
+@media(max-width:560px){.ind .ind-val{font-size:24px}.assid-row .an{width:88px;min-width:88px}}
 </style>
 </head>
 <body>
@@ -1420,26 +1446,43 @@ function calcDash(){
       incQtd:incompletos.length,incMin:incompletos.reduce((s,l)=>s+(l.previsto-l.trabalhado),0)};
   });
   const totPrev=res.reduce((s,r)=>s+r.diasPrev,0), totFaltas=res.reduce((s,r)=>s+r.faltas,0);
+  const totAtrasos=res.reduce((s,r)=>s+r.atrasosQtd,0), totInc=res.reduce((s,r)=>s+r.incQtd,0);
+  const totIncMin=res.reduce((s,r)=>s+r.incMin,0);
+  const presMedia=res.length?Math.round(res.reduce((s,r)=>s+r.pres,0)/res.length):0;
+  const absPercent=totPrev?((totFaltas/totPrev)*100).toFixed(1):'0.0';
   const card=(t,c)=>`<div class="card" style="margin:0"><h4>${t}</h4>${c}</div>`;
   const ord=[...res].sort((a,b)=>b.pres-a.pres);
+  const ind=(cls,ico,lbl,val,sub)=>`<div class="ind ${cls}"><div class="ind-ico">${ico}</div><div class="ind-val">${val}</div><div class="ind-lbl">${lbl}</div><div class="ind-sub">${sub}</div></div>`;
+  const barCls=p=>p>=90?'':p>=75?'warn':'bad';
   $('dash-out').innerHTML=`<div class="muted">Período: ${brOf(ini)} a ${brOf(fim)} • Filtro: ${filtro?(funcPorPin(filtro)||{}).nome:'Todos Funcionários'}</div>
+  <div class="ind-grid">
+  ${ind('ind-green','✅','Presença',presMedia+'%',`Índice médio de assiduidade${filtro?'':' ('+res.length+' colab.)'}`)}
+  ${ind('ind-red','❌','Faltas',totFaltas,`faltas no período ${totPrev?`• ${Math.round(totFaltas/totPrev*100)}% dos dias`:''}`)}
+  ${ind('ind-orange','📉','Absenteísmo',absPercent+'%',`sobre ${totPrev} dia(s) previsto(s)`)}
+  ${ind('ind-blue','⏰','Atrasos',totAtrasos,`tolerância 10 min ${totAtrasos?`• ${Math.round(res.reduce((s,r)=>s+r.atrasosQtd,0)/(totPrev||1)*100)}% dos dias`:''}`)}
+  ${ind('ind-purple','⚠️','Carga Incompleta',totInc,`dia(s) com carga menor • faltam ${toHHMM(totIncMin)}`)}
+  </div>
+  <div class="card" style="margin-top:12px"><h4>🎯 Índice de Assiduidade por Colaborador</h4>
+  ${ord.length?ord.map(r=>`<div class="assid-row"><span class="an" title="${esc(r.f.nome)}">${esc(r.f.nome)}</span><div class="pbar ${barCls(r.pres)}"><span style="width:${Math.max(2,r.pres)}%"></span></div><span class="av">${r.pres}%</span><span class="am">(${r.trabalhados}/${r.diasPrev})</span></div>`).join(''):'<div class="muted">—</div>'}</div>
   <div class="grid g3" style="margin-top:10px">
   ${card('🏆 Mais Presentes (Trabalhados/Previstos)',ord.map(r=>`<div>${esc(r.f.nome)} — <b>${r.pres}%</b> <span class="muted">(${r.trabalhados}/${r.diasPrev})</span></div>`).join('')||'<div class="muted">—</div>')}
   ${card('❌ Faltas por Funcionário',res.map(r=>`<div>${esc(r.f.nome)} — <b>${r.faltas}</b> falta(s) ${r.diasPrev?`(${Math.round(r.faltas/r.diasPrev*100)}%)`:''}</div>`).join('')||'<div class="muted">—</div>')}
-  ${card('📉 Absenteísmo Geral',`<div style="font-size:28px;font-weight:900">${totFaltas} faltas</div><div class="muted">${totPrev?((totFaltas/totPrev)*100).toFixed(1):0}% dos dias previstos</div>`)}
-  ${card('⏰ Atrasos (tolerância 10min)',res.filter(r=>r.atrasosQtd).map(r=>`<div>${esc(r.f.nome)} — <b>${r.atrasosQtd}</b> • médio ${toHHMM(r.atrasoMedio)}</div>`).join('')||'<div class="muted">Sem atrasos.</div>')}
-  ${card('⚠️ Carga Incompleta',res.filter(r=>r.incQtd).map(r=>`<div>${esc(r.f.nome)} — <b>${r.incQtd}</b> dia(s) • faltam ${toHHMM(r.incMin)}</div>`).join('')||'<div class="muted">—</div>')}
   ${card('🏅 Ranking Índice de Presença','<canvas id="dash-canvas" width="360" height="200"></canvas>')}
   </div>`;
   desenharRanking(ord);
 }
 function desenharRanking(ord){
   const c=$('dash-canvas'); if(!c)return; const x=c.getContext('2d');
-  x.clearRect(0,0,c.width,c.height); const lista=ord.slice(0,8); const h=Math.max(12,(c.height-20)/Math.max(1,lista.length)-6);
-  lista.forEach((r,i)=>{const y=10+i*(h+6),w=(c.width-120)*(r.pres/100);
-    x.fillStyle='#123a73';x.fillRect(110,y,Math.max(2,w),h);
-    x.fillStyle='#12203a';x.font='11px sans-serif';x.textAlign='right';x.fillText(r.f.nome.slice(0,16),105,y+h-2);
-    x.textAlign='left';x.fillText(r.pres+'%',114+Math.max(2,w),y+h-2);});
+  x.clearRect(0,0,c.width,c.height); const lista=ord.slice(0,8);
+  const faixa=c.width-160;
+  const h=Math.min(24,Math.max(12,(c.height-20)/Math.max(1,lista.length)-6));
+  lista.forEach((r,i)=>{const y=10+i*(h+7),w=Math.max(3,faixa*(Math.min(100,r.pres)/100));
+    x.fillStyle='#12203a';x.font='600 11px Segoe UI, sans-serif';x.textAlign='right';x.fillText(r.f.nome.slice(0,16),105,y+h-4);
+    x.fillStyle='#e6ebf4';x.fillRect(110,y,faixa,h);
+    const cor=['#0d7a34','#1a9a44','#2f8fd4','#e08a2e','#c9552b'][Math.min(4,Math.floor((100-Math.min(100,r.pres))/22))];
+    const gr=x.createLinearGradient(110,0,110+w,y);gr.addColorStop(0,cor);gr.addColorStop(1,'rgba(255,255,255,.35)');
+    x.fillStyle=gr;x.fillRect(110,y,w,h);
+    x.fillStyle='#0c2246';x.font='700 11px Segoe UI, sans-serif';x.textAlign='left';x.fillText(r.pres+'%',114+w,y+h-4);});
 }
 function printDash(){imprimirArea($('dash-out').innerHTML,'Dashboard de Frequência');}
 function pdfDash(){
