@@ -113,6 +113,24 @@ export type Database = {
         }
         Relationships: []
       }
+      empregador: {
+        Row: {
+          atualizado_em: string
+          dados: Json
+          email_dono: string
+        }
+        Insert: {
+          atualizado_em?: string
+          dados?: Json
+          email_dono: string
+        }
+        Update: {
+          atualizado_em?: string
+          dados?: Json
+          email_dono?: string
+        }
+        Relationships: []
+      }
       empresas: {
         Row: {
           atualizado_em: string
@@ -160,38 +178,47 @@ export type Database = {
       }
       escala: {
         Row: {
+          dados: Json | null
           data: string | null
           depto: string | null
           dia: string | null
+          email_dono: string | null
           folga: string | null
           func: string | null
           horario: string | null
           id: string
           pin: string | null
+          semana: string | null
           tipo: string | null
           user_id: string | null
         }
         Insert: {
+          dados?: Json | null
           data?: string | null
           depto?: string | null
           dia?: string | null
+          email_dono?: string | null
           folga?: string | null
           func?: string | null
           horario?: string | null
           id?: string
           pin?: string | null
+          semana?: string | null
           tipo?: string | null
           user_id?: string | null
         }
         Update: {
+          dados?: Json | null
           data?: string | null
           depto?: string | null
           dia?: string | null
+          email_dono?: string | null
           folga?: string | null
           func?: string | null
           horario?: string | null
           id?: string
           pin?: string | null
+          semana?: string | null
           tipo?: string | null
           user_id?: string | null
         }
@@ -252,49 +279,64 @@ export type Database = {
         Row: {
           ativo: boolean
           cargo: string | null
-          cpf: string
+          cpf: string | null
           criado_em: string
+          dados: Json | null
           departamento: string | null
           depto: string | null
-          empresa_id: string
+          email_dono: string | null
+          empresa_id: string | null
+          escala: string | null
           id: string
           inicio_vigencia_banco: string | null
+          inicio_vigencia_banco_horas: string | null
           intervalo: Json | null
           jornada: Json | null
           nome: string
           pin: string
+          status: string | null
           user_id: string | null
         }
         Insert: {
           ativo?: boolean
           cargo?: string | null
-          cpf: string
+          cpf?: string | null
           criado_em?: string
+          dados?: Json | null
           departamento?: string | null
           depto?: string | null
-          empresa_id: string
+          email_dono?: string | null
+          empresa_id?: string | null
+          escala?: string | null
           id?: string
           inicio_vigencia_banco?: string | null
+          inicio_vigencia_banco_horas?: string | null
           intervalo?: Json | null
           jornada?: Json | null
           nome: string
           pin: string
+          status?: string | null
           user_id?: string | null
         }
         Update: {
           ativo?: boolean
           cargo?: string | null
-          cpf?: string
+          cpf?: string | null
           criado_em?: string
+          dados?: Json | null
           departamento?: string | null
           depto?: string | null
-          empresa_id?: string
+          email_dono?: string | null
+          empresa_id?: string | null
+          escala?: string | null
           id?: string
           inicio_vigencia_banco?: string | null
+          inicio_vigencia_banco_horas?: string | null
           intervalo?: Json | null
           jornada?: Json | null
           nome?: string
           pin?: string
+          status?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -306,6 +348,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      logs: {
+        Row: {
+          acao: string
+          criado_em: string
+          email_dono: string
+          id: string
+          por: string | null
+          quando: string
+        }
+        Insert: {
+          acao: string
+          criado_em?: string
+          email_dono: string
+          id?: string
+          por?: string | null
+          quando: string
+        }
+        Update: {
+          acao?: string
+          criado_em?: string
+          email_dono?: string
+          id?: string
+          por?: string | null
+          quando?: string
+        }
+        Relationships: []
+      }
+      pontos: {
+        Row: {
+          criado_em: string
+          dados: Json | null
+          data: string | null
+          email_dono: string
+          hora: string | null
+          id: string
+          nsr: string
+          origem: string | null
+          pin: string | null
+          timestamp: string | null
+          tipo: string | null
+        }
+        Insert: {
+          criado_em?: string
+          dados?: Json | null
+          data?: string | null
+          email_dono: string
+          hora?: string | null
+          id?: string
+          nsr: string
+          origem?: string | null
+          pin?: string | null
+          timestamp?: string | null
+          tipo?: string | null
+        }
+        Update: {
+          criado_em?: string
+          dados?: Json | null
+          data?: string | null
+          email_dono?: string
+          hora?: string | null
+          id?: string
+          nsr?: string
+          origem?: string | null
+          pin?: string | null
+          timestamp?: string | null
+          tipo?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
