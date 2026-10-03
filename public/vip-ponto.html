@@ -160,6 +160,19 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 #tela-ponto table th{background:#1e293b;color:#cbd5e1}
 #tela-ponto th,#tela-ponto td{border-color:#334155}
 #tela-ponto .muted{color:#94a3b8}
+#hist-dia{max-width:520px;margin:4px auto 0}
+.kiosk-day{border:1px solid #334155;border-radius:10px;background:#111c30;padding:7px 8px}
+.kiosk-day-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.kiosk-day-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f8fafc;font-size:14px;font-weight:800}
+.kiosk-day-date{flex:none;color:#94a3b8;font-size:11px}
+.kiosk-marks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #334155;border-radius:8px;overflow:hidden}
+.kiosk-mark{min-width:0;padding:5px 3px;text-align:center;border-right:1px solid #334155;background:#0f172a}
+.kiosk-mark:last-child{border-right:0}
+.kiosk-mark-label{display:block;color:#94a3b8;font-size:9px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kiosk-mark-time{display:block;color:#f8fafc;font-size:15px;font-weight:900;line-height:1.2;font-variant-numeric:tabular-nums}
+.kiosk-day-actions{display:flex;justify-content:center;gap:6px;margin-top:6px}
+#tela-ponto .kiosk-day-actions .btn{padding:5px 9px;border-radius:7px;font-size:11px;background:#1e293b;color:#f8fafc;border-color:#475569}
+#tela-ponto .kiosk-day-actions .btn:disabled{opacity:.4}
 #btn-logoff{background:#dc2626!important;border-color:#dc2626!important;color:#fff;margin-left:6px}
 #logo-app{object-fit:contain;width:120px;height:120px;display:block;margin:0 auto 10px}
 @media(max-height:768px){
@@ -169,7 +182,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   #tela-ponto .keys{gap:8px;margin-top:6px!important}
   #tela-ponto .key{height:54px;font-size:24px}
   #tela-ponto #btn-bater{margin-top:10px;padding:14px;font-size:22px}
-  #hist-dia{max-height:88px;overflow:auto}
+  #hist-dia{max-height:none;overflow:visible}
   #status-impressora{margin-top:5px!important}
 }
 @media(max-height:620px){
@@ -184,7 +197,13 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   #tela-ponto .key{height:42px;font-size:21px;border-radius:10px}
   #tela-ponto #btn-bater{margin-top:7px;padding:10px;font-size:19px}
   #nome-func{font-size:20px;margin:3px 0}
-  #hist-dia{max-height:54px;overflow:auto}
+  #hist-dia{max-height:none;overflow:visible}
+  .kiosk-day{padding:4px 6px}
+  .kiosk-day-head{margin-bottom:3px}
+  .kiosk-mark{padding:3px 2px}
+  .kiosk-mark-time{font-size:13px}
+  .kiosk-day-actions{margin-top:4px}
+  #tela-ponto .kiosk-day-actions .btn{padding:3px 7px;font-size:10px}
   #status-impressora{display:none}
 }
 /* ===================== DASHBOARD — INDICADORES & BARRAS ===================== */
@@ -739,18 +758,24 @@ function buscarFuncionario(){
   }
   const f=funcPorPin(PIN);
   if(!f){$('nome-func').innerHTML='<span style="color:var(--red)">PIN não encontrado</span>';agendarLimpeza();return;}
-  $('nome-func').textContent=f.nome;
+  $('nome-func').textContent='';
   mostrarHistoricoDia(f); agendarLimpeza();
 }
 function mostrarHistoricoDia(f){
   const d=jornadaAtualISO(f.pin);
   const bs=get('batidas',[]).filter(b=>b.pin===f.pin&&b.data===d).sort((a,b)=>a.hora.localeCompare(b.hora));
-  $('hist-dia').innerHTML=`<div class="muted" style="text-align:center">Batidas de hoje (${brOf(d)})</div>
-  <div class="tbl-wrap"><table><tr><th>Hora</th><th>Tipo</th><th>NSR</th><th>Fonte</th><th></th></tr>
-  ${bs.length?bs.map(b=>`<tr><td><b>${b.hora}</b></td><td>${esc(b.tipo)}</td><td>${b.nsr}</td><td>${b.fonte}</td>
-  <td class="row"><button class="btn sm ghost" onclick="reimprimir('${b.nsr}')">🖨 Reimprimir</button>
-  <button class="btn sm ghost" onclick="emailComprovante('${b.nsr}')">✉ E-mail</button></td></tr>`).join('')
-  :'<tr><td colspan="5" class="muted">Nenhuma batida hoje.</td></tr>'}</table></div>`;
+  const slots=['Entrada','Saída Int','Retorno Int','Saída'];
+  const ultima=bs[bs.length-1];
+  $('hist-dia').innerHTML=`<section class="kiosk-day" aria-label="Marcações de hoje de ${esc(f.nome)}">
+    <div class="kiosk-day-head"><strong class="kiosk-day-name">${esc(f.nome)}</strong><span class="kiosk-day-date">${brOf(d)}</span></div>
+    <div class="kiosk-marks" role="list" aria-label="Quatro marcações previstas">
+      ${slots.map((label,i)=>`<div class="kiosk-mark" role="listitem"><span class="kiosk-mark-label">${label}</span><time class="kiosk-mark-time">${bs[i]?esc(bs[i].hora):'--:--'}</time></div>`).join('')}
+    </div>
+    <div class="kiosk-day-actions">
+      <button class="btn sm ghost" type="button" ${ultima?'':'disabled'} onclick="reimprimir('${ultima?ultima.nsr:''}')" aria-label="Imprimir o comprovante da última marcação">🖨️ Imprimir</button>
+      <button class="btn sm ghost" type="button" onclick="compartilharFolhaKiosk('${f.pin}')" aria-label="Compartilhar por e-mail o link da folha mensal">✉️ E-mail</button>
+    </div>
+  </section>`;
 }
 /* Virada noturna (item E): jornada iniciada à noite continua no dia anterior */
 function jornadaAtualISO(pin){
@@ -1950,6 +1975,23 @@ async function solicitarFolhaPorEmailPortal(pin){
   try{await navigator.clipboard.writeText(result.url);toast('Link copiado. Abrindo seu aplicativo de e-mail…',4000);}catch(e){}
   location.href=`mailto:${encodeURIComponent(f.email||'')}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
   log(`Portal: link mensal gerado para ${f.nome} (${ini.slice(0,7)})`);
+}
+async function compartilharFolhaKiosk(pin){
+  const f=funcPorPin(pin); if(!f) return toast('Funcionário não encontrado.',3000);
+  const hoje=hojeISO(),competencia=hoje.slice(0,7);
+  const {data:sessionData}=await sb.auth.getSession(),token=sessionData.session?.access_token;
+  if(!token) return toast('Entre novamente para compartilhar a folha.',4000);
+  toast('Criando link seguro…',2500);
+  try{
+    const response=await fetch('/api/public/folha-link',{method:'POST',headers:{'content-type':'application/json','authorization':`Bearer ${token}`},body:JSON.stringify({pin,competencia})});
+    const result=await response.json(); if(!response.ok) throw new Error(result.error||'Não foi possível criar o link.');
+    const mes=MESES[Number(competencia.slice(5,7))-1],assunto=`Folha de Ponto — ${f.nome} — ${mes}/${competencia.slice(0,4)}`;
+    const texto=`Olá, ${f.nome}. Acesse sua folha de ponto de ${mes}/${competencia.slice(0,4)} pelo link seguro abaixo. O acesso expira em 7 dias.\n\n${result.url}`;
+    if(navigator.share){try{await navigator.share({title:assunto,text:texto});log(`Kiosk: link mensal compartilhado com ${f.nome}`);return;}catch(e){if(e.name==='AbortError')return;}}
+    try{await navigator.clipboard.writeText(result.url);toast('Link copiado. Abrindo seu aplicativo de e-mail…',4000);}catch(e){}
+    location.href=`mailto:${encodeURIComponent(f.email||'')}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
+    log(`Kiosk: link mensal gerado para ${f.nome} (${competencia})`);
+  }catch(e){toast(e.message||'Não foi possível compartilhar a folha.',5000);}
 }
 
 async function abrirFolhaPorLink(token){
