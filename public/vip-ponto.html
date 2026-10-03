@@ -1474,14 +1474,15 @@ function calcDash(){
 function desenharRanking(ord){
   const c=$('dash-canvas'); if(!c)return; const x=c.getContext('2d');
   x.clearRect(0,0,c.width,c.height); const lista=ord.slice(0,8);
+  const faixa=c.width-160;
   const h=Math.min(24,Math.max(12,(c.height-20)/Math.max(1,lista.length)-6));
-  lista.forEach((r,i)=>{const y=10+i*(h+7),w=Math.max(3,(c.width-120)*(Math.min(100,r.pres)/100));
+  lista.forEach((r,i)=>{const y=10+i*(h+7),w=Math.max(3,faixa*(Math.min(100,r.pres)/100));
     x.fillStyle='#12203a';x.font='600 11px Segoe UI, sans-serif';x.textAlign='right';x.fillText(r.f.nome.slice(0,16),105,y+h-4);
-    x.fillStyle='#e6ebf4';x.fillRect(110,y,c.width-120,h);
+    x.fillStyle='#e6ebf4';x.fillRect(110,y,faixa,h);
     const cor=['#0d7a34','#1a9a44','#2f8fd4','#e08a2e','#c9552b'][Math.min(4,Math.floor((100-Math.min(100,r.pres))/22))];
     const gr=x.createLinearGradient(110,0,110+w,y);gr.addColorStop(0,cor);gr.addColorStop(1,'rgba(255,255,255,.35)');
     x.fillStyle=gr;x.fillRect(110,y,w,h);
-    x.fillStyle='#0c2246';x.font='700 11px Segoe UI, sans-serif';x.textAlign='left';x.fillText(r.pres+'%',116+Math.min(100,r.pres)/100*(c.width-120),y+h-4);});
+    x.fillStyle='#0c2246';x.font='700 11px Segoe UI, sans-serif';x.textAlign='left';x.fillText(r.pres+'%',114+w,y+h-4);});
 }
 function printDash(){imprimirArea($('dash-out').innerHTML,'Dashboard de Frequência');}
 function pdfDash(){
