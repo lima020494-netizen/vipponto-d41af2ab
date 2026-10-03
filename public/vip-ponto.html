@@ -1659,7 +1659,7 @@ async function loteXML(){
 (async function boot(){
   localStorage.removeItem('vip:sessao');
   const folhaToken=new URLSearchParams(location.search).get('folha_token');
-  if(folhaToken){relogio();await abrirFolhaPorLink(folhaToken);return;}
+  if(folhaToken){relogio();setTimeout(()=>abrirFolhaPorLink(folhaToken),0);return;}
   // Link de recuperação de senha: abre a tela de nova senha
   if(/type=recovery/.test(location.hash)){
     mostrarView('esq');relogio();$('e-reset').classList.remove('hidden');
