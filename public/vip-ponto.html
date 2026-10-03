@@ -1446,15 +1446,27 @@ function calcDash(){
       incQtd:incompletos.length,incMin:incompletos.reduce((s,l)=>s+(l.previsto-l.trabalhado),0)};
   });
   const totPrev=res.reduce((s,r)=>s+r.diasPrev,0), totFaltas=res.reduce((s,r)=>s+r.faltas,0);
+  const totAtrasos=res.reduce((s,r)=>s+r.atrasosQtd,0), totInc=res.reduce((s,r)=>s+r.incQtd,0);
+  const totIncMin=res.reduce((s,r)=>s+r.incMin,0);
+  const presMedia=res.length?Math.round(res.reduce((s,r)=>s+r.pres,0)/res.length):0;
+  const absPercent=totPrev?((totFaltas/totPrev)*100).toFixed(1):'0.0';
   const card=(t,c)=>`<div class="card" style="margin:0"><h4>${t}</h4>${c}</div>`;
   const ord=[...res].sort((a,b)=>b.pres-a.pres);
+  const ind=(cls,ico,lbl,val,sub)=>`<div class="ind ${cls}"><div class="ind-ico">${ico}</div><div class="ind-val">${val}</div><div class="ind-lbl">${lbl}</div><div class="ind-sub">${sub}</div></div>`;
+  const barCls=p=>p>=90?'':p>=75?'warn':'bad';
   $('dash-out').innerHTML=`<div class="muted">Período: ${brOf(ini)} a ${brOf(fim)} • Filtro: ${filtro?(funcPorPin(filtro)||{}).nome:'Todos Funcionários'}</div>
+  <div class="ind-grid">
+  ${ind('ind-green','✅','Presença',presMedia+'%',`Índice médio de assiduidade${filtro?'':' ('+res.length+' colab.)'}`)}
+  ${ind('ind-red','❌','Faltas',totFaltas,`faltas no período ${totPrev?`• ${Math.round(totFaltas/totPrev*100)}% dos dias`:''}`)}
+  ${ind('ind-orange','📉','Absenteísmo',absPercent+'%',`sobre ${totPrev} dia(s) previsto(s)`)}
+  ${ind('ind-blue','⏰','Atrasos',totAtrasos,`tolerância 10 min ${totAtrasos?`• ${Math.round(res.reduce((s,r)=>s+r.atrasosQtd,0)/(totPrev||1)*100)}% dos dias`:''}`)}
+  ${ind('ind-purple','⚠️','Carga Incompleta',totInc,`dia(s) com carga menor • faltam ${toHHMM(totIncMin)}`)}
+  </div>
+  <div class="card" style="margin-top:12px"><h4>🎯 Índice de Assiduidade por Colaborador</h4>
+  ${ord.length?ord.map(r=>`<div class="assid-row"><span class="an" title="${esc(r.f.nome)}">${esc(r.f.nome)}</span><div class="pbar ${barCls(r.pres)}"><span style="width:${Math.max(2,r.pres)}%"></span></div><span class="av">${r.pres}%</span><span class="am">(${r.trabalhados}/${r.diasPrev})</span></div>`).join(''):'<div class="muted">—</div>'}</div>
   <div class="grid g3" style="margin-top:10px">
   ${card('🏆 Mais Presentes (Trabalhados/Previstos)',ord.map(r=>`<div>${esc(r.f.nome)} — <b>${r.pres}%</b> <span class="muted">(${r.trabalhados}/${r.diasPrev})</span></div>`).join('')||'<div class="muted">—</div>')}
   ${card('❌ Faltas por Funcionário',res.map(r=>`<div>${esc(r.f.nome)} — <b>${r.faltas}</b> falta(s) ${r.diasPrev?`(${Math.round(r.faltas/r.diasPrev*100)}%)`:''}</div>`).join('')||'<div class="muted">—</div>')}
-  ${card('📉 Absenteísmo Geral',`<div style="font-size:28px;font-weight:900">${totFaltas} faltas</div><div class="muted">${totPrev?((totFaltas/totPrev)*100).toFixed(1):0}% dos dias previstos</div>`)}
-  ${card('⏰ Atrasos (tolerância 10min)',res.filter(r=>r.atrasosQtd).map(r=>`<div>${esc(r.f.nome)} — <b>${r.atrasosQtd}</b> • médio ${toHHMM(r.atrasoMedio)}</div>`).join('')||'<div class="muted">Sem atrasos.</div>')}
-  ${card('⚠️ Carga Incompleta',res.filter(r=>r.incQtd).map(r=>`<div>${esc(r.f.nome)} — <b>${r.incQtd}</b> dia(s) • faltam ${toHHMM(r.incMin)}</div>`).join('')||'<div class="muted">—</div>')}
   ${card('🏅 Ranking Índice de Presença','<canvas id="dash-canvas" width="360" height="200"></canvas>')}
   </div>`;
   desenharRanking(ord);
