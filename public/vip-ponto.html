@@ -156,6 +156,31 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 #tela-ponto .muted{color:#94a3b8}
 #btn-logoff{background:#dc2626!important;border-color:#dc2626!important;color:#fff;margin-left:6px}
 #logo-app{object-fit:contain;width:120px;height:120px;display:block;margin:0 auto 10px}
+@media(max-height:768px){
+  #tela-ponto{padding-top:10px;padding-bottom:12px}
+  #tela-ponto .pin-display{margin:8px auto;padding:8px}
+  #tela-ponto .pin-dot{width:52px;height:58px;font-size:36px}
+  #tela-ponto .keys{gap:8px;margin-top:6px!important}
+  #tela-ponto .key{height:54px;font-size:24px}
+  #tela-ponto #btn-bater{margin-top:10px;padding:14px;font-size:22px}
+  #hist-dia{max-height:88px;overflow:auto}
+  #status-impressora{margin-top:5px!important}
+}
+@media(max-height:620px){
+  #tela-home .topbar{padding-top:5px;padding-bottom:5px}
+  #tela-ponto{padding-top:5px;padding-bottom:6px}
+  #relogio-kiosk{font-size:48px}
+  #data-kiosk{font-size:14px;margin:3px 0}
+  #tela-ponto .status-ntp{font-size:11px;margin:2px 0}
+  #tela-ponto .pin-display{margin:5px auto;padding:5px;gap:8px}
+  #tela-ponto .pin-dot{width:46px;height:45px;font-size:30px}
+  #tela-ponto .keys{gap:6px}
+  #tela-ponto .key{height:42px;font-size:21px;border-radius:10px}
+  #tela-ponto #btn-bater{margin-top:7px;padding:10px;font-size:19px}
+  #nome-func{font-size:20px;margin:3px 0}
+  #hist-dia{max-height:54px;overflow:auto}
+  #status-impressora{display:none}
+}
 </style>
 </head>
 <body>
@@ -257,6 +282,14 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 <div id="modal-pin" class="modal small hidden"><div class="inner" id="modal-pin-inner"></div></div>
 <div id="area-impressao" class="hidden"></div>
 <div id="comprovante"></div>
+<div id="tela-folha-link" class="hidden" style="min-height:100vh;background:#f4f6fb;padding:16px">
+  <div style="max-width:1180px;margin:0 auto">
+    <div class="row" style="margin-bottom:12px"><strong style="font-size:20px">VIP PONTO — Minha folha mensal</strong>
+      <button id="btn-pdf-link" class="btn green right hidden" onclick="baixarFolhaLink()">📄 Baixar PDF oficial</button></div>
+    <div id="folha-link-status" class="card">Validando acesso seguro…</div>
+    <div id="folha-link-conteudo"></div>
+  </div>
+</div>
 
 <script>
 /* ============================================================================
@@ -284,7 +317,8 @@ function baixar(nome,conteudo,tipo){const b=new Blob([conteudo],{type:tipo||'tex
 /* ---------- storage isolado por conta (RLS local) ---------- */
 let CONTA=null;                                     // e-mail da conta logada
 const K  = k => `vip:${CONTA}:${k}`;
-const get = (k,d) => { try{ const v=localStorage.getItem(K(k)); return v?JSON.parse(v):d; }catch(e){ return d; } };
+let SHARE_DATA=null;
+const get = (k,d) => { if(SHARE_DATA&&Object.prototype.hasOwnProperty.call(SHARE_DATA,k))return SHARE_DATA[k];try{ const v=localStorage.getItem(K(k)); return v?JSON.parse(v):d; }catch(e){ return d; } };
 let CARREGANDO=false; // evita eco de gravação durante a carga da nuvem
 const set = (k,v) => { localStorage.setItem(K(k),JSON.stringify(v)); if(!CARREGANDO) nuvemPush(k,v); };
 
@@ -1624,6 +1658,8 @@ async function loteXML(){
 /* ============================== SESSÃO ============================== */
 (async function boot(){
   localStorage.removeItem('vip:sessao');
+  const folhaToken=new URLSearchParams(location.search).get('folha_token');
+  if(folhaToken){relogio();await abrirFolhaPorLink(folhaToken);return;}
   // Link de recuperação de senha: abre a tela de nova senha
   if(/type=recovery/.test(location.hash)){
     mostrarView('esq');relogio();$('e-reset').classList.remove('hidden');
@@ -1803,13 +1839,34 @@ async function baixarFolhaPortal(pin){
 async function solicitarFolhaPorEmailPortal(pin){
   const f=funcPorPin(pin); if(!f) return toast('Funcionário não encontrado.',3000);
   const ini=$('pe-ini').value,fim=$('pe-fim').value; if(!ini||!fim) return toast('Selecione o período.',3000);
-  const dados=gerarFolhaMTE(pin,ini,fim);
-  const pdf=await gerarPDFComLogo({folhas:[dados]});
-  const mes=MESES[Number(ini.slice(5,7))-1];
-  await enviarArquivoPorEmail({para:f.email,assunto:`Folha de Ponto — ${f.nome} — ${mes}/${ini.slice(0,4)}`,
-    nome:`Folha_${f.nome.replace(/\s+/g,'_')}_${mes}.pdf`,blob:pdf.blob,base64:pdf.base64,mime:'application/pdf'});
-  log(`Portal: folha em PDF solicitada por ${f.nome} (${brOf(ini)}–${brOf(fim)})`);
+  if(ini.slice(0,7)!==fim.slice(0,7)) return toast('O link é mensal. Selecione datas do mesmo mês.',4000);
+  const {data:sessionData}=await sb.auth.getSession(),token=sessionData.session?.access_token;
+  if(!token) return toast('Entre novamente para gerar o link seguro.',4000);
+  toast('Criando link seguro…',2500);
+  const response=await fetch('/api/public/folha-link',{method:'POST',headers:{'content-type':'application/json','authorization':`Bearer ${token}`},body:JSON.stringify({pin,competencia:ini.slice(0,7)})});
+  const result=await response.json();
+  if(!response.ok) return toast(result.error||'Não foi possível criar o link.',5000);
+  const mes=MESES[Number(ini.slice(5,7))-1],assunto=`Folha de Ponto — ${f.nome} — ${mes}/${ini.slice(0,4)}`;
+  const texto=`Olá, ${f.nome}. Acesse sua folha de ponto de ${mes}/${ini.slice(0,4)} pelo link seguro abaixo. O acesso expira em 7 dias.\n\n${result.url}`;
+  if(navigator.share){try{await navigator.share({title:assunto,text:texto});log(`Portal: link mensal compartilhado com ${f.nome}`);return;}catch(e){if(e.name==='AbortError')return;}}
+  try{await navigator.clipboard.writeText(result.url);toast('Link copiado. Abrindo seu aplicativo de e-mail…',4000);}catch(e){}
+  location.href=`mailto:${encodeURIComponent(f.email||'')}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
+  log(`Portal: link mensal gerado para ${f.nome} (${ini.slice(0,7)})`);
 }
+
+async function abrirFolhaPorLink(token){
+  ['tela-login','tela-empregador','tela-home','tela-gestor'].forEach(id=>$(id)?.classList.add('hidden'));
+  $('tela-folha-link').classList.remove('hidden');
+  try{
+    const response=await fetch(`/api/public/folha-link?token=${encodeURIComponent(token)}`,{cache:'no-store'}),data=await response.json();
+    if(!response.ok) throw new Error(data.error||'Acesso indisponível.');
+    CONTA='folha-compartilhada';SHARE_DATA={funcionarios:[data.employee],batidas:data.points,empregador:data.employer,escalas:data.schedules,feriados:data.holidays,...(data.misc||{})};
+    window.__folhaLink={pin:'self',ini:data.start,fim:data.end,nome:data.employee.nome};
+    $('folha-link-status').innerHTML=`<div class="alert ok">Acesso exclusivo à folha de <b>${esc(data.employee.nome)}</b> — ${brOf(data.start)} a ${brOf(data.end)}</div>`;
+    $('folha-link-conteudo').innerHTML=htmlFolha('self',data.start,data.end);$('btn-pdf-link').classList.remove('hidden');
+  }catch(e){$('folha-link-status').innerHTML=`<div class="alert err">${esc(e.message||'Este link é inválido ou expirou.')}</div>`;}
+}
+async function baixarFolhaLink(){const d=window.__folhaLink;if(!d)return;const pdf=await gerarPDFComLogo({folhas:[gerarFolhaMTE(d.pin,d.ini,d.fim)]});pdf.doc.save(`Folha_${String(d.nome||'Funcionario').replace(/\s+/g,'_')}_${d.ini.slice(0,7)}.pdf`);}
 
 /* Relatório confidencial de PINs */
 function linhasPins(){return get('funcionarios',[]).map(f=>[f.nome,f.cpf||'',f.cargo||f.funcao||'',f.departamento||'',f.pin,statusTexto(f)]);}
