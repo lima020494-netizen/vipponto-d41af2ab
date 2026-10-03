@@ -1511,15 +1511,31 @@ function desenharFaltas(res){
     x.fillStyle=gr;x.fillRect(110,y,w,h);
     x.fillStyle='#5b1a12';x.font='700 11px Segoe UI, sans-serif';x.textAlign='left';x.fillText(r.faltas+' ('+pct+'%)',114+w,y+h-4);});
 }
-function printDash(){imprimirArea($('dash-out').innerHTML,'Dashboard de Frequência');}
+function printDash(){
+  const wrap=document.createElement('div'); wrap.innerHTML=$('dash-out').innerHTML;
+  wrap.querySelectorAll('canvas').forEach(c=>{
+    const src=c.id&&$(c.id); const img=document.createElement('img');
+    img.alt=c.getAttribute('aria-label')||'Gráfico'; img.style.cssText='width:100%;height:auto';
+    try{img.src=src?src.toDataURL('image/png'):'';}catch(_){img.src='';}
+    c.replaceWith(img);
+  });
+  imprimirArea(wrap.innerHTML,'Dashboard de Frequência');
+}
 function pdfDash(){
   const {jsPDF}=window.jspdf,e=get('empregador',{})||{},[ini,fim]=periodoDash();
   const doc=new jsPDF({unit:'mm',format:'a4'});let y=14;
   doc.setFontSize(12);doc.text(`${e.razao||''} — ${e.fantasia||''}`,10,y);y+=5;
   doc.setFontSize(9);doc.text(`${e.tipo}: ${e.doc}  CEI/CAEPF/CNO: ${e.cei||'—'}`,10,y);y+=5;
   doc.text(`Dashboard de Frequência — Período ${brOf(ini)} a ${brOf(fim)} — Filtro: ${$('d-func').value?(funcPorPin($('d-func').value)||{}).nome:'Todos'}`,10,y);y+=6;
+  const quebra=()=>{if(y>275){doc.setFontSize(8);doc.text(`Página ${doc.getNumberOfPages()}`,190,290,{align:'right'});doc.addPage();y=14;doc.setFontSize(9);}};
   const txt=$('dash-out').innerText.split('\n').filter(Boolean);
-  doc.setFontSize(9);txt.forEach(l=>{if(y>275){doc.text(`Página ${doc.getNumberOfPages()}`,190,290,{align:'right'});doc.addPage();y=14;}doc.text(l.slice(0,110),10,y);y+=4.5;});
+  doc.setFontSize(9);txt.forEach(l=>{quebra();doc.text(l.slice(0,110),10,y);y+=4.5;});
+  [['dash-canvas','Ranking de Presença'],['dash-canvas-f','Índice de Faltas']].forEach(([id,tit])=>{
+    const c=$(id); if(!c)return; let img=''; try{img=c.toDataURL('image/png');}catch(_){return;}
+    const w=190,h=w*c.height/c.width; if(y+h>275){quebra();}
+    doc.setFontSize(10);doc.text(tit,10,y);y+=4;
+    doc.addImage(img,'PNG',10,y,w,h);y+=h+6;
+  });
   const d=getHoraOficial();
   doc.setFontSize(8);doc.text(`Relatório gerado em ${brOf(isoOf(d))} ${hhmm(d)} por ${assinaGerenciador()}`,10,288);
   doc.text(`Página ${doc.getNumberOfPages()}`,200,288,{align:'right'});
