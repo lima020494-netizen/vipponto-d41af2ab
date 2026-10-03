@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_config: {
+        Row: {
+          chave: string
+          updated_at: string
+          valor: Json | null
+        }
+        Insert: {
+          chave: string
+          updated_at?: string
+          valor?: Json | null
+        }
+        Update: {
+          chave?: string
+          updated_at?: string
+          valor?: Json | null
+        }
+        Relationships: []
+      }
       banco_horas: {
         Row: {
           id: string
@@ -391,6 +409,48 @@ export type Database = {
           },
         ]
       }
+      licencas: {
+        Row: {
+          aceite_termos: Json | null
+          created_at: string
+          data_vencimento: string
+          email_dono: string
+          observacao: string | null
+          plano: number
+          status: string
+          tipo_pagamento: string
+          updated_at: string
+          user_id: string | null
+          valor_mensal: number | null
+        }
+        Insert: {
+          aceite_termos?: Json | null
+          created_at?: string
+          data_vencimento?: string
+          email_dono: string
+          observacao?: string | null
+          plano?: number
+          status?: string
+          tipo_pagamento?: string
+          updated_at?: string
+          user_id?: string | null
+          valor_mensal?: number | null
+        }
+        Update: {
+          aceite_termos?: Json | null
+          created_at?: string
+          data_vencimento?: string
+          email_dono?: string
+          observacao?: string | null
+          plano?: number
+          status?: string
+          tipo_pagamento?: string
+          updated_at?: string
+          user_id?: string | null
+          valor_mensal?: number | null
+        }
+        Relationships: []
+      }
       logs: {
         Row: {
           acao: string
@@ -460,18 +520,43 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       registrar_ponto: {
         Args: { p_empresa_id: string; p_pin: string; p_tipo: string }
         Returns: Json
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -598,6 +683,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
