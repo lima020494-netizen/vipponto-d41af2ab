@@ -789,7 +789,7 @@ function mostrarHistoricoDia(f){
     </div>
     <div class="kiosk-day-actions">
       <button class="btn sm ghost" type="button" ${ultima?'':'disabled'} onclick="reimprimir('${ultima?ultima.nsr:''}')" aria-label="Imprimir o comprovante da última marcação">🖨️ Imprimir</button>
-      <button class="btn sm ghost" type="button" onclick="compartilharFolhaKiosk('${f.pin}')" aria-label="Compartilhar por e-mail o link da folha mensal">✉️ E-mail</button>
+      <button class="btn sm ghost" type="button" ${ultima?'':'disabled'} onclick="emailComprovante('${ultima?ultima.nsr:''}')" aria-label="Enviar por e-mail o comprovante da última marcação">✉️ E-mail</button>
     </div>
   </section>`;
 }
@@ -889,8 +889,9 @@ async function comprovantePDF(b){
 async function emailComprovante(nsr){
   const b=get('batidas',[]).find(x=>x.nsr===nsr); if(!b) return;
   const f=funcPorPin(b.pin)||{}, {linhas}=await comprovanteTexto(b);
-  const corpo=encodeURIComponent(linhas.join('\n'));
-  location.href=`mailto:${f.email||''}?subject=${encodeURIComponent('Comprovante de Ponto NSR '+b.nsr)}&body=${corpo}`;
+  const assunto=`Comprovante de Registro de Ponto — NSR ${b.nsr}`;
+  const texto=linhas.join('\n');
+  location.href=`mailto:${encodeURIComponent(f.email||'')}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
 }
 
 /* ============================== PIN GESTOR / PORTAL ============================== */

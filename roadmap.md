@@ -13,3 +13,4 @@
 - [x] Termos de Uso com aceite registrado, tela de Assinatura PIX e painel do desenvolvedor.
 - [x] Login: autenticar no Supabase antes de qualquer verificação de plano, sem bloqueio indevido.
 - [x] Criar conta: remover a trava de limite de empresas do aparelho, inclusive para o e-mail do desenvolvedor.
+- [x] Enviar por e-mail o mesmo texto exibido no comprovante impresso da última marcação.
