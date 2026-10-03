@@ -248,6 +248,48 @@ export type Database = {
         }
         Relationships: []
       }
+      folha_access_tokens: {
+        Row: {
+          competencia: string
+          created_at: string
+          email_dono: string
+          expires_at: string
+          funcionario_pin: string
+          id: string
+          last_accessed_at: string | null
+          revoked_at: string | null
+          token_hash: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          competencia: string
+          created_at?: string
+          email_dono: string
+          expires_at: string
+          funcionario_pin: string
+          id?: string
+          last_accessed_at?: string | null
+          revoked_at?: string | null
+          token_hash: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          competencia?: string
+          created_at?: string
+          email_dono?: string
+          expires_at?: string
+          funcionario_pin?: string
+          id?: string
+          last_accessed_at?: string | null
+          revoked_at?: string | null
+          token_hash?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       folhas: {
         Row: {
           ano: number | null
