@@ -8,3 +8,4 @@
 - [x] Simplificar e completar o Dashboard de Frequência sem repetir indicadores.
 - [x] Validar navegação por teclado, leitura dos rótulos e apresentação do dashboard.
 - [x] Compactar as batidas do dia no kiosk em quatro marcações e ações rápidas, sem rolagem.
+- [x] Atualizar o comprovante térmico com endereço, SHA-256, QR compacto e avanço seguro para corte.
