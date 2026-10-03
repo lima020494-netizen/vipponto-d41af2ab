@@ -97,7 +97,7 @@ export const Route = createFileRoute("/api/public/licenca")({
           const qtd = new Map<string, number>();
           (f.data || []).forEach((x) => { const k = String(x.email_dono).toLowerCase(); qtd.set(k, (qtd.get(k) || 0) + 1); });
           const cfg = await getConfig(a.db);
-          return json({ config: cfg, contas: ((l.data || []) as Lic[]).map((x) => ({ ...view(x), razao: nomes.get(x.email_dono) || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
+          return json({ config: cfg, contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: nomes.get(x.email_dono) || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
         }
         if (d.acao === "config") {
           const { error } = await a.db.from("app_config" as never).upsert({ chave: "cobranca", valor: { pix: d.pix, whatsapp: d.whatsapp, precos: d.precos, precosAnuais: d.precosAnuais } } as never);
@@ -107,7 +107,7 @@ export const Route = createFileRoute("/api/public/licenca")({
         if (!cur) return json({ error: "Conta não encontrada." }, 404);
         let patch: Record<string, unknown> = {};
         if (d.acao === "renovar") {
-          const base = Math.max(Date.now(), new Date((cur as Lic).data_vencimento).getTime());
+          const base = Math.max(Date.now(), new Date((cur as unknown as Lic).data_vencimento).getTime());
           patch = { status: "ativo", data_vencimento: new Date(base + d.dias * DAY).toISOString(), tipo_pagamento: d.dias === 365 ? "pix_anual" : "pix" };
         } else if (d.acao === "cortesia") patch = { status: "cortesia", tipo_pagamento: "cortesia" };
         else if (d.acao === "bloquear") patch = { status: "bloqueado" };
