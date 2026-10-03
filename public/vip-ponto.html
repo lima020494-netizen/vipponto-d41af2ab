@@ -544,17 +544,24 @@ async function criarConta(){
 }
 async function fazerLogin(){
   const email=$('l-email').value.trim().toLowerCase(), senha=$('l-senha').value, m=$('l-msg'); m.innerHTML='';
-  const cs=contas();
+  if(!email||!senha) return m.innerHTML='<div class="alert err">Informe e-mail e senha.</div>';
+  m.innerHTML='<div class="alert">Entrando...</div>';
+  // 1) Autentica primeiro no Supabase — nenhuma verificação local bloqueia antes disso
   const {data,error}=await sb.auth.signInWithPassword({email,password:senha});
   if(error) return m.innerHTML=`<div class="alert err">${/confirm/i.test(error.message)?'Confirme seu e-mail pelo link recebido.':'E-mail ou senha inválidos.'}</div>`;
-  if(!cs.some(c=>c.email===email)&&cs.length>=limiteEmpresas()){
-    // Confere o plano real desta conta no servidor antes de bloquear (cache do aparelho pode estar desatualizado)
-    let ok=false;try{const j=await apiLic('GET');localStorage.setItem('vip:lic:'+email,JSON.stringify(j));
-      ok=j.isDev||j.licenca?.status==='cortesia'||Math.min(3,Math.max(limiteEmpresas(),j.licenca?.plano||1))>cs.length;}catch(e){}
-    if(!ok){try{await sb.auth.signOut();}catch(e){}return m.innerHTML=`<div class="alert err">Seu plano permite ${limiteEmpresas()} empresa(s) neste aparelho. Faça upgrade com o suporte.</div>`;}
+  const cs=contas(), jaNoAparelho=cs.some(c=>c.email===email);
+  // 2) Conta nova neste aparelho: decide pelo plano REAL no banco (desenvolvedor e cortesia sempre entram)
+  if(!jaNoAparelho&&email!=='lima020494@gmail.com'){
+    let j=null; try{ j=await apiLic('GET'); localStorage.setItem('vip:lic:'+email,JSON.stringify(j)); }catch(e){}
+    if(j&&!j.isDev&&j.licenca?.status!=='cortesia'){
+      const limite=Math.min(3,Math.max(1,j.licenca?.plano||1));
+      const outras=cs.filter(c=>c.email!==email).length;
+      if(outras>=limite){ try{await sb.auth.signOut();}catch(e){}
+        return m.innerHTML=`<div class="alert err">O plano desta conta permite ${limite} empresa(s) neste aparelho e já há ${outras} salva(s). Faça upgrade com o suporte.</div>`; }
+    } // sem resposta do servidor: não bloqueia indevidamente
   }
-  if(!cs.some(c=>c.email===email)){cs.push({nome:data.user.user_metadata?.nome||email,email});salvaContas(cs);}
-  CONTA=email; iniciarApp();
+  if(!jaNoAparelho){cs.push({nome:data.user.user_metadata?.nome||email,email});salvaContas(cs);}
+  m.innerHTML=''; CONTA=email; iniciarApp();
 }
 async function gerarReset(){
   const email=$('e-email').value.trim().toLowerCase();
