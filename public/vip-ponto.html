@@ -807,6 +807,7 @@ function portalEmpregado(f){
       <div><label>Fim</label><input type="date" id="pe-fim" value="${hoje}"/></div>
       <div style="display:flex;align-items:flex-end;gap:8px">
         <button class="btn" onclick="portalGerar('${f.pin}')">Ver minha folha</button>
+        <button class="btn" onclick="baixarFolhaPortal('${f.pin}')">📄 Baixar PDF</button>
         <button class="btn gold" onclick="solicitarFolhaPorEmailPortal('${f.pin}')">✉ Enviar folha (PDF) para meu e-mail</button>
       </div></div></div>
     <div id="pe-out"></div>`);
@@ -1790,6 +1791,13 @@ async function enviarArquivoPorEmail({para,assunto,nome,blob,mime,base64}){
   setTimeout(()=>{location.href=`mailto:${para||''}?subject=${encodeURIComponent(assunto)}`;},600);
   toast(`Arquivo ${nome} baixado — anexe-o no e-mail que abriu.`,7000);
   return true;
+}
+async function baixarFolhaPortal(pin){
+  const f=funcPorPin(pin); if(!f) return toast('Funcionário não encontrado.',3000);
+  const ini=$('pe-ini').value,fim=$('pe-fim').value; if(!ini||!fim) return toast('Selecione o período.',3000);
+  const pdf=await gerarPDFComLogo({folhas:[gerarFolhaMTE(pin,ini,fim)]});
+  pdf.doc.save(`Folha_${f.nome.replace(/\s+/g,'_')}_${MESES[Number(ini.slice(5,7))-1]}.pdf`);
+  log(`Portal: ${f.nome} baixou a folha em PDF (${brOf(ini)}–${brOf(fim)})`);
 }
 /* Portal: envia o MESMO PDF oficial da Folha Individual (com logo) */
 async function solicitarFolhaPorEmailPortal(pin){
