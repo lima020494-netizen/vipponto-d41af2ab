@@ -14,23 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
-      batidas: {
+      banco_horas: {
         Row: {
-          conta: string
-          dados: Json
-          nsr: string
+          id: string
+          pin: string | null
+          saldo: string | null
+          user_id: string | null
         }
         Insert: {
-          conta: string
-          dados: Json
-          nsr: string
+          id?: string
+          pin?: string | null
+          saldo?: string | null
+          user_id?: string | null
         }
         Update: {
-          conta?: string
-          dados?: Json
-          nsr?: string
+          id?: string
+          pin?: string | null
+          saldo?: string | null
+          user_id?: string | null
         }
         Relationships: []
+      }
+      batidas: {
+        Row: {
+          empresa_id: string
+          funcionario_id: string
+          horario_utc: string | null
+          id: string
+          nsr: number
+          tipo: string
+        }
+        Insert: {
+          empresa_id: string
+          funcionario_id: string
+          horario_utc?: string | null
+          id?: string
+          nsr: number
+          tipo: string
+        }
+        Update: {
+          empresa_id?: string
+          funcionario_id?: string
+          horario_utc?: string | null
+          id?: string
+          nsr?: number
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batidas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batidas_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dados: {
         Row: {
@@ -53,21 +98,102 @@ export type Database = {
         }
         Relationships: []
       }
+      dev_config: {
+        Row: {
+          key: string
+          value: string | null
+        }
+        Insert: {
+          key: string
+          value?: string | null
+        }
+        Update: {
+          key?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
       empresas: {
         Row: {
           atualizado_em: string
-          conta: string
-          dados: Json
+          cei: string | null
+          cnpj: string
+          criado_em: string
+          email: string | null
+          fantasia: string | null
+          id: string
+          logo_base64: string | null
+          nsr_atual: number
+          razao: string | null
+          razao_social: string
+          user_id: string
         }
         Insert: {
           atualizado_em?: string
-          conta: string
-          dados: Json
+          cei?: string | null
+          cnpj: string
+          criado_em?: string
+          email?: string | null
+          fantasia?: string | null
+          id?: string
+          logo_base64?: string | null
+          nsr_atual?: number
+          razao?: string | null
+          razao_social: string
+          user_id: string
         }
         Update: {
           atualizado_em?: string
-          conta?: string
-          dados?: Json
+          cei?: string | null
+          cnpj?: string
+          criado_em?: string
+          email?: string | null
+          fantasia?: string | null
+          id?: string
+          logo_base64?: string | null
+          nsr_atual?: number
+          razao?: string | null
+          razao_social?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      escala: {
+        Row: {
+          data: string | null
+          depto: string | null
+          dia: string | null
+          folga: string | null
+          func: string | null
+          horario: string | null
+          id: string
+          pin: string | null
+          tipo: string | null
+          user_id: string | null
+        }
+        Insert: {
+          data?: string | null
+          depto?: string | null
+          dia?: string | null
+          folga?: string | null
+          func?: string | null
+          horario?: string | null
+          id?: string
+          pin?: string | null
+          tipo?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          data?: string | null
+          depto?: string | null
+          dia?: string | null
+          folga?: string | null
+          func?: string | null
+          horario?: string | null
+          id?: string
+          pin?: string | null
+          tipo?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -95,30 +221,101 @@ export type Database = {
         }
         Relationships: []
       }
-      funcionarios: {
+      folhas: {
         Row: {
-          conta: string
-          dados: Json
-          pin: string
+          ano: number | null
+          dados: Json | null
+          id: string
+          mes: number | null
+          pin: string | null
+          user_id: string | null
         }
         Insert: {
-          conta: string
-          dados: Json
-          pin: string
+          ano?: number | null
+          dados?: Json | null
+          id?: string
+          mes?: number | null
+          pin?: string | null
+          user_id?: string | null
         }
         Update: {
-          conta?: string
-          dados?: Json
-          pin?: string
+          ano?: number | null
+          dados?: Json | null
+          id?: string
+          mes?: number | null
+          pin?: string | null
+          user_id?: string | null
         }
         Relationships: []
+      }
+      funcionarios: {
+        Row: {
+          ativo: boolean
+          cargo: string | null
+          cpf: string
+          criado_em: string
+          departamento: string | null
+          depto: string | null
+          empresa_id: string
+          id: string
+          inicio_vigencia_banco: string | null
+          intervalo: Json | null
+          jornada: Json | null
+          nome: string
+          pin: string
+          user_id: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          cargo?: string | null
+          cpf: string
+          criado_em?: string
+          departamento?: string | null
+          depto?: string | null
+          empresa_id: string
+          id?: string
+          inicio_vigencia_banco?: string | null
+          intervalo?: Json | null
+          jornada?: Json | null
+          nome: string
+          pin: string
+          user_id?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          cargo?: string | null
+          cpf?: string
+          criado_em?: string
+          departamento?: string | null
+          depto?: string | null
+          empresa_id?: string
+          id?: string
+          inicio_vigencia_banco?: string | null
+          intervalo?: Json | null
+          jornada?: Json | null
+          nome?: string
+          pin?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funcionarios_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      registrar_ponto: {
+        Args: { p_empresa_id: string; p_pin: string; p_tipo: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
