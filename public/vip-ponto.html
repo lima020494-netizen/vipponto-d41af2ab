@@ -1470,8 +1470,8 @@ function calcDash(){
   ${ind('ind-purple','⚠️','Carga Incompleta',totInc,`dia(s) com carga menor • faltam ${toHHMM(totIncMin)}`)}
   </div>
   <div class="grid g2" style="margin-top:12px">
-    <div class="card" style="margin:0"><h4>🏆 Ranking de Presença</h4><canvas id="dash-canvas" width="560" height="264" style="width:100%;height:auto" role="img" aria-label="Gráfico de ranking de presença por colaborador"></canvas>${ord.length?'':'<div class="muted">Sem dados no período.</div>'}</div>
-    <div class="card" style="margin:0"><h4>❌ Índice de Faltas</h4><canvas id="dash-canvas-f" width="560" height="264" style="width:100%;height:auto" role="img" aria-label="Gráfico de faltas por colaborador no período"></canvas>${ord.length?'':'<div class="muted">Sem dados no período.</div>'}</div>
+    <div class="card" style="margin:0"><h4>🏆 Ranking de Presença</h4><canvas id="dash-canvas" width="560" height="${Math.max(90,20+Math.min(8,ord.length)*31)}" style="width:100%;height:auto" role="img" aria-label="Gráfico de ranking de presença por colaborador"></canvas>${ord.length?'':'<div class="muted">Sem dados no período.</div>'}</div>
+    <div class="card" style="margin:0"><h4>❌ Índice de Faltas</h4><canvas id="dash-canvas-f" width="560" height="${Math.max(90,20+Math.min(8,ord.length)*31)}" style="width:100%;height:auto" role="img" aria-label="Gráfico de faltas por colaborador no período"></canvas>${ord.length?'':'<div class="muted">Sem dados no período.</div>'}</div>
   </div>
   <div class="card" style="margin-top:12px"><h4>⚠️ Ocorrências que pedem atenção</h4>
     <div class="tbl-wrap"><table><thead><tr><th>Colaborador</th><th>Faltas</th><th>Atrasos</th><th>Carga incompleta</th></tr></thead><tbody>
