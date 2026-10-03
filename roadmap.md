@@ -9,3 +9,5 @@
 - [x] Validar navegação por teclado, leitura dos rótulos e apresentação do dashboard.
 - [x] Compactar as batidas do dia no kiosk em quatro marcações e ações rápidas, sem rolagem.
 - [x] Atualizar o comprovante térmico com endereço, SHA-256, QR compacto e avanço seguro para corte.
+- [x] Licenças: trial 7 dias, tolerância 7 dias, bloqueio seguro, planos 1-3 empresas, 20 colaboradores.
+- [x] Termos de Uso com aceite registrado, tela de Assinatura PIX e painel do desenvolvedor.

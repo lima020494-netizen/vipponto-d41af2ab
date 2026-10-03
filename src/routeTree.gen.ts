@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicFolhaLinkRouteImport } from './routes/api/public/folha-link'
+import { Route as ApiPublicLicencaRouteImport } from './routes/api/public/licenca'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const ApiPublicFolhaLinkRoute = ApiPublicFolhaLinkRouteImport.update({
   path: '/api/public/folha-link',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicLicencaRoute = ApiPublicLicencaRouteImport.update({
+  id: '/api/public/licenca',
+  path: '/api/public/licenca',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/public/folha-link': typeof ApiPublicFolhaLinkRoute
+  '/api/public/licenca': typeof ApiPublicLicencaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/public/folha-link': typeof ApiPublicFolhaLinkRoute
+  '/api/public/licenca': typeof ApiPublicLicencaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/public/folha-link': typeof ApiPublicFolhaLinkRoute
+  '/api/public/licenca': typeof ApiPublicLicencaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/folha-link'
+  fullPaths: '/' | '/api/public/folha-link' | '/api/public/licenca'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/folha-link'
-  id: '__root__' | '/' | '/api/public/folha-link'
+  to: '/' | '/api/public/folha-link' | '/api/public/licenca'
+  id: '__root__' | '/' | '/api/public/folha-link' | '/api/public/licenca'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiPublicFolhaLinkRoute: typeof ApiPublicFolhaLinkRoute
+  ApiPublicLicencaRoute: typeof ApiPublicLicencaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicFolhaLinkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/licenca': {
+      id: '/api/public/licenca'
+      path: '/api/public/licenca'
+      fullPath: '/api/public/licenca'
+      preLoaderRoute: typeof ApiPublicLicencaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiPublicFolhaLinkRoute: ApiPublicFolhaLinkRoute,
+  ApiPublicLicencaRoute: ApiPublicLicencaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
