@@ -143,11 +143,15 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 /* ===== TELA DE PONTO (kiosk) — tema escuro fixo ===== */
 #tela-home,#tela-ponto{background:#0f172a;color:#e2e8f0}
 #tela-home{min-height:100vh}
-#tela-home .topbar{background:#0f172a;border-bottom:1px solid #1e293b}
-#tela-ponto{padding-top:22px;padding-bottom:30px}
-#relogio-kiosk{font-size:72px;font-weight:bold;text-align:center;line-height:1;font-variant-numeric:tabular-nums;color:#fff;letter-spacing:1px}
+#tela-home{position:relative}
+.kiosk-rail{position:absolute;top:0;left:0;display:flex;flex-direction:column;gap:8px;padding:10px;z-index:20}
+.kiosk-corner{position:absolute;top:0;right:0;display:flex;align-items:center;gap:8px;padding:10px 12px;max-width:calc(100% - 68px);z-index:19}
+.kiosk-corner img{height:42px;width:auto;max-width:110px;object-fit:contain;background:#fff;border-radius:8px;padding:3px;flex:none}
+.kiosk-corner-name{font-weight:800;color:#f8fafc;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+#tela-ponto{padding-top:72px;padding-bottom:30px}
+#relogio-kiosk{font-size:61px;font-weight:bold;text-align:center;line-height:1;font-variant-numeric:tabular-nums;color:#fff;letter-spacing:1px}
 #data-kiosk{text-align:center;color:#94a3b8;font-size:18px;margin:8px 0 6px;text-transform:capitalize}
-@media(max-width:420px){#relogio-kiosk{font-size:56px}}
+@media(max-width:420px){#relogio-kiosk{font-size:48px}}
 #tela-ponto .status-ntp{color:#cbd5e1}
 #tela-ponto .pin-display{background:#fff;border-radius:16px;padding:12px;margin:16px auto;max-width:420px}
 #tela-ponto .pin-dot{width:64px;height:72px;font-size:48px;border:0;background:#f1f5f9;color:#0f172a;text-align:center}
@@ -189,9 +193,12 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   #status-impressora{margin-top:5px!important}
 }
 @media(max-height:620px){
-  #tela-home .topbar{padding-top:5px;padding-bottom:5px}
-  #tela-ponto{padding-top:5px;padding-bottom:6px}
-  #relogio-kiosk{font-size:48px}
+  .kiosk-rail{gap:6px;padding:6px}
+  .kiosk-corner{padding:6px 10px}
+  .kiosk-corner img{height:36px;max-width:90px}
+  .kiosk-corner-name{font-size:12px}
+  #tela-ponto{padding-top:60px;padding-bottom:6px}
+  #relogio-kiosk{font-size:41px}
   #data-kiosk{font-size:14px;margin:3px 0}
   #tela-ponto .status-ntp{font-size:11px;margin:2px 0}
   #tela-ponto .pin-display{margin:5px auto;padding:5px;gap:8px}
