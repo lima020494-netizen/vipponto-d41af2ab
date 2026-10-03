@@ -8,7 +8,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="/qrcode-generator.min.js"></script>
 <meta name="theme-color" content="#0f172a" />
 <script>/* PWA: manifesto inline (ícone sem distorção ao instalar na tela inicial) */
 (function(){try{var o=location.origin;var m={name:'VIP PONTO',short_name:'VIP PONTO',start_url:o+'/vip-ponto.html',display:'standalone',background_color:'#0f172a',theme_color:'#0f172a',
@@ -109,7 +108,6 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 #comprovante{display:none}
 #comprovante .cp{width:58mm;padding:2mm 2mm 16mm;font-family:"Courier New",monospace;font-size:11px;line-height:1.28;color:#000}
 #comprovante .cp-logo{width:34mm;max-height:18mm;object-fit:contain;display:block;margin:0 auto 2mm}
-#comprovante .cp-qr{width:22mm;height:22mm;image-rendering:pixelated;display:block;margin:2mm auto 1mm}
 #comprovante .cp .c{text-align:center}
 #comprovante .cp .b{font-weight:bold}
 #comprovante .cp hr{border:0;border-top:1px dashed #000;margin:1.5mm 0}
@@ -842,18 +840,15 @@ async function comprovanteTexto(b){
     'VIP PONTO - Atalaia Sistemas','Portaria MTE 671/2021'
   ].filter(Boolean)};
 }
-function qrDataUrl(text){const qr=qrcode(0,'M');qr.addData(text);qr.make();return qr.createDataURL(3,0);}
 async function imprimirComprovante(b){
-  const e=get('empregador',{})||{}, {linhas,hashAss}=await comprovanteTexto(b),qr=qrDataUrl(hashAss);
+  const e=get('empregador',{})||{}, {linhas}=await comprovanteTexto(b);
   $('comprovante').innerHTML=`<div class="cp">
     ${e.logo?`<img class="cp-logo" src="${e.logo}"/>`:''}
-    ${linhas.map((l,i)=>`<div class="c ${i<2?'b':''}">${esc(l)}</div>`).join('')}
-    <img class="cp-qr" src="${qr}" alt="QR Code de autenticidade"/><div class="c">Autenticidade SHA-256</div></div>`;
+    ${linhas.map((l,i)=>`<div class="c ${i<2?'b':''}">${esc(l)}</div>`).join('')}</div>`;
   if(SUNMI){
     try{
       SUNMI.printerInit&&SUNMI.printerInit();
       linhas.forEach(l=>SUNMI.printOriginalText?SUNMI.printOriginalText(l+'\n'):SUNMI.printText&&SUNMI.printText(l+'\n'));
-      SUNMI.printQRCode&&SUNMI.printQRCode(hashAss,4,1);
       SUNMI.lineWrap&&SUNMI.lineWrap(7);
       return toast('Comprovante enviado à impressora SUNMI.',3000);
     }catch(err){ console.warn('SUNMI falhou, usando window.print()',err); }
@@ -863,10 +858,9 @@ async function imprimirComprovante(b){
 }
 function reimprimir(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);if(b)imprimirComprovante(b);}
 async function comprovantePDF(b){
-  const {jsPDF}=window.jspdf, {linhas,hashAss}=await comprovanteTexto(b);
-  const doc=new jsPDF({unit:'mm',format:[58,150]}); doc.setFont('courier','normal'); doc.setFontSize(8);
+  const {jsPDF}=window.jspdf, {linhas}=await comprovanteTexto(b);
+  const doc=new jsPDF({unit:'mm',format:[58,110]}); doc.setFont('courier','normal'); doc.setFontSize(8);
   let y=8; linhas.forEach(l=>{doc.text(String(l),29,y,{align:'center'});y+=4;});
-  doc.addImage(qrDataUrl(hashAss),'PNG',18,y,22,22);y+=25;doc.text('Autenticidade SHA-256',29,y,{align:'center'});
   doc.save(`Comprovante_${b.nsr}.pdf`);
 }
 async function emailComprovante(nsr){
