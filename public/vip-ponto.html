@@ -545,9 +545,14 @@ async function criarConta(){
 async function fazerLogin(){
   const email=$('l-email').value.trim().toLowerCase(), senha=$('l-senha').value, m=$('l-msg'); m.innerHTML='';
   const cs=contas();
-  if(cs.length>=limiteEmpresas()&&!cs.some(c=>c.email===email)) return m.innerHTML=`<div class="alert err">Seu plano permite ${limiteEmpresas()} empresa(s) neste aparelho. Faça upgrade com o suporte.</div>`;
   const {data,error}=await sb.auth.signInWithPassword({email,password:senha});
   if(error) return m.innerHTML=`<div class="alert err">${/confirm/i.test(error.message)?'Confirme seu e-mail pelo link recebido.':'E-mail ou senha inválidos.'}</div>`;
+  if(!cs.some(c=>c.email===email)&&cs.length>=limiteEmpresas()){
+    // Confere o plano real desta conta no servidor antes de bloquear (cache do aparelho pode estar desatualizado)
+    let ok=false;try{const j=await apiLic('GET');localStorage.setItem('vip:lic:'+email,JSON.stringify(j));
+      ok=j.isDev||j.licenca?.status==='cortesia'||Math.min(3,Math.max(limiteEmpresas(),j.licenca?.plano||1))>cs.length;}catch(e){}
+    if(!ok){try{await sb.auth.signOut();}catch(e){}return m.innerHTML=`<div class="alert err">Seu plano permite ${limiteEmpresas()} empresa(s) neste aparelho. Faça upgrade com o suporte.</div>`;}
+  }
   if(!cs.some(c=>c.email===email)){cs.push({nome:data.user.user_metadata?.nome||email,email});salvaContas(cs);}
   CONTA=email; iniciarApp();
 }
