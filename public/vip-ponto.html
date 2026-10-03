@@ -969,7 +969,7 @@ function abaFunc(){
   if(SUBF==='pins'){ $('gestor-body').innerHTML=tabs+'<div id="pins-body"></div>'; return relatorioPins(); }
   $('gestor-body').innerHTML=tabs+`<div class="row"><h3>Empregados — ${fs.length}/${MAX_FUNC} colaboradores</h3>
     <button class="btn right" ${fs.length>=MAX_FUNC?'disabled':''} onclick="formFunc(-1)">+ Novo empregado</button></div>
-    <div class="tbl-wrap"><table><tr><th>#</th><th>Nome</th><th>CPF</th><th>Cargo/Função</th><th>Depto</th><th>Escala</th><th>Banco desde</th><th>Status</th><th>PIN (só gestor)</th><th></th></tr>
+    <div class="tbl-wrap" style="max-height:62vh"><table><tr><th>#</th><th>Nome</th><th>CPF</th><th>Cargo/Função</th><th>Depto</th><th>Escala</th><th>Banco desde</th><th>Status</th><th>PIN (só gestor)</th><th></th></tr>
     ${fs.map((f,i)=>`<tr><td>${i+1}</td><td>${esc(f.nome)}</td><td>${esc(f.cpf)}</td><td>${esc(f.funcao||f.cargo)}</td><td>${esc(f.departamento)}</td>
     <td>${esc(f.escala)}</td><td>${brOf(f.inicioVigenciaBancoHoras||f.bancoInicio||f.admissao)}</td><td>${esc(statusTexto(f))}</td><td><b>${esc(f.pin)}</b></td>
     <td class="row"><button class="btn sm ghost" onclick="formFunc(${i})">Editar</button><button class="btn sm red" onclick="delFunc(${i})">Excluir</button></td></tr>`).join('')
@@ -2120,5 +2120,115 @@ async function executarExclusao(){
 }
 
 </script>
+<script>
+/* ===================== LICENÇA, ASSINATURA E PAINEL DO DESENVOLVEDOR ===================== */
+const MAX_FUNC=20, DIA_MS=86400000;
+let LIC=null;
+const licCache=e=>{try{return JSON.parse(localStorage.getItem('vip:lic:'+e)||'null');}catch(x){return null;}};
+function limiteEmpresas(){const ps=contas().map(c=>licCache(c.email)?.licenca?.plano||0);return Math.min(3,Math.max(1,...ps));}
+function estadoLocal(l){ // recalcula no aparelho (cache offline continua válido com o passar dos dias)
+  if(l.status==='cortesia')return'cortesia'; if(l.status==='bloqueado')return'bloqueado';
+  const v=new Date(l.data_vencimento).getTime(),n=Date.now();
+  if(n<=v)return l.status==='trial'?'trial':'ativo'; if(n<=v+7*DIA_MS)return'tolerancia'; return'bloqueado';
+}
+async function tokenAtual(){const {data}=await sb.auth.getSession();return data.session?.access_token;}
+async function apiLic(method,body){
+  const t=await tokenAtual(); if(!t) throw new Error('Sessão expirada.');
+  const r=await fetch('/api/public/licenca',{method,headers:{'content-type':'application/json',authorization:'Bearer '+t},body:body?JSON.stringify(body):undefined});
+  const j=await r.json().catch(()=>({})); if(!r.ok) throw Object.assign(new Error(j.error||'Falha'),{status:r.status}); return j;
+}
+async function verificarLicenca(){
+  try{ LIC=await apiLic('GET'); localStorage.setItem('vip:lic:'+CONTA,JSON.stringify(LIC)); }
+  catch(e){ LIC=licCache(CONTA); if(!LIC) return true; } // sem conexão e sem cache: nunca bloqueia indevidamente
+  LIC.licenca.estado=estadoLocal(LIC.licenca);
+  if(LIC.licenca.estado==='bloqueado'){telaBloqueio();return false;}
+  return true;
+}
+const brD=iso=>iso?new Date(iso).toLocaleDateString('pt-BR'):'—';
+const moeda=v=>v==null||v===''?'a definir':Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const ROT_EST={trial:'Teste grátis',ativo:'Ativo',tolerancia:'Tolerância',bloqueado:'Bloqueado',cortesia:'Cortesia'};
+function blocoPix(){
+  const c=LIC?.config||{},l=LIC?.licenca||{},p=l.plano||1, wa=String(c.whatsapp||'').replace(/\D/g,'');
+  return `<div class="grid g3"><div><label>Plano atual</label><b>Plano ${p} — ${p} empresa(s), até ${MAX_FUNC} colaboradores cada</b></div>
+  <div><label>Vencimento</label><b>${l.estado==='cortesia'?'Cortesia (sem cobrança)':brD(l.data_vencimento)}</b></div>
+  <div><label>Mensalidade</label><b>${moeda(l.valor_mensal??c.precos?.[p])}</b>${c.precosAnuais?.[p]!=null?`<div class="muted">Anual: ${moeda(c.precosAnuais[p])}</div>`:''}</div></div>
+  <div class="hr"></div><label>Chave PIX</label>
+  ${c.pix?`<div class="row"><input id="pix-chave" value="${esc(c.pix)}" readonly style="max-width:420px"/><button class="btn gold" onclick="copiarPix()">📋 Copiar Chave PIX</button></div>`:'<div class="muted">Chave PIX ainda não cadastrada pelo suporte.</div>'}
+  <div class="alert" style="margin-top:10px">Após o pagamento, envie o comprovante para o suporte/WhatsApp para ativação imediata.</div>
+  ${wa?`<a class="btn green" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent('Olá! Segue o comprovante do VIP PONTO da conta '+CONTA)}">💬 Enviar comprovante no WhatsApp</a>`:''}`;
+}
+function copiarPix(){const v=LIC?.config?.pix||'';(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>alert('Chave PIX copiada!')).catch(()=>{$('pix-chave').select();document.execCommand('copy');});}
+function telaBloqueio(){
+  let d=$('tela-bloqueio'); if(!d){d=document.createElement('div');d.id='tela-bloqueio';d.className='modal';document.body.appendChild(d);}
+  d.innerHTML=`<div class="inner" style="max-width:720px"><div class="card"><h2>🔒 Assinatura vencida</h2>
+  <p>O período de tolerância terminou e o acesso ao VIP PONTO foi pausado. <b>Nenhum dado foi apagado</b> — tudo volta ao normal assim que o pagamento for confirmado.</p>
+  ${blocoPix()}<div class="row" style="margin-top:12px"><button class="btn" onclick="location.reload()">↻ Já paguei, verificar</button><button class="btn ghost right" onclick="logoff()">⏻ Sair</button></div></div></div>`;
+}
+function prepararGestorLicenca(){
+  const base=ABAS.filter(a=>a[0]!=='dev');
+  ABAS=LIC?.isDev&&ehMestre()?[...base,['dev','🛠️ Desenvolvedor']]:base;
+  let av=$('gestor-aviso'); if(!av){av=document.createElement('div');av.id='gestor-aviso';$('gestor-tabs').before(av);}
+  const l=LIC?.licenca; let t='';
+  if(l?.estado==='tolerancia') t=`⚠️ Fatura em aberto - Carência até ${brD(l.carencia_ate||new Date(new Date(l.data_vencimento).getTime()+7*DIA_MS))}`;
+  else if(l?.estado==='trial') t=`Teste grátis até ${brD(l.data_vencimento)}`;
+  av.style.cssText=t?'background:#0f172a;color:#facc15;padding:0 16px 8px;font:600 12.5px ui-monospace,Consolas,monospace;cursor:pointer':'display:none';
+  av.textContent=t; av.onclick=()=>irAba('assin');
+  if(LIC&&!LIC.licenca.aceite_termos) setTimeout(modalTermos,50);
+}
+function modalTermos(){
+  abrirModal(`<div class="card" style="max-width:760px;margin:0 auto"><h3>Termos de Uso — VIP PONTO</h3>
+  <div style="max-height:52vh;overflow:auto;font-size:14px;line-height:1.5">
+  <p><b>1. Ferramenta de apoio.</b> O VIP PONTO é um programa de tratamento de registro de ponto (REP-P) que auxilia o empregador no controle de jornada conforme a Portaria MTE 671/2021. Ele não substitui a assessoria contábil, jurídica ou trabalhista.</p>
+  <p><b>2. Responsabilidade do cliente.</b> O empregador é o único responsável pelas marcações, pelo cadastro correto dos colaboradores, escalas, ajustes com motivo e pelo cumprimento da legislação trabalhista. As marcações originais (data, hora e NSR) são preservadas e não podem ser alteradas.</p>
+  <p><b>3. Proteção de dados (LGPD).</b> O empregador é o <b>controlador</b> dos dados pessoais dos colaboradores. O VIP PONTO atua como <b>operador</b>, tratando os dados apenas para prestar o serviço, com medidas de segurança e sem compartilhamento com terceiros além da infraestrutura necessária.</p>
+  <p><b>4. Retenção de dados.</b> Os registros são mantidos durante a vigência da assinatura e, para fins legais, por no mínimo 5 anos. Em caso de inadimplência o acesso é pausado, mas os dados <b>não são excluídos</b>. A exclusão definitiva só ocorre por solicitação expressa do empregador.</p>
+  <p><b>5. Assinatura.</b> Teste grátis de 7 dias. Após o vencimento há 7 dias de tolerância. Depois disso o acesso fica pausado até a confirmação do pagamento.</p></div>
+  <div id="termos-msg"></div><button class="btn big green" style="margin-top:10px" onclick="aceitarTermos()">✓ Li e concordo com os Termos de Uso</button></div>`);
+  const x=document.querySelector('#modal-generico-inner .btn.ghost.right');if(x)x.remove();
+}
+async function aceitarTermos(){
+  try{const r=await apiLic('POST',{acao:'aceite',gestor:GERENCIADOR?`${GERENCIADOR.nome} - ${GERENCIADOR.funcao}`:''});
+    LIC.licenca.aceite_termos=r.aceite;localStorage.setItem('vip:lic:'+CONTA,JSON.stringify(LIC));log('Aceitou os Termos de Uso');fecharModal();}
+  catch(e){$('termos-msg').innerHTML=`<div class="alert err">${esc(e.message)} — verifique a conexão e tente de novo.</div>`;}
+}
+function abaAssinatura(){
+  const l=LIC?.licenca;
+  $('gestor-body').innerHTML=`<h3>💳 Assinatura e Faturas</h3>${l?`<div class="card"><div class="row"><span class="badge">${ROT_EST[l.estado]||l.estado}</span>
+  ${l.aceite_termos?`<span class="muted right">Termos aceitos em ${new Date(l.aceite_termos.aceito_em).toLocaleString('pt-BR')}</span>`:''}</div><div class="hr"></div>${blocoPix()}</div>`:'<div class="muted">Sem conexão para carregar a assinatura.</div>'}`;
+}
+/* ---------- Painel do desenvolvedor (login do desenvolvedor + PIN mestre 1000; validado no servidor) ---------- */
+async function devApi(b){return apiLic('POST',Object.assign({pin:GERENCIADOR?.pin},b));}
+async function abaDesenvolvedor(){
+  if(!(LIC?.isDev&&ehMestre())) return $('gestor-body').innerHTML='<div class="alert err">Acesso restrito ao desenvolvedor.</div>';
+  $('gestor-body').innerHTML='<div class="muted">Carregando contas...</div>';
+  let r; try{r=await devApi({acao:'listar'});}catch(e){return $('gestor-body').innerHTML=`<div class="alert err">${esc(e.message)}</div>`;}
+  const c=r.config||{},pr=c.precos||{},pa=c.precosAnuais||{};
+  const inp=(id,v)=>`<input id="${id}" type="number" step="0.01" min="0" value="${v??''}"/>`;
+  const cor={trial:'#1565c0',ativo:'#12823c',tolerancia:'#e07c1f',bloqueado:'#c62828',cortesia:'#7b3fb5'};
+  $('gestor-body').innerHTML=`<h3>🛠️ Painel do Desenvolvedor</h3>
+  <div class="card"><h4>Cobrança</h4><div class="grid g3"><div><label>Chave PIX</label><input id="dv-pix" value="${esc(c.pix||'')}"/></div>
+  <div><label>WhatsApp de suporte</label><input id="dv-wa" placeholder="5591999999999" value="${esc(c.whatsapp||'')}"/></div><div></div>
+  ${[1,2,3].map(p=>`<div><label>Plano ${p} — mensal (R$)</label>${inp('dv-pm'+p,pr[p])}<label>Plano ${p} — anual (R$)</label>${inp('dv-pa'+p,pa[p])}</div>`).join('')}</div>
+  <button class="btn" style="margin-top:10px" onclick="devSalvarCfg()">Salvar cobrança</button></div>
+  <div class="card"><h4>Clientes (${r.contas.length})</h4><div class="tbl-wrap" style="max-height:60vh"><table><tr><th>Empresa / Gestor</th><th>Plano</th><th>Colab.</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr>
+  ${r.contas.map(x=>{const e=esc(x.email_dono),q=JSON.stringify(x.email_dono).replace(/"/g,'&quot;');return `<tr><td><b>${esc(x.razao||'—')}</b><div class="muted">${e}</div></td>
+  <td><select onchange="devAcao('plano',${q},{plano:+this.value})" style="width:auto">${[1,2,3].map(p=>`<option value="${p}" ${x.plano===p?'selected':''}>${p} empresa(s)</option>`).join('')}</select></td>
+  <td>${x.colaboradores}/${MAX_FUNC}</td><td>${x.estado==='cortesia'?'—':brD(x.data_vencimento)}</td>
+  <td><span class="badge" style="background:${cor[x.estado]};color:#fff">${ROT_EST[x.estado]}</span></td>
+  <td class="row"><button class="btn sm green" onclick="devAcao('renovar',${q},{dias:30})">+30 dias</button><button class="btn sm" onclick="devAcao('renovar',${q},{dias:365})">+1 ano</button>
+  <button class="btn sm ghost" onclick="devAcao('cortesia',${q})">Cortesia</button><button class="btn sm red" onclick="devAcao('bloquear',${q})">Bloquear</button></td></tr>`;}).join('')||'<tr><td colspan=6 class="muted">Nenhuma conta.</td></tr>'}
+  </table></div></div>`;
+}
+async function devSalvarCfg(){
+  const n=id=>{const v=$(id).value;return v===''?null:Number(v);};
+  try{await devApi({acao:'config',pix:$('dv-pix').value.trim(),whatsapp:$('dv-wa').value.trim(),precos:{1:n('dv-pm1'),2:n('dv-pm2'),3:n('dv-pm3')},precosAnuais:{1:n('dv-pa1'),2:n('dv-pa2'),3:n('dv-pa3')}});
+    alert('Cobrança salva.');log('Desenvolvedor atualizou PIX/WhatsApp/preços');}catch(e){alert(e.message);}
+}
+async function devAcao(acao,email,extra){
+  if(acao==='bloquear'&&!confirm('Bloquear o acesso de '+email+'? Os dados não serão apagados.'))return;
+  try{await devApi(Object.assign({acao,email},extra||{}));log(`Desenvolvedor: ${acao} em ${email}`);abaDesenvolvedor();}catch(e){alert(e.message);}
+}
+</script>
+
 </body>
 </html>
