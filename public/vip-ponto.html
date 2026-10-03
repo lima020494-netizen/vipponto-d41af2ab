@@ -1461,7 +1461,6 @@ function calcDash(){
   const absPercent=totPrev?((totFaltas/totPrev)*100).toFixed(1):'0.0';
   const ord=[...res].sort((a,b)=>b.pres-a.pres);
   const ind=(cls,ico,lbl,val,sub)=>`<div class="ind ${cls}"><div class="ind-ico">${ico}</div><div class="ind-val">${val}</div><div class="ind-lbl">${lbl}</div><div class="ind-sub">${sub}</div></div>`;
-  const barCls=p=>p>=90?'':p>=75?'warn':'bad';
   $('dash-out').innerHTML=`<div class="muted">Período: ${brOf(ini)} a ${brOf(fim)} • Filtro: ${filtro?(funcPorPin(filtro)||{}).nome:'Todos Funcionários'}</div>
   <div class="ind-grid">
   ${ind('ind-green','✅','Presença',presMedia+'%',`Índice médio de assiduidade${filtro?'':' ('+res.length+' colab.)'}`)}
@@ -1471,18 +1470,20 @@ function calcDash(){
   ${ind('ind-purple','⚠️','Carga Incompleta',totInc,`dia(s) com carga menor • faltam ${toHHMM(totIncMin)}`)}
   </div>
   <div class="grid g2" style="margin-top:12px">
-    <div class="card" style="margin:0"><h4>🎯 Assiduidade por colaborador</h4>
-    ${ord.length?ord.map(r=>`<div class="assid-row"><span class="an" title="${esc(r.f.nome)}">${esc(r.f.nome)}</span><div class="pbar ${barCls(r.pres)}" role="progressbar" aria-label="Assiduidade de ${esc(r.f.nome)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${r.pres}"><span style="width:${Math.max(2,r.pres)}%"></span></div><span class="av">${r.pres}%</span><span class="am">${r.trabalhados}/${r.diasPrev} dias</span></div>`).join(''):'<div class="muted">Sem dados no período.</div>'}</div>
-    <div class="card" style="margin:0"><h4>⚠️ Ocorrências que pedem atenção</h4>
-      <div class="tbl-wrap"><table><thead><tr><th>Colaborador</th><th>Faltas</th><th>Atrasos</th><th>Carga incompleta</th></tr></thead><tbody>
-      ${res.length?res.map(r=>`<tr><td>${esc(r.f.nome)}</td><td><b>${r.faltas}</b></td><td><b>${r.atrasosQtd}</b>${r.atrasoMedio?` <span class="muted">média ${toHHMM(r.atrasoMedio)}</span>`:''}</td><td><b>${r.incQtd}</b>${r.incMin?` <span class="muted">${toHHMM(r.incMin)}</span>`:''}</td></tr>`).join(''):'<tr><td colspan="4" class="muted">Sem dados no período.</td></tr>'}
-      </tbody></table></div>
-    </div>
+    <div class="card" style="margin:0"><h4>🏆 Ranking de Presença</h4><canvas id="dash-canvas" width="560" height="${Math.max(90,20+Math.min(8,ord.length)*31)}" style="width:100%;height:auto" role="img" aria-label="Gráfico de ranking de presença por colaborador"></canvas>${ord.length?'':'<div class="muted">Sem dados no período.</div>'}</div>
+    <div class="card" style="margin:0"><h4>❌ Índice de Faltas</h4><canvas id="dash-canvas-f" width="560" height="${Math.max(90,20+Math.min(8,ord.length)*31)}" style="width:100%;height:auto" role="img" aria-label="Gráfico de faltas por colaborador no período"></canvas>${ord.length?'':'<div class="muted">Sem dados no período.</div>'}</div>
+  </div>
+  <div class="card" style="margin-top:12px"><h4>⚠️ Ocorrências que pedem atenção</h4>
+    <div class="tbl-wrap"><table><thead><tr><th>Colaborador</th><th>Faltas</th><th>Atrasos</th><th>Carga incompleta</th></tr></thead><tbody>
+    ${res.length?res.map(r=>`<tr><td>${esc(r.f.nome)}</td><td><b>${r.faltas}</b></td><td><b>${r.atrasosQtd}</b>${r.atrasoMedio?` <span class="muted">média ${toHHMM(r.atrasoMedio)}</span>`:''}</td><td><b>${r.incQtd}</b>${r.incMin?` <span class="muted">${toHHMM(r.incMin)}</span>`:''}</td></tr>`).join(''):'<tr><td colspan="4" class="muted">Sem dados no período.</td></tr>'}
+    </tbody></table></div>
   </div>`;
+  desenharRanking(ord); desenharFaltas(res);
 }
 function desenharRanking(ord){
   const c=$('dash-canvas'); if(!c)return; const x=c.getContext('2d');
   x.clearRect(0,0,c.width,c.height); const lista=ord.slice(0,8);
+  if(!lista.length){x.fillStyle='#8a93a6';x.font='12px Segoe UI, sans-serif';x.textAlign='left';x.fillText('Sem dados no período.',16,40);return;}
   const faixa=c.width-160;
   const h=Math.min(24,Math.max(12,(c.height-20)/Math.max(1,lista.length)-6));
   lista.forEach((r,i)=>{const y=10+i*(h+7),w=Math.max(3,faixa*(Math.min(100,r.pres)/100));
@@ -1492,6 +1493,23 @@ function desenharRanking(ord){
     const gr=x.createLinearGradient(110,0,110+w,y);gr.addColorStop(0,cor);gr.addColorStop(1,'rgba(255,255,255,.35)');
     x.fillStyle=gr;x.fillRect(110,y,w,h);
     x.fillStyle='#0c2246';x.font='700 11px Segoe UI, sans-serif';x.textAlign='left';x.fillText(r.pres+'%',114+w,y+h-4);});
+}
+function desenharFaltas(res){
+  const c=$('dash-canvas-f'); if(!c)return; const x=c.getContext('2d');
+  x.clearRect(0,0,c.width,c.height);
+  const lista=[...res].sort((a,b)=>b.faltas-a.faltas).slice(0,8);
+  if(!lista.length||!lista.some(r=>r.faltas>0)){x.fillStyle='#8a93a6';x.font='12px Segoe UI, sans-serif';x.textAlign='left';x.fillText('Sem faltas no período.',16,40);return;}
+  const max=Math.max(1,...lista.map(r=>r.faltas));
+  const faixa=c.width-190;
+  const h=Math.min(24,Math.max(12,(c.height-20)/lista.length-6));
+  lista.forEach((r,i)=>{const y=10+i*(h+7),w=Math.max(3,faixa*(r.faltas/max));
+    x.fillStyle='#12203a';x.font='600 11px Segoe UI, sans-serif';x.textAlign='right';x.fillText(r.f.nome.slice(0,16),105,y+h-4);
+    x.fillStyle='#e6ebf4';x.fillRect(110,y,faixa,h);
+    const pct=r.diasPrev?Math.round(r.faltas/r.diasPrev*100):0;
+    const cor=pct>=30?'#8c1d18':pct>=20?'#c9552b':pct>=10?'#e08a2e':pct>=5?'#c9a22b':'#2f8fd4';
+    const gr=x.createLinearGradient(110,0,110+w,y);gr.addColorStop(0,cor);gr.addColorStop(1,'rgba(255,255,255,.35)');
+    x.fillStyle=gr;x.fillRect(110,y,w,h);
+    x.fillStyle='#5b1a12';x.font='700 11px Segoe UI, sans-serif';x.textAlign='left';x.fillText(r.faltas+' ('+pct+'%)',114+w,y+h-4);});
 }
 function printDash(){imprimirArea($('dash-out').innerHTML,'Dashboard de Frequência');}
 function pdfDash(){
