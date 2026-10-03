@@ -300,12 +300,14 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 
 <!-- ======================= TELA INICIAL ======================= -->
 <div id="tela-home" class="hidden">
-  <div class="topbar">
+  <div class="kiosk-rail" role="toolbar" aria-label="Ações do kiosk">
     <button class="icon-btn" title="Gestor de ponto" onclick="pedirPinGestor()" aria-label="Gestor"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-    <img id="logo-empresa" src="/vip-logo.png" alt="Logo empresa"/>
-    <div style="line-height:1.1"><div id="home-fantasia" style="font-weight:800"></div><div id="home-hora" class="muted" style="color:#94a3b8"></div></div>
-    <button class="icon-btn right" title="Portal do Empregado" onclick="pedirPinPortal()" aria-label="Portal do Empregado"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></button>
+    <button class="icon-btn" title="Portal do Empregado" onclick="pedirPinPortal()" aria-label="Portal do Empregado"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></button>
     <button id="btn-logoff" class="icon-btn" title="⏻ Sair — voltar ao login multi-empresa" onclick="logoff()" aria-label="⏻ Sair"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 2v10"/><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/></svg></button>
+  </div>
+  <div class="kiosk-corner">
+    <img id="logo-empresa" src="/vip-logo.png" alt="Logo empresa"/>
+    <div id="home-fantasia" class="kiosk-corner-name"></div>
   </div>
   <div id="tela-ponto" class="wrap" style="max-width:560px">
     <div id="relogio-kiosk" role="timer" aria-label="Hora atual">--:--:--</div>
@@ -320,7 +322,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
       <button class="key" type="button" onclick="pinAdd('7')" aria-label="Dígito 7">7</button><button class="key" type="button" onclick="pinAdd('8')" aria-label="Dígito 8">8</button><button class="key" type="button" onclick="pinAdd('9')" aria-label="Dígito 9">9</button>
       <button class="key wide" type="button" onclick="pinLimpar()" aria-label="Limpar PIN digitado">LIMPAR</button><button class="key" type="button" onclick="pinAdd('0')" aria-label="Dígito 0">0</button><button class="key" type="button" onclick="pinBack()" aria-label="Apagar último dígito">⌫</button>
     </div>
-    <button class="btn big green" id="btn-bater" type="button" onclick="registrarPonto()" aria-label="Registrar ponto para o PIN digitado">✓ Registrar Ponto</button>
+    <button class="btn big green" id="btn-bater" type="button" onclick="registrarPonto()" aria-label="Registrar ponto para o PIN digitado">Registrar</button>
     <div class="muted" id="status-impressora" style="text-align:center;margin-top:10px"></div>
   </div>
 </div>
