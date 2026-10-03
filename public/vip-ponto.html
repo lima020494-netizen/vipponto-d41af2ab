@@ -1073,7 +1073,7 @@ function salvarFunc(i){
   if(i>=0) fs[i]=o; else { if(fs.length>=MAX_FUNC) return $('f-msg').innerHTML=`<div class="alert err">Limite de ${MAX_FUNC} colaboradores por empresa atingido.</div>`; fs.push(o); }
   set('funcionarios',fs); log(`${i>=0?'Editou':'Cadastrou'} empregado ${o.nome} (${statusTexto(o)})`); fecharModal(); abaFunc();
 }
-function delFunc(i){const fs=get('funcionarios',[]);if(!confirm('Excluir '+fs[i].nome+'?'))return;log(`Excluiu empregado ${fs[i].nome}`);fs.splice(i,1);set('funcionarios',fs);abaFunc();}
+function delFunc(i){const fs=get('funcionarios',[]);const f=fs[i];if(!f)return;if(!confirm('Excluir o colaborador '+f.nome+'?\n\nA ficha, o PIN e a escala dele saem da lista. As batidas já registradas ficam guardadas no histórico.\n\nEsta ação não pode ser desfeita.'))return;log(`Excluiu empregado ${fs[i].nome}`);fs.splice(i,1);set('funcionarios',fs);abaFunc();}
 
 /* ============================== CÁLCULO — NÚCLEO ============================== */
 const feriadoDe = iso => get('feriados',[]).find(f=>f.data===iso);
@@ -1238,7 +1238,7 @@ function addFeriado(){
   if(!d||!n)return alert('Informe data e nome.');
   const fs=get('feriados',[]);fs.push({data:d,nome:n,tipo:t});set('feriados',fs);log(`Feriado cadastrado ${brOf(d)} - ${n} (${t})`);subFeriados();
 }
-function delFeriado(d,n){const fs=get('feriados',[]).filter(f=>!(f.data===d&&f.nome===n));set('feriados',fs);log(`Feriado excluído ${brOf(d)} - ${n}`);subFeriados();}
+function delFeriado(d,n){if(!confirm('Excluir o feriado '+n+' ('+brOf(d)+')?\n\nEle deixará de ser considerado como folga remunerada no calendário e nos cálculos.\n\nEsta ação não pode ser desfeita.'))return;const fs=get('feriados',[]).filter(f=>!(f.data===d&&f.nome===n));set('feriados',fs);log(`Feriado excluído ${brOf(d)} - ${n}`);subFeriados();}
 /* B) Batidas */
 function subBatidas(){
   const bs=get('batidas',[]).slice().sort((a,b)=>(b.data+b.hora).localeCompare(a.data+a.hora));
