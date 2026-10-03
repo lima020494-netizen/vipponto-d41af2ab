@@ -23,7 +23,10 @@ async function hashToken(token: string) {
 }
 
 function monthBounds(competencia: string) {
-  const [year, month] = competencia.split("-").map(Number);
+  const parts = competencia.split("-").map(Number);
+  const year = parts[0];
+  const month = parts[1];
+  if (!year || !month) throw new Error("Competência inválida.");
   const endDate = new Date(Date.UTC(year, month, 0));
   return {
     start: `${competencia}-01`,
@@ -85,8 +88,8 @@ export const Route = createFileRoute("/api/public/folha-link")({
         const schedules = Object.fromEntries((schedulesResult.data ?? []).flatMap((row) => {
           if (!row.semana || !row.dados) return [];
           const schedule = { ...(row.dados as Record<string, unknown>) };
-          const entries = Array.isArray(schedule.folgas) ? schedule.folgas : [];
-          schedule.folgas = entries.filter((entry) => entry && typeof entry === "object" && (entry as { pin?: string }).pin === grant.funcionario_pin)
+          const entries = Array.isArray(schedule["folgas"]) ? schedule["folgas"] : [];
+          schedule["folgas"] = entries.filter((entry) => entry && typeof entry === "object" && (entry as { pin?: string }).pin === grant.funcionario_pin)
             .map((entry) => ({ ...(entry as Record<string, unknown>), pin: "self" }));
           return [[row.semana, schedule]];
         }));
