@@ -532,7 +532,7 @@ async function criarConta(){
   if(!nome||!email) return m.innerHTML='<div class="alert err">Informe nome e e-mail.</div>';
   if(!/^\S+@\S+\.\S+$/.test(email)) return m.innerHTML='<div class="alert err">E-mail inválido.</div>';
   const cs=contas();
-  if(cs.length>=limiteEmpresas()&&!cs.some(c=>c.email===email)) return m.innerHTML=`<div class="alert err">Seu plano permite ${limiteEmpresas()} empresa(s) neste aparelho. Faça upgrade com o suporte.</div>`;
+  // A criação de conta NUNCA é bloqueada pelo limite local do aparelho: o plano real é conferido na nuvem, e só depois de autenticar (fazerLogin).
   if(!validaSenha(senha)) return m.innerHTML='<div class="alert err">Senha fora do padrão exigido.</div>';
   m.innerHTML='<div class="alert">Criando conta...</div>';
   const {data,error}=await sb.auth.signUp({email,password:senha,options:{data:{nome},emailRedirectTo:location.origin+location.pathname}});

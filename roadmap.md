@@ -11,3 +11,5 @@
 - [x] Atualizar o comprovante térmico com endereço, SHA-256, QR compacto e avanço seguro para corte.
 - [x] Licenças: trial 7 dias, tolerância 7 dias, bloqueio seguro, planos 1-3 empresas, 20 colaboradores.
 - [x] Termos de Uso com aceite registrado, tela de Assinatura PIX e painel do desenvolvedor.
+- [x] Login: autenticar no Supabase antes de qualquer verificação de plano, sem bloqueio indevido.
+- [x] Criar conta: remover a trava de limite de empresas do aparelho, inclusive para o e-mail do desenvolvedor.
