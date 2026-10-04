@@ -392,7 +392,20 @@ const SUPA_URL='https://kvbidsfnisegtqjagsld.supabase.co';
 const SUPA_KEY='sb_publishable_3YjKTF1rODb9lczyeRillA_Sm1BgP5g'; // chave publishable (pública)
 const sb = window.supabase ? window.supabase.createClient(SUPA_URL,SUPA_KEY) : null;
 let NUVEM_OK=false;
-const pendentes=()=>{try{return JSON.parse(localStorage.getItem(K('pontos_pendentes'))||'[]');}catch(e){return [];}};
+/* Fila offline robusta em IndexedDB (batida completa); localStorage só como reserva se IDB faltar */
+const IDB={db:null,mem:[],ok:false};
+function idbAbrir(){return new Promise(res=>{try{const r=indexedDB.open('vipponto',1);
+  r.onupgradeneeded=()=>{const s=r.result.createObjectStore('fila',{keyPath:'id'});s.createIndex('conta','conta');};
+  r.onsuccess=()=>{IDB.db=r.result;IDB.ok=true;res(true);};r.onerror=()=>res(false);}catch(e){res(false);}});}
+const IDB_PRONTO=idbAbrir();
+function idbTx(modo,fn){return IDB_PRONTO.then(ok=>ok?new Promise((res,rej)=>{const t=IDB.db.transaction('fila',modo),s=t.objectStore('fila');const out=fn(s);
+  t.oncomplete=()=>res(out&&out.result);t.onerror=()=>rej(t.error);}):Promise.reject('sem IDB'));}
+async function filaListar(){if(!CONTA) return [];try{const l=await idbTx('readonly',s=>s.index('conta').getAll(CONTA))||[];IDB.mem=l.map(x=>x.nsr);return l.map(x=>x.b);}catch(e){return [];}}
+async function filaAdd(b){try{await idbTx('readwrite',s=>s.put({id:CONTA+'|'+b.nsr,conta:CONTA,nsr:b.nsr,b}));IDB.mem=[...new Set([...IDB.mem,b.nsr])];}
+  catch(e){salvaPendentes([...pendentesLS(),b.nsr]);}}
+async function filaRemover(nsrs){try{await idbTx('readwrite',s=>nsrs.forEach(n=>s.delete(CONTA+'|'+n)));IDB.mem=IDB.mem.filter(n=>!nsrs.includes(n));}catch(e){}}
+const pendentesLS=()=>{try{return JSON.parse(localStorage.getItem(K('pontos_pendentes'))||'[]');}catch(e){return [];}};
+const pendentes=()=>[...new Set([...pendentesLS(),...IDB.mem])];
 const salvaPendentes=l=>localStorage.setItem(K('pontos_pendentes'),JSON.stringify([...new Set(l)]));
 const chk=r=>{if(r&&r.error)throw r.error;return r;};
 const linhaFunc=f=>{const d=Object.assign({},f);delete d.jornada;return {email_dono:CONTA,pin:f.pin,nome:f.nome||'(sem nome)',cpf:f.cpf||null,cargo:f.cargo||null,
@@ -418,9 +431,10 @@ async function carregarNuvem(){
     (gen.data||[]).forEach(r=>{if(!['funcionarios','batidas','empregador','feriados','logs'].includes(r.chave)) set(r.chave,r.valor);});
     if(emp.data&&emp.data.dados) set('empregador',emp.data.dados);
     set('funcionarios',(fun.data||[]).map(r=>{const d=Object.assign({pin:r.pin},r.dados||{});delete d.jornada;return d;}));
-    const pend=new Set(pendentes()), mapa=new Map();
+    const filaB=await filaListar(), pend=new Set(pendentes()), mapa=new Map();
     (pon.data||[]).forEach(r=>r.dados&&mapa.set(r.nsr,r.dados));
     get('batidas',[]).filter(b=>pend.has(b.nsr)).forEach(b=>mapa.set(b.nsr,b)); // nunca perde batida offline
+    filaB.forEach(b=>mapa.set(b.nsr,b));
     const todas=[...mapa.values()]; set('batidas',todas);
     const maxN=todas.reduce((m,b)=>Math.max(m,Number(b.nsr)||0),0); if(maxN>(get('nsr',0)||0)) set('nsr',maxN);
     if((fer.data||[]).length) set('feriados',fer.data.map(r=>r.dados||{data:r.data,nome:r.nome,tipo:r.tipo}));
@@ -460,16 +474,19 @@ async function nuvemPushAgora(k,v){
 let SINC=false;
 async function sincronizarPendentes(){
   if(!sb||!CONTA||SINC) return 0;
-  const p=pendentes(); if(!p.length) return 0;
   SINC=true;
   try{
-    const ps=new Set(p), rows=get('batidas',[]).filter(b=>ps.has(b.nsr)).map(linhaPonto);
+    const filaB=await filaListar(), lsN=pendentesLS(), mapa=new Map();
+    if(lsN.length){const s=new Set(lsN);get('batidas',[]).filter(b=>s.has(b.nsr)).forEach(b=>mapa.set(b.nsr,b));}
+    filaB.forEach(b=>mapa.set(b.nsr,b));
+    if(!mapa.size) return 0;
+    const rows=[...mapa.values()].map(linhaPonto), enviados=[...mapa.keys()];
     for(let i=0;i<rows.length;i+=500) chk(await sb.from('pontos').upsert(rows.slice(i,i+500),{onConflict:'email_dono,nsr'}));
-    salvaPendentes(pendentes().filter(n=>!ps.has(n))); NUVEM_OK=true; return rows.length;
+    await filaRemover(enviados); salvaPendentes(pendentesLS().filter(n=>!enviados.includes(n))); NUVEM_OK=true; return rows.length;
   }catch(e){ NUVEM_OK=false; return 0; }
   finally{ SINC=false; if(typeof atualizaStatus==='function') atualizaStatus(); }
 }
-function filaPonto(nsr){salvaPendentes([...pendentes(),nsr]);sincronizarPendentes();}
+function filaPonto(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);(b?filaAdd(b):Promise.resolve(salvaPendentes([...pendentesLS(),nsr]))).then(sincronizarPendentes);}
 window.addEventListener('online',()=>sincronizarPendentes());
 setInterval(async()=>{ if(!CONTA) return; await sincronizarPendentes();
   if($('tela-gestor').classList.contains('hidden')&&$('modal-generico').classList.contains('hidden')) await carregarNuvem(); },120000);
