@@ -339,7 +339,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 #tela-ponto #btn-bater{border:1px solid #3bd171;background:linear-gradient(135deg,#138a3d,#16a34a);box-shadow:0 10px 28px rgba(22,163,74,.24),inset 0 1px 0 rgba(255,255,255,.16);font-family:"Sora",sans-serif;letter-spacing:.2px;transition:transform .12s ease,box-shadow .12s ease}
 #tela-ponto #btn-bater:active{transform:translateY(2px);box-shadow:0 5px 16px rgba(22,163,74,.18)}
 @media(max-width:900px){#tela-gestor{padding:0}#tela-gestor .inner{min-height:100vh;border-radius:0;border-left:0;border-right:0}.gestor-company{max-width:220px}.plans-grid{grid-template-columns:1fr}.pix-modal-grid{grid-template-columns:1fr}.pix-qr{width:190px;height:190px;margin:auto}}
-@media(max-width:620px){#tela-gestor .inner>.gestor-head{padding:10px 12px;align-items:flex-start}.gestor-brand-logo{width:36px;height:36px}.gestor-head-actions{margin-left:auto}.gestor-head-actions .btn{width:38px;height:38px;padding:0;font-size:0}.gestor-head-actions .btn::first-letter{font-size:16px}.license-badge{position:absolute;left:60px;top:50px;padding:4px 8px}#gestor-tabs{top:66px;padding:28px 10px 9px}#gestor-body{padding:14px}.plans-intro{align-items:flex-start;flex-direction:column}.pix-copy{flex-direction:column}}
+@media(max-width:620px){#tela-gestor .inner>.gestor-head{padding:10px 12px;align-items:flex-start}.gestor-brand-logo{width:36px;height:36px}.gestor-head-actions{margin-left:auto}.gestor-head-actions .btn{width:38px;height:38px;padding:0;font-size:0}.gestor-head-actions .action-icon{display:inline-block;font-size:17px;line-height:1;color:#24546a}.license-badge{position:absolute;left:60px;top:50px;padding:4px 8px}#gestor-tabs{top:66px;padding:28px 10px 9px}#gestor-body{padding:14px}.plans-intro{align-items:flex-start;flex-direction:column}.pix-copy{flex-direction:column}}
 @media(prefers-reduced-motion:reduce){#tela-gestor *,#tela-ponto .key,#tela-ponto #btn-bater{transition:none!important;animation:none!important}}
 
 /* ===== Central clara do Gestor + quiosque dividido ===== */
@@ -525,10 +525,10 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
       </div>
       <span id="gestor-licenca" class="license-badge" data-state="ativo">Ativo</span>
       <div class="row right gestor-head-actions">
-        <button id="gestor-voltar" class="btn sm ghost gestor-back" onclick="mostrarCentralGestor()" title="Voltar à central">← Central</button>
-        <button class="btn sm ghost" onclick="abrirSobre()" title="Sobre">ⓘ Sobre</button>
-        <button class="btn sm ghost" onclick="abrirManual()" title="Manual">📖 Manual</button>
-        <button class="btn sm ghost" onclick="fecharGestor()" title="Fechar">✕ Fechar</button>
+        <button id="gestor-voltar" class="btn sm ghost gestor-back" onclick="mostrarCentralGestor()" title="Voltar à central" aria-label="Voltar à central"><span class="action-icon" aria-hidden="true">←</span> Central</button>
+        <button class="btn sm ghost" onclick="abrirSobre()" title="Sobre" aria-label="Sobre"><span class="action-icon" aria-hidden="true">ⓘ</span> Sobre</button>
+        <button class="btn sm ghost" onclick="abrirManual()" title="Manual" aria-label="Manual"><span class="action-icon" aria-hidden="true">📖</span> Manual</button>
+        <button class="btn sm ghost" onclick="fecharGestor()" title="Sair" aria-label="Sair da área do gestor"><span class="action-icon" aria-hidden="true">✕</span> Sair</button>
       </div>
     </div>
     <div class="tabs" id="gestor-tabs"></div>
