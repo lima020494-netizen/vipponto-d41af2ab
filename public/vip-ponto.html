@@ -100,10 +100,16 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .dept-head{background:var(--navy2);color:#fff;font-weight:800}
 .lock{color:var(--red);font-weight:800}
 /* ===================== FOLHA MTE ===================== */
-.folha{background:#fff;padding:14px;border:1px solid var(--line);border-radius:10px;margin-bottom:18px;page-break-after:always}
-.folha h3{text-align:center;text-transform:uppercase;font-size:15px}
-.folha .cab{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;border:1px solid var(--line);padding:8px;border-radius:8px;margin-bottom:8px}
-.folha .cab img{height:56px;max-width:160px;object-fit:contain;display:block;margin-bottom:4px}
+.folha,.doc-standard{background:#fff;padding:14px;border:1px solid var(--line);border-radius:10px;margin-bottom:18px;page-break-after:always;color:#182235}
+.folha h3,.doc-standard h3{text-align:center;text-transform:uppercase;font-size:15px;letter-spacing:.35px}
+.folha .cab,.doc-header{display:grid;grid-template-columns:148px 1fr;gap:14px;align-items:center;font-size:11.5px;border:1px solid #cbd6e6;border-top:5px solid var(--navy2);padding:10px;margin-bottom:10px;background:#f8fbff}
+.folha .cab img,.doc-header img{width:132px;height:62px;object-fit:contain;display:block;margin:auto}
+.doc-brand{font-size:16px;font-weight:800;color:var(--navy);text-transform:uppercase}
+.doc-company{font-size:12px;font-weight:800;margin:2px 0}
+.doc-title{text-align:center;border-bottom:2px solid var(--navy2);padding:3px 0 8px;margin:0 0 10px;font:800 16px Sora,"Segoe UI",sans-serif;text-transform:uppercase}
+.doc-subtitle{text-align:center;color:#52627a;font-size:11px;margin:-6px 0 10px}
+.doc-footer{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end;border-top:1px solid #9cadc3;margin-top:14px;padding-top:7px;font-size:9.5px;color:#40506a;page-break-inside:avoid}
+.doc-footer strong{color:var(--navy)}
 .folha table{font-size:11.5px}
 .folha .rodape{font-size:11.5px;margin-top:10px}
 .assin{display:flex;gap:30px;margin-top:26px;justify-content:space-between;font-size:12px;text-align:center}
@@ -126,6 +132,10 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   body.print-folha #area-impressao,body.print-folha #area-impressao *{visibility:visible !important}
   body.print-folha #area-impressao{position:absolute;left:0;top:0;width:100%}
   body.print-folha @page{size:A4;margin:8mm}
+  body.print-folha .folha,body.print-folha .doc-standard{border:0;border-radius:0;padding:0;margin:0;box-shadow:none}
+  body.print-folha .doc-header,body.print-folha .folha .cab{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.print-folha table{break-inside:auto}
+  body.print-folha tr{break-inside:avoid;break-after:auto}
 }
 
 /* ===== Visual referência (layouts enviados) ===== */
