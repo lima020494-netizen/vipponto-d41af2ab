@@ -1095,7 +1095,7 @@ async function comprovanteTexto(b){
     (e.razao||'').toUpperCase(), (e.fantasia||''), `${e.tipo||'CNPJ'}: ${e.doc||''}`,endereco,cidade,e.cei?`CEI/CAEPF/CNO: ${e.cei}`:'',
     '','COMPROVANTE DE REGISTRO DE','PONTO DO TRABALHADOR','',
     `Nome: ${b.nome}`,`CPF: ${b.cpf||''}`,`Data: ${brOf(b.data)}`,`Hora: ${b.hora}`,
-    `NSR: ${b.nsr}`,`Marcacao: ${b.tipo}`,`Fonte: ${b.fonte==='SERVIDOR'?'SERVIDOR NTP':'LOCAL'}`,'',
+    `NSR: ${b.nsr}`,`Marcacao: ${b.tipo}`,`Fonte: ${b.fonte==='SERVIDOR'?'SERVIDOR NTP':'LOCAL'}`,`Usuario: ${b.nome}`,`Gestor: ${b.gerenciador||'Registro direto'}`,'',
     'Este comprovante e prova da','marcacao de ponto.','',`SHA-256: ${hashAss.slice(0,32)}`,hashAss.slice(32),'',
     'VIP PONTO - Atalaia Sistemas','Portaria MTE 671/2021'
   ].filter(Boolean)};
@@ -1860,15 +1860,14 @@ function printDash(){
     try{img.src=src?src.toDataURL('image/png'):'';}catch(_){img.src='';}
     c.replaceWith(img);
   });
-  imprimirArea(wrap.innerHTML,'Dashboard de Frequência');
+  const filtro=$('d-func').value,usuario=filtro?(funcPorPin(filtro)||{}).nome:'Todos os colaboradores';
+  imprimirArea(wrap.innerHTML,'Dashboard de Frequência',usuario);
 }
 function pdfDash(){
   const {jsPDF}=window.jspdf,e=get('empregador',{})||{},[ini,fim]=periodoDash();
-  const doc=new jsPDF({unit:'mm',format:'a4'});let y=14;
-  doc.setFontSize(12);doc.text(`${e.razao||''} — ${e.fantasia||''}`,10,y);y+=5;
-  doc.setFontSize(9);doc.text(`${e.tipo}: ${e.doc}  CEI/CAEPF/CNO: ${e.cei||'—'}`,10,y);y+=5;
-  doc.text(`Dashboard de Frequência — Período ${brOf(ini)} a ${brOf(fim)} — Filtro: ${$('d-func').value?(funcPorPin($('d-func').value)||{}).nome:'Todos'}`,10,y);y+=6;
-  const quebra=()=>{if(y>275){doc.setFontSize(8);doc.text(`Página ${doc.getNumberOfPages()}`,190,290,{align:'right'});doc.addPage();y=14;doc.setFontSize(9);}};
+  const doc=new jsPDF({unit:'mm',format:'a4'}),filtro=$('d-func').value,usuario=filtro?(funcPorPin(filtro)||{}).nome:'Todos os colaboradores';
+  const sub=`Período ${brOf(ini)} a ${brOf(fim)} • Filtro: ${usuario}`;let y=pdfCabecalhoPadrao(doc,'Dashboard de Frequência',sub);
+  const quebra=()=>{if(y>270){doc.addPage();y=pdfCabecalhoPadrao(doc,'Dashboard de Frequência',sub);doc.setFontSize(9);}};
   const out=$('dash-out'), limpa=s=>(s||'').replace(/[^\x20-\x7EÀ-ÿ—•]/g,'').trim();
   const txt=[limpa(out.querySelector('.muted')?.innerText)];
   out.querySelectorAll('.ind').forEach(el=>{
@@ -1886,13 +1885,12 @@ function pdfDash(){
     doc.setFontSize(10);doc.text(tit,10,y);y+=4;
     doc.addImage(img,'PNG',10,y,w,h);y+=h+6;
   });
-  const d=getHoraOficial();
-  doc.setFontSize(8);doc.text(`Relatório gerado em ${brOf(isoOf(d))} ${hhmm(d)} por ${assinaGerenciador()}`,10,288);
-  doc.text(`Página ${doc.getNumberOfPages()}`,200,288,{align:'right'});
+  pdfRodapesPadrao(doc,usuario);
   doc.save('Dashboard_Frequencia.pdf');
 }
-function imprimirArea(html,titulo){
-  $('area-impressao').innerHTML=`<h3 style="text-align:center">${titulo}</h3>${html}`;
+function imprimirArea(html,titulo,usuario='Conta '+(CONTA||'—')){
+  const completo=/data-doc-completo/.test(html);
+  $('area-impressao').innerHTML=completo?html:`<div class="doc-standard" data-doc-completo="1">${cabecalhoDocumentoHTML(titulo)}<div class="doc-body">${html}</div>${rodapeDocumentoHTML(usuario)}</div>`;
   $('area-impressao').classList.remove('hidden'); document.body.classList.add('print-folha');
   setTimeout(()=>{window.print();document.body.classList.remove('print-folha');$('area-impressao').classList.add('hidden');},200);
 }
@@ -1900,7 +1898,26 @@ function imprimirArea(html,titulo){
 /* ============================== MÓDULO 4 — FOLHA MTE ============================== */
 const LEGENDA='FALTA = dia sem batida e sem folga/feriado | FOLGA = folga prevista em escala | FERIADO = feriado cadastrado | _ = batida tratada/movida com motivo obrigatório | *N = hora noturna reduzida 22h-05h (Art. 73 CLT)';
 const preLegenda=f=>f&&f.intervalo&&f.intervalo.preAssinalado?`Intervalo pré-assinalado ${f.intervalo.inicio||'12:00'}-${f.intervalo.fim||'13:00'} - Art. 71`:'';
-function rodapeLegal(){const d=getHoraOficial(),g=GERENCIADOR||{nome:'Portal do Empregado',funcao:'Autoatendimento'};return `Gerado em ${pad(d.getDate())}/${pad(d.getMonth()+1)} ${hhmm(d)} por ${g.nome} - ${g.funcao} - MTE 671 - VIP PONTO - Dev Atalaia`;}
+function identidadeDocumento(usuario='Conta '+(CONTA||'—')){
+  const d=getHoraOficial(),g=GERENCIADOR||{nome:'Portal do Empregado',funcao:'Autoatendimento'},dev=typeof devCfg==='function'?devCfg():{nome:'Atalaia Sistemas'};
+  return {quando:`${brOf(isoOf(d))} às ${hhmm(d)}`,usuario:String(usuario||CONTA||'—'),gestor:`${g.nome} — ${g.funcao}`,app:`VIP PONTO • ${dev.empresa||dev.nome||'Atalaia Sistemas'} • Portaria MTE 671/2021`};
+}
+function cabecalhoDocumentoHTML(titulo,subtitulo=''){
+  const e=get('empregador',{})||{},end=[e.logradouro,e.numero,e.complemento,e.bairro,`${e.cidade||''}/${e.uf||''}`,e.cep&&`CEP ${e.cep}`].filter(Boolean).join(', ');
+  return `<header class="doc-header"><img src="${e.logo||logoApp()}" alt="Logo da empresa"><div><div class="doc-brand">${esc(e.fantasia||e.razao||'VIP PONTO')}</div><div class="doc-company">${esc(e.razao||'Empregador não informado')}</div><div>${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'—')} • CEI/CAEPF/CNO: ${esc(e.cei||'—')}</div><div>${esc(end||'Endereço não informado')}</div><div>${esc(e.email||'')}</div></div></header><div class="doc-title">${esc(titulo||'Documento')}</div>${subtitulo?`<div class="doc-subtitle">${esc(subtitulo)}</div>`:''}`;
+}
+function rodapeDocumentoHTML(usuario){const m=identidadeDocumento(usuario);return `<footer class="doc-footer"><div><strong>${esc(m.app)}</strong><br>Emitido em ${esc(m.quando)} • Usuário: ${esc(m.usuario)}<br>Gestor responsável: ${esc(m.gestor)}</div><div>Documento gerado pelo VIP PONTO</div></footer>`;}
+function rodapeLegal(usuario){const m=identidadeDocumento(usuario);return `Gerado em ${m.quando} • Usuário: ${m.usuario} • Gestor: ${m.gestor} • ${m.app}`;}
+function pdfCabecalhoPadrao(doc,titulo,subtitulo=''){
+  const e=get('empregador',{})||{},end=[e.logradouro,e.numero,e.complemento,e.bairro,`${e.cidade||''}/${e.uf||''}`,e.cep&&`CEP ${e.cep}`].filter(Boolean).join(', ');
+  if(e.logo){try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),10,7,27,18);}catch(_){}}
+  doc.setTextColor(12,34,70);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(String(e.fantasia||e.razao||'VIP PONTO').slice(0,64),41,11);
+  doc.setTextColor(35,50,75);doc.setFontSize(9);doc.text(String(e.razao||'Empregador não informado').slice(0,92),41,16);
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.text(`${e.tipo||'CNPJ'}: ${e.doc||'—'} • CEI/CAEPF/CNO: ${e.cei||'—'}`,41,21);doc.text(String(end||'Endereço não informado').slice(0,112),41,25);
+  doc.setDrawColor(18,58,115);doc.setLineWidth(.7);doc.line(10,30,200,30);doc.setTextColor(12,34,70);doc.setFont('helvetica','bold');doc.setFontSize(13);doc.text(String(titulo||'Documento').toUpperCase(),105,37,{align:'center'});
+  if(subtitulo){doc.setTextColor(82,98,122);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text(String(subtitulo).slice(0,135),105,42,{align:'center'});return 47;}return 43;
+}
+function pdfRodapesPadrao(doc,usuario){const m=identidadeDocumento(usuario),n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setDrawColor(156,173,195);doc.setLineWidth(.25);doc.line(10,282,200,282);doc.setTextColor(64,80,106);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.text(m.app,10,286);doc.text(`Emitido em ${m.quando} • Usuário: ${m.usuario}`.slice(0,116),10,290);doc.text(`Gestor: ${m.gestor}`.slice(0,92),105,290);doc.text(`Página ${i}/${n}`,200,290,{align:'right'});}}
 function abaFolha(){
   const fs=get('funcionarios',[]),hoje=hojeISO();
   $('gestor-body').innerHTML=`<h3>Folha de Ponto — Padrão MTE Portaria 671/2021</h3>
