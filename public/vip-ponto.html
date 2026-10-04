@@ -877,9 +877,10 @@ function confirmacaoRapida(f,b){
 let SUNMI=null;
 function detectarImpressora(tent=0){
   const el=$('status-impressora'); if(!el) return;
+  if(!el.onclick){el.onclick=alternarRawBT;el.title='Toque para ativar/desativar a impressão silenciosa RawBT';el.setAttribute('role','button');el.tabIndex=0;}
   if(window.woyouService||window.sunmiPrinterService){SUNMI=window.woyouService||window.sunmiPrinterService;el.innerHTML='🖨️ SUNMI D2 MINI detectada (58mm nativa)';return;}
   if(tent<5) return setTimeout(()=>detectarImpressora(tent+1),1200);
-  el.innerHTML='🖨️ Impressora: modo navegador (USB térmica 58/80mm ou PDF)';
+  el.innerHTML=rawbtAtivo()?'🖨️ Impressão silenciosa RawBT ativa (toque para desativar)':'🖨️ Impressora: modo navegador — toque para usar RawBT';
 }
 async function sha256Hex(text){
   const bytes=new TextEncoder().encode(text),hash=await crypto.subtle.digest('SHA-256',bytes);
@@ -915,10 +916,33 @@ async function imprimirComprovante(b){
       SUNMI.printQRCode&&SUNMI.printQRCode(hashAss,3,1);
       SUNMI.lineWrap&&SUNMI.lineWrap(6);
       return toast('Comprovante enviado à impressora SUNMI.',3000);
-    }catch(err){ console.warn('SUNMI falhou, usando window.print()',err); }
+    }catch(err){ console.warn('SUNMI falhou, tentando RawBT/navegador',err); }
   }
+  if(rawbtAtivo()&&imprimirRawBT(linhas,hashAss)) return;
   document.body.classList.remove('print-folha');
   setTimeout(()=>window.print(),120);
+}
+/* RawBT: impressão térmica silenciosa (ESC/POS) via rawbt: e intent Android */
+const rawbtAtivo=()=>localStorage.getItem('vip_rawbt')==='1';
+function alternarRawBT(){localStorage.setItem('vip_rawbt',rawbtAtivo()?'0':'1');detectarImpressora(9);
+  toast(rawbtAtivo()?'Impressão silenciosa RawBT ativada neste aparelho.':'RawBT desativado — impressão pelo navegador.',3500);}
+function escposComprovante(linhas,hash){
+  const B=[],txt=s=>{for(const c of String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,''))B.push(c.charCodeAt(0)<128?c.charCodeAt(0):63);};
+  B.push(0x1B,0x40,0x1B,0x61,1);
+  linhas.forEach((l,i)=>{B.push(0x1B,0x45,i<2?1:0);txt(l);B.push(10);});
+  const d=[...new TextEncoder().encode(hash)],n=d.length+3;
+  B.push(0x1D,0x28,0x6B,4,0,0x31,0x41,0x32,0, 0x1D,0x28,0x6B,3,0,0x31,0x43,4, 0x1D,0x28,0x6B,3,0,0x31,0x45,0x31,
+    0x1D,0x28,0x6B,n&255,n>>8,0x31,0x50,0x30,...d, 0x1D,0x28,0x6B,3,0,0x31,0x51,0x30);
+  B.push(10);txt('Autenticidade SHA-256');B.push(10,0x1B,0x64,6,0x1D,0x56,0x42,0);
+  let s='';B.forEach(x=>s+=String.fromCharCode(x));return btoa(s);
+}
+function imprimirRawBT(linhas,hash){
+  try{
+    const b64=escposComprovante(linhas,hash), alvo=(()=>{try{return window.top.location;}catch(e){return window.location;}})();
+    const android=/Android/i.test(navigator.userAgent);
+    alvo.href=android?`intent:base64,${b64}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`:`rawbt:base64,${b64}`;
+    toast('Comprovante enviado ao RawBT.',2500); return true;
+  }catch(err){console.warn('RawBT falhou, usando navegador',err);return false;}
 }
 function reimprimir(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);if(b)imprimirComprovante(b);}
 async function comprovantePDF(b){
