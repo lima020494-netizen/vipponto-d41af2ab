@@ -1145,9 +1145,11 @@ function imprimirRawBT(linhas,hash){
 function reimprimir(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);if(b)imprimirComprovante(b);}
 async function comprovantePDF(b){
   const {jsPDF}=window.jspdf, {linhas,hashAss}=await comprovanteTexto(b),qr=qrDataUrl(hashAss);
-  const doc=new jsPDF({unit:'mm',format:[58,125]}); doc.setFont('courier','normal'); doc.setFontSize(7.5);
-  let y=5; linhas.forEach(l=>{doc.text(String(l),29,y,{align:'center'});y+=3.25;});
+  const e=get('empregador',{})||{},doc=new jsPDF({unit:'mm',format:[58,138]});
+  let y=4;if(e.logo){try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),20,3,18,11);y=16;}catch(_){}}
+  doc.setFont('courier','normal');doc.setFontSize(7.2);linhas.forEach(l=>{doc.text(String(l),29,y,{align:'center'});y+=3.1;});
   if(qr){doc.addImage(qr,'GIF',20,y,18,18);y+=19;doc.setFontSize(6.5);doc.text('Autenticidade SHA-256',29,y,{align:'center'});}
+  y+=4;doc.setDrawColor(130);doc.line(4,y,54,y);y+=3;doc.setFontSize(5.7);doc.text('VIP PONTO • Atalaia Sistemas • MTE 671/2021',29,y,{align:'center'});y+=2.7;doc.text(`Emitido ${brOf(isoOf(getHoraOficial()))} ${hhmm(getHoraOficial())} • Gestor: ${b.gerenciador||'Registro direto'}`.slice(0,62),29,y,{align:'center'});
   doc.save(`Comprovante_${b.nsr}.pdf`);
 }
 async function emailComprovante(nsr){
@@ -2201,15 +2203,15 @@ function gerarAEJ(ini,fim){
 /* ===================== ATESTADO TÉCNICO E TERMO DE RESPONSABILIDADE (art. 89) ===================== */
 function atestadoTecnico(){
   const e=get('empregador',{})||{},d=devCfg(),dt=getHoraOficial();
-  const html=`<div class="folha" style="font-size:13px;line-height:1.55">
-  <div style="text-align:center"><img src="/vip-logo.png" style="height:70px"/><h3>ATESTADO TÉCNICO E TERMO DE RESPONSABILIDADE</h3><div>Portaria MTP nº 671/2021 — Art. 89 a 91</div></div>
+  const html=`<div class="folha" data-doc-completo="1" style="font-size:13px;line-height:1.55">
+  ${cabecalhoDocumentoHTML('Atestado Técnico e Termo de Responsabilidade','Portaria MTP nº 671/2021 • Art. 89 a 91')}
   <p><b>Fabricante/Desenvolvedor:</b> ${esc(d.nome)} ${d.empresa?'— '+esc(d.empresa):''} • ${esc(d.tipoDoc)}: ${esc(d.doc||'________________')} • ${esc(d.email||'')} ${esc(d.telefone||'')}</p>
   <p><b>Programa:</b> ${esc(d.programa)} — versão ${esc(d.versao)} — Tipo: ${esc(d.tipoRep)} — Registro INPI nº ${esc(d.registroINPI||'________________')}</p>
   <p><b>Empregador usuário:</b> ${esc(e.razao||'')} — ${esc(e.fantasia||'')} — ${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'')}</p>
   <p>O desenvolvedor acima identificado <b>ATESTA</b>, sob as penas da lei, que o programa descrito atende integralmente aos requisitos da Portaria MTP nº 671/2021, em especial: (I) não permite alteração ou exclusão das marcações originais (data, hora e NSR); (II) não possui funcionalidade de restrição de horário à marcação; (III) não permite marcação automática ou pré-assinalada; (IV) não exige autorização prévia para marcação; (V) emite comprovante de registro de ponto a cada marcação; (VI) gera o Arquivo Fonte de Dados (AFD) e o Arquivo Eletrônico de Jornada (AEJ) nos leiautes oficiais; (VII) registra a identificação de quem efetuou tratamentos, com motivo obrigatório; (VIII) utiliza hora oficial sincronizada com servidor de tempo.</p>
   <p>O desenvolvedor assume a <b>responsabilidade</b> pela veracidade das informações e pelo funcionamento do programa nas condições aqui descritas.</p>
   <p>${esc(d.cidade)}, ${brOf(isoOf(dt))}.</p>
-  <div class="assin"><div>${esc(d.nome)}<br>Desenvolvedor / Responsável técnico</div><div>${esc(e.razao||'Empregador')}<br>Ciente do empregador</div></div></div>`;
+  <div class="assin"><div>${esc(d.nome)}<br>Desenvolvedor / Responsável técnico</div><div>${esc(e.razao||'Empregador')}<br>Ciente do empregador</div></div>${rodapeDocumentoHTML(CONTA||'Responsável técnico')}</div>`;
   abrirModal(`<div class="row"><h3>Atestado Técnico</h3><button class="btn sm right" onclick="imprimirArea(document.getElementById('at-body').innerHTML,'')">🖨 Imprimir / PDF</button><button class="btn sm ghost" onclick="fecharModal()">✕</button></div><div id="at-body">${html}</div>`);
   log('Emitiu Atestado Técnico e Termo de Responsabilidade');
 }
