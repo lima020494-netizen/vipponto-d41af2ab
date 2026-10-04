@@ -2237,12 +2237,10 @@ function abrirManual(){
   abrirModal(`<div class="row"><h3>Manual</h3><button class="btn sm right" onclick="manualPDF()">⬇ Baixar PDF</button><button class="btn sm ghost" onclick="fecharModal()">✕</button></div><div id="man-body">${html}</div>`);
 }
 function manualPDF(){
-  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),d=devCfg();let y=16;
-  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.text('Manual do Usuário — VIP PONTO',105,y,{align:'center'});y+=7;
-  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text('Registro Eletrônico de Ponto — Portaria MTE 671/2021',105,y,{align:'center'});y+=10;
-  MANUAL.forEach(([t,x])=>{const ls=doc.splitTextToSize(x,185);if(y+8+ls.length*5>280){doc.addPage();y=16;}
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),d=devCfg();let y=pdfCabecalhoPadrao(doc,'Manual do Usuário','Registro Eletrônico de Ponto • versão '+d.versao);
+  MANUAL.forEach(([t,x])=>{const ls=doc.splitTextToSize(x,185);if(y+8+ls.length*5>276){doc.addPage();y=pdfCabecalhoPadrao(doc,'Manual do Usuário — Continuação');}
     doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(t,12,y);y+=6;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(ls,12,y);y+=ls.length*5+5;});
-  const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(8);doc.text(`Desenvolvido por ${d.nome}${d.email?' — '+d.email:''}`,12,290);doc.text(`Página ${i}/${n}`,198,290,{align:'right'});}
+  pdfRodapesPadrao(doc,CONTA||'Manual público');
   doc.save('Manual_VIP_PONTO.pdf');
 }
 </script>
