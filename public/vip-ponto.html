@@ -849,12 +849,19 @@ async function registrarPonto(){
     fonte:NTP_OK?'SERVIDOR':'LOCAL',sync:NTP_OK,offset:get('ntpOffset',0),gerenciador:GERENCIADOR?GERENCIADOR.nome:'—',
     criadoEm:new Date().toISOString()};
   const all=get('batidas',[]); all.push(b); set('batidas',all); // 1º salva no aparelho
-  salvaPendentes([...pendentes(),b.nsr]);                       // entra na fila para a nuvem
-  toast(`Ponto registrado ${b.hora} — Fonte ${b.fonte} — NSR ${b.nsr}`,5000);
-  mostrarHistoricoDia(f); agendarLimpeza();
+  confirmacaoRapida(f,b);                                        // overlay 2s e volta à tela limpa
   imprimirComprovante(b);                                        // imprime 58mm imediato
   log(`Batida registrada NSR ${b.nsr} — ${f.nome} ${b.hora} (${b.tipo})`);
-  sincronizarPendentes().then(atualizaStatus);                   // depois sobe (offline = fica na fila)
+  filaAdd(b).then(()=>sincronizarPendentes()).then(atualizaStatus); // fila IndexedDB → nuvem (offline = fica na fila)
+}
+function confirmacaoRapida(f,b){
+  let o=$('ok-ponto');
+  if(!o){o=document.createElement('div');o.id='ok-ponto';o.setAttribute('role','alert');o.setAttribute('aria-live','assertive');document.body.appendChild(o);}
+  const h=+b.hora.slice(0,2),saud=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite',nome=String(f.nome||'').split(' ')[0];
+  o.innerHTML=`<div class="okp-ico" aria-hidden="true">✓</div><div class="okp-saud">${saud}, ${esc(nome)}!</div>
+    <div class="okp-hora">${esc(b.hora)}</div><div class="okp-tipo">${esc(b.tipo)} registrada · NSR ${esc(b.nsr)}</div>`;
+  o.classList.add('show'); clearTimeout(o._t);
+  o._t=setTimeout(()=>{o.classList.remove('show');pinLimpar();},2000);
 }
 
 /* ============================== COMPROVANTE TÉRMICO ============================== */
