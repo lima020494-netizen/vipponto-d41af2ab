@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>VIP PONTO — Registro Eletrônico de Ponto (Portaria MTE 671/2021)</title>
 <link rel="icon" href="/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Sora:wght@600;700;800&amp;display=swap" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -251,6 +254,93 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .assid-row .av{width:46px;min-width:46px;text-align:right;font-weight:900;font-size:13.5px}
 .assid-row .am{font-size:11px;color:var(--muted)}
 @media(max-width:560px){.ind .ind-val{font-size:24px}.assid-row .an{width:88px;min-width:88px}}
+
+/* ===== Redesign comercial e operacional — direção Enterprise Dark ===== */
+#tela-gestor{background:rgba(3,8,18,.88);backdrop-filter:blur(12px);padding:18px}
+#tela-gestor .inner{max-width:1440px;min-height:calc(100vh - 36px);margin:0;background:#0b1120;color:#d8e1ef;border:1px solid #263248;border-radius:24px;box-shadow:0 26px 80px rgba(0,0,0,.48);font-family:"Manrope",sans-serif}
+#tela-gestor .inner>.gestor-head{position:sticky;top:0;z-index:24;display:flex;align-items:center;gap:14px;padding:15px 20px;background:rgba(8,13,26,.96);border-bottom:1px solid #263248;backdrop-filter:blur(18px)}
+.gestor-brand{display:flex;align-items:center;gap:12px;min-width:0}
+.gestor-brand-logo{width:42px;height:42px;object-fit:contain;background:#fff;border-radius:10px;padding:4px;box-shadow:0 0 22px rgba(228,182,63,.16)}
+.gestor-company{font-family:"Sora",sans-serif;font-weight:700;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:360px}
+.gestor-user{font-size:11px;color:#8190a8;margin-top:2px}
+.license-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:99px;border:1px solid #355078;background:#13213a;color:#cfe1ff;font-size:11px;font-weight:800;text-transform:uppercase}
+.license-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 12px #4ade80}
+.license-badge[data-state="tolerancia"]::before,.license-badge[data-state="trial"]::before{background:#facc15;box-shadow:0 0 12px #facc15}
+.license-badge[data-state="bloqueado"]::before{background:#fb7185;box-shadow:0 0 12px #fb7185}
+#tela-gestor .gestor-head .btn.ghost{background:#121c2e;color:#d8e1ef;border:1px solid #2a3850}
+#gestor-aviso{border-bottom:1px solid #28344b!important;background:#0b1120!important;padding:10px 20px!important;color:#f4cb62!important;font-family:"Manrope",sans-serif!important}
+#gestor-tabs{position:sticky;top:73px;z-index:23;background:rgba(11,17,32,.97);padding:12px 20px;margin:0;gap:8px;border-bottom:1px solid #263248}
+#gestor-tabs .tab{padding:10px 14px;background:#10192a;border:1px solid #27344a;border-radius:99px;color:#93a2b9;font-family:"Manrope",sans-serif;font-size:12px;font-weight:700;transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease}
+#gestor-tabs .tab:hover{color:#f8fafc;border-color:#425273;transform:translateY(-1px)}
+#gestor-tabs .tab.active{background:linear-gradient(135deg,#1d4e89,#2568b6);border-color:#3a79c2;color:#fff;box-shadow:0 0 24px rgba(37,104,182,.26)}
+#gestor-body{margin:0;padding:24px;background:#0b1120;border:0!important;box-shadow:none!important;color:#d8e1ef}
+#gestor-body h3,#gestor-body h4{font-family:"Sora",sans-serif;color:#f8fafc}
+#gestor-body h3{font-size:22px;letter-spacing:0}
+#gestor-body .card{background:#101827;border:1px solid #27344a;border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.16);color:#d8e1ef}
+#gestor-body .tabs{background:#0f1726;border:1px solid #27344a;border-radius:99px;padding:5px;gap:4px}
+#gestor-body .tab{background:transparent;color:#91a0b6;border:0;border-radius:99px;padding:9px 14px}
+#gestor-body .tab.active{background:#1d4e89;color:#fff;box-shadow:0 0 16px rgba(29,78,137,.32)}
+#gestor-body label{color:#8998af}
+#gestor-body input,#gestor-body select,#gestor-body textarea{background:#0b1220;border-color:#30405a;color:#e6edf7}
+#gestor-body .muted{color:#8998af}
+#gestor-body .hr{background:#29364c}
+#gestor-body .alert{border:1px solid #33435d;background:#111d30;color:#d8e1ef}
+#gestor-body .alert.warn{border-color:#6e5520;color:#f4cb62;background:#201b10}
+#gestor-body .tbl-wrap{border:1px solid #27344a;border-radius:12px;background:#0e1625}
+#gestor-body table{border-collapse:separate;border-spacing:0;font-size:12.5px}
+#gestor-body th{position:sticky;top:0;z-index:2;background:#151f31;color:#9cabc0;border:0;border-bottom:1px solid #344159;padding:13px 12px;font-size:10.5px;letter-spacing:.6px}
+#gestor-body td{border:0;border-bottom:1px solid #222e42;padding:12px;color:#d6deea}
+#gestor-body tr:last-child td{border-bottom:0}
+#gestor-body tr:hover td{background:#121d2e}
+#gestor-body .ind{border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 1px rgba(255,255,255,.02),0 14px 34px rgba(0,0,0,.22)}
+#gestor-body .ind-green{box-shadow:0 0 28px rgba(25,169,79,.16)}
+#gestor-body .ind-red{box-shadow:0 0 28px rgba(216,69,69,.17)}
+#gestor-body .ind-orange{box-shadow:0 0 28px rgba(224,138,46,.17)}
+#gestor-body .ind-blue{box-shadow:0 0 28px rgba(31,102,204,.18)}
+#gestor-body .ind-purple{box-shadow:0 0 28px rgba(110,81,214,.18)}
+
+.plans-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px}
+.plans-intro p{margin:0;color:#91a0b6;max-width:690px}
+.plans-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
+.plan-card{position:relative;display:flex;flex-direction:column;min-height:360px;padding:22px;background:#101827;border:1px solid #2b3950;border-radius:16px;overflow:hidden;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.plan-card:hover{transform:translateY(-3px);border-color:#486184}
+.plan-card.recommended{border-color:#d2a83b;background:linear-gradient(160deg,#14233a,#101827 58%);box-shadow:0 0 0 1px rgba(228,182,63,.2),0 0 34px rgba(228,182,63,.14)}
+.plan-card.current::after{content:"PLANO ATUAL";position:absolute;right:14px;top:14px;font-size:9px;font-weight:800;color:#86efac;border:1px solid #275d3d;background:#10281b;padding:4px 7px;border-radius:99px}
+.plan-reco{position:absolute;left:0;top:0;padding:6px 13px;border-radius:0 0 12px 0;background:linear-gradient(135deg,#c79524,#e4b63f);color:#211600;font-size:9px;font-weight:900;text-transform:uppercase}
+.plan-card h4{font-size:18px;margin-top:18px}
+.plan-kicker{font-size:11px;color:#8190a8}
+.plan-price{font-family:"Sora",sans-serif;color:#fff;font-size:28px;font-weight:800;margin:17px 0 3px}
+.plan-price small{font-family:"Manrope",sans-serif;color:#8998af;font-size:12px;font-weight:600}
+.plan-annual{min-height:18px;color:#e4b63f;font-size:12px;font-weight:700}
+.plan-benefits{list-style:none;padding:0;margin:18px 0;display:grid;gap:10px;color:#b8c4d6;font-size:12px}
+.plan-benefits li::before{content:"✓";color:#4ade80;font-weight:900;margin-right:8px}
+.plan-actions{display:grid;gap:8px;margin-top:auto}
+.plan-actions .btn{width:100%}
+.payment-note{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;color:#8190a8;font-size:11px}
+.payment-note::before{content:"";width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 10px #4ade80}
+.pix-modal-card{max-width:760px;margin:2vh auto;background:#0b1120!important;border:1px solid #2d3d57!important;color:#d8e1ef;box-shadow:0 30px 90px rgba(0,0,0,.6)!important}
+.pix-modal-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.pix-modal-head h3{font-family:"Sora",sans-serif;color:#fff}
+.pix-modal-grid{display:grid;grid-template-columns:220px 1fr;gap:22px;align-items:center}
+.pix-qr{width:220px;height:220px;background:#fff;border-radius:12px;padding:12px;display:block}
+.pix-copy{display:flex;gap:8px;margin:12px 0}
+.pix-copy input{background:#111b2c;color:#fff;border-color:#344762}
+.pix-summary{background:#111b2c;border:1px solid #2b3c55;border-radius:12px;padding:14px}
+
+/* Quiosque: teclado físico, preciso e compacto */
+#tela-ponto{font-family:"Manrope",sans-serif}
+#tela-ponto .pin-display{position:relative;background:linear-gradient(180deg,#111d30,#0c1525);border:1px solid #34445e;border-radius:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 14px 34px rgba(0,0,0,.22)}
+#tela-ponto .pin-display::before{content:"PIN";position:absolute;left:12px;top:7px;color:#718098;font-size:9px;font-weight:800;letter-spacing:1.2px}
+#tela-ponto .pin-dot{background:#17243a;color:#f8fafc;border:1px solid #334762;border-radius:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+#tela-ponto .pin-dot.on{border-color:#e4b63f;box-shadow:0 0 18px rgba(228,182,63,.18);color:#f4cb62}
+#tela-ponto .key{background:linear-gradient(180deg,#202d43,#172236);border:1px solid #3b4b63;border-bottom-color:#0a101b;border-radius:12px;box-shadow:0 3px 0 #070c14,0 8px 16px rgba(0,0,0,.18);transition:transform .1s ease,background .1s ease,box-shadow .1s ease,border-color .1s ease}
+#tela-ponto .key:hover{background:linear-gradient(180deg,#293a55,#1c2b43);border-color:#52647e}
+#tela-ponto .key:active{transform:translateY(2px) scale(.985);background:#24334b;box-shadow:0 1px 0 #070c14}
+#tela-ponto #btn-bater{border:1px solid #3bd171;background:linear-gradient(135deg,#138a3d,#16a34a);box-shadow:0 10px 28px rgba(22,163,74,.24),inset 0 1px 0 rgba(255,255,255,.16);font-family:"Sora",sans-serif;letter-spacing:.2px;transition:transform .12s ease,box-shadow .12s ease}
+#tela-ponto #btn-bater:active{transform:translateY(2px);box-shadow:0 5px 16px rgba(22,163,74,.18)}
+@media(max-width:900px){#tela-gestor{padding:0}#tela-gestor .inner{min-height:100vh;border-radius:0;border-left:0;border-right:0}.gestor-company{max-width:220px}.plans-grid{grid-template-columns:1fr}.pix-modal-grid{grid-template-columns:1fr}.pix-qr{width:190px;height:190px;margin:auto}}
+@media(max-width:620px){#tela-gestor .inner>.gestor-head{padding:10px 12px;align-items:flex-start}.gestor-brand-logo{width:36px;height:36px}.gestor-head-actions{margin-left:auto}.gestor-head-actions .btn{width:38px;height:38px;padding:0;font-size:0}.gestor-head-actions .btn::first-letter{font-size:16px}.license-badge{position:absolute;left:60px;top:50px;padding:4px 8px}#gestor-tabs{top:66px;padding:28px 10px 9px}#gestor-body{padding:14px}.plans-intro{align-items:flex-start;flex-direction:column}.pix-copy{flex-direction:column}}
+@media(prefers-reduced-motion:reduce){#tela-gestor *,#tela-ponto .key,#tela-ponto #btn-bater{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -339,11 +429,17 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 <!-- ======================= GESTOR (4 MÓDULOS) ======================= -->
 <div id="tela-gestor" class="modal hidden">
   <div class="inner">
-    <div class="row" style="margin-bottom:8px">
-      <strong id="gestor-quem"></strong>
-      <button class="btn sm ghost right" onclick="abrirSobre()">ⓘ Sobre</button>
-      <button class="btn sm ghost" onclick="abrirManual()">📖 Manual</button>
-      <button class="btn sm ghost" onclick="fecharGestor()">✕ Fechar</button>
+    <div class="gestor-head">
+      <div class="gestor-brand">
+        <img id="gestor-logo" class="gestor-brand-logo" src="/vip-logo.png" alt="Logo da empresa"/>
+        <div style="min-width:0"><div id="gestor-empresa" class="gestor-company">VIP PONTO</div><div id="gestor-quem" class="gestor-user"></div></div>
+      </div>
+      <span id="gestor-licenca" class="license-badge" data-state="ativo">Ativo</span>
+      <div class="row right gestor-head-actions">
+        <button class="btn sm ghost" onclick="abrirSobre()" title="Sobre">ⓘ Sobre</button>
+        <button class="btn sm ghost" onclick="abrirManual()" title="Manual">📖 Manual</button>
+        <button class="btn sm ghost" onclick="fecharGestor()" title="Fechar">✕ Fechar</button>
+      </div>
     </div>
     <div class="tabs" id="gestor-tabs"></div>
     <div class="card" id="gestor-body" style="border-radius:0 12px 12px 12px"></div>
@@ -1011,7 +1107,12 @@ let ABAS=[['dash','📊 Dashboard Frequência'],['func','👥 Empregados'],['ass
 let ABA='dash';
 function abrirGestor(){
   $('tela-gestor').classList.remove('hidden');
-  $('gestor-quem').textContent=`Gestor: ${GERENCIADOR.nome} — ${GERENCIADOR.funcao}`;
+  const e=get('empregador',{})||{}, estado=LIC?.licenca?.estado||'ativo';
+  $('gestor-quem').textContent=`${GERENCIADOR.nome} · ${GERENCIADOR.funcao}`;
+  $('gestor-empresa').textContent=e.fantasia||e.razao||'VIP PONTO';
+  $('gestor-logo').src=e.logo||'/vip-logo.png';
+  $('gestor-licenca').textContent=ROT_EST?.[estado]||estado;
+  $('gestor-licenca').dataset.state=estado;
   prepararGestorLicenca();
   $('gestor-tabs').innerHTML=ABAS.map(([k,t])=>`<div class="tab ${ABA===k?'active':''}" onclick="irAba('${k}')">${t}</div>`).join('');
   irAba(ABA);
@@ -2250,6 +2351,17 @@ function blocoPix(){
   ${wa?`<a class="btn green" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent('Olá! Segue o comprovante do VIP PONTO da conta '+CONTA)}">💬 Enviar comprovante no WhatsApp</a>`:''}`;
 }
 function copiarPix(){const v=LIC?.config?.pix||'';(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>alert('Chave PIX copiada!')).catch(()=>{$('pix-chave').select();document.execCommand('copy');});}
+function abrirPagamentoPix(plano){
+  const c=LIC?.config||{},l=LIC?.licenca||{},p=Number(plano)||l.plano||1,wa=String(c.whatsapp||'').replace(/\D/g,''),pix=String(c.pix||''),valor=c.precos?.[p];
+  if(!pix)return alert('A chave PIX ainda não foi cadastrada pelo suporte.');
+  const qr=qrDataUrl(pix),msg=encodeURIComponent(`Olá! Realizei o pagamento do Plano ${p} do VIP PONTO para a conta ${CONTA}. Segue o comprovante.`);
+  abrirModal(`<div class="card pix-modal-card"><div class="pix-modal-head"><div><h3>Pagamento via PIX</h3><div class="muted">Plano ${p} · ${moeda(valor)} por mês</div></div><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar pagamento">✕</button></div>
+  <div class="pix-modal-grid"><img class="pix-qr" src="${qr}" alt="QR Code da chave PIX"/><div><div class="pix-summary"><b>Pagamento seguro e rápido</b><div class="muted" style="margin-top:5px">Abra o aplicativo do seu banco, escaneie o código ou copie a chave abaixo.</div></div>
+  <label>PIX Copia e Cola</label><div class="pix-copy"><input id="pix-modal-chave" value="${esc(pix)}" readonly/><button class="btn gold" onclick="copiarPixModal()">📋 Copiar</button></div>
+  <div class="alert">Após pagar, envie o comprovante para ativação imediata.</div>
+  ${wa?`<a class="btn green big" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${msg}">💬 Confirmar pelo WhatsApp</a>`:'<div class="muted">O WhatsApp de suporte ainda não foi configurado.</div>'}</div></div></div>`);
+}
+function copiarPixModal(){const el=$('pix-modal-chave'),v=el?.value||'';(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>toast('Chave PIX copiada.')).catch(()=>{if(el){el.select();document.execCommand('copy');toast('Chave PIX copiada.');}});}
 function telaBloqueio(){
   let d=$('tela-bloqueio'); if(!d){d=document.createElement('div');d.id='tela-bloqueio';d.className='modal';document.body.appendChild(d);}
   d.innerHTML=`<div class="inner" style="max-width:720px"><div class="card"><h2>🔒 Assinatura vencida</h2>
@@ -2285,8 +2397,15 @@ async function aceitarTermos(){
 }
 function abaAssinatura(){
   const l=LIC?.licenca;
-  $('gestor-body').innerHTML=`<h3>💳 Assinatura e Faturas</h3>${l?`<div class="card"><div class="row"><span class="badge">${ROT_EST[l.estado]||l.estado}</span>
-  ${l.aceite_termos?`<span class="muted right">Termos aceitos em ${new Date(l.aceite_termos.aceito_em).toLocaleString('pt-BR')}</span>`:''}</div><div class="hr"></div>${blocoPix()}</div>`:'<div class="muted">Sem conexão para carregar a assinatura.</div>'}`;
+  if(!l)return $('gestor-body').innerHTML='<div class="muted">Sem conexão para carregar a assinatura.</div>';
+  const c=LIC?.config||{}, atual=l.plano||1;
+  $('gestor-body').innerHTML=`<div class="plans-intro"><div><h3>Planos e Pagamento</h3><p>Escolha a capacidade ideal para sua operação. Cada empresa inclui até ${MAX_FUNC} colaboradores, suporte ao quiosque e todos os relatórios legais.</p></div><span class="license-badge" data-state="${esc(l.estado)}">${ROT_EST[l.estado]||l.estado}</span></div>
+  <div class="plans-grid">${[1,2,3].map(p=>`<article class="plan-card ${p===2?'recommended':''} ${p===atual?'current':''}">${p===2?'<span class="plan-reco">Mais escolhido</span>':''}<div class="plan-kicker">PLANO ${p}</div><h4>${p===1?'Essencial':p===2?'Profissional':'Multiempresa'}</h4>
+  <div class="plan-price">${moeda(c.precos?.[p])}<small> / mês</small></div><div class="plan-annual">${c.precosAnuais?.[p]!=null?`${moeda(c.precosAnuais[p])} por ano`:'Plano anual a definir'}</div>
+  <ul class="plan-benefits"><li>${p} empresa${p>1?'s':''} no mesmo dispositivo</li><li>Até ${MAX_FUNC} colaboradores por empresa</li><li>Folha MTE, AFD e banco de horas</li><li>Operação offline com sincronização</li><li>Comprovante térmico e PDF oficial</li></ul>
+  <div class="plan-actions"><button class="btn ${p===2?'gold':''}" onclick="abrirPagamentoPix(${p})">${p===atual?'Pagar ou renovar':'Escolher Plano '+p}</button></div></article>`).join('')}</div>
+  <div class="payment-note">Pagamento via PIX com confirmação pelo suporte</div>
+  <div class="card" style="margin-top:18px"><div class="row"><div><b>Resumo da assinatura</b><div class="muted">Vencimento: ${l.estado==='cortesia'?'Cortesia sem cobrança':brD(l.data_vencimento)}</div></div>${l.aceite_termos?`<span class="muted right">Termos aceitos em ${new Date(l.aceite_termos.aceito_em).toLocaleString('pt-BR')}</span>`:''}</div></div>`;
 }
 /* ---------- Painel do desenvolvedor (login do desenvolvedor + PIN mestre 1000; validado no servidor) ---------- */
 async function devApi(b){return apiLic('POST',Object.assign({pin:GERENCIADOR?.pin},b));}
