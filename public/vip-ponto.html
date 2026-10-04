@@ -1112,7 +1112,7 @@ async function imprimirComprovante(b){
       return toast('Comprovante enviado à impressora SUNMI.',3000);
     }catch(err){ console.warn('SUNMI falhou, tentando RawBT/navegador',err); }
   }
-  if(rawbtAtivo()){ if(!imprimirRawBT(linhas,hashAss)) toast('Não foi possível enviar ao RawBT. Verifique se o app RawBT está instalado.',5000); return; }
+  if(rawbtAtivo()){ if(!imprimirRawBT(linhas)) toast('Não foi possível enviar ao RawBT. Verifique se o app RawBT está instalado.',5000); return; }
   document.body.classList.remove('print-folha');
   setTimeout(()=>window.print(),120);
 }
