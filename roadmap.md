@@ -17,4 +17,4 @@
 - [x] Aplicar o visual Enterprise Dark em Planos, Gestor e Quiosque, com cards PIX e métricas destacadas.
 - [x] Reorganizar o Gestor em uma central clara com módulos por cards e Dashboard integrado.
 - [x] Dividir o quiosque amplo entre informações à esquerda e registro à direita, preservando o celular compacto.
-- [ ] Padronizar todas as impressões e PDFs com cabeçalho da empresa e rodapé institucional completo.
+- [x] Padronizar todas as impressões e PDFs com cabeçalho da empresa e rodapé institucional completo.

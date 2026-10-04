@@ -100,10 +100,16 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .dept-head{background:var(--navy2);color:#fff;font-weight:800}
 .lock{color:var(--red);font-weight:800}
 /* ===================== FOLHA MTE ===================== */
-.folha{background:#fff;padding:14px;border:1px solid var(--line);border-radius:10px;margin-bottom:18px;page-break-after:always}
-.folha h3{text-align:center;text-transform:uppercase;font-size:15px}
-.folha .cab{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;border:1px solid var(--line);padding:8px;border-radius:8px;margin-bottom:8px}
-.folha .cab img{height:56px;max-width:160px;object-fit:contain;display:block;margin-bottom:4px}
+.folha,.doc-standard{background:#fff;padding:14px;border:1px solid var(--line);border-radius:10px;margin-bottom:18px;page-break-after:always;color:#182235}
+.folha h3,.doc-standard h3{text-align:center;text-transform:uppercase;font-size:15px;letter-spacing:.35px}
+.folha .cab,.doc-header{display:grid;grid-template-columns:148px 1fr;gap:14px;align-items:center;font-size:11.5px;border:1px solid #cbd6e6;border-top:5px solid var(--navy2);padding:10px;margin-bottom:10px;background:#f8fbff}
+.folha .cab img,.doc-header img{width:132px;height:62px;object-fit:contain;display:block;margin:auto}
+.doc-brand{font-size:16px;font-weight:800;color:var(--navy);text-transform:uppercase}
+.doc-company{font-size:12px;font-weight:800;margin:2px 0}
+.doc-title{text-align:center;border-bottom:2px solid var(--navy2);padding:3px 0 8px;margin:0 0 10px;font:800 16px Sora,"Segoe UI",sans-serif;text-transform:uppercase}
+.doc-subtitle{text-align:center;color:#52627a;font-size:11px;margin:-6px 0 10px}
+.doc-footer{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end;border-top:1px solid #9cadc3;margin-top:14px;padding-top:7px;font-size:9.5px;color:#40506a;page-break-inside:avoid}
+.doc-footer strong{color:var(--navy)}
 .folha table{font-size:11.5px}
 .folha .rodape{font-size:11.5px;margin-top:10px}
 .assin{display:flex;gap:30px;margin-top:26px;justify-content:space-between;font-size:12px;text-align:center}
@@ -126,6 +132,10 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   body.print-folha #area-impressao,body.print-folha #area-impressao *{visibility:visible !important}
   body.print-folha #area-impressao{position:absolute;left:0;top:0;width:100%}
   body.print-folha @page{size:A4;margin:8mm}
+  body.print-folha .folha,body.print-folha .doc-standard{border:0;border-radius:0;padding:0;margin:0;box-shadow:none}
+  body.print-folha .doc-header,body.print-folha .folha .cab{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.print-folha table{break-inside:auto}
+  body.print-folha tr{break-inside:avoid;break-after:auto}
 }
 
 /* ===== Visual referência (layouts enviados) ===== */
@@ -1085,7 +1095,7 @@ async function comprovanteTexto(b){
     (e.razao||'').toUpperCase(), (e.fantasia||''), `${e.tipo||'CNPJ'}: ${e.doc||''}`,endereco,cidade,e.cei?`CEI/CAEPF/CNO: ${e.cei}`:'',
     '','COMPROVANTE DE REGISTRO DE','PONTO DO TRABALHADOR','',
     `Nome: ${b.nome}`,`CPF: ${b.cpf||''}`,`Data: ${brOf(b.data)}`,`Hora: ${b.hora}`,
-    `NSR: ${b.nsr}`,`Marcacao: ${b.tipo}`,`Fonte: ${b.fonte==='SERVIDOR'?'SERVIDOR NTP':'LOCAL'}`,'',
+    `NSR: ${b.nsr}`,`Marcacao: ${b.tipo}`,`Fonte: ${b.fonte==='SERVIDOR'?'SERVIDOR NTP':'LOCAL'}`,`Usuario: ${b.nome}`,`Gestor: ${b.gerenciador||'Registro direto'}`,'',
     'Este comprovante e prova da','marcacao de ponto.','',`SHA-256: ${hashAss.slice(0,32)}`,hashAss.slice(32),'',
     'VIP PONTO - Atalaia Sistemas','Portaria MTE 671/2021'
   ].filter(Boolean)};
@@ -1135,9 +1145,11 @@ function imprimirRawBT(linhas,hash){
 function reimprimir(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);if(b)imprimirComprovante(b);}
 async function comprovantePDF(b){
   const {jsPDF}=window.jspdf, {linhas,hashAss}=await comprovanteTexto(b),qr=qrDataUrl(hashAss);
-  const doc=new jsPDF({unit:'mm',format:[58,125]}); doc.setFont('courier','normal'); doc.setFontSize(7.5);
-  let y=5; linhas.forEach(l=>{doc.text(String(l),29,y,{align:'center'});y+=3.25;});
+  const e=get('empregador',{})||{},doc=new jsPDF({unit:'mm',format:[58,138]});
+  let y=4;if(e.logo){try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),20,3,18,11);y=16;}catch(_){}}
+  doc.setFont('courier','normal');doc.setFontSize(7.2);linhas.forEach(l=>{doc.text(String(l),29,y,{align:'center'});y+=3.1;});
   if(qr){doc.addImage(qr,'GIF',20,y,18,18);y+=19;doc.setFontSize(6.5);doc.text('Autenticidade SHA-256',29,y,{align:'center'});}
+  y+=4;doc.setDrawColor(130);doc.line(4,y,54,y);y+=3;doc.setFontSize(5.7);doc.text('VIP PONTO • Atalaia Sistemas • MTE 671/2021',29,y,{align:'center'});y+=2.7;doc.text(`Emitido ${brOf(isoOf(getHoraOficial()))} ${hhmm(getHoraOficial())} • Gestor: ${b.gerenciador||'Registro direto'}`.slice(0,62),29,y,{align:'center'});
   doc.save(`Comprovante_${b.nsr}.pdf`);
 }
 async function emailComprovante(nsr){
@@ -1850,15 +1862,14 @@ function printDash(){
     try{img.src=src?src.toDataURL('image/png'):'';}catch(_){img.src='';}
     c.replaceWith(img);
   });
-  imprimirArea(wrap.innerHTML,'Dashboard de Frequência');
+  const filtro=$('d-func').value,usuario=filtro?(funcPorPin(filtro)||{}).nome:'Todos os colaboradores';
+  imprimirArea(wrap.innerHTML,'Dashboard de Frequência',usuario);
 }
 function pdfDash(){
   const {jsPDF}=window.jspdf,e=get('empregador',{})||{},[ini,fim]=periodoDash();
-  const doc=new jsPDF({unit:'mm',format:'a4'});let y=14;
-  doc.setFontSize(12);doc.text(`${e.razao||''} — ${e.fantasia||''}`,10,y);y+=5;
-  doc.setFontSize(9);doc.text(`${e.tipo}: ${e.doc}  CEI/CAEPF/CNO: ${e.cei||'—'}`,10,y);y+=5;
-  doc.text(`Dashboard de Frequência — Período ${brOf(ini)} a ${brOf(fim)} — Filtro: ${$('d-func').value?(funcPorPin($('d-func').value)||{}).nome:'Todos'}`,10,y);y+=6;
-  const quebra=()=>{if(y>275){doc.setFontSize(8);doc.text(`Página ${doc.getNumberOfPages()}`,190,290,{align:'right'});doc.addPage();y=14;doc.setFontSize(9);}};
+  const doc=new jsPDF({unit:'mm',format:'a4'}),filtro=$('d-func').value,usuario=filtro?(funcPorPin(filtro)||{}).nome:'Todos os colaboradores';
+  const sub=`Período ${brOf(ini)} a ${brOf(fim)} • Filtro: ${usuario}`;let y=pdfCabecalhoPadrao(doc,'Dashboard de Frequência',sub);
+  const quebra=()=>{if(y>270){doc.addPage();y=pdfCabecalhoPadrao(doc,'Dashboard de Frequência',sub);doc.setFontSize(9);}};
   const out=$('dash-out'), limpa=s=>(s||'').replace(/[^\x20-\x7EÀ-ÿ—•]/g,'').trim();
   const txt=[limpa(out.querySelector('.muted')?.innerText)];
   out.querySelectorAll('.ind').forEach(el=>{
@@ -1876,13 +1887,12 @@ function pdfDash(){
     doc.setFontSize(10);doc.text(tit,10,y);y+=4;
     doc.addImage(img,'PNG',10,y,w,h);y+=h+6;
   });
-  const d=getHoraOficial();
-  doc.setFontSize(8);doc.text(`Relatório gerado em ${brOf(isoOf(d))} ${hhmm(d)} por ${assinaGerenciador()}`,10,288);
-  doc.text(`Página ${doc.getNumberOfPages()}`,200,288,{align:'right'});
+  pdfRodapesPadrao(doc,usuario);
   doc.save('Dashboard_Frequencia.pdf');
 }
-function imprimirArea(html,titulo){
-  $('area-impressao').innerHTML=`<h3 style="text-align:center">${titulo}</h3>${html}`;
+function imprimirArea(html,titulo,usuario='Conta '+(CONTA||'—')){
+  const completo=/data-doc-completo/.test(html);
+  $('area-impressao').innerHTML=completo?html:`<div class="doc-standard" data-doc-completo="1">${cabecalhoDocumentoHTML(titulo)}<div class="doc-body">${html}</div>${rodapeDocumentoHTML(usuario)}</div>`;
   $('area-impressao').classList.remove('hidden'); document.body.classList.add('print-folha');
   setTimeout(()=>{window.print();document.body.classList.remove('print-folha');$('area-impressao').classList.add('hidden');},200);
 }
@@ -1890,7 +1900,26 @@ function imprimirArea(html,titulo){
 /* ============================== MÓDULO 4 — FOLHA MTE ============================== */
 const LEGENDA='FALTA = dia sem batida e sem folga/feriado | FOLGA = folga prevista em escala | FERIADO = feriado cadastrado | _ = batida tratada/movida com motivo obrigatório | *N = hora noturna reduzida 22h-05h (Art. 73 CLT)';
 const preLegenda=f=>f&&f.intervalo&&f.intervalo.preAssinalado?`Intervalo pré-assinalado ${f.intervalo.inicio||'12:00'}-${f.intervalo.fim||'13:00'} - Art. 71`:'';
-function rodapeLegal(){const d=getHoraOficial(),g=GERENCIADOR||{nome:'Portal do Empregado',funcao:'Autoatendimento'};return `Gerado em ${pad(d.getDate())}/${pad(d.getMonth()+1)} ${hhmm(d)} por ${g.nome} - ${g.funcao} - MTE 671 - VIP PONTO - Dev Atalaia`;}
+function identidadeDocumento(usuario='Conta '+(CONTA||'—')){
+  const d=getHoraOficial(),g=GERENCIADOR||{nome:'Portal do Empregado',funcao:'Autoatendimento'},dev=typeof devCfg==='function'?devCfg():{nome:'Atalaia Sistemas'};
+  return {quando:`${brOf(isoOf(d))} às ${hhmm(d)}`,usuario:String(usuario||CONTA||'—'),gestor:`${g.nome} — ${g.funcao}`,app:`VIP PONTO • ${dev.empresa||dev.nome||'Atalaia Sistemas'} • Portaria MTE 671/2021`};
+}
+function cabecalhoDocumentoHTML(titulo,subtitulo=''){
+  const e=get('empregador',{})||{},end=[e.logradouro,e.numero,e.complemento,e.bairro,`${e.cidade||''}/${e.uf||''}`,e.cep&&`CEP ${e.cep}`].filter(Boolean).join(', ');
+  return `<header class="doc-header"><img src="${e.logo||logoApp()}" alt="Logo da empresa"><div><div class="doc-brand">${esc(e.fantasia||e.razao||'VIP PONTO')}</div><div class="doc-company">${esc(e.razao||'Empregador não informado')}</div><div>${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'—')} • CEI/CAEPF/CNO: ${esc(e.cei||'—')}</div><div>${esc(end||'Endereço não informado')}</div><div>${esc(e.email||'')}</div></div></header><div class="doc-title">${esc(titulo||'Documento')}</div>${subtitulo?`<div class="doc-subtitle">${esc(subtitulo)}</div>`:''}`;
+}
+function rodapeDocumentoHTML(usuario){const m=identidadeDocumento(usuario);return `<footer class="doc-footer"><div><strong>${esc(m.app)}</strong><br>Emitido em ${esc(m.quando)} • Usuário: ${esc(m.usuario)}<br>Gestor responsável: ${esc(m.gestor)}</div><div>Documento gerado pelo VIP PONTO</div></footer>`;}
+function rodapeLegal(usuario){const m=identidadeDocumento(usuario);return `Gerado em ${m.quando} • Usuário: ${m.usuario} • Gestor: ${m.gestor} • ${m.app}`;}
+function pdfCabecalhoPadrao(doc,titulo,subtitulo=''){
+  const e=get('empregador',{})||{},end=[e.logradouro,e.numero,e.complemento,e.bairro,`${e.cidade||''}/${e.uf||''}`,e.cep&&`CEP ${e.cep}`].filter(Boolean).join(', ');
+  if(e.logo){try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),10,7,27,18);}catch(_){}}
+  doc.setTextColor(12,34,70);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(String(e.fantasia||e.razao||'VIP PONTO').slice(0,64),41,11);
+  doc.setTextColor(35,50,75);doc.setFontSize(9);doc.text(String(e.razao||'Empregador não informado').slice(0,92),41,16);
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.text(`${e.tipo||'CNPJ'}: ${e.doc||'—'} • CEI/CAEPF/CNO: ${e.cei||'—'}`,41,21);doc.text(String(end||'Endereço não informado').slice(0,112),41,25);
+  doc.setDrawColor(18,58,115);doc.setLineWidth(.7);doc.line(10,30,200,30);doc.setTextColor(12,34,70);doc.setFont('helvetica','bold');doc.setFontSize(13);doc.text(String(titulo||'Documento').toUpperCase(),105,37,{align:'center'});
+  if(subtitulo){doc.setTextColor(82,98,122);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text(String(subtitulo).slice(0,135),105,42,{align:'center'});return 47;}return 43;
+}
+function pdfRodapesPadrao(doc,usuario){const m=identidadeDocumento(usuario),n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setDrawColor(156,173,195);doc.setLineWidth(.25);doc.line(10,282,200,282);doc.setTextColor(64,80,106);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.text(m.app,10,286);doc.text(`Emitido em ${m.quando} • Usuário: ${m.usuario}`.slice(0,116),10,290);doc.text(`Gestor: ${m.gestor}`.slice(0,92),105,290);doc.text(`Página ${i}/${n}`,200,290,{align:'right'});}}
 function abaFolha(){
   const fs=get('funcionarios',[]),hoje=hojeISO();
   $('gestor-body').innerHTML=`<h3>Folha de Ponto — Padrão MTE Portaria 671/2021</h3>
@@ -1919,12 +1948,8 @@ function imprimirFolhaTela(){imprimirArea($('fl-out').innerHTML,'');}
 function cabecalhoFolhaHTML(f,ini,fim){
   const e=get('empregador',{})||{},d=getHoraOficial();
   const escLabel=(ESCALAS.find(x=>x[0]===f.escala)||['','—'])[1];
-  return `<div class="cab">
-    <div><img src="${e.logo||'/vip-logo.png'}" alt="Logo"/>
-      <div><b>${esc(e.razao||'')}</b> — ${esc(e.fantasia||'')}</div>
-      <div>${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'')} • CEI/CAEPF/CNO: ${esc(e.cei||'—')}</div>
-      <div>${esc(e.logradouro||'')}, ${esc(e.numero||'')} ${esc(e.complemento||'')} — ${esc(e.bairro||'')}, ${esc(e.cidade||'')}/${esc(e.uf||'')} — CEP ${esc(e.cep||'')}</div>
-      <div>E-mail: ${esc(e.email||'')}</div></div>
+  return `${cabecalhoDocumentoHTML('Folha de Ponto — Portaria MTE 671/2021',`Período ${brOf(ini)} a ${brOf(fim)}`)}<div class="cab">
+    <div><b>Identificação do trabalhador</b></div>
     <div><div><b>Trabalhador:</b> ${esc(f.nome)}</div><div><b>CPF:</b> ${esc(f.cpf||'')}</div>
       <div><b>Função:</b> ${esc(f.funcao||'')} • <b>Departamento:</b> ${esc(f.departamento||'')}</div>
       <div><b>Admissão:</b> ${brOf(f.admissao)}</div>
@@ -1935,8 +1960,7 @@ function cabecalhoFolhaHTML(f,ini,fim){
 function htmlFolha(pin,ini,fim){
   if(!pin||!ini||!fim) return '<div class="alert err">Selecione funcionário e período.</div>';
   const d=dadosFolha(pin,ini,fim),f=d.f,dt=getHoraOficial(),e=get('empregador',{})||{};
-  return `<div class="folha">
-    <h3>Folha de Ponto — Portaria MTE 671/2021</h3>
+  return `<div class="folha" data-doc-completo="1">
     ${cabecalhoFolhaHTML(f,ini,fim)}
     <div class="tbl-wrap"><table>
     <tr><th>Dia</th><th>Dia Semana</th><th>Entrada</th><th>Saída Interv.</th><th>Entrada Interv.</th><th>Saída</th><th>Horas Trab.</th><th>Saldo Dia</th><th>Ocorrência</th><th>Fonte</th></tr>
@@ -1954,10 +1978,9 @@ function htmlFolha(pin,ini,fim){
       ${d.just.length?`<div style="margin-top:6px"><b>Justificativas:</b><br>${d.just.map(j=>esc(j)).join('<br>')}</div>`:''}
       ${preLegenda(f)?`<div style="margin-top:6px"><b>${esc(preLegenda(f))}</b></div>`:''}
       <div class="muted" style="margin-top:6px"><b>Legenda:</b> ${LEGENDA}</div>
-      <div style="margin-top:6px">${esc(rodapeLegal())}</div>
       <div>${esc(e.cidade||'Salinópolis')}-${esc(e.uf||'PA')}, ${brOf(isoOf(dt))}</div>
       <div class="assin"><div>Assinatura do Diretor</div><div>Assinatura do Empregado</div></div>
-    </div></div>`;
+    </div>${rodapeDocumentoHTML(f.nome)}</div>`;
 }
 /* PDF OFICIAL ÚNICO — gerarPDFComLogo(dados): usado na Folha Individual, Lote e Portal.
    dados = {pins,ini,fim} | {pin,ini,fim} | {folhas:[gerarFolhaMTE(...)]}. Retorna {doc,base64,blob}. */
@@ -1968,13 +1991,8 @@ async function gerarPDFComLogo(dados){
   lista.forEach(d=>{
     const f=d.f,ini=d.ini,fim=d.fim,dt=getHoraOficial();
     if(!first)doc.addPage(); first=false;
-    let y=12;
-    if(e.logo){try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),170,6,30,18);}catch(_){}}
-    const L=(t,s=9,b=false)=>{if(y>272){doc.setFontSize(8);doc.text(`Página ${doc.getNumberOfPages()}`,200,290,{align:'right'});doc.addPage();y=12;}doc.setFont('helvetica',b?'bold':'normal');doc.setFontSize(s);doc.text(String(t),10,y);y+=s<9?4:4.6;};
-    L(`${e.razao||''} — ${e.fantasia||''}`,11,true);
-    L(`${e.tipo||'CNPJ'}: ${e.doc||''} • CEI/CAEPF/CNO: ${e.cei||'—'}`);
-    L(`${e.logradouro||''}, ${e.numero||''} ${e.complemento||''} - ${e.bairro||''}, ${e.cidade||''}/${e.uf||''} - CEP ${e.cep||''} • ${e.email||''}`,8);
-    L(`FOLHA DE PONTO — PORTARIA MTE 671/2021`,11,true);
+    let y=pdfCabecalhoPadrao(doc,'Folha de Ponto — Portaria MTE 671/2021',`Período ${brOf(ini)} a ${brOf(fim)}`);
+    const L=(t,s=9,b=false)=>{if(y>270){doc.addPage();y=pdfCabecalhoPadrao(doc,'Folha de Ponto — Continuação',f.nome);}doc.setTextColor(24,34,53);doc.setFont('helvetica',b?'bold':'normal');doc.setFontSize(s);doc.text(String(t),10,y);y+=s<9?4:4.6;};
     L(`Trabalhador: ${f.nome} • CPF: ${f.cpf||''} • Função: ${f.funcao||''} • Depto: ${f.departamento||''} • Admissão: ${brOf(f.admissao)}`,8);
     L(`Emissão: ${brOf(isoOf(dt))} ${hhmm(dt)} • Período: ${brOf(ini)} a ${brOf(fim)} • Jornada: ${e.hEntrada||''}-${e.hSaiInt||''}/${e.hEntInt||''}-${e.hSaida||''} • Escala: ${f.escala||''}`,8);
     if(preLegenda(f)) L(preLegenda(f),8,true);
@@ -1986,12 +2004,11 @@ async function gerarPDFComLogo(dados){
     L(`Banco de Horas — Anterior ${toSaldo(d.banco.anterior)} | Créditos +${toHHMM(d.banco.creditos)} | Débitos -${toHHMM(d.banco.debitos)} | Atual ${toSaldo(d.banco.atual)}`,8);
     d.just.forEach(j=>L(j,8));
     doc.splitTextToSize(`Legenda: ${LEGENDA}`,190).forEach(t=>L(t,7));
-    L(rodapeLegal(),8);
     L(`${e.cidade||'Salinópolis'}-${e.uf||'PA'}, ${brOf(isoOf(dt))}`,8); y+=10;
     L('____________________________        ____________________________',8);
     L('Assinatura do Diretor                        Assinatura do Empregado',8);
-    doc.setFontSize(8);doc.text(`Página ${doc.getNumberOfPages()}`,200,290,{align:'right'});
   });
+  pdfRodapesPadrao(doc,lista.length===1?lista[0].f.nome:`Lote com ${lista.length} colaboradores`);
   return {doc,base64:doc.output('datauristring').split(',')[1],blob:doc.output('blob')};
 }
 async function pdfFolhas(pins,ini,fim,nomeArq){
@@ -2186,15 +2203,15 @@ function gerarAEJ(ini,fim){
 /* ===================== ATESTADO TÉCNICO E TERMO DE RESPONSABILIDADE (art. 89) ===================== */
 function atestadoTecnico(){
   const e=get('empregador',{})||{},d=devCfg(),dt=getHoraOficial();
-  const html=`<div class="folha" style="font-size:13px;line-height:1.55">
-  <div style="text-align:center"><img src="/vip-logo.png" style="height:70px"/><h3>ATESTADO TÉCNICO E TERMO DE RESPONSABILIDADE</h3><div>Portaria MTP nº 671/2021 — Art. 89 a 91</div></div>
+  const html=`<div class="folha" data-doc-completo="1" style="font-size:13px;line-height:1.55">
+  ${cabecalhoDocumentoHTML('Atestado Técnico e Termo de Responsabilidade','Portaria MTP nº 671/2021 • Art. 89 a 91')}
   <p><b>Fabricante/Desenvolvedor:</b> ${esc(d.nome)} ${d.empresa?'— '+esc(d.empresa):''} • ${esc(d.tipoDoc)}: ${esc(d.doc||'________________')} • ${esc(d.email||'')} ${esc(d.telefone||'')}</p>
   <p><b>Programa:</b> ${esc(d.programa)} — versão ${esc(d.versao)} — Tipo: ${esc(d.tipoRep)} — Registro INPI nº ${esc(d.registroINPI||'________________')}</p>
   <p><b>Empregador usuário:</b> ${esc(e.razao||'')} — ${esc(e.fantasia||'')} — ${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'')}</p>
   <p>O desenvolvedor acima identificado <b>ATESTA</b>, sob as penas da lei, que o programa descrito atende integralmente aos requisitos da Portaria MTP nº 671/2021, em especial: (I) não permite alteração ou exclusão das marcações originais (data, hora e NSR); (II) não possui funcionalidade de restrição de horário à marcação; (III) não permite marcação automática ou pré-assinalada; (IV) não exige autorização prévia para marcação; (V) emite comprovante de registro de ponto a cada marcação; (VI) gera o Arquivo Fonte de Dados (AFD) e o Arquivo Eletrônico de Jornada (AEJ) nos leiautes oficiais; (VII) registra a identificação de quem efetuou tratamentos, com motivo obrigatório; (VIII) utiliza hora oficial sincronizada com servidor de tempo.</p>
   <p>O desenvolvedor assume a <b>responsabilidade</b> pela veracidade das informações e pelo funcionamento do programa nas condições aqui descritas.</p>
   <p>${esc(d.cidade)}, ${brOf(isoOf(dt))}.</p>
-  <div class="assin"><div>${esc(d.nome)}<br>Desenvolvedor / Responsável técnico</div><div>${esc(e.razao||'Empregador')}<br>Ciente do empregador</div></div></div>`;
+  <div class="assin"><div>${esc(d.nome)}<br>Desenvolvedor / Responsável técnico</div><div>${esc(e.razao||'Empregador')}<br>Ciente do empregador</div></div>${rodapeDocumentoHTML(CONTA||'Responsável técnico')}</div>`;
   abrirModal(`<div class="row"><h3>Atestado Técnico</h3><button class="btn sm right" onclick="imprimirArea(document.getElementById('at-body').innerHTML,'')">🖨 Imprimir / PDF</button><button class="btn sm ghost" onclick="fecharModal()">✕</button></div><div id="at-body">${html}</div>`);
   log('Emitiu Atestado Técnico e Termo de Responsabilidade');
 }
@@ -2222,12 +2239,10 @@ function abrirManual(){
   abrirModal(`<div class="row"><h3>Manual</h3><button class="btn sm right" onclick="manualPDF()">⬇ Baixar PDF</button><button class="btn sm ghost" onclick="fecharModal()">✕</button></div><div id="man-body">${html}</div>`);
 }
 function manualPDF(){
-  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),d=devCfg();let y=16;
-  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.text('Manual do Usuário — VIP PONTO',105,y,{align:'center'});y+=7;
-  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text('Registro Eletrônico de Ponto — Portaria MTE 671/2021',105,y,{align:'center'});y+=10;
-  MANUAL.forEach(([t,x])=>{const ls=doc.splitTextToSize(x,185);if(y+8+ls.length*5>280){doc.addPage();y=16;}
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),d=devCfg();let y=pdfCabecalhoPadrao(doc,'Manual do Usuário','Registro Eletrônico de Ponto • versão '+d.versao);
+  MANUAL.forEach(([t,x])=>{const ls=doc.splitTextToSize(x,185);if(y+8+ls.length*5>276){doc.addPage();y=pdfCabecalhoPadrao(doc,'Manual do Usuário — Continuação');}
     doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(t,12,y);y+=6;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(ls,12,y);y+=ls.length*5+5;});
-  const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(8);doc.text(`Desenvolvido por ${d.nome}${d.email?' — '+d.email:''}`,12,290);doc.text(`Página ${i}/${n}`,198,290,{align:'right'});}
+  pdfRodapesPadrao(doc,CONTA||'Manual público');
   doc.save('Manual_VIP_PONTO.pdf');
 }
 </script>
@@ -2337,18 +2352,16 @@ function relatorioPins(){
   ${ls.map(r=>`<tr>${r.map((c,i)=>`<td>${i===4?'<b>'+esc(c)+'</b>':esc(c)}</td>`).join('')}</tr>`).join('')||'<tr><td colspan=6 class="muted">Nenhum empregado.</td></tr>'}</table></div>`;
   log('Consultou relatório confidencial de PINs');
 }
-function imprimirPins(){imprimirArea(`<div class="folha"><div style="background:#c62828;color:#fff;padding:6px;text-align:center;font-weight:bold">DOCUMENTO CONFIDENCIAL - USO INTERNO DO RH</div>${$('pins-tbl').innerHTML}<div class="muted">${esc(rodapeLegal())}</div></div>`,'Relatório de PINs');}
+function imprimirPins(){imprimirArea(`<div style="background:#c62828;color:#fff;padding:7px;text-align:center;font-weight:bold">DOCUMENTO CONFIDENCIAL - USO INTERNO DO RH</div>${$('pins-tbl').innerHTML}`,'Relatório de PINs (Confidencial)',CONTA||'RH');}
 function pdfPins(){
-  const {jsPDF}=window.jspdf,e=get('empregador',{})||{},doc=new jsPDF({unit:'mm',format:'a4'});let y=14;
-  if(e.logo){try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),170,6,30,18);}catch(_){}}
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(`${e.razao||''} — ${e.fantasia||''}`,10,y);y+=6;
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'});let y=pdfCabecalhoPadrao(doc,'Relatório de PINs','Documento confidencial • Uso interno do RH');
   doc.setTextColor(198,40,40);doc.text('DOCUMENTO CONFIDENCIAL - USO INTERNO DO RH',10,y);doc.setTextColor(0);y+=8;
   doc.setFontSize(8);doc.text('Nome                               CPF              Cargo            Depto          PIN    Status',10,y);y+=5;
   doc.setFont('helvetica','normal');
-  linhasPins().forEach(r=>{if(y>280){doc.addPage();y=14;}
+  linhasPins().forEach(r=>{if(y>276){doc.addPage();y=pdfCabecalhoPadrao(doc,'Relatório de PINs — Continuação','Documento confidencial • Uso interno do RH');}
     const c=[r[0].slice(0,32),r[1],r[2].slice(0,15),r[3].slice(0,13),r[4],r[5].slice(0,28)],x=[10,62,90,115,138,150];
     c.forEach((t,i)=>doc.text(String(t),x[i],y));y+=5;});
-  doc.text(rodapeLegal(),10,290);
+  pdfRodapesPadrao(doc,CONTA||'RH');
   doc.save('Relatorio_PINs_CONFIDENCIAL.pdf'); log('Gerou PDF confidencial de PINs');
 }
 
