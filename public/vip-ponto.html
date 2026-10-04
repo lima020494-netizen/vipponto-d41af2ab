@@ -924,6 +924,7 @@ async function imprimirComprovante(b){
 }
 /* RawBT: impressão térmica silenciosa (ESC/POS) via rawbt: e intent Android */
 const rawbtAtivo=()=>localStorage.getItem('vip_rawbt')==='1';
+(()=>{const q=new URLSearchParams(location.search).get('rawbt');if(q==='1'||q==='0')localStorage.setItem('vip_rawbt',q);})();
 function alternarRawBT(){localStorage.setItem('vip_rawbt',rawbtAtivo()?'0':'1');detectarImpressora(9);
   toast(rawbtAtivo()?'Impressão silenciosa RawBT ativada neste aparelho.':'RawBT desativado — impressão pelo navegador.',3500);}
 function escposComprovante(linhas,hash){
