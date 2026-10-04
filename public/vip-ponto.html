@@ -2350,18 +2350,16 @@ function relatorioPins(){
   ${ls.map(r=>`<tr>${r.map((c,i)=>`<td>${i===4?'<b>'+esc(c)+'</b>':esc(c)}</td>`).join('')}</tr>`).join('')||'<tr><td colspan=6 class="muted">Nenhum empregado.</td></tr>'}</table></div>`;
   log('Consultou relatório confidencial de PINs');
 }
-function imprimirPins(){imprimirArea(`<div class="folha"><div style="background:#c62828;color:#fff;padding:6px;text-align:center;font-weight:bold">DOCUMENTO CONFIDENCIAL - USO INTERNO DO RH</div>${$('pins-tbl').innerHTML}<div class="muted">${esc(rodapeLegal())}</div></div>`,'Relatório de PINs');}
+function imprimirPins(){imprimirArea(`<div style="background:#c62828;color:#fff;padding:7px;text-align:center;font-weight:bold">DOCUMENTO CONFIDENCIAL - USO INTERNO DO RH</div>${$('pins-tbl').innerHTML}`,'Relatório de PINs (Confidencial)',CONTA||'RH');}
 function pdfPins(){
-  const {jsPDF}=window.jspdf,e=get('empregador',{})||{},doc=new jsPDF({unit:'mm',format:'a4'});let y=14;
-  if(e.logo){try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),170,6,30,18);}catch(_){}}
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(`${e.razao||''} — ${e.fantasia||''}`,10,y);y+=6;
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'});let y=pdfCabecalhoPadrao(doc,'Relatório de PINs','Documento confidencial • Uso interno do RH');
   doc.setTextColor(198,40,40);doc.text('DOCUMENTO CONFIDENCIAL - USO INTERNO DO RH',10,y);doc.setTextColor(0);y+=8;
   doc.setFontSize(8);doc.text('Nome                               CPF              Cargo            Depto          PIN    Status',10,y);y+=5;
   doc.setFont('helvetica','normal');
-  linhasPins().forEach(r=>{if(y>280){doc.addPage();y=14;}
+  linhasPins().forEach(r=>{if(y>276){doc.addPage();y=pdfCabecalhoPadrao(doc,'Relatório de PINs — Continuação','Documento confidencial • Uso interno do RH');}
     const c=[r[0].slice(0,32),r[1],r[2].slice(0,15),r[3].slice(0,13),r[4],r[5].slice(0,28)],x=[10,62,90,115,138,150];
     c.forEach((t,i)=>doc.text(String(t),x[i],y));y+=5;});
-  doc.text(rodapeLegal(),10,290);
+  pdfRodapesPadrao(doc,CONTA||'RH');
   doc.save('Relatorio_PINs_CONFIDENCIAL.pdf'); log('Gerou PDF confidencial de PINs');
 }
 
