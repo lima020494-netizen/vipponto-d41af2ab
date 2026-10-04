@@ -15,3 +15,5 @@
 - [x] Criar conta: remover a trava de limite de empresas do aparelho, inclusive para o e-mail do desenvolvedor.
 - [x] Enviar por e-mail o mesmo texto exibido no comprovante impresso da última marcação.
 - [x] Aplicar o visual Enterprise Dark em Planos, Gestor e Quiosque, com cards PIX e métricas destacadas.
+- [x] Reorganizar o Gestor em uma central clara com módulos por cards e Dashboard integrado.
+- [x] Dividir o quiosque amplo entre informações à esquerda e registro à direita, preservando o celular compacto.

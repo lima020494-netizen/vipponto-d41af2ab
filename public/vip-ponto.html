@@ -341,6 +341,91 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 @media(max-width:900px){#tela-gestor{padding:0}#tela-gestor .inner{min-height:100vh;border-radius:0;border-left:0;border-right:0}.gestor-company{max-width:220px}.plans-grid{grid-template-columns:1fr}.pix-modal-grid{grid-template-columns:1fr}.pix-qr{width:190px;height:190px;margin:auto}}
 @media(max-width:620px){#tela-gestor .inner>.gestor-head{padding:10px 12px;align-items:flex-start}.gestor-brand-logo{width:36px;height:36px}.gestor-head-actions{margin-left:auto}.gestor-head-actions .btn{width:38px;height:38px;padding:0;font-size:0}.gestor-head-actions .btn::first-letter{font-size:16px}.license-badge{position:absolute;left:60px;top:50px;padding:4px 8px}#gestor-tabs{top:66px;padding:28px 10px 9px}#gestor-body{padding:14px}.plans-intro{align-items:flex-start;flex-direction:column}.pix-copy{flex-direction:column}}
 @media(prefers-reduced-motion:reduce){#tela-gestor *,#tela-ponto .key,#tela-ponto #btn-bater{transition:none!important;animation:none!important}}
+
+/* ===== Central clara do Gestor + quiosque dividido ===== */
+#tela-gestor{background:linear-gradient(135deg,#b9f3ec 0%,#8edee5 48%,#79cbdc 100%);backdrop-filter:none;padding:18px}
+#tela-gestor .inner{max-width:1440px;min-height:calc(100vh - 36px);background:#f7fbfd;color:#17364a;border:1px solid rgba(255,255,255,.72);box-shadow:0 24px 70px rgba(12,73,91,.22)}
+#tela-gestor .inner>.gestor-head{background:rgba(255,255,255,.94);border-bottom:1px solid #d7e9ee;box-shadow:0 4px 18px rgba(12,73,91,.08)}
+.gestor-company{color:#123c52}.gestor-user{color:#668392}
+.license-badge{background:#e7f8f3;border-color:#b8e6d7;color:#176e55}
+#tela-gestor .gestor-head .btn.ghost{background:#f3f8fa;color:#24546a;border-color:#d5e5ea}
+#gestor-aviso{background:#fff8df!important;border-bottom-color:#eadba5!important;color:#7b5d00!important}
+#gestor-tabs{display:none!important}
+#gestor-body{background:#f7fbfd;color:#17364a;padding:24px}
+#gestor-body h3,#gestor-body h4{color:#17364a}
+#gestor-body .card{background:#fff;border-color:#dce9ed;color:#17364a;box-shadow:0 10px 26px rgba(30,91,111,.08)}
+#gestor-body .tabs{background:#e8f3f6;border-color:#d3e5ea}
+#gestor-body .tab{color:#4e6d7c}
+#gestor-body .tab.active{background:#167c96;color:#fff;box-shadow:0 6px 16px rgba(22,124,150,.2)}
+#gestor-body label{color:#617d8b}
+#gestor-body input,#gestor-body select,#gestor-body textarea{background:#fff;border-color:#cfdee4;color:#17364a}
+#gestor-body .muted{color:#6d8794}
+#gestor-body .hr{background:#dce9ed}
+#gestor-body .alert{background:#edf7fa;border-color:#cde4ea;color:#315c70}
+#gestor-body .alert.warn{background:#fff7df;border-color:#ead79c;color:#7b5b00}
+#gestor-body .tbl-wrap{background:#fff;border-color:#d8e7eb;box-shadow:0 8px 22px rgba(30,91,111,.06)}
+#gestor-body th{background:#eaf4f6;color:#416877;border-color:#d8e7eb}
+#gestor-body td{color:#284e60;border-color:#e2ecef}
+#gestor-body tr:hover td{background:#f1fafb}
+.gestor-back{display:none!important}
+.gestor-back.show{display:inline-flex!important}
+#gestor-hub{padding:24px;background:#f7fbfd}
+.hub-welcome{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:16px;margin-bottom:18px}
+.hub-welcome h2{font:800 26px "Sora",sans-serif;color:#133b50;margin-bottom:5px}
+.hub-welcome p{margin:0;color:#688593}
+.module-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.module-card{position:relative;min-height:134px;padding:18px;border:0;border-radius:14px;color:#fff;text-align:left;cursor:pointer;overflow:hidden;box-shadow:0 10px 24px rgba(21,84,104,.16);transition:transform .16s ease,box-shadow .16s ease;font-family:"Manrope",sans-serif}
+.module-card::after{content:"→";position:absolute;right:16px;bottom:13px;font-size:22px;font-weight:800;opacity:.82}
+.module-card:hover,.module-card:focus-visible{transform:translateY(-3px);box-shadow:0 16px 32px rgba(21,84,104,.23)}
+.module-card:focus-visible{outline:3px solid #e4b63f;outline-offset:3px}
+.module-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.2);font-size:21px;margin-bottom:12px}
+.module-card strong{display:block;font:700 15px "Sora",sans-serif;margin-bottom:4px}
+.module-card small{display:block;max-width:86%;font-size:11px;line-height:1.35;opacity:.9}
+.mod-dash{background:linear-gradient(135deg,#087f8c,#18a8a2)}.mod-func{background:linear-gradient(135deg,#2468a8,#438bd0)}
+.mod-assin{background:linear-gradient(135deg,#b77b08,#dfa91f)}.mod-ponto{background:linear-gradient(135deg,#0a8a68,#28b082)}
+.mod-folha{background:linear-gradient(135deg,#6550a7,#8973c5)}.mod-emp{background:linear-gradient(135deg,#cf5b3a,#eb865f)}
+.mod-logs{background:linear-gradient(135deg,#526575,#778b99)}.mod-dev{background:linear-gradient(135deg,#2d4358,#4d6478)}
+#gestor-hub-dashboard{padding-top:4px}
+#gestor-hub-dashboard>.row:first-child{padding-top:2px;border-top:1px solid #d9e8ec;padding-top:20px}
+
+/* Quiosque amplo: acessos | informações | registro */
+#tela-home{overflow:hidden}
+.kiosk-rail{position:fixed;top:50%;left:0;transform:translateY(-50%);padding:8px;background:rgba(7,19,34,.88);border:1px solid #304157;border-radius:0 15px 15px 0;box-shadow:0 14px 36px rgba(0,0,0,.28)}
+#tela-ponto.kiosk-shell{width:min(1180px,calc(100vw - 104px));max-width:none!important;height:100vh;margin:0 auto;padding:24px 0;display:grid;grid-template-columns:minmax(360px,.9fr) minmax(430px,1.1fr);gap:28px;align-items:stretch}
+.kiosk-info-panel,.kiosk-entry-panel{min-width:0;border:1px solid #2b3d53;border-radius:20px;background:rgba(12,25,43,.72);box-shadow:0 20px 50px rgba(0,0,0,.22)}
+.kiosk-info-panel{display:flex;flex-direction:column;padding:28px;justify-content:center}
+.kiosk-entry-panel{display:flex;flex-direction:column;justify-content:center;padding:24px 34px}
+.kiosk-company{text-align:center;margin-bottom:22px}
+.kiosk-company img{width:110px;height:92px;object-fit:contain;background:#fff;border-radius:14px;padding:7px;margin-bottom:10px}
+.kiosk-company-name{font:700 19px "Sora",sans-serif;color:#f8fafc;overflow-wrap:anywhere}
+.kiosk-info-title{font:700 13px "Sora",sans-serif;color:#8edee5;text-transform:uppercase;margin-bottom:8px}
+.kiosk-message{padding:12px 14px;border:1px solid #30465f;border-radius:11px;background:#101d30;color:#aebdce;font-size:12px;line-height:1.45;margin-bottom:12px}
+#tela-ponto #hist-dia{max-width:none;width:100%;margin:0}
+#tela-ponto #nome-func{font-size:22px;text-align:left;margin:0;color:#fff}
+#tela-ponto .kiosk-day{background:#0e1a2c}
+#tela-ponto .kiosk-day-head{margin-bottom:10px}
+#tela-ponto .kiosk-mark{padding:8px 3px}
+#tela-ponto .kiosk-mark-label{font-size:9px}
+#tela-ponto .kiosk-mark-time{font-size:16px}
+.kiosk-entry-panel #relogio-kiosk{font-size:58px}
+.kiosk-entry-panel .pin-display{width:100%;margin:12px auto}
+.kiosk-entry-panel .keys{width:100%;gap:10px;margin-top:8px!important}
+.kiosk-entry-panel .key{height:58px;font-size:25px}
+.kiosk-entry-panel #btn-bater{width:100%;max-width:none;margin-top:12px;padding:15px;font-size:21px}
+
+@media(max-width:1050px){.module-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#tela-ponto.kiosk-shell{width:calc(100vw - 92px);grid-template-columns:minmax(300px,.85fr) minmax(390px,1.15fr);gap:16px}.kiosk-info-panel{padding:20px}.kiosk-entry-panel{padding:20px 24px}}
+@media(max-width:760px){
+  #tela-gestor{padding:0}.module-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.module-card{min-height:122px;padding:14px}.hub-welcome{grid-template-columns:1fr}#gestor-hub{padding:14px}
+  #tela-home{overflow:auto}.kiosk-rail{position:absolute;top:6px;left:6px;transform:none;background:transparent;border:0;box-shadow:none;padding:0;gap:6px}
+  #tela-ponto.kiosk-shell{width:100%;height:auto;min-height:100vh;padding:58px 10px 8px;display:flex;flex-direction:column;gap:0}
+  .kiosk-info-panel,.kiosk-entry-panel{display:contents}
+  .kiosk-company{order:1;position:absolute;right:8px;top:6px;display:flex;align-items:center;gap:7px;margin:0;max-width:calc(100% - 160px)}
+  .kiosk-company img{width:auto;height:38px;max-width:84px;border-radius:7px;padding:3px;margin:0}.kiosk-company-name{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kiosk-entry-clock{order:2}.kiosk-status-wrap{order:3}.kiosk-pin-wrap{order:4}.kiosk-history-wrap{order:5}.kiosk-keys-wrap{order:6}.kiosk-register-wrap{order:7}
+  .kiosk-info-title,.kiosk-message{display:none}.kiosk-entry-panel #relogio-kiosk{font-size:48px}.kiosk-entry-panel .pin-display{margin:7px auto;padding:7px}.kiosk-entry-panel .key{height:48px}.kiosk-entry-panel #btn-bater{margin-top:8px;padding:12px}
+}
+@media(max-width:430px){.module-grid{grid-template-columns:1fr 1fr}.module-card{min-height:112px}.module-card small{display:none}.hub-welcome h2{font-size:21px}}
+@media(max-height:650px) and (min-width:761px){#tela-ponto.kiosk-shell{padding:10px 0;gap:16px}.kiosk-info-panel{padding:16px}.kiosk-company{margin-bottom:10px}.kiosk-company img{height:60px;width:80px}.kiosk-message{padding:7px 10px;margin-bottom:7px}.kiosk-entry-panel{padding:10px 24px}.kiosk-entry-panel #relogio-kiosk{font-size:42px}.kiosk-entry-panel .pin-display{margin:5px auto;padding:5px}.kiosk-entry-panel .key{height:40px;font-size:20px}.kiosk-entry-panel #btn-bater{margin-top:7px;padding:9px;font-size:18px}}
 </style>
 </head>
 <body>
@@ -404,25 +489,29 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
     <button class="icon-btn" title="Portal do Empregado" onclick="pedirPinPortal()" aria-label="Portal do Empregado"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></button>
     <button id="btn-logoff" class="icon-btn" title="⏻ Sair — voltar ao login multi-empresa" onclick="logoff()" aria-label="⏻ Sair"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 2v10"/><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/></svg></button>
   </div>
-  <div class="kiosk-corner">
-    <img id="logo-empresa" src="/vip-logo.png" alt="Logo empresa"/>
-    <div id="home-fantasia" class="kiosk-corner-name"></div>
-  </div>
-  <div id="tela-ponto" class="wrap" style="max-width:560px">
-    <div id="relogio-kiosk" role="timer" aria-label="Hora atual">--:--:--</div>
-    <div id="data-kiosk"></div>
-    <div class="status-ntp" id="status-ntp" role="status" aria-live="polite">⏳ Sincronizando hora oficial…</div>
-    <div class="pin-display" id="pin-display" role="status" aria-live="polite" aria-label="PIN digitado"></div>
-    <div id="nome-func" role="status" aria-live="polite"></div>
-    <div id="hist-dia" aria-live="polite"></div>
-    <div class="keys" style="margin-top:12px" role="group" aria-label="Teclado numérico para digitar o PIN">
+  <div id="tela-ponto" class="wrap kiosk-shell">
+    <section class="kiosk-info-panel" aria-label="Empresa e informações do registro">
+      <div class="kiosk-company">
+        <img id="logo-empresa" src="/vip-logo.png" alt="Logo empresa"/>
+        <div id="home-fantasia" class="kiosk-company-name"></div>
+      </div>
+      <div class="kiosk-info-title">Registro de hoje</div>
+      <div class="kiosk-message">Digite seu PIN ao lado. Suas marcações do dia e as ações do comprovante aparecerão neste quadro.</div>
+      <div class="kiosk-history-wrap"><div id="nome-func" role="status" aria-live="polite"></div><div id="hist-dia" aria-live="polite"></div></div>
+    </section>
+    <section class="kiosk-entry-panel" aria-label="Registrar ponto">
+      <div class="kiosk-entry-clock"><div id="relogio-kiosk" role="timer" aria-label="Hora atual">--:--:--</div><div id="data-kiosk"></div></div>
+      <div class="kiosk-status-wrap"><div class="status-ntp" id="status-ntp" role="status" aria-live="polite">⏳ Sincronizando hora oficial…</div></div>
+      <div class="kiosk-pin-wrap"><div class="pin-display" id="pin-display" role="status" aria-live="polite" aria-label="PIN digitado"></div></div>
+      <div class="kiosk-keys-wrap"><div class="keys" style="margin-top:12px" role="group" aria-label="Teclado numérico para digitar o PIN">
       <button class="key" type="button" onclick="pinAdd('1')" aria-label="Dígito 1">1</button><button class="key" type="button" onclick="pinAdd('2')" aria-label="Dígito 2">2</button><button class="key" type="button" onclick="pinAdd('3')" aria-label="Dígito 3">3</button>
       <button class="key" type="button" onclick="pinAdd('4')" aria-label="Dígito 4">4</button><button class="key" type="button" onclick="pinAdd('5')" aria-label="Dígito 5">5</button><button class="key" type="button" onclick="pinAdd('6')" aria-label="Dígito 6">6</button>
       <button class="key" type="button" onclick="pinAdd('7')" aria-label="Dígito 7">7</button><button class="key" type="button" onclick="pinAdd('8')" aria-label="Dígito 8">8</button><button class="key" type="button" onclick="pinAdd('9')" aria-label="Dígito 9">9</button>
       <button class="key wide" type="button" onclick="pinLimpar()" aria-label="Limpar PIN digitado">LIMPAR</button><button class="key" type="button" onclick="pinAdd('0')" aria-label="Dígito 0">0</button><button class="key" type="button" onclick="pinBack()" aria-label="Apagar último dígito">⌫</button>
-    </div>
-    <button class="btn big green" id="btn-bater" type="button" onclick="registrarPonto()" aria-label="Registrar ponto para o PIN digitado">Registrar</button>
-    <div class="muted" id="status-impressora" style="text-align:center;margin-top:10px"></div>
+      </div></div>
+      <div class="kiosk-register-wrap"><button class="btn big green" id="btn-bater" type="button" onclick="registrarPonto()" aria-label="Registrar ponto para o PIN digitado">Registrar</button>
+      <div class="muted" id="status-impressora" style="text-align:center;margin-top:10px"></div></div>
+    </section>
   </div>
 </div>
 
@@ -436,13 +525,15 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
       </div>
       <span id="gestor-licenca" class="license-badge" data-state="ativo">Ativo</span>
       <div class="row right gestor-head-actions">
+        <button id="gestor-voltar" class="btn sm ghost gestor-back" onclick="mostrarCentralGestor()" title="Voltar à central">← Central</button>
         <button class="btn sm ghost" onclick="abrirSobre()" title="Sobre">ⓘ Sobre</button>
         <button class="btn sm ghost" onclick="abrirManual()" title="Manual">📖 Manual</button>
         <button class="btn sm ghost" onclick="fecharGestor()" title="Fechar">✕ Fechar</button>
       </div>
     </div>
     <div class="tabs" id="gestor-tabs"></div>
-    <div class="card" id="gestor-body" style="border-radius:0 12px 12px 12px"></div>
+    <main id="gestor-hub"></main>
+    <div class="card hidden" id="gestor-body" style="border-radius:0"></div>
   </div>
 </div>
 
@@ -1105,6 +1196,16 @@ function fecharModal(){$('modal-generico').classList.add('hidden');}
 /* ============================== GESTOR — ABAS ============================== */
 let ABAS=[['dash','📊 Dashboard Frequência'],['func','👥 Empregados'],['assin','💳 Assinatura'],['ponto','🕒 Gerenciamento de Ponto'],['folha','📄 Folha de Ponto MTE'],['emp','🏢 Empregador/Gerenciadores'],['logs','📜 Histórico/Logs']];
 let ABA='dash';
+const MODULOS_GESTOR={
+  dash:{ico:'📊',nome:'Dashboard',desc:'Presença, faltas e indicadores',cls:'mod-dash'},
+  func:{ico:'👥',nome:'Empregados',desc:'Cadastros, funções e PINs',cls:'mod-func'},
+  assin:{ico:'💳',nome:'Assinatura',desc:'Plano, vencimento e pagamento',cls:'mod-assin'},
+  ponto:{ico:'🕒',nome:'Gestão de Ponto',desc:'Batidas, escala e banco de horas',cls:'mod-ponto'},
+  folha:{ico:'📄',nome:'Folha MTE',desc:'Folhas, PDF, XML e AFD',cls:'mod-folha'},
+  emp:{ico:'🏢',nome:'Empresa',desc:'Empregador e gerenciadores',cls:'mod-emp'},
+  logs:{ico:'📜',nome:'Histórico',desc:'Auditoria das operações',cls:'mod-logs'},
+  dev:{ico:'🛠️',nome:'Desenvolvedor',desc:'Clientes, planos e cobrança',cls:'mod-dev'}
+};
 function abrirGestor(){
   $('tela-gestor').classList.remove('hidden');
   const e=get('empregador',{})||{}, estado=LIC?.licenca?.estado||'ativo';
@@ -1114,12 +1215,20 @@ function abrirGestor(){
   $('gestor-licenca').textContent=ROT_EST?.[estado]||estado;
   $('gestor-licenca').dataset.state=estado;
   prepararGestorLicenca();
-  $('gestor-tabs').innerHTML=ABAS.map(([k,t])=>`<div class="tab ${ABA===k?'active':''}" onclick="irAba('${k}')">${t}</div>`).join('');
-  irAba(ABA);
+  mostrarCentralGestor();
 }
 function fecharGestor(){$('tela-gestor').classList.add('hidden');GERENCIADOR=null;}
+function mostrarCentralGestor(){
+  ABA='dash';
+  $('gestor-body').classList.add('hidden');$('gestor-hub').classList.remove('hidden');$('gestor-voltar').classList.remove('show');
+  const cards=ABAS.map(([k])=>{const m=MODULOS_GESTOR[k]||MODULOS_GESTOR.dash;const acao=k==='dash'?"document.getElementById('gestor-hub-dashboard').scrollIntoView({behavior:'smooth'})":`irAba('${k}')`;
+    return `<button type="button" class="module-card ${m.cls}" onclick="${acao}" aria-label="Abrir ${esc(m.nome)}"><span class="module-icon" aria-hidden="true">${m.ico}</span><strong>${m.nome}</strong><small>${m.desc}</small></button>`;}).join('');
+  $('gestor-hub').innerHTML=`<div class="hub-welcome"><div><h2>Central do Gestor</h2><p>Acesse os módulos e acompanhe a frequência da equipe em um só lugar.</p></div><span class="badge">${get('funcionarios',[]).length}/${MAX_FUNC} colaboradores</span></div><nav class="module-grid" aria-label="Módulos do gestor">${cards}</nav><section id="gestor-hub-dashboard" aria-label="Dashboard de Frequência"></section>`;
+  abaDash('gestor-hub-dashboard');
+}
 function irAba(k){
-  ABA=k; $('gestor-tabs').innerHTML=ABAS.map(([a,t])=>`<div class="tab ${ABA===a?'active':''}" onclick="irAba('${a}')">${t}</div>`).join('');
+  if(k==='dash')return mostrarCentralGestor();
+  ABA=k;$('gestor-hub').classList.add('hidden');$('gestor-body').classList.remove('hidden');$('gestor-voltar').classList.add('show');
   ({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs,assin:abaAssinatura,dev:abaDesenvolvedor})[k]();
 }
 /* Empregador/Gerenciadores dentro do gestor (reutiliza o mesmo formulário) */
@@ -1639,9 +1748,9 @@ function subRelatorios(){
 }
 
 /* ============================== DASHBOARD ============================== */
-function abaDash(){
+function abaDash(alvo='gestor-body'){
   const hoje=hojeISO();
-  $('gestor-body').innerHTML=`<div class="row"><h3>Dashboard de Frequência</h3>
+  $(alvo).innerHTML=`<div class="row"><h3>Dashboard de Frequência</h3>
     <div class="right row"><button class="btn sm ghost" onclick="printDash()">Imprimir</button>
     <button class="btn sm gold" onclick="pdfDash()">Exportar PDF</button></div></div>
   <div class="grid g4">
