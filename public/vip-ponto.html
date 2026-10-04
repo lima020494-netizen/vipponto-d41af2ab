@@ -1946,12 +1946,8 @@ function imprimirFolhaTela(){imprimirArea($('fl-out').innerHTML,'');}
 function cabecalhoFolhaHTML(f,ini,fim){
   const e=get('empregador',{})||{},d=getHoraOficial();
   const escLabel=(ESCALAS.find(x=>x[0]===f.escala)||['','—'])[1];
-  return `<div class="cab">
-    <div><img src="${e.logo||'/vip-logo.png'}" alt="Logo"/>
-      <div><b>${esc(e.razao||'')}</b> — ${esc(e.fantasia||'')}</div>
-      <div>${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'')} • CEI/CAEPF/CNO: ${esc(e.cei||'—')}</div>
-      <div>${esc(e.logradouro||'')}, ${esc(e.numero||'')} ${esc(e.complemento||'')} — ${esc(e.bairro||'')}, ${esc(e.cidade||'')}/${esc(e.uf||'')} — CEP ${esc(e.cep||'')}</div>
-      <div>E-mail: ${esc(e.email||'')}</div></div>
+  return `${cabecalhoDocumentoHTML('Folha de Ponto — Portaria MTE 671/2021',`Período ${brOf(ini)} a ${brOf(fim)}`)}<div class="cab">
+    <div><b>Identificação do trabalhador</b></div>
     <div><div><b>Trabalhador:</b> ${esc(f.nome)}</div><div><b>CPF:</b> ${esc(f.cpf||'')}</div>
       <div><b>Função:</b> ${esc(f.funcao||'')} • <b>Departamento:</b> ${esc(f.departamento||'')}</div>
       <div><b>Admissão:</b> ${brOf(f.admissao)}</div>
@@ -1962,8 +1958,7 @@ function cabecalhoFolhaHTML(f,ini,fim){
 function htmlFolha(pin,ini,fim){
   if(!pin||!ini||!fim) return '<div class="alert err">Selecione funcionário e período.</div>';
   const d=dadosFolha(pin,ini,fim),f=d.f,dt=getHoraOficial(),e=get('empregador',{})||{};
-  return `<div class="folha">
-    <h3>Folha de Ponto — Portaria MTE 671/2021</h3>
+  return `<div class="folha" data-doc-completo="1">
     ${cabecalhoFolhaHTML(f,ini,fim)}
     <div class="tbl-wrap"><table>
     <tr><th>Dia</th><th>Dia Semana</th><th>Entrada</th><th>Saída Interv.</th><th>Entrada Interv.</th><th>Saída</th><th>Horas Trab.</th><th>Saldo Dia</th><th>Ocorrência</th><th>Fonte</th></tr>
@@ -1981,10 +1976,9 @@ function htmlFolha(pin,ini,fim){
       ${d.just.length?`<div style="margin-top:6px"><b>Justificativas:</b><br>${d.just.map(j=>esc(j)).join('<br>')}</div>`:''}
       ${preLegenda(f)?`<div style="margin-top:6px"><b>${esc(preLegenda(f))}</b></div>`:''}
       <div class="muted" style="margin-top:6px"><b>Legenda:</b> ${LEGENDA}</div>
-      <div style="margin-top:6px">${esc(rodapeLegal())}</div>
       <div>${esc(e.cidade||'Salinópolis')}-${esc(e.uf||'PA')}, ${brOf(isoOf(dt))}</div>
       <div class="assin"><div>Assinatura do Diretor</div><div>Assinatura do Empregado</div></div>
-    </div></div>`;
+    </div>${rodapeDocumentoHTML(f.nome)}</div>`;
 }
 /* PDF OFICIAL ÚNICO — gerarPDFComLogo(dados): usado na Folha Individual, Lote e Portal.
    dados = {pins,ini,fim} | {pin,ini,fim} | {folhas:[gerarFolhaMTE(...)]}. Retorna {doc,base64,blob}. */
