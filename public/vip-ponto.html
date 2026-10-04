@@ -1107,7 +1107,12 @@ let ABAS=[['dash','📊 Dashboard Frequência'],['func','👥 Empregados'],['ass
 let ABA='dash';
 function abrirGestor(){
   $('tela-gestor').classList.remove('hidden');
-  $('gestor-quem').textContent=`Gestor: ${GERENCIADOR.nome} — ${GERENCIADOR.funcao}`;
+  const e=get('empregador',{})||{}, estado=LIC?.licenca?.estado||'ativo';
+  $('gestor-quem').textContent=`${GERENCIADOR.nome} · ${GERENCIADOR.funcao}`;
+  $('gestor-empresa').textContent=e.fantasia||e.razao||'VIP PONTO';
+  $('gestor-logo').src=e.logo||'/vip-logo.png';
+  $('gestor-licenca').textContent=ROT_EST?.[estado]||estado;
+  $('gestor-licenca').dataset.state=estado;
   prepararGestorLicenca();
   $('gestor-tabs').innerHTML=ABAS.map(([k,t])=>`<div class="tab ${ABA===k?'active':''}" onclick="irAba('${k}')">${t}</div>`).join('');
   irAba(ABA);
@@ -2346,6 +2351,17 @@ function blocoPix(){
   ${wa?`<a class="btn green" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent('Olá! Segue o comprovante do VIP PONTO da conta '+CONTA)}">💬 Enviar comprovante no WhatsApp</a>`:''}`;
 }
 function copiarPix(){const v=LIC?.config?.pix||'';(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>alert('Chave PIX copiada!')).catch(()=>{$('pix-chave').select();document.execCommand('copy');});}
+function abrirPagamentoPix(plano){
+  const c=LIC?.config||{},l=LIC?.licenca||{},p=Number(plano)||l.plano||1,wa=String(c.whatsapp||'').replace(/\D/g,''),pix=String(c.pix||''),valor=c.precos?.[p];
+  if(!pix)return alert('A chave PIX ainda não foi cadastrada pelo suporte.');
+  const qr=qrDataUrl(pix),msg=encodeURIComponent(`Olá! Realizei o pagamento do Plano ${p} do VIP PONTO para a conta ${CONTA}. Segue o comprovante.`);
+  abrirModal(`<div class="card pix-modal-card"><div class="pix-modal-head"><div><h3>Pagamento via PIX</h3><div class="muted">Plano ${p} · ${moeda(valor)} por mês</div></div><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar pagamento">✕</button></div>
+  <div class="pix-modal-grid"><img class="pix-qr" src="${qr}" alt="QR Code da chave PIX"/><div><div class="pix-summary"><b>Pagamento seguro e rápido</b><div class="muted" style="margin-top:5px">Abra o aplicativo do seu banco, escaneie o código ou copie a chave abaixo.</div></div>
+  <label>PIX Copia e Cola</label><div class="pix-copy"><input id="pix-modal-chave" value="${esc(pix)}" readonly/><button class="btn gold" onclick="copiarPixModal()">📋 Copiar</button></div>
+  <div class="alert">Após pagar, envie o comprovante para ativação imediata.</div>
+  ${wa?`<a class="btn green big" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${msg}">💬 Confirmar pelo WhatsApp</a>`:'<div class="muted">O WhatsApp de suporte ainda não foi configurado.</div>'}</div></div></div>`);
+}
+function copiarPixModal(){const el=$('pix-modal-chave'),v=el?.value||'';(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>toast('Chave PIX copiada.')).catch(()=>{if(el){el.select();document.execCommand('copy');toast('Chave PIX copiada.');}});}
 function telaBloqueio(){
   let d=$('tela-bloqueio'); if(!d){d=document.createElement('div');d.id='tela-bloqueio';d.className='modal';document.body.appendChild(d);}
   d.innerHTML=`<div class="inner" style="max-width:720px"><div class="card"><h2>🔒 Assinatura vencida</h2>
@@ -2381,8 +2397,15 @@ async function aceitarTermos(){
 }
 function abaAssinatura(){
   const l=LIC?.licenca;
-  $('gestor-body').innerHTML=`<h3>💳 Assinatura e Faturas</h3>${l?`<div class="card"><div class="row"><span class="badge">${ROT_EST[l.estado]||l.estado}</span>
-  ${l.aceite_termos?`<span class="muted right">Termos aceitos em ${new Date(l.aceite_termos.aceito_em).toLocaleString('pt-BR')}</span>`:''}</div><div class="hr"></div>${blocoPix()}</div>`:'<div class="muted">Sem conexão para carregar a assinatura.</div>'}`;
+  if(!l)return $('gestor-body').innerHTML='<div class="muted">Sem conexão para carregar a assinatura.</div>';
+  const c=LIC?.config||{}, atual=l.plano||1;
+  $('gestor-body').innerHTML=`<div class="plans-intro"><div><h3>Planos e Pagamento</h3><p>Escolha a capacidade ideal para sua operação. Cada empresa inclui até ${MAX_FUNC} colaboradores, suporte ao quiosque e todos os relatórios legais.</p></div><span class="license-badge" data-state="${esc(l.estado)}">${ROT_EST[l.estado]||l.estado}</span></div>
+  <div class="plans-grid">${[1,2,3].map(p=>`<article class="plan-card ${p===2?'recommended':''} ${p===atual?'current':''}">${p===2?'<span class="plan-reco">Mais escolhido</span>':''}<div class="plan-kicker">PLANO ${p}</div><h4>${p===1?'Essencial':p===2?'Profissional':'Multiempresa'}</h4>
+  <div class="plan-price">${moeda(c.precos?.[p])}<small> / mês</small></div><div class="plan-annual">${c.precosAnuais?.[p]!=null?`${moeda(c.precosAnuais[p])} por ano`:'Plano anual a definir'}</div>
+  <ul class="plan-benefits"><li>${p} empresa${p>1?'s':''} no mesmo dispositivo</li><li>Até ${MAX_FUNC} colaboradores por empresa</li><li>Folha MTE, AFD e banco de horas</li><li>Operação offline com sincronização</li><li>Comprovante térmico e PDF oficial</li></ul>
+  <div class="plan-actions"><button class="btn ${p===2?'gold':''}" onclick="abrirPagamentoPix(${p})">${p===atual?'Pagar ou renovar':'Escolher Plano '+p}</button></div></article>`).join('')}</div>
+  <div class="payment-note">Pagamento via PIX com confirmação pelo suporte</div>
+  <div class="card" style="margin-top:18px"><div class="row"><div><b>Resumo da assinatura</b><div class="muted">Vencimento: ${l.estado==='cortesia'?'Cortesia sem cobrança':brD(l.data_vencimento)}</div></div>${l.aceite_termos?`<span class="muted right">Termos aceitos em ${new Date(l.aceite_termos.aceito_em).toLocaleString('pt-BR')}</span>`:''}</div></div>`;
 }
 /* ---------- Painel do desenvolvedor (login do desenvolvedor + PIN mestre 1000; validado no servidor) ---------- */
 async function devApi(b){return apiLic('POST',Object.assign({pin:GERENCIADOR?.pin},b));}
