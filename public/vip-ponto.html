@@ -1989,13 +1989,8 @@ async function gerarPDFComLogo(dados){
   lista.forEach(d=>{
     const f=d.f,ini=d.ini,fim=d.fim,dt=getHoraOficial();
     if(!first)doc.addPage(); first=false;
-    let y=12;
-    if(e.logo){try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),170,6,30,18);}catch(_){}}
-    const L=(t,s=9,b=false)=>{if(y>272){doc.setFontSize(8);doc.text(`Página ${doc.getNumberOfPages()}`,200,290,{align:'right'});doc.addPage();y=12;}doc.setFont('helvetica',b?'bold':'normal');doc.setFontSize(s);doc.text(String(t),10,y);y+=s<9?4:4.6;};
-    L(`${e.razao||''} — ${e.fantasia||''}`,11,true);
-    L(`${e.tipo||'CNPJ'}: ${e.doc||''} • CEI/CAEPF/CNO: ${e.cei||'—'}`);
-    L(`${e.logradouro||''}, ${e.numero||''} ${e.complemento||''} - ${e.bairro||''}, ${e.cidade||''}/${e.uf||''} - CEP ${e.cep||''} • ${e.email||''}`,8);
-    L(`FOLHA DE PONTO — PORTARIA MTE 671/2021`,11,true);
+    let y=pdfCabecalhoPadrao(doc,'Folha de Ponto — Portaria MTE 671/2021',`Período ${brOf(ini)} a ${brOf(fim)}`);
+    const L=(t,s=9,b=false)=>{if(y>270){doc.addPage();y=pdfCabecalhoPadrao(doc,'Folha de Ponto — Continuação',f.nome);}doc.setTextColor(24,34,53);doc.setFont('helvetica',b?'bold':'normal');doc.setFontSize(s);doc.text(String(t),10,y);y+=s<9?4:4.6;};
     L(`Trabalhador: ${f.nome} • CPF: ${f.cpf||''} • Função: ${f.funcao||''} • Depto: ${f.departamento||''} • Admissão: ${brOf(f.admissao)}`,8);
     L(`Emissão: ${brOf(isoOf(dt))} ${hhmm(dt)} • Período: ${brOf(ini)} a ${brOf(fim)} • Jornada: ${e.hEntrada||''}-${e.hSaiInt||''}/${e.hEntInt||''}-${e.hSaida||''} • Escala: ${f.escala||''}`,8);
     if(preLegenda(f)) L(preLegenda(f),8,true);
@@ -2007,12 +2002,11 @@ async function gerarPDFComLogo(dados){
     L(`Banco de Horas — Anterior ${toSaldo(d.banco.anterior)} | Créditos +${toHHMM(d.banco.creditos)} | Débitos -${toHHMM(d.banco.debitos)} | Atual ${toSaldo(d.banco.atual)}`,8);
     d.just.forEach(j=>L(j,8));
     doc.splitTextToSize(`Legenda: ${LEGENDA}`,190).forEach(t=>L(t,7));
-    L(rodapeLegal(),8);
     L(`${e.cidade||'Salinópolis'}-${e.uf||'PA'}, ${brOf(isoOf(dt))}`,8); y+=10;
     L('____________________________        ____________________________',8);
     L('Assinatura do Diretor                        Assinatura do Empregado',8);
-    doc.setFontSize(8);doc.text(`Página ${doc.getNumberOfPages()}`,200,290,{align:'right'});
   });
+  pdfRodapesPadrao(doc,lista.length===1?lista[0].f.nome:`Lote com ${lista.length} colaboradores`);
   return {doc,base64:doc.output('datauristring').split(',')[1],blob:doc.output('blob')};
 }
 async function pdfFolhas(pins,ini,fim,nomeArq){
