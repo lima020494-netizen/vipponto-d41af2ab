@@ -1634,7 +1634,7 @@ function salvarBatidaManual(){
   const nsrM=proximoNSR();
   all.push({pin,nome:f.nome,cpf:f.cpf,data,hora,tipo,nsr:nsrM,fonte:'MANUAL',sync:false,offset:get('ntpOffset',0),
     gerenciador:GERENCIADOR.nome,movimento:`Inserida manualmente - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`,criadoEm:new Date().toISOString()});
-  set('batidas',all); filaPonto(nsrM); log(`Batida manual inserida ${brOf(data)} ${hora} ${f.nome} - Motivo: ${motivo}`); fecharModal(); subBatidas();
+  set('batidas',all); filaPonto(nsrM); log(`Batida manual inserida ${brOf(data)} ${hora} ${f.nome} - Motivo: ${motivo}`); fecharModal();window.__batFilt={pin,data,ini:$('gb-ini')?.value||data,fim:$('gb-fim')?.value||data};subBatidas();
 }
 function lancarOcorrencia(pinSelecionado='',dataSelecionada=''){
   const fs=get('funcionarios',[]);
@@ -1649,8 +1649,9 @@ function lancarOcorrencia(pinSelecionado='',dataSelecionada=''){
 function salvarOcorrencia(){
   const pin=$('oc-pin').value,data=$('oc-data').value,tipo=$('oc-tipo').value,motivo=$('oc-motivo').value.trim();
   if(motivo.length<5)return alert('Motivo obrigatório (mín. 5 caracteres).');
-  const l=get('ocorrencias',[]); l.push({pin,data,tipo,motivo,por:GERENCIADOR.nome}); set('ocorrencias',l);
-  log(`Ocorrência ${tipo} em ${brOf(data)} - Motivo: ${motivo}`); fecharModal(); subBatidas();
+  const l=get('ocorrencias',[]),existente=l.find(o=>o.pin===pin&&o.data===data);
+  if(existente){existente.tipo=tipo;existente.motivo=motivo;existente.por=GERENCIADOR.nome;}else l.push({pin,data,tipo,motivo,por:GERENCIADOR.nome});
+  set('ocorrencias',l);log(`Ocorrência ${tipo} em ${brOf(data)} - Motivo: ${motivo}`);fecharModal();window.__batFilt={pin,ini:$('gb-ini')?.value||data,fim:$('gb-fim')?.value||data};subBatidas();
 }
 /* Escala — período flexível (7, 15 ou 30 dias) */
 function subEscala(){
