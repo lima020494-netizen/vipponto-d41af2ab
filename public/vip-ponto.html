@@ -116,17 +116,17 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .assin div{flex:1;border-top:1px solid #333;padding-top:4px}
 /* ===================== COMPROVANTE TÉRMICO ===================== */
 #comprovante{display:none}
-#comprovante .cp{width:58mm;padding:1.5mm 2mm 12mm;font-family:"Courier New",monospace;font-size:9.5px;line-height:1.15;color:#000}
-#comprovante .cp-logo{width:28mm;max-height:13mm;object-fit:contain;display:block;margin:0 auto 1mm}
-#comprovante .cp-qr{width:18mm;height:18mm;image-rendering:pixelated;display:block;margin:1mm auto .5mm}
-#comprovante .cp-auth{font-size:8px;line-height:1;text-align:center}
+#comprovante .cp{box-sizing:border-box;width:58mm;margin:0;padding:0;font-family:"Arial Narrow","Courier New",monospace;font-size:8.5px;line-height:1.08;color:#000}
 #comprovante .cp .c{text-align:center}
 #comprovante .cp .b{font-weight:bold}
-#comprovante .cp hr{border:0;border-top:1px dashed #000;margin:1.5mm 0}
+#comprovante .cp .cp-mark{font-size:12px;font-weight:900;line-height:1.15;margin:.7mm 0}
+#comprovante .cp .cp-feed{height:9mm}
+#comprovante .cp hr{border:0;border-top:1px dashed #000;margin:.8mm 0}
 @media print{
   body *{visibility:hidden !important}
   #comprovante,#comprovante *{visibility:visible !important}
-  #comprovante{display:block !important;position:absolute;left:0;top:0;width:58mm}
+  html,body{margin:0!important;padding:0!important}
+  #comprovante{display:block !important;position:absolute;left:0;top:0;width:58mm;margin:0!important;padding:0!important}
   @page{size:58mm auto;margin:0}
   body.print-folha #comprovante{display:none !important}
   body.print-folha #area-impressao,body.print-folha #area-impressao *{visibility:visible !important}
@@ -185,11 +185,9 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .kiosk-day-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
 .kiosk-day-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f8fafc;font-size:14px;font-weight:800}
 .kiosk-day-date{flex:none;color:#94a3b8;font-size:11px}
-.kiosk-marks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #334155;border-radius:8px;overflow:hidden}
-.kiosk-mark{min-width:0;padding:5px 3px;text-align:center;border-right:1px solid #334155;background:#0f172a}
-.kiosk-mark:last-child{border-right:0}
-.kiosk-mark-label{display:block;color:#94a3b8;font-size:9px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kiosk-mark-time{display:block;color:#f8fafc;font-size:15px;font-weight:900;line-height:1.2;font-variant-numeric:tabular-nums}
+.kiosk-marks{display:flex;align-items:center;justify-content:center;gap:7px;min-height:34px;border:1px solid #334155;border-radius:8px;background:#0f172a;padding:5px 8px;overflow:hidden}
+.kiosk-mark{display:flex;align-items:center;min-width:0;color:#f8fafc;font-size:16px;font-weight:900;line-height:1.2;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kiosk-mark:not(:last-child)::after{content:'•';color:#64748b;margin-left:7px;font-size:11px}
 .kiosk-day-actions{display:flex;justify-content:center;gap:6px;margin-top:6px}
 #tela-ponto .kiosk-day-actions .btn{padding:5px 9px;border-radius:7px;font-size:11px;background:#1e293b;color:#f8fafc;border-color:#475569}
 #tela-ponto .kiosk-day-actions .btn:disabled{opacity:.4}
@@ -238,6 +236,11 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 #ok-ponto .okp-tipo{font-size:clamp(13px,3vw,17px);opacity:.85}
 @keyframes okpIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
 #status-impressora{cursor:pointer}
+/* Aviso de marcação repetida: orienta, mas nunca impede confirmação pelo trabalhador */
+.duplicate-confirm{max-width:460px!important;text-align:center;padding:24px!important}
+.duplicate-confirm h3{margin:0 0 10px;color:#17364a}
+.duplicate-confirm .duplicate-time{font-size:28px;font-weight:900;color:#167c96;font-variant-numeric:tabular-nums;margin:8px 0 18px}
+.duplicate-confirm .row{justify-content:center}
 /* ===================== DASHBOARD — INDICADORES & BARRAS ===================== */
 .ind-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-top:12px}
 .ind{position:relative;overflow:hidden;border-radius:16px;padding:14px 16px;color:#fff;min-height:112px;
@@ -414,9 +417,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 #tela-ponto #nome-func{font-size:22px;text-align:left;margin:0;color:#fff}
 #tela-ponto .kiosk-day{background:#0e1a2c}
 #tela-ponto .kiosk-day-head{margin-bottom:10px}
-#tela-ponto .kiosk-mark{padding:8px 3px}
-#tela-ponto .kiosk-mark-label{font-size:9px}
-#tela-ponto .kiosk-mark-time{font-size:16px}
+  #tela-ponto .kiosk-mark{font-size:16px}
 .kiosk-entry-panel #relogio-kiosk{font-size:58px}
 .kiosk-entry-panel .pin-display{width:100%;margin:12px auto}
 .kiosk-entry-panel .keys{width:100%;gap:10px;margin-top:8px!important}
@@ -1012,12 +1013,11 @@ function buscarFuncionario(){
 function mostrarHistoricoDia(f){
   const d=jornadaAtualISO(f.pin);
   const bs=get('batidas',[]).filter(b=>b.pin===f.pin&&b.data===d).sort((a,b)=>a.hora.localeCompare(b.hora));
-  const slots=['Entrada','Saída Int','Retorno Int','Saída'];
   const ultima=bs[bs.length-1];
   $('hist-dia').innerHTML=`<section class="kiosk-day" aria-label="Marcações de hoje de ${esc(f.nome)}">
     <div class="kiosk-day-head"><strong class="kiosk-day-name">${esc(f.nome)}</strong><span class="kiosk-day-date">${brOf(d)}</span></div>
-    <div class="kiosk-marks" role="list" aria-label="Quatro marcações previstas">
-      ${slots.map((label,i)=>`<div class="kiosk-mark" role="listitem"><span class="kiosk-mark-label">${label}</span><time class="kiosk-mark-time">${bs[i]?esc(bs[i].hora):'--:--'}</time></div>`).join('')}
+    <div class="kiosk-marks" role="list" aria-label="Horários registrados hoje">
+      ${bs.length?bs.map(b=>`<time class="kiosk-mark" role="listitem" datetime="${esc(b.data)}T${esc(b.hora)}">${esc(b.hora)}</time>`).join(''):'<span class="muted">Nenhuma marcação hoje</span>'}
     </div>
     <div class="kiosk-day-actions">
       <button class="btn sm ghost" type="button" ${ultima?'':'disabled'} onclick="reimprimir('${ultima?ultima.nsr:''}')" aria-label="Imprimir o comprovante da última marcação">🖨️ Imprimir</button>
@@ -1040,6 +1040,21 @@ function jornadaAtualISO(pin){
 const TIPOS=['Entrada','Saída Intervalo','Entrada Intervalo','Saída']; // FIXO: máximo 4 marcações por dia
 const tiposDo=f=>f&&f.intervalo&&f.intervalo.preAssinalado?['Entrada','Saída']:TIPOS; // intervalo pré-assinalado (Art. 71) não bate
 function proximoNSR(){const n=(get('nsr',0)||0)+1;set('nsr',n);return pad(n,9);}
+function confirmarMarcacaoRecente(hora){
+  return new Promise(resolve=>{
+    let encerrado=false;
+    const concluir=aceita=>{if(encerrado)return;encerrado=true;fecharModal();resolve(aceita);};
+    window.__duplicidadeCancelar=()=>concluir(false);
+    window.__duplicidadeConfirmar=()=>concluir(true);
+    abrirModal(`<div class="duplicate-confirm" role="alertdialog" aria-modal="true" aria-labelledby="dup-titulo" aria-describedby="dup-texto">
+      <h3 id="dup-titulo">Marcação recente</h3>
+      <p id="dup-texto">Você acabou de registrar às <strong>${esc(hora)}</strong>. Deseja realmente fazer outra marcação agora?</p>
+      <div class="duplicate-time" aria-hidden="true">${esc(hora)}</div>
+      <div class="row"><button class="btn ghost" type="button" onclick="__duplicidadeCancelar()">Cancelar</button>
+      <button class="btn green" type="button" onclick="__duplicidadeConfirmar()">Confirmar</button></div></div>`);
+    setTimeout(()=>{const b=document.querySelector('.duplicate-confirm .btn.ghost');if(b)b.focus();},0);
+  });
+}
 async function registrarPonto(){
   if(PIN.length!==4) return toast('Digite o PIN de 4 dígitos.',3000);
   const f=funcPorPin(PIN); if(!f) return toast('PIN não encontrado.',3000);
@@ -1051,6 +1066,11 @@ async function registrarPonto(){
   const bs=get('batidas',[]).filter(b=>b.pin===f.pin&&b.data===data);
   const tps=tiposDo(f);
   if(bs.length>=tps.length) return toast(`Limite de ${tps.length} marcações no dia atingido.`,4000);
+  const ultima=bs.slice().sort((a,b)=>String(a.criadoEm||`${a.data}T${a.hora}:00`).localeCompare(String(b.criadoEm||`${b.data}T${b.hora}:00`))).pop();
+  if(ultima){
+    const instante=Date.parse(ultima.criadoEm||`${ultima.data}T${ultima.hora}:00`),decorridos=Date.now()-instante;
+    if(Number.isFinite(decorridos)&&decorridos>=0&&decorridos<120000&&!(await confirmarMarcacaoRecente(ultima.hora))) return;
+  }
   const b={pin:f.pin,nome:f.nome,cpf:f.cpf,data,hora:hhmm(agora),tipo:tps[bs.length],nsr:proximoNSR(),
     fonte:NTP_OK?'SERVIDOR':'LOCAL',sync:NTP_OK,offset:get('ntpOffset',0),gerenciador:GERENCIADOR?GERENCIADOR.nome:'—',
     criadoEm:new Date().toISOString()};
@@ -1089,33 +1109,30 @@ function qrDataUrl(text){
 }
 async function comprovanteTexto(b){
   const e=get('empregador',{})||{};
-  const endereco=[e.logradouro,e.numero,e.bairro].filter(Boolean).join(', '),cidade=[e.cidade,e.uf].filter(Boolean).join('/');
+  const endereco=[e.logradouro,e.numero,e.bairro,[e.cidade,e.uf].filter(Boolean).join('/')].filter(Boolean).join(', ');
+  const cpf=String(b.cpf||'').replace(/\D/g,'').padStart(11,'0'),cpfProtegido=`***.${cpf.slice(3,6)}.${cpf.slice(6,9)}-**`;
   const hashAss=await sha256Hex([b.nsr,b.data,b.hora,b.cpf,e.doc].join('|'));
-  return {hashAss,linhas:[
-    (e.razao||'').toUpperCase(), (e.fantasia||''), `${e.tipo||'CNPJ'}: ${e.doc||''}`,endereco,cidade,e.cei?`CEI/CAEPF/CNO: ${e.cei}`:'',
-    '','COMPROVANTE DE REGISTRO DE','PONTO DO TRABALHADOR','',
-    `Nome: ${b.nome}`,`CPF: ${b.cpf||''}`,`Data: ${brOf(b.data)}`,`Hora: ${b.hora}`,
-    `NSR: ${b.nsr}`,`Marcacao: ${b.tipo}`,`Fonte: ${b.fonte==='SERVIDOR'?'SERVIDOR NTP':'LOCAL'}`,`Usuario: ${b.nome}`,`Gestor: ${b.gerenciador||'Registro direto'}`,'',
-    'Este comprovante e prova da','marcacao de ponto.','',`SHA-256: ${hashAss.slice(0,32)}`,hashAss.slice(32),'',
-    'VIP PONTO - Atalaia Sistemas','Portaria MTE 671/2021'
+  const hashCurto=hashAss.slice(0,32);
+  return {hashAss,hashCurto,linhas:[
+    (e.razao||'EMPREGADOR').toUpperCase(),e.fantasia||'',`${e.tipo||'CNPJ'}: ${e.doc||''}`,`Local: ${endereco||'Nao informado'}`,
+    '------------------------------------------','REP-P VIP PONTO - Atalaia Sistemas',`NSR: ${String(b.nsr||'').padStart(9,'0')}`,
+    `Colaborador: ${b.nome}`,`CPF: ${cpfProtegido}`,'DATA E HORA DA MARCACAO',`${brOf(b.data)}  ${b.hora}`,
+    'SHA-256:',hashCurto.slice(0,16),hashCurto.slice(16),'Portaria MTE 671/2021'
   ].filter(Boolean)};
 }
 async function imprimirComprovante(b){
-  const e=get('empregador',{})||{}, {linhas,hashAss}=await comprovanteTexto(b),qr=qrDataUrl(hashAss);
+  const {linhas}=await comprovanteTexto(b);
   $('comprovante').innerHTML=`<div class="cp">
-    ${e.logo?`<img class="cp-logo" src="${e.logo}"/>`:''}
-    ${linhas.map((l,i)=>`<div class="c ${i<2?'b':''}">${esc(l)}</div>`).join('')}
-    ${qr?`<img class="cp-qr" src="${qr}" alt="QR Code de autenticidade"><div class="cp-auth">Autenticidade SHA-256</div>`:''}</div>`;
+    ${linhas.map((l,i)=>`<div class="c ${i<2?'b':''} ${l==='DATA E HORA DA MARCACAO'||/^\d{2}\/\d{2}\/\d{4}/.test(l)?'cp-mark':''}">${esc(l)}</div>`).join('')}<div class="cp-feed" aria-hidden="true"></div></div>`;
   if(SUNMI){
     try{
       SUNMI.printerInit&&SUNMI.printerInit();
       linhas.forEach(l=>SUNMI.printOriginalText?SUNMI.printOriginalText(l+'\n'):SUNMI.printText&&SUNMI.printText(l+'\n'));
-      SUNMI.printQRCode&&SUNMI.printQRCode(hashAss,3,1);
-      SUNMI.lineWrap&&SUNMI.lineWrap(6);
+      SUNMI.lineWrap&&SUNMI.lineWrap(3);
       return toast('Comprovante enviado à impressora SUNMI.',3000);
     }catch(err){ console.warn('SUNMI falhou, tentando RawBT/navegador',err); }
   }
-  if(rawbtAtivo()&&imprimirRawBT(linhas,hashAss)) return;
+  if(rawbtAtivo()&&imprimirRawBT(linhas)) return;
   document.body.classList.remove('print-folha');
   setTimeout(()=>window.print(),120);
 }
@@ -1124,19 +1141,16 @@ const rawbtAtivo=()=>localStorage.getItem('vip_rawbt')==='1';
 (()=>{const q=new URLSearchParams(location.search).get('rawbt');if(q==='1'||q==='0')localStorage.setItem('vip_rawbt',q);})();
 function alternarRawBT(){localStorage.setItem('vip_rawbt',rawbtAtivo()?'0':'1');detectarImpressora(9);
   toast(rawbtAtivo()?'Impressão silenciosa RawBT ativada neste aparelho.':'RawBT desativado — impressão pelo navegador.',3500);}
-function escposComprovante(linhas,hash){
+function escposComprovante(linhas){
   const B=[],txt=s=>{for(const c of String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,''))B.push(c.charCodeAt(0)<128?c.charCodeAt(0):63);};
-  B.push(0x1B,0x40,0x1B,0x61,1);
-  linhas.forEach((l,i)=>{B.push(0x1B,0x45,i<2?1:0);txt(l);B.push(10);});
-  const d=[...new TextEncoder().encode(hash)],n=d.length+3;
-  B.push(0x1D,0x28,0x6B,4,0,0x31,0x41,0x32,0, 0x1D,0x28,0x6B,3,0,0x31,0x43,4, 0x1D,0x28,0x6B,3,0,0x31,0x45,0x31,
-    0x1D,0x28,0x6B,n&255,n>>8,0x31,0x50,0x30,...d, 0x1D,0x28,0x6B,3,0,0x31,0x51,0x30);
-  B.push(10);txt('Autenticidade SHA-256');B.push(10,0x1B,0x64,6,0x1D,0x56,0x42,0);
+  B.push(0x1B,0x40,0x1B,0x61,1,0x1B,0x4D,1); // centralizado + Font B condensada
+  linhas.forEach((l,i)=>{B.push(0x1B,0x45,i<2||l==='DATA E HORA DA MARCACAO'||/^\d{2}\/\d{2}\/\d{4}/.test(l)?1:0);txt(l);B.push(10);});
+  B.push(0x1B,0x45,0,0x1B,0x64,3); // somente três linhas para corte manual
   let s='';B.forEach(x=>s+=String.fromCharCode(x));return btoa(s);
 }
-function imprimirRawBT(linhas,hash){
+function imprimirRawBT(linhas){
   try{
-    const b64=escposComprovante(linhas,hash), alvo=(()=>{try{return window.top.location;}catch(e){return window.location;}})();
+    const b64=escposComprovante(linhas), alvo=(()=>{try{return window.top.location;}catch(e){return window.location;}})();
     const android=/Android/i.test(navigator.userAgent);
     alvo.href=android?`intent:base64,${b64}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`:`rawbt:base64,${b64}`;
     toast('Comprovante enviado ao RawBT.',2500); return true;
@@ -1144,12 +1158,9 @@ function imprimirRawBT(linhas,hash){
 }
 function reimprimir(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);if(b)imprimirComprovante(b);}
 async function comprovantePDF(b){
-  const {jsPDF}=window.jspdf, {linhas,hashAss}=await comprovanteTexto(b),qr=qrDataUrl(hashAss);
-  const e=get('empregador',{})||{},doc=new jsPDF({unit:'mm',format:[58,138]});
-  let y=4;if(e.logo){try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),20,3,18,11);y=16;}catch(_){}}
-  doc.setFont('courier','normal');doc.setFontSize(7.2);linhas.forEach(l=>{doc.text(String(l),29,y,{align:'center'});y+=3.1;});
-  if(qr){doc.addImage(qr,'GIF',20,y,18,18);y+=19;doc.setFontSize(6.5);doc.text('Autenticidade SHA-256',29,y,{align:'center'});}
-  y+=4;doc.setDrawColor(130);doc.line(4,y,54,y);y+=3;doc.setFontSize(5.7);doc.text('VIP PONTO • Atalaia Sistemas • MTE 671/2021',29,y,{align:'center'});y+=2.7;doc.text(`Emitido ${brOf(isoOf(getHoraOficial()))} ${hhmm(getHoraOficial())} • Gestor: ${b.gerenciador||'Registro direto'}`.slice(0,62),29,y,{align:'center'});
+  const {jsPDF}=window.jspdf,{linhas}=await comprovanteTexto(b),doc=new jsPDF({unit:'mm',format:[58,Math.max(64,linhas.length*3.1+9)]});
+  let y=3;doc.setFont('courier','normal');doc.setFontSize(7);
+  linhas.forEach((l,i)=>{const destaque=l==='DATA E HORA DA MARCACAO'||/^\d{2}\/\d{2}\/\d{4}/.test(l);doc.setFont('courier',i<2||destaque?'bold':'normal');doc.setFontSize(destaque?9:7);doc.text(String(l).slice(0,42),29,y,{align:'center'});y+=destaque?3.8:2.8;});
   doc.save(`Comprovante_${b.nsr}.pdf`);
 }
 async function emailComprovante(nsr){
