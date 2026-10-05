@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>VIP PONTO — Registro Eletrônico de Ponto (Portaria MTE 671/2021)</title>
 <link rel="icon" href="/favicon.png" />
+<link rel="apple-touch-icon" href="/pwa-icon-192.png" />
+<link rel="manifest" href="/manifest.webmanifest" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Sora:wght@600;700;800&amp;display=swap" />
@@ -13,10 +15,6 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="/qrcode-generator.min.js"></script>
 <meta name="theme-color" content="#0f172a" />
-<script>/* PWA: manifesto inline (ícone sem distorção ao instalar na tela inicial) */
-(function(){try{var o=location.origin;var m={name:'VIP PONTO',short_name:'VIP PONTO',start_url:o+'/vip-ponto.html',display:'standalone',background_color:'#0f172a',theme_color:'#0f172a',
-icons:[{src:o+'/vip-logo.png',sizes:'512x512',type:'image/png',purpose:'any'},{src:o+'/vip-logo.png',sizes:'192x192',type:'image/png',purpose:'any'}]};
-var l=document.createElement('link');l.rel='manifest';l.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(m));document.head.appendChild(l);}catch(e){}})();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ===================== DESIGN SYSTEM ===================== */
@@ -242,6 +240,20 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .duplicate-confirm h3{margin:0 0 10px;color:#17364a}
 .duplicate-confirm .duplicate-time{font-size:28px;font-weight:900;color:#167c96;font-variant-numeric:tabular-nums;margin:8px 0 18px}
 .duplicate-confirm .row{justify-content:center}
+/* Gestão diária de batidas */
+.punch-toolbar{display:grid;grid-template-columns:minmax(220px,1.4fr) repeat(2,minmax(155px,.8fr));gap:12px;align-items:end;padding:14px;background:#f8fafc;border:1px solid var(--line);border-radius:12px;margin:12px 0}
+.punch-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0}
+.punch-summary-card{border:1px solid var(--line);border-left:5px solid var(--blue);border-radius:10px;background:#fff;padding:13px 15px;box-shadow:0 3px 12px rgba(12,34,70,.06)}
+.punch-summary-card:nth-child(2){border-left-color:var(--green)}.punch-summary-card:nth-child(3){border-left-color:var(--orange)}
+.punch-summary-card small{display:block;color:var(--muted);font-weight:800;text-transform:uppercase;font-size:11px}.punch-summary-card strong{display:block;font:800 25px Sora,system-ui;margin-top:4px;color:var(--txt)}
+.daily-punches{min-width:960px}.daily-punches td{vertical-align:middle;padding:9px 8px}.daily-punches th{white-space:nowrap}
+.day-cell strong,.day-cell small{display:block}.day-cell small{color:var(--muted);margin-top:2px;text-transform:capitalize}
+.status-day{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap;background:#e2e8f0;color:#334155}
+.status-day.trabalhado{background:#dcfce7;color:#166534}.status-day.incompleto{background:#fef3c7;color:#92400e}.status-day.atestado{background:#dbeafe;color:#1e40af}.status-day.folga{background:#e2e8f0;color:#475569}
+.marks-cell{display:flex;gap:5px;align-items:center;flex-wrap:wrap;min-width:180px}.mark-pill{display:inline-flex;padding:4px 8px;border:1px solid #cbd5e1;border-radius:999px;background:#f8fafc;color:#0f172a;font-weight:800;font-variant-numeric:tabular-nums}
+.day-actions{position:relative}.action-sheet{max-width:520px}.action-sheet-grid{display:grid;gap:8px;margin-top:14px}.action-sheet-grid .btn{justify-content:flex-start;text-align:left;width:100%}
+.punch-detail{display:grid;gap:8px;margin-top:12px}.punch-detail-row{padding:10px;border:1px solid var(--line);border-radius:9px;background:#f8fafc}.punch-hash{font:11px ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere;color:#475569;margin-top:5px}
+@media(max-width:720px){.punch-toolbar,.punch-summary{grid-template-columns:1fr}.punch-summary-card{padding:10px 12px}.punch-summary-card strong{font-size:21px}}
 /* ===================== DASHBOARD — INDICADORES & BARRAS ===================== */
 .ind-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-top:12px}
 .ind{position:relative;overflow:hidden;border-radius:16px;padding:14px 16px;color:#fff;min-height:112px;
