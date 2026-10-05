@@ -22,3 +22,5 @@
 - [x] Compactar o comprovante térmico de 58 mm sem QR Code e sem tipo de marcação.
 - [x] Exibir no quiosque somente os horários cronológicos do dia.
 - [x] Zerar margens e condensar a impressão térmica web, SUNMI e RawBT.
+- [ ] Unificar batidas manuais e ocorrências em uma Gestão de Batidas diária consolidada.
+- [ ] Corrigir ícones e manifesto PWA com margem segura para a splash do Android.
