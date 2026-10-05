@@ -18,3 +18,7 @@
 - [x] Reorganizar o Gestor em uma central clara com módulos por cards e Dashboard integrado.
 - [x] Dividir o quiosque amplo entre informações à esquerda e registro à direita, preservando o celular compacto.
 - [x] Padronizar todas as impressões e PDFs com cabeçalho da empresa e rodapé institucional completo.
+- [ ] Adicionar confirmação para marcações repetidas em menos de 2 minutos.
+- [ ] Compactar o comprovante térmico de 58 mm sem QR Code e sem tipo de marcação.
+- [ ] Exibir no quiosque somente os horários cronológicos do dia.
+- [ ] Zerar margens e condensar a impressão térmica web, SUNMI e RawBT.
