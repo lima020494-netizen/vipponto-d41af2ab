@@ -1543,19 +1543,68 @@ function addFeriado(){
   const fs=get('feriados',[]);fs.push({data:d,nome:n,tipo:t});set('feriados',fs);log(`Feriado cadastrado ${brOf(d)} - ${n} (${t})`);subFeriados();
 }
 function delFeriado(d,n){if(!confirm('Excluir o feriado '+n+' ('+brOf(d)+')?\n\nEle deixará de ser considerado como folga remunerada no calendário e nos cálculos.\n\nEsta ação não pode ser desfeita.'))return;const fs=get('feriados',[]).filter(f=>!(f.data===d&&f.nome===n));set('feriados',fs);log(`Feriado excluído ${brOf(d)} - ${n}`);subFeriados();}
-/* B) Batidas */
+/* B) Gestão diária de batidas — ajustes e ocorrências consolidados por dia */
+function statusGestaoDia(linha,ocorrencia){
+  if(ocorrencia&&String(ocorrencia.tipo||'').toLowerCase().includes('atestado')) return ['Atestado','atestado'];
+  if(linha.previsto===0) return ['DSR/Folga','folga'];
+  if(linha.trabalhado>=linha.previsto&&linha.previsto>0) return ['Trabalhado','trabalhado'];
+  return ['Incompleto','incompleto'];
+}
 function subBatidas(){
-  const bs=get('batidas',[]).slice().sort((a,b)=>(b.data+b.hora).localeCompare(a.data+a.hora));
-  $('sub-body').innerHTML=`<div class="row"><h3>Batidas registradas</h3>
-    <button class="btn sm right" onclick="inserirBatidaManual()">+ Inserir batida manual</button>
-    <button class="btn sm ghost" onclick="lancarOcorrencia()">Lançar ocorrência</button></div>
-  <div class="alert warn">REGRA MTE: hora, data e NSR originais são intocáveis. Alterações de TIPO exigem MOTIVO (mín. 5 caracteres) e ficam registradas.</div>
-  <div class="tbl-wrap"><table><tr><th>Data</th><th>Hora</th><th>Nome</th><th>Tipo</th><th>NSR</th><th>Fonte</th><th>Tratamento</th><th></th></tr>
-  ${bs.map(b=>`<tr><td>${brOf(b.data)}</td><td><b>${b.hora}</b></td><td>${esc(b.nome)}</td>
-  <td><select onchange="moverTipo('${b.nsr}',this.value,this)">${TIPOS.map(t=>`<option ${b.tipo===t?'selected':''}>${t}</option>`).join('')}</select></td>
-  <td>${b.nsr}</td><td>${b.fonte}</td><td class="muted">${esc(b.movimento||'')}</td>
-  <td class="row"><button class="btn sm ghost" onclick="reimprimir('${b.nsr}')">🖨</button><button class="btn sm ghost" onclick="emailComprovante('${b.nsr}')">✉</button></td></tr>`).join('')
-  ||'<tr><td colspan=8 class="muted">Sem batidas.</td></tr>'}</table></div>`;
+  const fs=get('funcionarios',[]).filter(f=>f.status!=='Desligado');
+  const salvo=window.__batFilt||{},fim=salvo.fim||hojeISO(),ini=salvo.ini||fim.slice(0,8)+'01';
+  const pin=salvo.pin&&fs.some(f=>f.pin===salvo.pin)?salvo.pin:(fs[0]||{}).pin||'';
+  $('sub-body').innerHTML=`<div class="row"><div><h3>Gestão de Batidas</h3><div class="muted">Marcações e ocorrências organizadas por dia.</div></div></div>
+  <div class="punch-toolbar" aria-label="Filtros das batidas">
+    <div><label>Colaborador</label><select id="gb-pin" onchange="filtrarGestaoBatidas()">${fs.map(f=>`<option value="${f.pin}" ${f.pin===pin?'selected':''}>${esc(f.nome)}</option>`).join('')}</select></div>
+    <div><label>Data inicial</label><input type="date" id="gb-ini" value="${ini}" onchange="filtrarGestaoBatidas()"/></div>
+    <div><label>Data final</label><input type="date" id="gb-fim" value="${fim}" onchange="filtrarGestaoBatidas()"/></div>
+  </div>
+  <div id="gb-conteudo"></div>`;
+  renderGestaoBatidas();
+}
+function filtrarGestaoBatidas(){
+  const pin=$('gb-pin')?.value||'',ini=$('gb-ini')?.value||'',fim=$('gb-fim')?.value||'';
+  if(!pin||!ini||!fim)return;
+  if(ini>fim){$('gb-conteudo').innerHTML='<div class="alert err">A data inicial deve ser anterior à data final.</div>';return;}
+  if((new Date(fim+'T12:00:00')-new Date(ini+'T12:00:00'))/864e5>366){$('gb-conteudo').innerHTML='<div class="alert err">Selecione um período de até 366 dias.</div>';return;}
+  window.__batFilt={pin,ini,fim};renderGestaoBatidas();
+}
+function renderGestaoBatidas(){
+  const pin=$('gb-pin')?.value||window.__batFilt?.pin||'',ini=$('gb-ini')?.value||window.__batFilt?.ini,fim=$('gb-fim')?.value||window.__batFilt?.fim;
+  const out=$('gb-conteudo');if(!out)return;
+  if(!pin){out.innerHTML='<div class="alert warn">Cadastre um colaborador para consultar as batidas.</div>';return;}
+  const dados=dadosFolha(pin,ini,fim),ocorrencias=get('ocorrencias',[]).filter(o=>o.pin===pin&&o.data>=ini&&o.data<=fim);
+  const total=dados.linhas.reduce((s,l)=>s+l.trabalhado,0),saldo=dados.linhas.reduce((s,l)=>s+l.saldo,0);
+  out.innerHTML=`<div class="punch-summary" aria-label="Resumo do período">
+    <div class="punch-summary-card"><small>Total trabalhado</small><strong>${toHHMM(total)}</strong></div>
+    <div class="punch-summary-card"><small>Saldo de horas</small><strong>${toSaldo(saldo)}</strong></div>
+    <div class="punch-summary-card"><small>Ocorrências</small><strong>${ocorrencias.length}</strong></div>
+  </div>
+  <div class="alert warn">REGRA MTE: data, hora e NSR originais permanecem intocáveis. Inclusões e abonos exigem justificativa e ficam registrados na auditoria.</div>
+  <div class="tbl-wrap"><table class="daily-punches"><thead><tr><th>Data / Dia</th><th>Status</th><th>Marcações do dia</th><th>Carga prevista</th><th>Trabalhado</th><th>Saldo do dia</th><th>Ações</th></tr></thead><tbody>
+  ${dados.linhas.slice().reverse().map(l=>{
+    const oc=ocorrencias.find(o=>o.data===l.data),st=statusGestaoDia(l,oc),bs=batidasDia(pin,l.data);
+    return `<tr><td class="day-cell"><strong>${brOf(l.data)}</strong><small>${esc(l.dia)}</small></td><td><span class="status-day ${st[1]}">${st[0]}</span>${oc?`<div class="muted" title="${esc(oc.motivo||'')}">${esc(oc.tipo)}</div>`:''}</td>
+      <td><div class="marks-cell">${bs.length?bs.map(b=>`<span class="mark-pill">${esc(b.hora)}</span>`).join(''):'<span class="muted">Sem marcações</span>'}</div></td>
+      <td>${toHHMM(l.previsto)}</td><td><b>${toHHMM(l.trabalhado)}</b></td><td>${toSaldo(l.saldo)}</td>
+      <td><button type="button" class="btn sm ghost" onclick="abrirAcoesBatida('${pin}','${l.data}')" aria-label="Abrir ações de ${brOf(l.data)}">Ações ▾</button></td></tr>`;
+  }).join('')}</tbody></table></div>`;
+}
+function abrirAcoesBatida(pin,data){
+  const f=funcPorPin(pin)||{},qtd=batidasDia(pin,data).length;
+  abrirModal(`<div class="action-sheet"><div class="row"><div><h3>Ações do dia</h3><div class="muted">${esc(f.nome)} · ${brOf(data)} · ${qtd} marcação(ões)</div></div><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar">✕</button></div>
+    <div class="action-sheet-grid">
+      <button class="btn" onclick="fecharModal();inserirBatidaManual('${pin}','${data}')">+ Inserir Batida Manual</button>
+      <button class="btn ghost" onclick="fecharModal();lancarOcorrencia('${pin}','${data}')">+ Lançar Ocorrência / Abono</button>
+      <button class="btn ghost" onclick="verDetalhesBatidas('${pin}','${data}')">Ver Detalhes</button>
+    </div></div>`);
+}
+async function verDetalhesBatidas(pin,data){
+  const bs=batidasDia(pin,data),e=get('empregador',{})||{};
+  const detalhes=await Promise.all(bs.map(async b=>({b,hash:await sha256Hex([b.nsr,b.data,b.hora,b.cpf,e.doc].join('|'))})));
+  abrirModal(`<div class="action-sheet"><div class="row"><div><h3>Detalhes das marcações</h3><div class="muted">${esc((funcPorPin(pin)||{}).nome||'')} · ${brOf(data)}</div></div><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar">✕</button></div>
+    <div class="punch-detail">${detalhes.length?detalhes.map(({b,hash})=>`<div class="punch-detail-row"><div class="row"><b>${esc(b.hora)}</b><span class="badge">NSR ${esc(String(b.nsr).padStart(9,'0'))}</span><span class="muted">${esc(b.fonte||'')}</span></div><div class="punch-hash">SHA-256: ${hash}</div>${b.movimento?`<div class="muted">${esc(b.movimento)}</div>`:''}</div>`).join(''):'<div class="alert warn">Nenhuma marcação neste dia.</div>'}</div></div>`);
 }
 function moverTipo(nsr,novo,sel){
   const all=get('batidas',[]),b=all.find(x=>x.nsr===nsr),antigo=b.tipo;
@@ -1565,12 +1614,12 @@ function moverTipo(nsr,novo,sel){
   b.tipo=novo; b.movimento=`Movido de ${antigo} p/ ${novo} - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`;
   set('batidas',all); filaPonto(nsr); log(`Batida NSR ${nsr} movida de ${antigo} para ${novo} - Motivo: ${motivo}`); subBatidas();
 }
-function inserirBatidaManual(){
+function inserirBatidaManual(pinSelecionado='',dataSelecionada=''){
   const fs=get('funcionarios',[]);
   abrirModal(`<div class="row"><h3>Inserir batida manual</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
   <div class="card grid g2">
-    <div><label>Funcionário</label><select id="ib-pin">${fs.map(f=>`<option value="${f.pin}">${esc(f.nome)}</option>`).join('')}</select></div>
-    <div><label>Data</label><input type="date" id="ib-data" value="${hojeISO()}"/></div>
+    <div><label>Funcionário</label><select id="ib-pin" ${pinSelecionado?'disabled':''}>${fs.map(f=>`<option value="${f.pin}" ${f.pin===pinSelecionado?'selected':''}>${esc(f.nome)}</option>`).join('')}</select></div>
+    <div><label>Data</label><input type="date" id="ib-data" value="${dataSelecionada||hojeISO()}" ${dataSelecionada?'readonly':''}/></div>
     <div><label>Hora</label><input type="time" id="ib-hora"/></div>
     <div><label>Tipo</label><select id="ib-tipo">${TIPOS.map(t=>`<option>${t}</option>`).join('')}</select></div>
     <div style="grid-column:1/-1"><label>Motivo (obrigatório, mín. 5 caracteres)</label><textarea id="ib-motivo" rows="2"></textarea></div>
@@ -1587,13 +1636,13 @@ function salvarBatidaManual(){
     gerenciador:GERENCIADOR.nome,movimento:`Inserida manualmente - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`,criadoEm:new Date().toISOString()});
   set('batidas',all); filaPonto(nsrM); log(`Batida manual inserida ${brOf(data)} ${hora} ${f.nome} - Motivo: ${motivo}`); fecharModal(); subBatidas();
 }
-function lancarOcorrencia(){
+function lancarOcorrencia(pinSelecionado='',dataSelecionada=''){
   const fs=get('funcionarios',[]);
-  abrirModal(`<div class="row"><h3>Lançar ocorrência</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
+  abrirModal(`<div class="row"><h3>Lançar Ocorrência / Abono</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
   <div class="card grid g2">
-    <div><label>Funcionário</label><select id="oc-pin">${fs.map(f=>`<option value="${f.pin}">${esc(f.nome)}</option>`).join('')}</select></div>
-    <div><label>Data</label><input type="date" id="oc-data" value="${hojeISO()}"/></div>
-    <div><label>Tipo</label><select id="oc-tipo">${['Falta Justificada','Férias','Folga','Compensada','Falta'].map(t=>`<option>${t}</option>`).join('')}</select></div>
+    <div><label>Funcionário</label><select id="oc-pin" ${pinSelecionado?'disabled':''}>${fs.map(f=>`<option value="${f.pin}" ${f.pin===pinSelecionado?'selected':''}>${esc(f.nome)}</option>`).join('')}</select></div>
+    <div><label>Data</label><input type="date" id="oc-data" value="${dataSelecionada||hojeISO()}" ${dataSelecionada?'readonly':''}/></div>
+    <div><label>Motivo do abono</label><select id="oc-tipo">${['Atestado médico','Falta Justificada','Folga compensatória','Férias','Compensada','Falta'].map(t=>`<option>${t}</option>`).join('')}</select></div>
     <div><label>Motivo (obrigatório, mín. 5 caracteres)</label><input id="oc-motivo"/></div>
   </div><button class="btn gold" onclick="salvarOcorrencia()">Salvar ocorrência</button>`);
 }
