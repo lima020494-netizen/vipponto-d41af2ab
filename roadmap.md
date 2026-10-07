@@ -24,3 +24,6 @@
 - [x] Zerar margens e condensar a impressão térmica web, SUNMI e RawBT.
 - [x] Unificar batidas manuais e ocorrências em uma Gestão de Batidas diária consolidada.
 - [x] Corrigir ícones e manifesto PWA com margem segura para a splash do Android.
+- [x] Resumo geral do Banco de Horas com filtros, impressão e CSV.
+- [x] Mover batidas do REP; editar/excluir batidas manuais e ocorrências com auditoria.
+- [x] Folha/PDF com ocorrências enxutas e quadro de Tratamentos e Justificativas.
