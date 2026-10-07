@@ -1,12 +1,12 @@
-# VIP Ponto 
+# Ponto Pró Gestão 
 
-Crie o APP COMPLETO VIP PONTO em um único arquivo HTML + CSS + JS puro, sem React, sem Vite, sem backend, tudo em localStorage, responsivo para PC, tablet, celular e SUNMI D2 MINI 58mm. PADRÃO MTE PORTARIA 671/2021. NENHUM DETALHE PODE FALTAR.
+Crie o APP COMPLETO Ponto Pró Gestão em um único arquivo HTML + CSS + JS puro, sem React, sem Vite, sem backend, tudo em localStorage, responsivo para PC, tablet, celular e SUNMI D2 MINI 58mm. PADRÃO MTE PORTARIA 671/2021. NENHUM DETALHE PODE FALTAR.
 
 
 
 MÓDULO 0 - LOGIN MULTI-EMPRESA:
 
-Logo VIP PONTO centralizada alta resolução. Campos E-MAIL, SENHA, botão ACESSAR grande. Ao digitar e-mail existente exibir "Olá, ". Links Criar conta e Esqueci senha expiração 1h. Cadastro conta: Nome Completo, E-mail, Senha validação 8 chars, 1 maiúscula, 1 minúscula, 1 número, 1 especial (!@#$%&_). Limite 3 contas por aparelho isoladas via localStorage prefixado por e-mail. Mensagem "Limite de 3 usuários por aparelho atingido". Botão logoff ícone standby ⏻ na tela inicial.[Nome]
+Logo Ponto Pró Gestão centralizada alta resolução. Campos E-MAIL, SENHA, botão ACESSAR grande. Ao digitar e-mail existente exibir "Olá, ". Links Criar conta e Esqueci senha expiração 1h. Cadastro conta: Nome Completo, E-mail, Senha validação 8 chars, 1 maiúscula, 1 minúscula, 1 número, 1 especial (!@#$%&_). Limite 3 contas por aparelho isoladas via localStorage prefixado por e-mail. Mensagem "Limite de 3 usuários por aparelho atingido". Botão logoff ícone standby ⏻ na tela inicial.[Nome]
 
 
 
