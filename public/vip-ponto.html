@@ -450,6 +450,8 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 }
 @media(max-width:430px){.module-grid{grid-template-columns:1fr 1fr}.module-card{min-height:112px}.module-card small{display:none}.hub-welcome h2{font-size:21px}}
 @media(max-height:650px) and (min-width:761px){#tela-ponto.kiosk-shell{padding:10px 0;gap:16px}.kiosk-info-panel{padding:16px}.kiosk-company{margin-bottom:10px}.kiosk-company img{height:60px;width:80px}.kiosk-message{padding:7px 10px;margin-bottom:7px}.kiosk-entry-panel{padding:10px 24px}.kiosk-entry-panel #relogio-kiosk{font-size:42px}.kiosk-entry-panel .pin-display{margin:5px auto;padding:5px}.kiosk-entry-panel .key{height:40px;font-size:20px}.kiosk-entry-panel #btn-bater{margin-top:7px;padding:9px;font-size:18px}}
+.trat-box{margin-top:6px;border:1px solid #cbd5e1;border-radius:6px;padding:5px 8px;font-size:10px;line-height:1.3;page-break-inside:avoid}.trat-box ul{margin:3px 0 0;padding-left:16px;columns:2;column-gap:18px}.trat-box li{break-inside:avoid}
+@media print{.folha table td,.folha table th{padding:2px 4px!important;font-size:9px!important;white-space:nowrap}.trat-box{font-size:8px}}
 </style>
 </head>
 <body>
@@ -1466,12 +1468,12 @@ function dadosFolha(pin,ini,fim){
     const g=tp=>bs.filter(b=>b.tipo===tp)[0];
     if(f.status==='Desligado'&&d>f.dataDesligamento){oc='DESLIGADO';cls='t-deslig';}
     else if(f.status==='Férias'&&d>=f.feriasIni&&d<=f.feriasFim){oc='FÉRIAS';cls='t-ferias';}
-    else if(f.status==='Afastamento'&&d>=f.afastDe&&d<=f.afastAte){oc=`AFASTAMENTO (${f.motivoAfast})`;cls='t-afast';just.push(`${brOf(d)} - AFASTAMENTO - ${(f.motivoAfast||'').toUpperCase()}`);}
-    else if(folga){oc=`${folga.tipo.toUpperCase()} - Folga prevista em escala`;cls='t-folga';tot.folgas++;}
-    else if(fer){oc=`FERIADO - ${fer.nome}`;cls='t-feriado';tot.feriados++;}
+    else if(f.status==='Afastamento'&&d>=f.afastDe&&d<=f.afastAte){oc='AFASTAMENTO';cls='t-afast';just.push(`${brOf(d)} - AFASTAMENTO - ${(f.motivoAfast||'').toUpperCase()}`);}
+    else if(folga){oc=folga.tipo.toUpperCase();cls='t-folga';tot.folgas++;}
+    else if(fer){oc='FERIADO';cls='t-feriado';tot.feriados++;just.push(`${brOf(d)} - FERIADO - ${fer.nome}`);}
     const ocorr=get('ocorrencias',[]).find(o=>o.pin===pin&&o.data===d);
-    if(ocorr){ oc=ocorr.tipo.toUpperCase()+(ocorr.motivo?` - Motivo: ${ocorr.motivo}`:''); cls=ocorr.tipo==='Falta'?'t-falta':'t-folga';
-      if(ocorr.tipo==='Falta Justificada'){tot.faltas++;tot.faltasJust++;just.push(`${brOf(d)} - FALTA JUSTIFICADA - ${(ocorr.motivo||'').toUpperCase()}`);}
+    if(ocorr){ oc=ocorr.tipo.toUpperCase();if(ocorr.motivo)just.push(`${brOf(d)} - ${ocorr.tipo.toUpperCase()} - ${ocorr.motivo}`); cls=ocorr.tipo==='Falta'?'t-falta':'t-folga';
+      if(ocorr.tipo==='Falta Justificada'){tot.faltas++;tot.faltasJust++;}
       else if(ocorr.tipo==='Falta'){tot.faltas++;tot.faltasInj++;}
       else tot.folgas++;
     }
@@ -1488,6 +1490,7 @@ function dadosFolha(pin,ini,fim){
     } else if(prev>0) tot.faltantes+=prev;
     // movimentações/observações de tratamento
     const mov=bs.filter(b=>b.movimento).map(b=>`_${b.hora} ${b.movimento}`).join(' | ');
+    bs.filter(b=>b.movimento).forEach(b=>just.push(`${brOf(d)} ${b.hora} - ${b.movimento}`));
     linhas.push({data:d,dia:DIAS[dow(d)],e1:por(g('Entrada')),e2:por(g('Saída Intervalo')),e3:por(g('Entrada Intervalo')),e4:por(g('Saída')),
       noturno:noct.min,trabalhado:trab,previsto:prev,saldo:bs.length?trab-prev:(prev>0?-prev:0),
       ocorrencia:oc||'NORMAL',cls,fonte:bs[0]?bs[0].fonte:'—',mov,nsr:bs.map(b=>b.nsr).join(' / ')});
@@ -1603,19 +1606,56 @@ function renderGestaoBatidas(){
   }).join('')}</tbody></table></div>`;
 }
 function abrirAcoesBatida(pin,data){
-  const f=funcPorPin(pin)||{},qtd=batidasDia(pin,data).length;
+  const f=funcPorPin(pin)||{},qtd=batidasDia(pin,data).length,oc=get('ocorrencias',[]).find(o=>o.pin===pin&&o.data===data);
   abrirModal(`<div class="action-sheet"><div class="row"><div><h3>Ações do dia</h3><div class="muted">${esc(f.nome)} · ${brOf(data)} · ${qtd} marcação(ões)</div></div><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar">✕</button></div>
     <div class="action-sheet-grid">
       <button class="btn" onclick="fecharModal();inserirBatidaManual('${pin}','${data}')">+ Inserir Batida Manual</button>
       <button class="btn ghost" onclick="fecharModal();lancarOcorrencia('${pin}','${data}')">+ Lançar Ocorrência / Abono</button>
-      <button class="btn ghost" onclick="verDetalhesBatidas('${pin}','${data}')">Ver Detalhes</button>
+      <button class="btn ghost" onclick="verDetalhesBatidas('${pin}','${data}')">Ver Detalhes / Mover / Editar batidas</button>
+      ${oc?`<button class="btn ghost" onclick="fecharModal();lancarOcorrencia('${pin}','${data}')">✎ Editar ocorrência (${esc(oc.tipo)})</button>
+      <button class="btn red" onclick="excluirOcorrencia('${pin}','${data}')">Excluir ocorrência</button>`:''}
     </div></div>`);
 }
 async function verDetalhesBatidas(pin,data){
   const bs=batidasDia(pin,data),e=get('empregador',{})||{};
   const detalhes=await Promise.all(bs.map(async b=>({b,hash:await sha256Hex([b.nsr,b.data,b.hora,b.cpf,e.doc].join('|'))})));
   abrirModal(`<div class="action-sheet"><div class="row"><div><h3>Detalhes das marcações</h3><div class="muted">${esc((funcPorPin(pin)||{}).nome||'')} · ${brOf(data)}</div></div><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar">✕</button></div>
-    <div class="punch-detail">${detalhes.length?detalhes.map(({b,hash})=>`<div class="punch-detail-row"><div class="row"><b>${esc(b.hora)}</b><span class="badge">NSR ${esc(String(b.nsr).padStart(9,'0'))}</span><span class="muted">${esc(b.fonte||'')}</span></div><div class="punch-hash">SHA-256: ${hash}</div>${b.movimento?`<div class="muted">${esc(b.movimento)}</div>`:''}</div>`).join(''):'<div class="alert warn">Nenhuma marcação neste dia.</div>'}</div></div>`);
+    <div class="punch-detail">${detalhes.length?detalhes.map(({b,hash})=>`<div class="punch-detail-row"><div class="row"><b>${esc(b.hora)}</b><span class="badge">NSR ${esc(String(b.nsr).padStart(9,'0'))}</span><span class="muted">${esc(b.fonte||'')}</span></div><div class="punch-hash">SHA-256: ${hash}</div>${b.movimento?`<div class="muted">${esc(b.movimento)}</div>`:''}${acoesBatidaHTML(b)}</div>`).join(''):'<div class="alert warn">Nenhuma marcação neste dia.</div>'}</div></div>`);
+}
+function acoesBatidaHTML(b){
+  if(b.fonte==='MANUAL') return `<div class="row" style="margin-top:6px;gap:6px"><span class="badge">Manual</span><button class="btn sm ghost" onclick="editarBatidaManual('${b.nsr}')">✎ Editar</button><button class="btn sm red" onclick="excluirBatidaManual('${b.nsr}')">Excluir</button></div>`;
+  return `<div class="row" style="margin-top:6px;gap:6px"><span class="badge">Registro REP — imutável</span><label class="muted" style="margin:0">Classificação</label><select aria-label="Mover classificação da batida" onchange="moverTipo('${b.nsr}',this.value,this)">${TIPOS.map(t=>`<option ${t===b.tipo?'selected':''}>${t}</option>`).join('')}</select></div>`;
+}
+function editarBatidaManual(nsr){
+  const b=get('batidas',[]).find(x=>x.nsr===nsr);if(!b||b.fonte!=='MANUAL')return alert('Somente batidas manuais podem ser editadas.');
+  abrirModal(`<div class="row"><h3>Editar batida manual</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
+  <div class="card grid g2"><div><label>Data</label><input value="${brOf(b.data)}" readonly/></div>
+    <div><label>Hora</label><input type="time" id="eb-hora" value="${b.hora}"/></div>
+    <div><label>Tipo</label><select id="eb-tipo">${TIPOS.map(t=>`<option ${t===b.tipo?'selected':''}>${t}</option>`).join('')}</select></div>
+    <div style="grid-column:1/-1"><label>Justificativa (obrigatória, mín. 5 caracteres)</label><textarea id="eb-motivo" rows="2"></textarea></div></div>
+  <button class="btn gold" onclick="salvarEdicaoBatida('${nsr}')">Salvar alteração</button>`);
+}
+function salvarEdicaoBatida(nsr){
+  const hora=$('eb-hora').value,tipo=$('eb-tipo').value,motivo=$('eb-motivo').value.trim();
+  if(!hora)return alert('Informe a hora.');if(motivo.length<5)return alert('Justificativa obrigatória (mín. 5 caracteres).');
+  const all=get('batidas',[]),b=all.find(x=>x.nsr===nsr);if(!b||b.fonte!=='MANUAL')return;
+  const antes=`${b.hora} ${b.tipo}`;b.hora=hora;b.tipo=tipo;
+  b.movimento=`Manual editada (${antes} → ${hora} ${tipo}) - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`;b.editadoEm=new Date().toISOString();
+  set('batidas',all);filaPonto(nsr);log(`Batida manual NSR ${nsr} editada de ${antes} para ${hora} ${tipo} - Motivo: ${motivo}`);
+  fecharModal();window.__batFilt={pin:b.pin,ini:$('gb-ini')?.value||b.data,fim:$('gb-fim')?.value||b.data};subBatidas();
+}
+function excluirBatidaManual(nsr){
+  const all=get('batidas',[]),b=all.find(x=>x.nsr===nsr);if(!b||b.fonte!=='MANUAL')return alert('Batidas do REP não podem ser excluídas (Portaria 671).');
+  if(!confirm(`Excluir a batida manual de ${brOf(b.data)} às ${b.hora}?\n\nEla deixará de contar na folha e no banco de horas. O registro fica guardado na auditoria.`))return;
+  const motivo=(prompt('Justificativa obrigatória (mín. 5 caracteres):')||'').trim();if(motivo.length<5)return alert('Sem justificativa válida a exclusão não é feita.');
+  b.excluida=true;b.movimento=`Manual excluída - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`;b.excluidaEm=new Date().toISOString();
+  set('batidas',all);filaPonto(nsr);log(`Batida manual NSR ${nsr} (${brOf(b.data)} ${b.hora}) excluída - Motivo: ${motivo}`);
+  fecharModal();subBatidas();
+}
+function excluirOcorrencia(pin,data){
+  const l=get('ocorrencias',[]),o=l.find(x=>x.pin===pin&&x.data===data);if(!o)return;
+  if(!confirm(`Excluir a ocorrência "${o.tipo}" de ${brOf(data)}?\n\nO dia voltará a ser calculado normalmente.`))return;
+  set('ocorrencias',l.filter(x=>x!==o));log(`Ocorrência ${o.tipo} de ${brOf(data)} excluída (${(funcPorPin(pin)||{}).nome||pin})`);fecharModal();subBatidas();
 }
 function moverTipo(nsr,novo,sel){
   const all=get('batidas',[]),b=all.find(x=>x.nsr===nsr),antigo=b.tipo;
@@ -1623,7 +1663,7 @@ function moverTipo(nsr,novo,sel){
   const motivo=(prompt('MOTIVO obrigatório (mín. 5 caracteres) para mover a marcação:')||'').trim();
   if(motivo.length<5){alert('Sem motivo válido a alteração não é salva.');sel.value=antigo;return;}
   b.tipo=novo; b.movimento=`Movido de ${antigo} p/ ${novo} - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`;
-  set('batidas',all); filaPonto(nsr); log(`Batida NSR ${nsr} movida de ${antigo} para ${novo} - Motivo: ${motivo}`); subBatidas();
+  set('batidas',all); filaPonto(nsr); log(`Batida NSR ${nsr} movida de ${antigo} para ${novo} - Motivo: ${motivo}`); fecharModal(); subBatidas();
 }
 function inserirBatidaManual(pinSelecionado='',dataSelecionada=''){
   const fs=get('funcionarios',[]);
@@ -1648,13 +1688,13 @@ function salvarBatidaManual(){
   set('batidas',all); filaPonto(nsrM); log(`Batida manual inserida ${brOf(data)} ${hora} ${f.nome} - Motivo: ${motivo}`); fecharModal();window.__batFilt={pin,data,ini:$('gb-ini')?.value||data,fim:$('gb-fim')?.value||data};subBatidas();
 }
 function lancarOcorrencia(pinSelecionado='',dataSelecionada=''){
-  const fs=get('funcionarios',[]);
-  abrirModal(`<div class="row"><h3>Lançar Ocorrência / Abono</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
+  const fs=get('funcionarios',[]),ex=get('ocorrencias',[]).find(o=>o.pin===pinSelecionado&&o.data===dataSelecionada)||{};
+  abrirModal(`<div class="row"><h3>${ex.tipo?'Editar':'Lançar'} Ocorrência / Abono</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
   <div class="card grid g2">
     <div><label>Funcionário</label><select id="oc-pin" ${pinSelecionado?'disabled':''}>${fs.map(f=>`<option value="${f.pin}" ${f.pin===pinSelecionado?'selected':''}>${esc(f.nome)}</option>`).join('')}</select></div>
     <div><label>Data</label><input type="date" id="oc-data" value="${dataSelecionada||hojeISO()}" ${dataSelecionada?'readonly':''}/></div>
-    <div><label>Motivo do abono</label><select id="oc-tipo">${['Atestado médico','Falta Justificada','Folga compensatória','Férias','Compensada','Falta'].map(t=>`<option>${t}</option>`).join('')}</select></div>
-    <div><label>Motivo (obrigatório, mín. 5 caracteres)</label><input id="oc-motivo"/></div>
+    <div><label>Motivo do abono</label><select id="oc-tipo">${['Atestado médico','Falta Justificada','Folga compensatória','Férias','Compensada','Falta'].map(t=>`<option ${t===ex.tipo?'selected':''}>${t}</option>`).join('')}</select></div>
+    <div><label>Motivo (obrigatório, mín. 5 caracteres)</label><input id="oc-motivo" value="${esc(ex.motivo||'')}"/></div>
   </div><button class="btn gold" onclick="salvarOcorrencia()">Salvar ocorrência</button>`);
 }
 function salvarOcorrencia(){
@@ -1821,8 +1861,45 @@ function subBanco(){
   <div><label>Período inicial</label><input type="date" id="bh-ini" value="${hoje.slice(0,8)}01"/></div>
   <div><label>Período final</label><input type="date" id="bh-fim" value="${hoje}"/></div>
   <div style="display:flex;align-items:flex-end"><button class="btn" onclick="calcBancoView()">Calcular</button></div></div>
-  <div id="bh-out" style="margin-top:12px"></div>`;
+  <div id="bh-out" style="margin-top:12px"></div>
+  <hr style="margin:18px 0;border:0;border-top:1px solid #dbe3ee"/>
+  <div class="row"><div><h3>Resumo geral — todos os colaboradores</h3><div class="muted">Fechamento consolidado do banco de horas.</div></div>
+    <div class="right row"><button class="btn sm ghost" onclick="imprimirResumoBanco()">Imprimir</button><button class="btn sm gold" onclick="csvResumoBanco()">Exportar CSV</button></div></div>
+  <div class="grid g4"><div><label>Data inicial</label><input type="date" id="bhr-ini" value="${hoje.slice(0,8)}01" onchange="renderResumoBanco()"/></div>
+  <div><label>Data final</label><input type="date" id="bhr-fim" value="${hoje}" onchange="renderResumoBanco()"/></div>
+  <div><label>Status</label><select id="bhr-st" onchange="renderResumoBanco()">${['Todos','Ativos','Desligados','Afastamento','Férias'].map(s=>`<option>${s}</option>`).join('')}</select></div></div>
+  <div id="bhr-out" style="margin-top:10px"></div>`;
   if(fs.length)calcBancoView();
+  renderResumoBanco();
+}
+function dadosResumoBanco(){
+  const ini=$('bhr-ini').value,fim=$('bhr-fim').value,st=$('bhr-st').value;
+  const mapa={Ativos:'Ativo',Desligados:'Desligado',Afastamento:'Afastamento','Férias':'Férias'};
+  const fs=get('funcionarios',[]).filter(f=>st==='Todos'||(f.status||'Ativo')===mapa[st]).sort((a,b)=>String(a.nome).localeCompare(b.nome));
+  const linhas=ini&&fim&&ini<=fim?fs.map(f=>({f,b:calcBanco(f.pin,ini,fim)})):[];
+  return {ini,fim,st,linhas};
+}
+function tabelaResumoBanco(r){
+  const t=r.linhas.reduce((a,{b})=>({ant:a.ant+b.anterior,cr:a.cr+b.creditos,db:a.db+b.debitos,at:a.at+b.atual}),{ant:0,cr:0,db:0,at:0});
+  return `<div class="tbl-wrap"><table><thead><tr><th>Colaborador / Cargo</th><th>Status</th><th>Saldo Anterior</th><th>Créditos</th><th>Débitos</th><th>Saldo Atual</th></tr></thead><tbody>
+  ${r.linhas.map(({f,b})=>`<tr><td><b>${esc(f.nome)}</b><div class="muted">${esc(f.funcao||'—')}</div></td><td>${esc(f.status||'Ativo')}</td><td>${toSaldo(b.anterior)}</td><td>+${toHHMM(b.creditos)}</td><td>-${toHHMM(b.debitos)}</td><td><b>${toSaldo(b.atual)}</b></td></tr>`).join('')||'<tr><td colspan="6" class="muted">Nenhum colaborador para o filtro.</td></tr>'}
+  </tbody>${r.linhas.length?`<tfoot><tr><th>Total (${r.linhas.length})</th><th></th><th>${toSaldo(t.ant)}</th><th>+${toHHMM(t.cr)}</th><th>-${toHHMM(t.db)}</th><th>${toSaldo(t.at)}</th></tr></tfoot>`:''}</table></div>`;
+}
+function renderResumoBanco(){
+  const r=dadosResumoBanco();
+  if(r.ini>r.fim){$('bhr-out').innerHTML='<div class="alert err">A data inicial deve ser anterior à data final.</div>';return;}
+  $('bhr-out').innerHTML=tabelaResumoBanco(r);
+}
+function imprimirResumoBanco(){
+  const r=dadosResumoBanco();
+  imprimirArea(`<div class="muted">Período ${brOf(r.ini)} a ${brOf(r.fim)} • Status: ${esc(r.st)}</div>${tabelaResumoBanco(r)}`,'Fechamento do Banco de Horas');
+  log(`Imprimiu fechamento consolidado do banco de horas ${brOf(r.ini)}–${brOf(r.fim)}`);
+}
+function csvResumoBanco(){
+  const r=dadosResumoBanco(),q=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+  const csv='\ufeff'+[['Colaborador','Cargo','Status','Saldo Anterior','Créditos','Débitos','Saldo Atual'].map(q).join(';'),
+    ...r.linhas.map(({f,b})=>[f.nome,f.funcao||'',f.status||'Ativo',toSaldo(b.anterior),toHHMM(b.creditos),toHHMM(b.debitos),toSaldo(b.atual)].map(q).join(';'))].join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`Banco_Horas_Consolidado_${r.ini}_${r.fim}.csv`;a.click();
 }
 function calcBancoView(){
   const b=calcBanco($('bh-pin').value,$('bh-ini').value,$('bh-fim').value);
@@ -2051,7 +2128,7 @@ function htmlFolha(pin,ini,fim){
     <tr><th>Dia</th><th>Dia Semana</th><th>Entrada</th><th>Saída Interv.</th><th>Entrada Interv.</th><th>Saída</th><th>Horas Trab.</th><th>Saldo Dia</th><th>Ocorrência</th><th>Fonte</th></tr>
     ${d.linhas.map(l=>`<tr><td>${brOf(l.data).slice(0,5)}</td><td>${l.dia}</td><td>${l.e1||'--:--'}</td><td>${l.e2||'--:--'}</td><td>${l.e3||'--:--'}</td><td>${l.e4||'--:--'}</td>
       <td>${toHHMM(l.trabalhado)}${l.noturno?' <b title="Hora noturna reduzida">*N</b>':''}</td><td>${toSaldo(l.saldo)}</td>
-      <td>${l.cls?`<span class="tag ${l.cls}">${esc(l.ocorrencia)}</span>`:esc(l.ocorrencia)}${l.mov?`<div class="muted">${esc(l.mov)}</div>`:''}</td>
+      <td>${l.cls?`<span class="tag ${l.cls}">${esc(l.ocorrencia)}</span>`:esc(l.ocorrencia)}${l.mov?' <b title="Tratada — ver quadro de justificativas">_</b>':''}</td>
       <td>${l.fonte}</td></tr>`).join('')}
     </table></div>
     <div class="rodape">
@@ -2060,7 +2137,7 @@ function htmlFolha(pin,ini,fim){
       <div>Total de Folgas: <b>${d.tot.folgas}</b> • Total de Feriados: <b>${d.tot.feriados}</b></div>
       <div>Total de Horas Extras: <b>${toHHMM(d.tot.extras)}</b> • Total de Horas Faltantes/Atrasos: <b>${toHHMM(d.tot.faltantes)}</b></div>
       <div>Banco de Horas — Saldo Anterior: <b>${toSaldo(d.banco.anterior)}</b> • Créditos: <b>+${toHHMM(d.banco.creditos)}</b> • Débitos: <b>-${toHHMM(d.banco.debitos)}</b> • Saldo Atual: <b>${toSaldo(d.banco.atual)}</b></div>
-      ${d.just.length?`<div style="margin-top:6px"><b>Justificativas:</b><br>${d.just.map(j=>esc(j)).join('<br>')}</div>`:''}
+      ${d.just.length?`<div class="trat-box"><b>Tratamentos e Justificativas</b><ul>${d.just.map(j=>`<li>${esc(j)}</li>`).join('')}</ul></div>`:''}
       ${preLegenda(f)?`<div style="margin-top:6px"><b>${esc(preLegenda(f))}</b></div>`:''}
       <div class="muted" style="margin-top:6px"><b>Legenda:</b> ${LEGENDA}</div>
       <div>${esc(e.cidade||'Salinópolis')}-${esc(e.uf||'PA')}, ${brOf(isoOf(dt))}</div>
@@ -2082,12 +2159,12 @@ async function gerarPDFComLogo(dados){
     L(`Emissão: ${brOf(isoOf(dt))} ${hhmm(dt)} • Período: ${brOf(ini)} a ${brOf(fim)} • Jornada: ${e.hEntrada||''}-${e.hSaiInt||''}/${e.hEntInt||''}-${e.hSaida||''} • Escala: ${f.escala||''}`,8);
     if(preLegenda(f)) L(preLegenda(f),8,true);
     y+=2; L('Dia   Sem Ent   SaiI  EntI  Sai   Trab     Saldo  Ocorrência',8,true);
-    d.linhas.forEach(l=>L(`${brOf(l.data).slice(0,5)} ${l.dia.slice(0,3)} ${(l.e1||'--:--')} ${(l.e2||'--:--')} ${(l.e3||'--:--')} ${(l.e4||'--:--')} ${toHHMM(l.trabalhado)}${l.noturno?'*N':'  '} ${toSaldo(l.saldo)} ${l.ocorrencia}${l.mov?' '+l.mov:''}`.slice(0,125),7.5));
+    d.linhas.forEach(l=>L(`${brOf(l.data).slice(0,5)} ${l.dia.slice(0,3)} ${(l.e1||'--:--')} ${(l.e2||'--:--')} ${(l.e3||'--:--')} ${(l.e4||'--:--')} ${toHHMM(l.trabalhado)}${l.noturno?'*N':'  '} ${toSaldo(l.saldo)} ${l.ocorrencia}${l.mov?' _':''}`.slice(0,125),7.5));
     y+=2; L('TOTAIS DO PERÍODO',9,true);
     L(`Faltas: ${d.tot.faltas} (Just.: ${d.tot.faltasJust} / Injust.: ${d.tot.faltasInj}) • Folgas: ${d.tot.folgas} • Feriados: ${d.tot.feriados}`,8);
     L(`Horas Extras: ${toHHMM(d.tot.extras)} • Horas Faltantes/Atrasos: ${toHHMM(d.tot.faltantes)}`,8);
     L(`Banco de Horas — Anterior ${toSaldo(d.banco.anterior)} | Créditos +${toHHMM(d.banco.creditos)} | Débitos -${toHHMM(d.banco.debitos)} | Atual ${toSaldo(d.banco.atual)}`,8);
-    d.just.forEach(j=>L(j,8));
+    if(d.just.length){L('TRATAMENTOS E JUSTIFICATIVAS',8,true);d.just.forEach(j=>doc.splitTextToSize(j,190).forEach(t=>L(t,6.8)));}
     doc.splitTextToSize(`Legenda: ${LEGENDA}`,190).forEach(t=>L(t,7));
     L(`${e.cidade||'Salinópolis'}-${e.uf||'PA'}, ${brOf(isoOf(dt))}`,8); y+=10;
     L('____________________________        ____________________________',8);
