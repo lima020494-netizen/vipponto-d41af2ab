@@ -1025,7 +1025,7 @@ function buscarFuncionario(){
 }
 function mostrarHistoricoDia(f){
   const d=jornadaAtualISO(f.pin);
-  const bs=get('batidas',[]).filter(b=>b.pin===f.pin&&b.data===d).sort((a,b)=>a.hora.localeCompare(b.hora));
+  const bs=get('batidas',[]).filter(b=>!b.excluida&&b.pin===f.pin&&b.data===d).sort((a,b)=>a.hora.localeCompare(b.hora));
   const ultima=bs[bs.length-1];
   $('hist-dia').innerHTML=`<section class="kiosk-day" aria-label="Marcações de hoje de ${esc(f.nome)}">
     <div class="kiosk-day-head"><strong class="kiosk-day-name">${esc(f.nome)}</strong><span class="kiosk-day-date">${brOf(d)}</span></div>
@@ -1042,7 +1042,7 @@ function mostrarHistoricoDia(f){
 function jornadaAtualISO(pin){
   const agora=getHoraOficial(), hoje=isoOf(agora), ontem=addDias(hoje,-1);
   if(agora.getHours()<6){
-    const bs=get('batidas',[]).filter(b=>b.pin===pin&&b.data===ontem);
+    const bs=get('batidas',[]).filter(b=>!b.excluida&&b.pin===pin&&b.data===ontem);
     if(bs.length){
       const ent=bs.find(b=>b.tipo==='Entrada');
       if(ent&&toMin(ent.hora)>=720&&bs.length<4) return ontem; // entrada após 12:00 => jornada noturna do dia anterior
@@ -1076,7 +1076,7 @@ async function registrarPonto(){
     if(!NTP_OK && !confirm('Sem servidor de hora oficial (NTP). Art. 82 — risco de invalidade do registro. Confirmar registro com hora LOCAL?')) return;
   }
   const data=jornadaAtualISO(f.pin), agora=getHoraOficial();
-  const bs=get('batidas',[]).filter(b=>b.pin===f.pin&&b.data===data);
+  const bs=get('batidas',[]).filter(b=>!b.excluida&&b.pin===f.pin&&b.data===data);
   const tps=tiposDo(f);
   if(bs.length>=tps.length) return toast(`Limite de ${tps.length} marcações no dia atingido.`,4000);
   const ultima=bs.slice().sort((a,b)=>String(a.criadoEm||`${a.data}T${a.hora}:00`).localeCompare(String(b.criadoEm||`${b.data}T${b.hora}:00`))).pop();
@@ -1427,7 +1427,7 @@ function previstoDia(f,iso){
   if(f.escala==='4x3'&&(d===0||d===6)) return 0;
   return cargaEscala(f.escala);
 }
-function batidasDia(pin,iso){return get('batidas',[]).filter(b=>b.pin===pin&&b.data===iso).sort((a,b)=>toMin(a.hora)-toMin(b.hora));}
+function batidasDia(pin,iso){return get('batidas',[]).filter(b=>!b.excluida&&b.pin===pin&&b.data===iso).sort((a,b)=>toMin(a.hora)-toMin(b.hora));}
 /* Pares de batidas (máx. 4: Entrada | Intervalo Saída | Intervalo Volta | Saída) */
 function paresBatidas(bs){
   const g=tp=>bs.filter(b=>b.tipo===tp)[0];
@@ -1641,7 +1641,7 @@ function salvarBatidaManual(){
   if(!data||!hora)return alert('Informe data e hora.');
   if(motivo.length<5)return alert('Motivo obrigatório (mín. 5 caracteres).');
   const f=funcPorPin(pin), all=get('batidas',[]);
-  if(all.filter(b=>b.pin===pin&&b.data===data).length>=4)return alert('Limite de 4 marcações no dia.');
+  if(all.filter(b=>!b.excluida&&b.pin===pin&&b.data===data).length>=4)return alert('Limite de 4 marcações no dia.');
   const nsrM=proximoNSR();
   all.push({pin,nome:f.nome,cpf:f.cpf,data,hora,tipo,nsr:nsrM,fonte:'MANUAL',sync:false,offset:get('ntpOffset',0),
     gerenciador:GERENCIADOR.nome,movimento:`Inserida manualmente - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`,criadoEm:new Date().toISOString()});
@@ -2251,7 +2251,7 @@ async function gerarAFD(ini,fim){
     +ini+fim+dtTZ(isoOf(agora),hhmm(agora))+'003'+(d.tipoDoc==='CNPJ'?'1':'2')+padL(soNum(d.doc),14)+padR(d.programa,30);
   regs.push(h+crc16(h));
   // Tipo 7 — marcações REP-P
-  const bs=get('batidas',[]).filter(b=>b.data>=ini&&b.data<=fim).sort((a,b)=>a.nsr.localeCompare(b.nsr));
+  const bs=get('batidas',[]).filter(b=>!b.excluida&&b.data>=ini&&b.data<=fim).sort((a,b)=>a.nsr.localeCompare(b.nsr));
   let prevHash='';
   for(const b of bs){
     let r=padL(b.nsr,9)+'7'+dtTZ(b.data,b.hora)+padL(soNum(b.cpf),12)+dtTZ(b.data,b.hora)+'01'+(b.fonte&&/SERVIDOR/.test(b.fonte)?'0':'1');
@@ -2275,7 +2275,7 @@ function gerarAEJ(ini,fim){
   const hc=`${e.hEntrada||'08:00'}`.replace(':','');
   add('04',['1',padL(cargaEscala('5x2'),4),(e.hEntrada||'08:00').replace(':',''),(e.hSaiInt||'12:00').replace(':',''),(e.hEntInt||'14:00').replace(':',''),(e.hSaida||'18:00').replace(':','')]);
   fs.forEach((f,i)=>{
-    const bs=get('batidas',[]).filter(b=>b.pin===f.pin&&b.data>=ini&&b.data<=fim).sort((a,b)=>(a.data+a.hora).localeCompare(b.data+b.hora));
+    const bs=get('batidas',[]).filter(b=>!b.excluida&&b.pin===f.pin&&b.data>=ini&&b.data<=fim).sort((a,b)=>(a.data+a.hora).localeCompare(b.data+b.hora));
     const seq={};bs.forEach(b=>{seq[b.data]=(seq[b.data]||0)+1;const n=seq[b.data];
       add('05',[i+1,dtTZ(b.data,b.hora),'1',/Entrada/.test(b.tipo)?'E':'S',Math.ceil(n/2),b.manual?'I':'O','1',b.movimento||b.motivo||'']);});
     get('ocorrencias',[]).filter(o=>o.pin===f.pin&&o.data>=ini&&o.data<=fim).forEach(o=>add('06',[i+1,o.data,o.tipo==='Falta'?'2':'1',padL(cargaEscala(f.escala),4),o.motivo||o.tipo]));
@@ -2466,7 +2466,7 @@ function manualFolha(){
 function gerarAFDOficial(ini,fim){
   if(!ini||!fim) return alert('Selecione o período.');
   const e=get('empregador',{})||{},dmy=iso=>iso.slice(8,10)+iso.slice(5,7)+iso.slice(0,4),ag=getHoraOficial();
-  const bs=get('batidas',[]).filter(b=>b.data>=ini&&b.data<=fim).sort((a,b)=>a.nsr.localeCompare(b.nsr));
+  const bs=get('batidas',[]).filter(b=>!b.excluida&&b.data>=ini&&b.data<=fim).sort((a,b)=>a.nsr.localeCompare(b.nsr));
   const cnpj=padL(soNum(e.doc),14);
   const L=['000000000'+'1'+(e.tipo==='CPF'?'2':'1')+cnpj+padL(soNum(e.cei),12)+padR(e.razao,150)+dmy(ini)+dmy(fim)+dmy(isoOf(ag))+hhmm(ag).replace(':','')];
   bs.forEach(b=>L.push(padL(b.nsr,9)+'3'+dmy(b.data)+b.hora.replace(':','')+cnpj+padL(soNum(b.cpf),11)));
