@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Aplicar nome Ponto Pró Gestão e logo anexada às telas, documentos e ícones, preservando dados e validando somente em preview.
+- [x] Aplicar nome Ponto Pró Gestão e logo anexada às telas, documentos e ícones, preservando dados e validando somente em preview.
 
 - [x] Criar links mensais temporários e exclusivos para a folha do colaborador.
 - [x] Disponibilizar visualização isolada e download do PDF oficial no celular.
