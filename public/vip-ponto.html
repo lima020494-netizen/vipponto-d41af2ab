@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>VIP PONTO — Registro Eletrônico de Ponto (Portaria MTE 671/2021)</title>
+<title>Ponto Pró Gestão — Registro Eletrônico de Ponto (Portaria MTE 671/2021)</title>
 <link rel="icon" href="/favicon.png" />
 <link rel="apple-touch-icon" href="/pwa-icon-192.png" />
 <link rel="manifest" href="/manifest.webmanifest" />
@@ -190,7 +190,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 #tela-ponto .kiosk-day-actions .btn{padding:5px 9px;border-radius:7px;font-size:11px;background:#1e293b;color:#f8fafc;border-color:#475569}
 #tela-ponto .kiosk-day-actions .btn:disabled{opacity:.4}
 #btn-logoff{background:#dc2626!important;border-color:#dc2626!important;color:#fff;margin-left:6px}
-#logo-app{object-fit:contain;width:120px;height:120px;display:block;margin:0 auto 10px}
+#logo-app{object-fit:contain;width:240px;max-width:100%;height:160px;display:block;margin:0 auto 10px}
 @media(max-height:768px){
   #tela-ponto{padding-top:70px;padding-bottom:12px}
   #tela-ponto .pin-display{margin:8px auto;padding:8px}
@@ -459,7 +459,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 <!-- ======================= MÓDULO 0 — LOGIN MULTI-EMPRESA ======================= -->
 <div id="tela-login">
   <div class="box">
-    <img id="logo-app" src="/vip-logo.png" alt="VIP PONTO" />
+    <img id="logo-app" src="/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg" alt="Ponto Pró Gestão" />
     <div id="login-view">
       <h3 style="text-align:center">Acesso ao sistema</h3>
       <div id="saudacao" class="muted" style="text-align:center;font-weight:800;color:var(--navy)"></div>
@@ -497,7 +497,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
     </div>
     <div class="hr"></div>
     <div class="muted" style="text-align:center">Portaria MTE 671/2021 • Até 3 empresas por aparelho conforme o plano • Dados isolados por conta</div>
-    <div class="muted" style="text-align:center;margin-top:6px"><span class="link" onclick="abrirManual()">Manual do usuário</span> • <span class="link" onclick="abrirSobre()">Sobre o sistema</span> • VIP PONTO v1.0</div>
+    <div class="muted" style="text-align:center;margin-top:6px"><span class="link" onclick="abrirManual()">Manual do usuário</span> • <span class="link" onclick="abrirSobre()">Sobre o sistema</span> • Ponto Pró Gestão v1.0</div>
   </div>
 </div>
 
@@ -518,7 +518,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   <div id="tela-ponto" class="wrap kiosk-shell">
     <section class="kiosk-info-panel" aria-label="Empresa e informações do registro">
       <div class="kiosk-company">
-        <img id="logo-empresa" src="/vip-logo.png" alt="Logo empresa"/>
+        <img id="logo-empresa" src="/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg" alt="Logo empresa"/>
         <div id="home-fantasia" class="kiosk-company-name"></div>
       </div>
       <div class="kiosk-info-title">Registro de hoje</div>
@@ -546,8 +546,8 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   <div class="inner">
     <div class="gestor-head">
       <div class="gestor-brand">
-        <img id="gestor-logo" class="gestor-brand-logo" src="/vip-logo.png" alt="Logo da empresa"/>
-        <div style="min-width:0"><div id="gestor-empresa" class="gestor-company">VIP PONTO</div><div id="gestor-quem" class="gestor-user"></div></div>
+        <img id="gestor-logo" class="gestor-brand-logo" src="/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg" alt="Logo da empresa"/>
+        <div style="min-width:0"><div id="gestor-empresa" class="gestor-company">Ponto Pró Gestão</div><div id="gestor-quem" class="gestor-user"></div></div>
       </div>
       <span id="gestor-licenca" class="license-badge" data-state="ativo">Ativo</span>
       <div class="row right gestor-head-actions">
@@ -569,7 +569,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 <div id="comprovante"></div>
 <div id="tela-folha-link" class="hidden" style="min-height:100vh;background:#f4f6fb;padding:16px">
   <div style="max-width:1180px;margin:0 auto">
-    <div class="row" style="margin-bottom:12px"><strong style="font-size:20px">VIP PONTO — Minha folha mensal</strong>
+    <div class="row" style="margin-bottom:12px"><strong style="font-size:20px">Ponto Pró Gestão — Minha folha mensal</strong>
       <button id="btn-pdf-link" class="btn green right hidden" onclick="baixarFolhaLink()">📄 Baixar PDF oficial</button></div>
     <div id="folha-link-status" class="card">Validando acesso seguro…</div>
     <div id="folha-link-conteudo"></div>
@@ -578,7 +578,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 
 <script>
 /* ============================================================================
-   VIP PONTO — App completo em arquivo único. 100% localStorage, sem backend.
+   Ponto Pró Gestão — App completo em arquivo único. 100% localStorage, sem backend.
    Padrão MTE Portaria 671/2021.
    ========================================================================== */
 
@@ -920,7 +920,7 @@ function telaEmpregador(alvo){
       <div><label>Saída</label><input id="e-h4" type="time" value="${e.hSaida||'18:00'}"/></div>
     </div>
     <label>Logo da empresa (salva em base64)</label><input type="file" accept="image/*" id="e-logo-file" onchange="lerLogo(this)"/>
-    <img id="e-logo-prev" src="${e.logo||'/vip-logo.png'}" style="height:60px;margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px"/>
+    <img id="e-logo-prev" src="${e.logo||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg'}" style="height:60px;margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px"/>
     <div id="e-msg"></div>
     <button class="btn big gold" style="margin-top:12px" onclick="salvarEmpregador()">SALVAR EMPREGADOR</button>
   </div>
@@ -952,7 +952,7 @@ function salvarEmpregador(){
   set('empregador',o); log('Empregador salvo/atualizado');
   $('e-msg').innerHTML='<div class="alert ok">Empregador salvo.</div>';
   if($('tela-gestor').classList.contains('hidden')) setTimeout(telaHome,700);
-  else { $('logo-empresa').src=o.logo||'/vip-logo.png'; $('home-fantasia').textContent=o.fantasia||o.razao||''; }
+  else { $('logo-empresa').src=o.logo||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg'; $('home-fantasia').textContent=o.fantasia||o.razao||''; }
 }
 function renderGerenciadores(){
   const gs=get('gerenciadores',[]);
@@ -991,8 +991,8 @@ function telaHome(){
   $('tela-empregador').classList.add('hidden'); $('tela-login').classList.add('hidden');
   $('tela-home').classList.remove('hidden');
   const e=get('empregador',{})||{};
-  $('logo-empresa').src=e.logo||'/vip-logo.png'; $('logo-app').src=logoApp();
-  $('home-fantasia').textContent=e.fantasia||e.razao||'VIP PONTO';
+  $('logo-empresa').src=e.logo||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg'; $('logo-app').src=logoApp();
+  $('home-fantasia').textContent=e.fantasia||e.razao||'Ponto Pró Gestão';
   pinLimpar();
 }
 function renderPin(){
@@ -1130,7 +1130,7 @@ async function comprovanteTexto(b){
   const hashCurto=hashAss.slice(0,32);
   return {hashAss,hashCurto,linhas:[
     (e.razao||'EMPREGADOR').toUpperCase(),e.fantasia||'',`${e.tipo||'CNPJ'}: ${e.doc||''}`,`Local: ${endereco||'Nao informado'}`,
-    '------------------------------------------','REP-P VIP PONTO - Atalaia Sistemas',`NSR: ${String(b.nsr||'').padStart(9,'0')}`,
+    '------------------------------------------','REP-P Ponto Pró Gestão - Atalaia Sistemas',`NSR: ${String(b.nsr||'').padStart(9,'0')}`,
     `Colaborador: ${b.nome}`,`CPF: ${cpfProtegido}`,'DATA E HORA DA MARCACAO',`${brOf(b.data)}  ${b.hora}`,
     'SHA-256:',hashCurto.slice(0,16),hashCurto.slice(16),'Portaria MTE 671/2021'
   ].filter(Boolean)};
@@ -1259,8 +1259,8 @@ function abrirGestor(){
   $('tela-gestor').classList.remove('hidden');
   const e=get('empregador',{})||{}, estado=LIC?.licenca?.estado||'ativo';
   $('gestor-quem').textContent=`${GERENCIADOR.nome} · ${GERENCIADOR.funcao}`;
-  $('gestor-empresa').textContent=e.fantasia||e.razao||'VIP PONTO';
-  $('gestor-logo').src=e.logo||'/vip-logo.png';
+  $('gestor-empresa').textContent=e.fantasia||e.razao||'Ponto Pró Gestão';
+  $('gestor-logo').src=e.logo||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg';
   $('gestor-licenca').textContent=ROT_EST?.[estado]||estado;
   $('gestor-licenca').dataset.state=estado;
   prepararGestorLicenca();
@@ -2064,18 +2064,18 @@ const LEGENDA='FALTA = dia sem batida e sem folga/feriado | FOLGA = folga previs
 const preLegenda=f=>f&&f.intervalo&&f.intervalo.preAssinalado?`Intervalo pré-assinalado ${f.intervalo.inicio||'12:00'}-${f.intervalo.fim||'13:00'} - Art. 71`:'';
 function identidadeDocumento(usuario='Conta '+(CONTA||'—')){
   const d=getHoraOficial(),g=GERENCIADOR||{nome:'Portal do Empregado',funcao:'Autoatendimento'},dev=typeof devCfg==='function'?devCfg():{nome:'Atalaia Sistemas'};
-  return {quando:`${brOf(isoOf(d))} às ${hhmm(d)}`,usuario:String(usuario||CONTA||'—'),gestor:`${g.nome} — ${g.funcao}`,app:`VIP PONTO • ${dev.empresa||dev.nome||'Atalaia Sistemas'} • Portaria MTE 671/2021`};
+  return {quando:`${brOf(isoOf(d))} às ${hhmm(d)}`,usuario:String(usuario||CONTA||'—'),gestor:`${g.nome} — ${g.funcao}`,app:`Ponto Pró Gestão • ${dev.empresa||dev.nome||'Atalaia Sistemas'} • Portaria MTE 671/2021`};
 }
 function cabecalhoDocumentoHTML(titulo,subtitulo=''){
   const e=get('empregador',{})||{},end=[e.logradouro,e.numero,e.complemento,e.bairro,`${e.cidade||''}/${e.uf||''}`,e.cep&&`CEP ${e.cep}`].filter(Boolean).join(', ');
-  return `<header class="doc-header"><img src="${e.logo||logoApp()}" alt="Logo da empresa"><div><div class="doc-brand">${esc(e.fantasia||e.razao||'VIP PONTO')}</div><div class="doc-company">${esc(e.razao||'Empregador não informado')}</div><div>${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'—')} • CEI/CAEPF/CNO: ${esc(e.cei||'—')}</div><div>${esc(end||'Endereço não informado')}</div><div>${esc(e.email||'')}</div></div></header><div class="doc-title">${esc(titulo||'Documento')}</div>${subtitulo?`<div class="doc-subtitle">${esc(subtitulo)}</div>`:''}`;
+  return `<header class="doc-header"><img src="${e.logo||logoApp()}" alt="Logo da empresa"><div><div class="doc-brand">${esc(e.fantasia||e.razao||'Ponto Pró Gestão')}</div><div class="doc-company">${esc(e.razao||'Empregador não informado')}</div><div>${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'—')} • CEI/CAEPF/CNO: ${esc(e.cei||'—')}</div><div>${esc(end||'Endereço não informado')}</div><div>${esc(e.email||'')}</div></div></header><div class="doc-title">${esc(titulo||'Documento')}</div>${subtitulo?`<div class="doc-subtitle">${esc(subtitulo)}</div>`:''}`;
 }
-function rodapeDocumentoHTML(usuario){const m=identidadeDocumento(usuario);return `<footer class="doc-footer"><div><strong>${esc(m.app)}</strong><br>Emitido em ${esc(m.quando)} • Usuário: ${esc(m.usuario)}<br>Gestor responsável: ${esc(m.gestor)}</div><div>Documento gerado pelo VIP PONTO</div></footer>`;}
+function rodapeDocumentoHTML(usuario){const m=identidadeDocumento(usuario);return `<footer class="doc-footer"><div><strong>${esc(m.app)}</strong><br>Emitido em ${esc(m.quando)} • Usuário: ${esc(m.usuario)}<br>Gestor responsável: ${esc(m.gestor)}</div><div>Documento gerado pelo Ponto Pró Gestão</div></footer>`;}
 function rodapeLegal(usuario){const m=identidadeDocumento(usuario);return `Gerado em ${m.quando} • Usuário: ${m.usuario} • Gestor: ${m.gestor} • ${m.app}`;}
 function pdfCabecalhoPadrao(doc,titulo,subtitulo=''){
   const e=get('empregador',{})||{},end=[e.logradouro,e.numero,e.complemento,e.bairro,`${e.cidade||''}/${e.uf||''}`,e.cep&&`CEP ${e.cep}`].filter(Boolean).join(', ');
   if(e.logo){try{doc.addImage(e.logo,(e.logo.match(/image\/(png|jpe?g)/i)||[,'PNG'])[1].toUpperCase().replace('JPG','JPEG'),10,7,27,18);}catch(_){}}
-  doc.setTextColor(12,34,70);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(String(e.fantasia||e.razao||'VIP PONTO').slice(0,64),41,11);
+  doc.setTextColor(12,34,70);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(String(e.fantasia||e.razao||'Ponto Pró Gestão').slice(0,64),41,11);
   doc.setTextColor(35,50,75);doc.setFontSize(9);doc.text(String(e.razao||'Empregador não informado').slice(0,92),41,16);
   doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.text(`${e.tipo||'CNPJ'}: ${e.doc||'—'} • CEI/CAEPF/CNO: ${e.cei||'—'}`,41,21);doc.text(String(end||'Endereço não informado').slice(0,112),41,25);
   doc.setDrawColor(18,58,115);doc.setLineWidth(.7);doc.line(10,30,200,30);doc.setTextColor(12,34,70);doc.setFont('helvetica','bold');doc.setFontSize(13);doc.text(String(titulo||'Documento').toUpperCase(),105,37,{align:'center'});
@@ -2279,9 +2279,9 @@ async function loteXML(){
 <script>
 /* ===================== DESENVOLVEDOR / FABRICANTE (Portaria 671, art. 89-91) ===================== */
 const DEV={nome:'Henrique Lima',empresa:'Atalaia Sistemas',doc:'',tipoDoc:'CPF',email:'',telefone:'',cidade:'Salinópolis-PA',
-  programa:'VIP PONTO',versao:'1.0.0',tipoRep:'REP-P (Programa)',registroINPI:''};
-function devCfg(){let g={};try{g=JSON.parse(localStorage.getItem('vip_ponto_dev_info')||'{}');}catch(e){}return Object.assign({},DEV,(CONTA&&get('dev',{}))||{},g);}
-const logoApp=()=>localStorage.getItem('vip_ponto_logo_app')||'/vip-logo.png';
+  programa:'Ponto Pró Gestão',versao:'1.0.0',tipoRep:'REP-P (Programa)',registroINPI:''};
+function devCfg(){let g={};try{g=JSON.parse(localStorage.getItem('vip_ponto_dev_info')||'{}');}catch(e){}return Object.assign({},DEV,(CONTA&&get('dev',{}))||{},g,{programa:DEV.programa});}
+const logoApp=()=>localStorage.getItem('ponto_pro_gestao_logo_app')||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg';
 const ehMestre=()=>typeof GERENCIADOR!=='undefined'&&GERENCIADOR&&GERENCIADOR.pin==='1000';
 setTimeout(()=>{const l=document.getElementById('logo-app');if(l)l.src=logoApp();},50);
 document.addEventListener('DOMContentLoaded',()=>{const el=document.getElementById('dev-nome-login');if(el)el.textContent=devCfg().nome;});
@@ -2289,8 +2289,8 @@ setTimeout(()=>{const el=document.getElementById('dev-nome-login');if(el)el.text
 function abrirSobre(){
   const d=devCfg(),ed=podeEditarDev();
   const f=(k,l)=>ed?`<div><label>${l}</label><input id="dv-${k}" value="${esc(d[k]||'')}"/></div>`:`<div><label>${l}</label><div style="font-weight:600">${esc(d[k]||'—')}</div></div>`;
-  abrirModal(`<div class="row"><h3>Sobre o VIP PONTO</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
-  <div class="card" style="text-align:center"><img id="dv-logo-prev" src="${logoApp()}" style="width:120px;height:120px;object-fit:contain"/>
+  abrirModal(`<div class="row"><h3>Sobre o Ponto Pró Gestão</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
+  <div class="card" style="text-align:center"><img id="dv-logo-prev" src="${logoApp()}" style="width:240px;max-width:100%;height:160px;object-fit:contain"/>
   ${ed?'<div style="max-width:320px;margin:6px auto"><label>Logotipo do app</label><input type="file" id="dv-logo" accept="image/*" onchange="lerLogoApp(this)"/></div>':''}<div style="font-weight:900;font-size:20px">${esc(d.programa)} v${esc(d.versao)}</div>
   <div class="muted">Programa de Tratamento de Registro de Ponto — ${esc(d.tipoRep)} — Portaria MTE 671/2021</div></div>
   <div class="card"><h4>Desenvolvedor / Fabricante</h4><div class="grid g3">
@@ -2305,7 +2305,7 @@ function salvarDev(){
   if(!podeEditarDev()) return alert('Apenas desenvolvedor');
   const o={};['nome','empresa','tipoDoc','doc','email','telefone','cidade','versao','registroINPI'].forEach(k=>o[k]=$('dv-'+k).value.trim());
   localStorage.setItem('vip_ponto_dev_info',JSON.stringify(o));
-  if(LOGO_APP_TMP){localStorage.setItem('vip_ponto_logo_app',LOGO_APP_TMP);LOGO_APP_TMP=null;}
+  if(LOGO_APP_TMP){localStorage.setItem('ponto_pro_gestao_logo_app',LOGO_APP_TMP);LOGO_APP_TMP=null;}
   log('Atualizou dados do desenvolvedor / logotipo do app');fecharModal();
 }
 
@@ -2396,7 +2396,7 @@ const MANUAL=[
 ];
 function abrirManual(){
   const d=devCfg();
-  const html=`<div style="text-align:center"><img src="${logoApp()}" style="width:120px;height:80px;object-fit:contain"/><h2 style="margin:4px 0">Manual do Usuário — VIP PONTO</h2><div class="muted">Registro Eletrônico de Ponto • Portaria MTE 671/2021 • versão ${esc(d.versao)}</div></div>
+  const html=`<div style="text-align:center"><img src="${logoApp()}" style="width:240px;max-width:100%;height:160px;object-fit:contain"/><h2 style="margin:4px 0">Manual do Usuário — Ponto Pró Gestão</h2><div class="muted">Registro Eletrônico de Ponto • Portaria MTE 671/2021 • versão ${esc(d.versao)}</div></div>
   ${MANUAL.map(([t,x])=>`<div class="card" style="page-break-inside:avoid"><h4 style="margin:0 0 6px">${t}</h4><div>${x}</div></div>`).join('')}
   <div class="muted" style="text-align:center">Desenvolvido por ${esc(d.nome)}${d.email?' • '+esc(d.email):''}${d.telefone?' • '+esc(d.telefone):''}</div>`;
   abrirModal(`<div class="row"><h3>Manual</h3><button class="btn sm right" onclick="manualPDF()">⬇ Baixar PDF</button><button class="btn sm ghost" onclick="fecharModal()">✕</button></div><div id="man-body">${html}</div>`);
@@ -2406,7 +2406,7 @@ function manualPDF(){
   MANUAL.forEach(([t,x])=>{const ls=doc.splitTextToSize(x,185);if(y+8+ls.length*5>276){doc.addPage();y=pdfCabecalhoPadrao(doc,'Manual do Usuário — Continuação');}
     doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(t,12,y);y+=6;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(ls,12,y);y+=ls.length*5+5;});
   pdfRodapesPadrao(doc,CONTA||'Manual público');
-  doc.save('Manual_VIP_PONTO.pdf');
+  doc.save('Manual_Ponto_Pro_Gestao.pdf');
 }
 </script>
 <script>
@@ -2547,7 +2547,7 @@ function gerarAFDOficial(ini,fim){
   const cnpj=padL(soNum(e.doc),14);
   const L=['000000000'+'1'+(e.tipo==='CPF'?'2':'1')+cnpj+padL(soNum(e.cei),12)+padR(e.razao,150)+dmy(ini)+dmy(fim)+dmy(isoOf(ag))+hhmm(ag).replace(':','')];
   bs.forEach(b=>L.push(padL(b.nsr,9)+'3'+dmy(b.data)+b.hora.replace(':','')+cnpj+padL(soNum(b.cpf),11)));
-  L.push('999999999'+padL(bs.length,9)+'VIP PONTO Atalaia Sistemas Salinópolis-PA');
+  L.push('999999999'+padL(bs.length,9)+'Ponto Pró Gestão Atalaia Sistemas Salinópolis-PA');
   baixar(`AFD_${soNum(e.doc)}_${ini}_${fim}.txt`,L.join('\r\n')+'\r\n');
   log(`Gerou AFD oficial ${brOf(ini)}–${brOf(fim)} (${bs.length} marcações)`);
 }
@@ -2582,7 +2582,7 @@ async function enviarBackupPorEmail(para){
   zip.file('escala.csv',csvDe(Object.values(get('escalas',{})||{}).flatMap(e=>(e.folgas||[]).map(x=>({periodo:`${e.semanaInicio} a ${e.semanaFim}`,funcionario:(funcPorPin(x.pin)||{}).nome||'',dia:x.dia,tipo:x.tipo,horario:x.horarioEntrada||''}))),['periodo','funcionario','dia','tipo','horario']));
   zip.file('logs.csv',csvDe(get('logs',[]),['quando','por','acao']));
   const blob=await zip.generateAsync({type:'blob'});
-  return enviarArquivoPorEmail({para,assunto:'Backup VIP PONTO',nome:`Backup_VIP_PONTO_${hojeISO()}.zip`,blob,mime:'application/zip'});
+  return enviarArquivoPorEmail({para,assunto:'Backup Ponto Pró Gestão',nome:`Backup_Ponto_Pro_Gestao_${hojeISO()}.zip`,blob,mime:'application/zip'});
 }
 async function executarExclusao(){
   const b=$('btn-excluir-final'); b.disabled=true; b.textContent='Excluindo...';
@@ -2633,13 +2633,13 @@ function blocoPix(){
   <div class="hr"></div><label>Chave PIX</label>
   ${c.pix?`<div class="row"><input id="pix-chave" value="${esc(c.pix)}" readonly style="max-width:420px"/><button class="btn gold" onclick="copiarPix()">📋 Copiar Chave PIX</button></div>`:'<div class="muted">Chave PIX ainda não cadastrada pelo suporte.</div>'}
   <div class="alert" style="margin-top:10px">Após o pagamento, envie o comprovante para o suporte/WhatsApp para ativação imediata.</div>
-  ${wa?`<a class="btn green" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent('Olá! Segue o comprovante do VIP PONTO da conta '+CONTA)}">💬 Enviar comprovante no WhatsApp</a>`:''}`;
+  ${wa?`<a class="btn green" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent('Olá! Segue o comprovante do Ponto Pró Gestão da conta '+CONTA)}">💬 Enviar comprovante no WhatsApp</a>`:''}`;
 }
 function copiarPix(){const v=LIC?.config?.pix||'';(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>alert('Chave PIX copiada!')).catch(()=>{$('pix-chave').select();document.execCommand('copy');});}
 function abrirPagamentoPix(plano){
   const c=LIC?.config||{},l=LIC?.licenca||{},p=Number(plano)||l.plano||1,wa=String(c.whatsapp||'').replace(/\D/g,''),pix=String(c.pix||''),valor=c.precos?.[p];
   if(!pix)return alert('A chave PIX ainda não foi cadastrada pelo suporte.');
-  const qr=qrDataUrl(pix),msg=encodeURIComponent(`Olá! Realizei o pagamento do Plano ${p} do VIP PONTO para a conta ${CONTA}. Segue o comprovante.`);
+  const qr=qrDataUrl(pix),msg=encodeURIComponent(`Olá! Realizei o pagamento do Plano ${p} do Ponto Pró Gestão para a conta ${CONTA}. Segue o comprovante.`);
   abrirModal(`<div class="card pix-modal-card"><div class="pix-modal-head"><div><h3>Pagamento via PIX</h3><div class="muted">Plano ${p} · ${moeda(valor)} por mês</div></div><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar pagamento">✕</button></div>
   <div class="pix-modal-grid"><img class="pix-qr" src="${qr}" alt="QR Code da chave PIX"/><div><div class="pix-summary"><b>Pagamento seguro e rápido</b><div class="muted" style="margin-top:5px">Abra o aplicativo do seu banco, escaneie o código ou copie a chave abaixo.</div></div>
   <label>PIX Copia e Cola</label><div class="pix-copy"><input id="pix-modal-chave" value="${esc(pix)}" readonly/><button class="btn gold" onclick="copiarPixModal()">📋 Copiar</button></div>
@@ -2650,7 +2650,7 @@ function copiarPixModal(){const el=$('pix-modal-chave'),v=el?.value||'';(navigat
 function telaBloqueio(){
   let d=$('tela-bloqueio'); if(!d){d=document.createElement('div');d.id='tela-bloqueio';d.className='modal';document.body.appendChild(d);}
   d.innerHTML=`<div class="inner" style="max-width:720px"><div class="card"><h2>🔒 Assinatura vencida</h2>
-  <p>O período de tolerância terminou e o acesso ao VIP PONTO foi pausado. <b>Nenhum dado foi apagado</b> — tudo volta ao normal assim que o pagamento for confirmado.</p>
+  <p>O período de tolerância terminou e o acesso ao Ponto Pró Gestão foi pausado. <b>Nenhum dado foi apagado</b> — tudo volta ao normal assim que o pagamento for confirmado.</p>
   ${blocoPix()}<div class="row" style="margin-top:12px"><button class="btn" onclick="location.reload()">↻ Já paguei, verificar</button><button class="btn ghost right" onclick="logoff()">⏻ Sair</button></div></div></div>`;
 }
 function prepararGestorLicenca(){
@@ -2665,11 +2665,11 @@ function prepararGestorLicenca(){
   if(LIC&&!LIC.licenca.aceite_termos) setTimeout(modalTermos,50);
 }
 function modalTermos(){
-  abrirModal(`<div class="card" style="max-width:760px;margin:0 auto"><h3>Termos de Uso — VIP PONTO</h3>
+  abrirModal(`<div class="card" style="max-width:760px;margin:0 auto"><h3>Termos de Uso — Ponto Pró Gestão</h3>
   <div style="max-height:52vh;overflow:auto;font-size:14px;line-height:1.5">
-  <p><b>1. Ferramenta de apoio.</b> O VIP PONTO é um programa de tratamento de registro de ponto (REP-P) que auxilia o empregador no controle de jornada conforme a Portaria MTE 671/2021. Ele não substitui a assessoria contábil, jurídica ou trabalhista.</p>
+  <p><b>1. Ferramenta de apoio.</b> O Ponto Pró Gestão é um programa de tratamento de registro de ponto (REP-P) que auxilia o empregador no controle de jornada conforme a Portaria MTE 671/2021. Ele não substitui a assessoria contábil, jurídica ou trabalhista.</p>
   <p><b>2. Responsabilidade do cliente.</b> O empregador é o único responsável pelas marcações, pelo cadastro correto dos colaboradores, escalas, ajustes com motivo e pelo cumprimento da legislação trabalhista. As marcações originais (data, hora e NSR) são preservadas e não podem ser alteradas.</p>
-  <p><b>3. Proteção de dados (LGPD).</b> O empregador é o <b>controlador</b> dos dados pessoais dos colaboradores. O VIP PONTO atua como <b>operador</b>, tratando os dados apenas para prestar o serviço, com medidas de segurança e sem compartilhamento com terceiros além da infraestrutura necessária.</p>
+  <p><b>3. Proteção de dados (LGPD).</b> O empregador é o <b>controlador</b> dos dados pessoais dos colaboradores. O Ponto Pró Gestão atua como <b>operador</b>, tratando os dados apenas para prestar o serviço, com medidas de segurança e sem compartilhamento com terceiros além da infraestrutura necessária.</p>
   <p><b>4. Retenção de dados.</b> Os registros são mantidos durante a vigência da assinatura e, para fins legais, por no mínimo 5 anos. Em caso de inadimplência o acesso é pausado, mas os dados <b>não são excluídos</b>. A exclusão definitiva só ocorre por solicitação expressa do empregador.</p>
   <p><b>5. Assinatura.</b> Teste grátis de 7 dias. Após o vencimento há 7 dias de tolerância. Depois disso o acesso fica pausado até a confirmação do pagamento.</p></div>
   <div id="termos-msg"></div><button class="btn big green" style="margin-top:10px" onclick="aceitarTermos()">✓ Li e concordo com os Termos de Uso</button></div>`);
