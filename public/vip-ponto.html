@@ -1477,7 +1477,7 @@ function dadosFolha(pin,ini,fim){
       else if(ocorr.tipo==='Falta'){tot.faltas++;tot.faltasInj++;}
       else tot.folgas++;
     }
-    if(!oc&&!bs.length&&prev>0){oc='FALTA';cls='t-falta';tot.faltas++;tot.faltasInj++;}
+    if(!bs.length&&prev>0&&(!oc||oc==='FERIADO')){oc='FALTA';cls='t-falta';tot.faltas++;tot.faltasInj++;}
     if(!oc&&!bs.length&&prev===0){oc='FOLGA';cls='t-folga';tot.folgas++;}
     // atraso com tolerância 10min
     const prevEntrada=horarioEscala(pin,d)||(get('empregador',{})||{}).hEntrada||'08:00';
@@ -2093,7 +2093,7 @@ function abaFolha(){
   </div>
   <div class="folha-actions" role="group" aria-label="Exportar folha de ponto">
     <button class="btn sm ghost" onclick="imprimirFolhaTela()">🖨️ Imprimir</button>
-    <button class="btn sm" onclick="baixarPDFFolha()">📄 Baixar PDF</button>
+    <button class="btn sm" onclick="baixarPDFFolha()"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6v20h12V6zM14 2v5h5M8 12h8M8 16h8"/></svg>Baixar PDF</button>
     <button id="fl-pacote" class="btn sm gold" onclick="pacoteContador()">📦 Pacote do Contador (ZIP)</button>
     <details class="fiscal-menu"><summary class="btn sm ghost">⚖️ Fiscal MTE <span aria-hidden="true">▾</span></summary>
       <div class="fiscal-options">
