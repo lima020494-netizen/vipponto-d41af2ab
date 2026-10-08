@@ -1418,12 +1418,11 @@ function horarioEscala(pin,iso){
 function previstoDia(f,iso){
   if(f.status==='Desligado'&&iso>f.dataDesligamento) return 0;
   if(iso<f.admissao) return 0;
-  if(feriadoDe(iso)) return 0;
-  if(folgaEscala(f.pin,iso)) return 0;
-  const escSem=escalaDaSemana(iso,f.pin), temEsc=escSem&&(escSem.folgas||[]).some(x=>x.pin===f.pin);
   if(f.status==='Férias'&&iso>=f.feriasIni&&iso<=f.feriasFim) return 0;
   if(f.status==='Afastamento'&&iso>=f.afastDe&&iso<=f.afastAte) return 0;
-  if(temEsc) return cargaEscala(f.escala); // escala da semana prevalece sobre o DSR padrão (ex.: DSR na terça libera o domingo)
+  const diaEscala=buscaNaEscala(f.pin,iso);
+  if(diaEscala) return diaEscala.tipo==='Trabalhado'?cargaEscala(f.escala):0;
+  if(feriadoDe(iso)) return 0;
   const d=dow(iso);
   if(f.escala==='5x2'&&(d===0||d===6)) return 0;
   if(f.escala==='6x1'&&d===0) return 0;
@@ -1483,7 +1482,7 @@ function dadosFolha(pin,ini,fim){
     // atraso com tolerância 10min
     const prevEntrada=horarioEscala(pin,d)||(get('empregador',{})||{}).hEntrada||'08:00';
     let atrasoMin=0;
-    if(prev>0&&bs.length&&g('Entrada')){const at=toMin(g('Entrada').hora)-toMin(prevEntrada);if(at>10){atrasoMin=at;tot.atrasos++;oc=(oc?oc+' | ':'')+`ATRASO ${toHHMM(at)}`;cls=cls||'t-atraso';}}
+    if(prev>0&&bs.length&&g('Entrada')){let at=toMin(g('Entrada').hora)-toMin(prevEntrada);if(at<-720)at+=1440;else if(at>720)at-=1440;if(at>10){atrasoMin=at;tot.atrasos++;}}
     if(bs.length){
       tot.trabalhado+=trab;
       if(prev>0){ if(trab>prev) tot.extras+=trab-prev; else if(trab<prev) tot.faltantes+=prev-trab; }
@@ -1494,7 +1493,7 @@ function dadosFolha(pin,ini,fim){
     bs.filter(b=>b.movimento).forEach(b=>just.push(`${brOf(d)} ${b.hora} - ${b.movimento}`));
     linhas.push({data:d,dia:DIAS[dow(d)],e1:por(g('Entrada')),e2:por(g('Saída Intervalo')),e3:por(g('Entrada Intervalo')),e4:por(g('Saída')),
       noturno:noct.min,trabalhado:trab,previsto:prev,saldo:bs.length?trab-prev:(prev>0?-prev:0),
-      ocorrencia:oc||'NORMAL',cls,fonte:bs[0]?bs[0].fonte:'—',mov,nsr:bs.map(b=>b.nsr).join(' / ')});
+      atrasoMin,ocorrencia:oc||(f.intervalo?.preAssinalado?'INTERVALO PRÉ-ASSINALADO ART. 71':''),cls,fonte:bs[0]?bs[0].fonte:'—',mov,nsr:bs.map(b=>b.nsr).join(' / ')});
   }
   const banco=calcBanco(pin,ini,fim);
   return {f,ini,fim,linhas,tot,just,banco};
@@ -1952,12 +1951,12 @@ function calcDash(){
     const d=dadosFolha(f.pin,ini,fim);
     const prevTot=d.linhas.reduce((s,l)=>s+l.previsto,0);
     const diasPrev=d.linhas.filter(l=>l.previsto>0).length;
-    const trabalhados=d.linhas.filter(l=>l.trabalhado>0).length;
-    const atrasos=d.linhas.filter(l=>/ATRASO/.test(l.ocorrencia));
-    const atrasoMin=atrasos.reduce((s,l)=>s+(toMin((l.ocorrencia.match(/ATRASO (\d+:\d+)/)||[])[1]||'0:00')),0);
+    const trabalhados=d.linhas.filter(l=>l.previsto>0&&l.trabalhado>0).length;
+    const atrasos=d.linhas.filter(l=>l.atrasoMin>0);
+    const atrasoMin=atrasos.reduce((s,l)=>s+l.atrasoMin,0);
     const incompletos=d.linhas.filter(l=>l.trabalhado>0&&l.previsto>0&&l.trabalhado<l.previsto);
     return {f,d,prevTot,diasPrev,trabalhados,pres:diasPrev?Math.round(trabalhados/diasPrev*100):0,
-      faltas:d.tot.faltas,atrasosQtd:atrasos.length,atrasoMedio:atrasos.length?Math.round(atrasoMin/atrasos.length):0,
+      faltas:d.linhas.filter(l=>l.previsto>0&&/^FALTA/.test(l.ocorrencia)).length,atrasosQtd:atrasos.length,atrasoMedio:atrasos.length?Math.round(atrasoMin/atrasos.length):0,
       incQtd:incompletos.length,incMin:incompletos.reduce((s,l)=>s+(l.previsto-l.trabalhado),0)};
   });
   const totPrev=res.reduce((s,r)=>s+r.diasPrev,0), totFaltas=res.reduce((s,r)=>s+r.faltas,0);
@@ -2110,7 +2109,7 @@ function abaFolha(){
 function periodoFolhaValido(){
   const ini=$('fl-ini')?.value,fim=$('fl-fim')?.value;
   if(!ini||!fim||ini>fim){toast('Informe um período válido: início até a data final.',4000);return null;}
-  if(difDias(ini,fim)>366){toast('Selecione um período de até 366 dias.',4000);return null;}
+  if((Date.parse(fim)-Date.parse(ini))/86400000>=366){toast('Selecione um período de até 366 dias.',4000);return null;}
   return {ini,fim};
 }
 function gerarFolha(){if(periodoFolhaValido())$('fl-out').innerHTML=htmlFolha($('fl-pin').value,$('fl-ini').value,$('fl-fim').value);}
