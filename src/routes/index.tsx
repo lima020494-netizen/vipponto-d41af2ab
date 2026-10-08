@@ -3,13 +3,13 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Ponto Pró Gestão — Registro Eletrônico de Ponto (Portaria MTE 671/2021)" },
+      { title: "Ponto Pro Gestão — Registro Eletrônico de Ponto (Portaria MTE 671/2021)" },
       {
         name: "description",
         content:
           "Controle de ponto multi-empresa: PIN, comprovante térmico 58mm, escala semanal, banco de horas e folha de ponto padrão MTE em PDF e XML.",
       },
-      { property: "og:title", content: "Ponto Pró Gestão — Registro Eletrônico de Ponto" },
+      { property: "og:title", content: "Ponto Pro Gestão — Registro Eletrônico de Ponto" },
       {
         property: "og:description",
         content:
@@ -26,8 +26,8 @@ function Index() {
   // O aplicativo completo é um único arquivo HTML/CSS/JS puro em /vip-ponto.html
   return (
     <iframe
-      src="/vip-ponto.html?v=20261007-ponto-pro-gestao"
-      title="Ponto Pró Gestão"
+      src="/vip-ponto.html?v=20261008-folha-pro"
+      title="Ponto Pro Gestão"
       style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: 0 }}
     />
   );
