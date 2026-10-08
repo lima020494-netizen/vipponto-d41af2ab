@@ -1,5 +1,10 @@
 # Roadmap
 
+- [ ] Neutralizar identificação do cupom 58 mm, preservando campos e impressão.
+- [ ] Organizar ações da folha e criar Pacote do Contador ZIP (PDFs, AFD e CSV).
+- [ ] Aplicar Escala > Padrão e remover atrasos das ocorrências da folha/PDF.
+- [ ] Corrigir grafia Ponto Pro Gestão e validar em preview sem publicação.
+
 - [x] Aplicar nome Ponto Pró Gestão e logo anexada às telas, documentos e ícones, preservando dados e validando somente em preview.
 
 - [x] Criar links mensais temporários e exclusivos para a folha do colaborador.
