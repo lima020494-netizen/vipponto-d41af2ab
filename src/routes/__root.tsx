@@ -78,10 +78,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Ponto Pró Gestão — Registro Eletrônico de Ponto" },
+      { title: "Ponto Pro Gestão — Registro Eletrônico de Ponto" },
       { name: "description", content: "Controle de ponto, escalas, banco de horas e folhas conforme a Portaria MTE 671/2021." },
       { name: "author", content: "Atalaia Sistemas" },
-      { property: "og:title", content: "Ponto Pró Gestão — Registro Eletrônico de Ponto" },
+      { property: "og:title", content: "Ponto Pro Gestão — Registro Eletrônico de Ponto" },
       { property: "og:description", content: "Registro de ponto e gestão de frequência para empresas." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
