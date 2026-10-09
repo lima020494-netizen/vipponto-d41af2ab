@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
+import { canSaveDeveloperInfo, developerInfoSchema } from "@/lib/developer-info";
 
 const DAY = 86400000;
 const TOLERANCIA_DIAS = 7;
@@ -45,6 +46,7 @@ async function getConfig(db: any) {
 }
 
 const adminSchema = z.discriminatedUnion("acao", [
+  z.object({ acao: z.literal("dev_info"), pin: z.string(), info: developerInfoSchema }),
   z.object({ acao: z.literal("listar"), pin: z.string() }),
   z.object({ acao: z.literal("renovar"), pin: z.string(), email: z.string().email(), dias: z.union([z.literal(30), z.literal(365)]) }),
   z.object({ acao: z.literal("cortesia"), pin: z.string(), email: z.string().email() }),
@@ -86,6 +88,15 @@ export const Route = createFileRoute("/api/public/licenca")({
         if (!p.success) return json({ error: "Dados inválidos." }, 400);
         if (p.data.pin !== "1000") return json({ error: "PIN mestre inválido." }, 403);
         const d = p.data;
+        if (d.acao === "dev_info") {
+          if (!canSaveDeveloperInfo(a.email, a.isDev, d.pin)) return json({ error: "Apenas a conta master pode alterar o Sobre." }, 403);
+          const { data: previous, error: readError } = await a.db.from("app_config" as never).select("valor").eq("chave", "dev_info").maybeSingle();
+          if (readError) return json({ error: "Falha ao consultar informações globais." }, 500);
+          const old = ((previous as { valor?: Record<string, unknown> } | null)?.valor) || {};
+          const info = { ...d.info, ...(d.info.logo ? {} : old["logo"] ? { logo: old["logo"] } : {}) };
+          const { error } = await a.db.from("app_config" as never).upsert({ chave: "dev_info", valor: info } as never);
+          return error ? json({ error: "Falha ao salvar informações globais." }, 500) : json({ ok: true, info });
+        }
         const tbl = () => a.db.from("licencas" as never);
         if (d.acao === "listar") {
           const [l, e, f] = await Promise.all([

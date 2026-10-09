@@ -453,6 +453,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .trat-box{margin-top:6px;border:1px solid #cbd5e1;border-radius:6px;padding:5px 8px;font-size:10px;line-height:1.3;page-break-inside:avoid}.trat-box ul{margin:3px 0 0;padding-left:16px;columns:2;column-gap:18px}.trat-box li{break-inside:avoid}
 @media print{.folha table td,.folha table th{padding:2px 4px!important;font-size:9px!important;white-space:nowrap}.trat-box{font-size:8px}}
 .folha-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0 8px}.folha-actions .btn{min-height:40px;border-radius:8px}.fiscal-menu{position:relative;margin-left:auto}.fiscal-menu summary{list-style:none;cursor:pointer}.fiscal-menu summary::-webkit-details-marker{display:none}.fiscal-options{position:absolute;right:0;top:calc(100% + 6px);z-index:30;width:300px;max-width:calc(100vw - 48px);display:grid;gap:4px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow)}.fiscal-options .btn{justify-content:flex-start;text-align:left;white-space:normal}.fiscal-menu summary:focus-visible{outline:3px solid var(--gold2);outline-offset:3px}@media(max-width:600px){.folha-actions{display:grid;grid-template-columns:1fr 1fr}.folha-actions .btn{width:100%;white-space:normal}.fiscal-menu{margin-left:0;min-width:0}.fiscal-menu summary{height:100%}}
+.login-plans-banner{display:block;text-align:center;font-size:12px;line-height:1.4;padding:7px 10px;margin:0 0 10px;border-bottom:1px solid var(--line);color:var(--navy);text-decoration:none}.login-plans-banner:focus-visible{outline:3px solid var(--gold2);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -460,6 +461,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 <!-- ======================= MÓDULO 0 — LOGIN MULTI-EMPRESA ======================= -->
 <div id="tela-login">
   <div class="box">
+    <a class="login-plans-banner" href="/conheca" target="_top">Quer usar na sua empresa? Conheça os planos ↗</a>
     <img id="logo-app" src="/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg" alt="Ponto Pro Gestão" />
     <div id="login-view">
       <h3 style="text-align:center">Acesso ao sistema</h3>
@@ -742,7 +744,7 @@ async function migrarTudoSunmiParaSupabase(forcar){
       else if(v&&typeof v==='object') Object.entries(v).forEach(([s,e])=>e&&typeof e==='object'&&escRows.push({email_dono:CONTA,semana:e.semanaInicio||s,dados:e}));});
     if(escRows.length) chk(await sb.from('escala').upsert(escRows,{onConflict:'email_dono,semana'}));
     const emp=ler('empregador')[0]; if(emp&&typeof emp==='object') chk(await sb.from('empregador').upsert({email_dono:CONTA,dados:emp},{onConflict:'email_dono'}));
-    const dev=ler('dev_info')[0]; if(dev&&!localStorage.getItem('vip_ponto_dev_info')) localStorage.setItem('vip_ponto_dev_info',JSON.stringify(dev));
+    // Sobre é global em app_config; dados legados da empresa não substituem essa fonte.
     localStorage.setItem(flag,new Date().toISOString());
     const msg=`Migração: ${funcs.length} func, ${rows.length} batidas, ${lgs.length} logs`;
     if(forcar) log(msg);
@@ -2320,16 +2322,43 @@ async function loteXML(){
 /* ===================== DESENVOLVEDOR / FABRICANTE (Portaria 671, art. 89-91) ===================== */
 const DEV={nome:'Henrique Lima',empresa:'Atalaia Sistemas',doc:'',tipoDoc:'CPF',email:'',telefone:'',cidade:'Salinópolis-PA',
   programa:'Ponto Pro Gestão',versao:'1.0.0',tipoRep:'REP-P (Programa)',registroINPI:''};
-function devCfg(){let g={};try{g=JSON.parse(localStorage.getItem('vip_ponto_dev_info')||'{}');}catch(e){}return Object.assign({},DEV,(CONTA&&get('dev',{}))||{},g,{programa:DEV.programa});}
+function devCfg(){let g={};try{g=JSON.parse(localStorage.getItem('vip_ponto_dev_info')||'{}');}catch(e){}return Object.assign({},DEV,g,{programa:DEV.programa});}
 const logoApp=()=>localStorage.getItem('ponto_pro_gestao_logo_app')||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg';
 const ehMestre=()=>typeof GERENCIADOR!=='undefined'&&GERENCIADOR&&GERENCIADOR.pin==='1000';
 setTimeout(()=>{const l=document.getElementById('logo-app');if(l)l.src=logoApp();},50);
 document.addEventListener('DOMContentLoaded',()=>{const el=document.getElementById('dev-nome-login');if(el)el.textContent=devCfg().nome;});
 setTimeout(()=>{const el=document.getElementById('dev-nome-login');if(el)el.textContent=devCfg().nome;},300);
-function abrirSobre(){
+let SOBRE_ABERTO=false,DEV_SYNC=null;
+function aplicarDevGlobal(info){
+  localStorage.setItem('vip_ponto_dev_info',JSON.stringify(info||{}));
+  if(info?.logo)localStorage.setItem('ponto_pro_gestao_logo_app',info.logo);
+  else localStorage.removeItem('ponto_pro_gestao_logo_app');
+  const logo=$('logo-app');if(logo)logo.src=logoApp();
+}
+async function sincronizarDevGlobal(){
+  if(DEV_SYNC)return DEV_SYNC;
+  DEV_SYNC=(async()=>{try{
+    const {data,error}=await sb.from('app_config').select('valor').eq('chave','dev_info').maybeSingle();
+    if(error)throw error;
+    if(!data)return; // Preserva configurações legadas até o master salvar a primeira versão global.
+    const info=data?.valor||{},antes=JSON.stringify(devCfg());
+    aplicarDevGlobal(info);
+    if(SOBRE_ABERTO&&$('sobre-sistema')&&!podeEditarDev()&&!$('modal-generico').classList.contains('hidden')&&antes!==JSON.stringify(devCfg()))renderSobre();
+  }catch(e){/* Cache global compartilhado permanece disponível offline. */}finally{DEV_SYNC=null;}})();
+  return DEV_SYNC;
+}
+window.addEventListener('online',sincronizarDevGlobal);
+window.addEventListener('storage',e=>{if(e.key==='vip_ponto_dev_info'||e.key==='ponto_pro_gestao_logo_app'){const l=$('logo-app');if(l)l.src=logoApp();if(SOBRE_ABERTO&&$('sobre-sistema')&&!podeEditarDev()&&!$('modal-generico').classList.contains('hidden'))renderSobre();}});
+setTimeout(sincronizarDevGlobal,0);
+setInterval(()=>{if(!document.hidden)sincronizarDevGlobal();},30000);
+async function abrirSobre(){
+  SOBRE_ABERTO=true;LOGO_APP_TMP=null;
+  await sincronizarDevGlobal();renderSobre();
+}
+function renderSobre(){
   const d=devCfg(),ed=podeEditarDev();
   const f=(k,l)=>ed?`<div><label>${l}</label><input id="dv-${k}" value="${esc(d[k]||'')}"/></div>`:`<div><label>${l}</label><div style="font-weight:600">${esc(d[k]||'—')}</div></div>`;
-  abrirModal(`<div class="row"><h3>Sobre o Ponto Pro Gestão</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
+  abrirModal(`<div id="sobre-sistema" class="row"><h3>Sobre o Ponto Pro Gestão</h3><button class="btn sm ghost right" onclick="SOBRE_ABERTO=false;fecharModal()">✕</button></div>
   <div class="card" style="text-align:center"><img id="dv-logo-prev" src="${logoApp()}" style="width:240px;max-width:100%;height:160px;object-fit:contain"/>
   ${ed?'<div style="max-width:320px;margin:6px auto"><label>Logotipo do app</label><input type="file" id="dv-logo" accept="image/*" onchange="lerLogoApp(this)"/></div>':''}<div style="font-weight:900;font-size:20px">${esc(d.programa)} v${esc(d.versao)}</div>
   <div class="muted">Programa de Tratamento de Registro de Ponto — ${esc(d.tipoRep)} — Portaria MTE 671/2021</div></div>
@@ -2339,14 +2368,16 @@ function abrirSobre(){
   <div class="muted">© ${new Date().getFullYear()} ${esc(d.nome)} — Todos os direitos reservados.</div>`);
 }
 let LOGO_APP_TMP=null;
-function podeEditarDev(){return !!(typeof LIC!=='undefined'&&LIC&&LIC.isDev&&ehMestre());}
-function lerLogoApp(inp){if(!podeEditarDev())return;const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{LOGO_APP_TMP=r.result;$('dv-logo-prev').src=r.result;};r.readAsDataURL(f);}
-function salvarDev(){
+function podeEditarDev(){return !!(CONTA==='lima020494@gmail.com'&&typeof LIC!=='undefined'&&LIC&&LIC.isDev&&ehMestre());}
+function lerLogoApp(inp){if(!podeEditarDev())return;const f=inp.files[0];if(!f)return;if(!['image/png','image/jpeg','image/webp'].includes(f.type)||f.size>1000000)return alert('Use PNG, JPG ou WebP de até 1 MB.');const r=new FileReader();r.onload=()=>{LOGO_APP_TMP=r.result;$('dv-logo-prev').src=r.result;};r.readAsDataURL(f);}
+async function salvarDev(){
   if(!podeEditarDev()) return alert('Apenas desenvolvedor');
   const o={};['nome','empresa','tipoDoc','doc','email','telefone','cidade','versao','registroINPI'].forEach(k=>o[k]=$('dv-'+k).value.trim());
-  localStorage.setItem('vip_ponto_dev_info',JSON.stringify(o));
-  if(LOGO_APP_TMP){localStorage.setItem('ponto_pro_gestao_logo_app',LOGO_APP_TMP);LOGO_APP_TMP=null;}
-  log('Atualizou dados do desenvolvedor / logotipo do app');fecharModal();
+  if(LOGO_APP_TMP)o.logo=LOGO_APP_TMP;
+  try{const j=await apiLic('POST',{acao:'dev_info',pin:GERENCIADOR.pin,info:o});
+    aplicarDevGlobal(j.info);LOGO_APP_TMP=null;SOBRE_ABERTO=false;
+    log('Atualizou dados globais do desenvolvedor / logotipo do app');fecharModal();toast('Informações globais atualizadas.');
+  }catch(e){alert('Não foi possível salvar: '+e.message);}
 }
 
 /* ===================== UTILITÁRIOS AFD ===================== */
