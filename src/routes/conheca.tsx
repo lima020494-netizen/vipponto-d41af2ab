@@ -2,8 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Check, ShieldCheck, WifiOff, Printer, Smartphone, Clock3, Headphones, ChevronRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import kioskImage from "@/assets/conheca-kiosk.jpg";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { CONHECA_DEFAULT, resolveConheca } from "@/lib/conheca-content";
 
-const whatsapp = "https://wa.me/5591999999999";
 const logo = "/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg";
 
 export const Route = createFileRoute("/conheca")({
@@ -30,13 +32,15 @@ const resources = [
   { icon: Printer, title: "Comprovante na hora", copy: "Impressão térmica 58 mm com data, hora, NSR e hash de autenticidade." },
   { icon: Smartphone, title: "Kiosk, Sunmi e PWA", copy: "Registro por PIN no quiosque e acesso às folhas pelo celular." },
 ];
-const plans = [
-  { name: "Básico", price: "49", caption: "Para começar com segurança", benefits: ["Registro de ponto por PIN", "Funcionamento offline", "Comprovante de ponto", "Folhas e relatórios"] },
-  { name: "Pro", price: "89", caption: "Mais gestão para sua rotina", benefits: ["Recursos do Básico", "Gestão de escalas", "Banco de horas", "Pacote do contador"], featured: true },
-  { name: "Enterprise", price: null, caption: "Uma operação do seu tamanho", benefits: ["Recursos do Pro", "Atendimento à sua operação", "Condições personalizadas", "Suporte dedicado"] },
-];
 
 function ConhecaPage() {
+  const [k, setK] = useState(CONHECA_DEFAULT);
+  useEffect(() => {
+    supabase.from("app_config").select("valor").eq("chave", "conheca").maybeSingle()
+      .then(({ data }) => { if (data?.valor) setK(resolveConheca(data.valor)); }, () => {});
+  }, []);
+  const whatsapp = `https://wa.me/${k.whatsapp}`;
+  const plans = k.plans.map((p, i) => ({ ...p, featured: i === 1 }));
   return <div className="commercial min-h-screen bg-background text-foreground">
     <header className="border-b border-border">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-4 md:px-10">
@@ -54,10 +58,10 @@ function ConhecaPage() {
       <section className="commercial-hero relative isolate overflow-hidden">
         <img src={kioskImage} alt="Registro de ponto em um quiosque com impressora térmica em um lounge" width={1536} height={1024} fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-right" />
         <div className="commercial-enter relative z-10 mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-22">
-          <div className="mb-6 flex items-center gap-2 text-xs font-bold uppercase text-primary"><ShieldCheck size={18} /> Jornada registrada. Gestão tranquila.</div>
+          <div className="mb-6 flex items-center gap-2 text-xs font-bold uppercase text-primary"><ShieldCheck size={18} /> {k.tagline}</div>
           <div className="mb-5 text-lg font-bold">Ponto Pro Gestão</div>
-          <h1 className="max-w-2xl text-3xl font-semibold leading-tight md:text-5xl">O Ponto Eletrônico Seguro para Kiosk, Sunmi e PWA - Conforme Portaria 671/2021 MTE</h1>
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">Gestão de ponto simples, segura e 100% conforme. Funciona offline, com comprovante e relatórios.</p>
+          <h1 className="max-w-2xl text-3xl font-semibold leading-tight md:text-5xl">{k.headline}</h1>
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">{k.subtitle}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg" className="h-12 px-6 text-xs font-extrabold"><Link to="/">TESTAR 7 DIAS GRÁTIS <ArrowUpRight /></Link></Button>
             <Button asChild size="lg" variant="outline" className="h-12 px-6 text-xs"><a href={whatsapp} target="_blank" rel="noopener noreferrer"><MessageCircle /> FALAR NO WHATSAPP</a></Button>

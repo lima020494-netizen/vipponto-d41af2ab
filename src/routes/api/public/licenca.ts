@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { canSaveDeveloperInfo, developerInfoSchema } from "@/lib/developer-info";
+import { conhecaSchema, resolveConheca } from "@/lib/conheca-content";
 
 const DAY = 86400000;
 const TOLERANCIA_DIAS = 7;
@@ -47,6 +48,7 @@ async function getConfig(db: any) {
 
 const adminSchema = z.discriminatedUnion("acao", [
   z.object({ acao: z.literal("dev_info"), pin: z.string(), info: developerInfoSchema }),
+  z.object({ acao: z.literal("conheca"), pin: z.string(), conteudo: conhecaSchema }),
   z.object({ acao: z.literal("listar"), pin: z.string() }),
   z.object({ acao: z.literal("renovar"), pin: z.string(), email: z.string().email(), dias: z.union([z.literal(30), z.literal(365)]) }),
   z.object({ acao: z.literal("cortesia"), pin: z.string(), email: z.string().email() }),
@@ -96,6 +98,11 @@ export const Route = createFileRoute("/api/public/licenca")({
           const info = { ...d.info, ...(d.info.logo ? {} : old["logo"] ? { logo: old["logo"] } : {}) };
           const { error } = await a.db.from("app_config" as never).upsert({ chave: "dev_info", valor: info } as never);
           return error ? json({ error: "Falha ao salvar informações globais." }, 500) : json({ ok: true, info });
+        }
+        if (d.acao === "conheca") {
+          if (!canSaveDeveloperInfo(a.email, a.isDev, d.pin)) return json({ error: "Apenas a conta master pode alterar a página comercial." }, 403);
+          const { error } = await a.db.from("app_config" as never).upsert({ chave: "conheca", valor: d.conteudo } as never);
+          return error ? json({ error: "Falha ao salvar a página comercial." }, 500) : json({ ok: true });
         }
         const tbl = () => a.db.from("licencas" as never);
         if (d.acao === "listar") {
