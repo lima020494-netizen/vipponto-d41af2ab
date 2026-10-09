@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ConhecaRouteImport } from './routes/conheca'
 import { Route as ApiPublicFolhaLinkRouteImport } from './routes/api/public/folha-link'
 import { Route as ApiPublicLicencaRouteImport } from './routes/api/public/licenca'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConhecaRoute = ConhecaRouteImport.update({
+  id: '/conheca',
+  path: '/conheca',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicFolhaLinkRoute = ApiPublicFolhaLinkRouteImport.update({
@@ -31,30 +37,39 @@ const ApiPublicLicencaRoute = ApiPublicLicencaRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/conheca': typeof ConhecaRoute
   '/api/public/folha-link': typeof ApiPublicFolhaLinkRoute
   '/api/public/licenca': typeof ApiPublicLicencaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/conheca': typeof ConhecaRoute
   '/api/public/folha-link': typeof ApiPublicFolhaLinkRoute
   '/api/public/licenca': typeof ApiPublicLicencaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/conheca': typeof ConhecaRoute
   '/api/public/folha-link': typeof ApiPublicFolhaLinkRoute
   '/api/public/licenca': typeof ApiPublicLicencaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/folha-link' | '/api/public/licenca'
+  fullPaths: '/' | '/conheca' | '/api/public/folha-link' | '/api/public/licenca'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/folha-link' | '/api/public/licenca'
-  id: '__root__' | '/' | '/api/public/folha-link' | '/api/public/licenca'
+  to: '/' | '/conheca' | '/api/public/folha-link' | '/api/public/licenca'
+  id:
+    | '__root__'
+    | '/'
+    | '/conheca'
+    | '/api/public/folha-link'
+    | '/api/public/licenca'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConhecaRoute: typeof ConhecaRoute
   ApiPublicFolhaLinkRoute: typeof ApiPublicFolhaLinkRoute
   ApiPublicLicencaRoute: typeof ApiPublicLicencaRoute
 }
@@ -66,6 +81,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conheca': {
+      id: '/conheca'
+      path: '/conheca'
+      fullPath: '/conheca'
+      preLoaderRoute: typeof ConhecaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/folha-link': {
@@ -87,6 +109,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConhecaRoute: ConhecaRoute,
   ApiPublicFolhaLinkRoute: ApiPublicFolhaLinkRoute,
   ApiPublicLicencaRoute: ApiPublicLicencaRoute,
 }
