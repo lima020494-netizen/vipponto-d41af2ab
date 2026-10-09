@@ -2342,12 +2342,12 @@ async function sincronizarDevGlobal(){
     if(error)throw error;
     const info=data?.valor||{},antes=JSON.stringify(devCfg());
     aplicarDevGlobal(info);
-    if(SOBRE_ABERTO&&!podeEditarDev()&&!$('modal-generico').classList.contains('hidden')&&antes!==JSON.stringify(devCfg()))renderSobre();
+    if(SOBRE_ABERTO&&$('sobre-sistema')&&!podeEditarDev()&&!$('modal-generico').classList.contains('hidden')&&antes!==JSON.stringify(devCfg()))renderSobre();
   }catch(e){/* Cache global compartilhado permanece disponível offline. */}finally{DEV_SYNC=null;}})();
   return DEV_SYNC;
 }
 window.addEventListener('online',sincronizarDevGlobal);
-window.addEventListener('storage',e=>{if(e.key==='vip_ponto_dev_info'||e.key==='ponto_pro_gestao_logo_app'){const l=$('logo-app');if(l)l.src=logoApp();if(SOBRE_ABERTO&&!podeEditarDev()&&!$('modal-generico').classList.contains('hidden'))renderSobre();}});
+window.addEventListener('storage',e=>{if(e.key==='vip_ponto_dev_info'||e.key==='ponto_pro_gestao_logo_app'){const l=$('logo-app');if(l)l.src=logoApp();if(SOBRE_ABERTO&&$('sobre-sistema')&&!podeEditarDev()&&!$('modal-generico').classList.contains('hidden'))renderSobre();}});
 setTimeout(sincronizarDevGlobal,0);
 setInterval(()=>{if(!document.hidden)sincronizarDevGlobal();},30000);
 async function abrirSobre(){
