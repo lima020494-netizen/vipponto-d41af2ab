@@ -1,8 +1,8 @@
 # Roadmap
 
-- [ ] Unificar Sobre global e logo com gravação protegida e leitura compartilhada.
-- [ ] Criar /conheca e convite discreto no login, preservando sistema raiz.
-- [ ] Configurar metadados, sitemap e robots; validar somente em preview.
+- [x] Unificar Sobre global e logo com gravação protegida e leitura compartilhada; testes de permissões e leitura passaram (gravação com conta master real não disponível no ambiente).
+- [x] Criar /conheca e convite discreto no login, preservando sistema raiz.
+- [x] Configurar metadados, sitemap e robots; validar somente em preview, sem publicação.
 
 - [x] Neutralizar identificação do cupom 58 mm, preservando campos e impressão.
 - [x] Organizar ações da folha e criar Pacote do Contador ZIP (PDFs, AFD e CSV).

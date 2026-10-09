@@ -2340,6 +2340,7 @@ async function sincronizarDevGlobal(){
   DEV_SYNC=(async()=>{try{
     const {data,error}=await sb.from('app_config').select('valor').eq('chave','dev_info').maybeSingle();
     if(error)throw error;
+    if(!data)return; // Preserva configurações legadas até o master salvar a primeira versão global.
     const info=data?.valor||{},antes=JSON.stringify(devCfg());
     aplicarDevGlobal(info);
     if(SOBRE_ABERTO&&$('sobre-sistema')&&!podeEditarDev()&&!$('modal-generico').classList.contains('hidden')&&antes!==JSON.stringify(devCfg()))renderSobre();
