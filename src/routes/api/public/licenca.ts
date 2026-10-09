@@ -99,6 +99,11 @@ export const Route = createFileRoute("/api/public/licenca")({
           const { error } = await a.db.from("app_config" as never).upsert({ chave: "dev_info", valor: info } as never);
           return error ? json({ error: "Falha ao salvar informações globais." }, 500) : json({ ok: true, info });
         }
+        if (d.acao === "conheca") {
+          if (!canSaveDeveloperInfo(a.email, a.isDev, d.pin)) return json({ error: "Apenas a conta master pode alterar a página comercial." }, 403);
+          const { error } = await a.db.from("app_config" as never).upsert({ chave: "conheca", valor: d.conteudo } as never);
+          return error ? json({ error: "Falha ao salvar a página comercial." }, 500) : json({ ok: true });
+        }
         const tbl = () => a.db.from("licencas" as never);
         if (d.acao === "listar") {
           const [l, e, f] = await Promise.all([
