@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { canSaveDeveloperInfo, developerInfoSchema } from "@/lib/developer-info";
+import { conhecaSchema, resolveConheca } from "@/lib/conheca-content";
 
 const DAY = 86400000;
 const TOLERANCIA_DIAS = 7;
@@ -47,6 +48,7 @@ async function getConfig(db: any) {
 
 const adminSchema = z.discriminatedUnion("acao", [
   z.object({ acao: z.literal("dev_info"), pin: z.string(), info: developerInfoSchema }),
+  z.object({ acao: z.literal("conheca"), pin: z.string(), conteudo: conhecaSchema }),
   z.object({ acao: z.literal("listar"), pin: z.string() }),
   z.object({ acao: z.literal("renovar"), pin: z.string(), email: z.string().email(), dias: z.union([z.literal(30), z.literal(365)]) }),
   z.object({ acao: z.literal("cortesia"), pin: z.string(), email: z.string().email() }),
