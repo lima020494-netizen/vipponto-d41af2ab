@@ -2083,10 +2083,10 @@ function pdfCabecalhoPadrao(doc,titulo,subtitulo=''){
   if(subtitulo){doc.setTextColor(82,98,122);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text(String(subtitulo).slice(0,135),105,42,{align:'center'});return 47;}return 43;
 }
 /* Shared A4 table layout: real cells, wrapped text and repeated headers. */
-function pdfTabelaPadrao(doc,{y,titulo,sub='',head,body,widths,fontSize=8}){
+function pdfTabelaPadrao(doc,{y,titulo,sub='',head,body,widths,fontSize=8,cellPadding=2}){
   doc.autoTable({startY:y,head:head?[head]:[],body:body.length?body:[['Nenhum registro no período.']],
     theme:'grid',margin:{left:10,right:10,top:47,bottom:21},tableWidth:190,
-    styles:{font:'helvetica',fontSize,cellPadding:2,lineWidth:.15,lineColor:[211,222,232],textColor:[35,50,75],overflow:'linebreak',valign:'middle'},
+    styles:{font:'helvetica',fontSize,cellPadding,lineWidth:.15,lineColor:[211,222,232],textColor:[35,50,75],overflow:'linebreak',valign:'middle'},
     headStyles:{fillColor:[227,239,244],textColor:[18,58,83],fontStyle:'bold'},
     alternateRowStyles:{fillColor:[247,250,252]},
     columnStyles:Object.fromEntries((widths||[]).map((w,i)=>[i,{cellWidth:w}])),
@@ -2218,7 +2218,7 @@ async function gerarPDFComLogo(dados){
     if(!first)doc.addPage(); first=false;
     let y=pdfCabecalhoPadrao(doc,'Folha de Ponto — Portaria MTE 671/2021',`Período ${brOf(ini)} a ${brOf(fim)}`);
     const titulo='Folha de Ponto — Portaria MTE 671/2021',sub=`${f.nome} • Período ${brOf(ini)} a ${brOf(fim)}`;
-    const tabela=(head,body,widths,fontSize=8)=>{y=pdfTabelaPadrao(doc,{y,titulo,sub,head,body,widths,fontSize})+3;};
+    const tabela=(head,body,widths,fontSize=8)=>{y=pdfTabelaPadrao(doc,{y,titulo,sub,head,body,widths,fontSize,cellPadding:1.3})+3;};
     const escLabel=(ESCALAS.find(x=>x[0]===f.escala)||['',f.escala||'—'])[1];
     tabela(null,[['Identificação do trabalhador',
       `Trabalhador: ${f.nome}\nCPF: ${f.cpf||'—'}\nFunção: ${f.funcao||'—'} • Departamento: ${f.departamento||'—'}\nAdmissão: ${brOf(f.admissao)}\nEmissão: ${brOf(isoOf(dt))} ${hhmm(dt)} • Período: ${brOf(ini)} a ${brOf(fim)}\nJornada contratual: ${e.hEntrada||''}-${e.hSaiInt||''} / ${e.hEntInt||''}-${e.hSaida||''} • Escala: ${escLabel}`]], [38,152]);
