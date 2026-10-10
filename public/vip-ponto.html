@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Sora:wght@600;700;800&amp;display=swap" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="/qrcode-generator.min.js"></script>
@@ -2030,29 +2031,23 @@ function printDash(){
   imprimirArea(wrap.innerHTML,'Dashboard de Frequência',usuario);
 }
 function pdfDash(){
-  const {jsPDF}=window.jspdf,e=get('empregador',{})||{},[ini,fim]=periodoDash();
-  const doc=new jsPDF({unit:'mm',format:'a4'}),filtro=$('d-func').value,usuario=filtro?(funcPorPin(filtro)||{}).nome:'Todos os colaboradores';
-  const sub=`Período ${brOf(ini)} a ${brOf(fim)} • Filtro: ${usuario}`;let y=pdfCabecalhoPadrao(doc,'Dashboard de Frequência',sub);
-  const quebra=()=>{if(y>270){doc.addPage();y=pdfCabecalhoPadrao(doc,'Dashboard de Frequência',sub);doc.setFontSize(9);}};
-  const out=$('dash-out'), limpa=s=>(s||'').replace(/[^\x20-\x7EÀ-ÿ—•]/g,'').trim();
-  const txt=[limpa(out.querySelector('.muted')?.innerText)];
-  out.querySelectorAll('.ind').forEach(el=>{
-    txt.push(`${limpa(el.querySelector('.ind-lbl')?.innerText)}: ${limpa(el.querySelector('.ind-val')?.innerText)} — ${limpa(el.querySelector('.ind-sub')?.innerText)}`);
-  });
-  txt.push('Ranking de Presença (gráfico abaixo)','Índice de Faltas (gráfico abaixo)','Ocorrências que pedem atenção:');
-  out.querySelectorAll('table tbody tr').forEach(tr=>{
-    const c=[...tr.children].map(td=>limpa(td.innerText));
-    if(c.length>=4)txt.push(`${c[0]} — Faltas: ${c[1]} | Atrasos: ${c[2]} | Carga incompleta: ${c[3]}`);
-  });
-  doc.setFontSize(9);txt.filter(Boolean).forEach(l=>{quebra();doc.text(l.slice(0,110),10,y);y+=4.5;});
+  const {jsPDF}=window.jspdf,[ini,fim]=periodoDash(),doc=new jsPDF({unit:'mm',format:'a4'});
+  const filtro=$('d-func').value,usuario=filtro?(funcPorPin(filtro)||{}).nome:'Todos os colaboradores';
+  const titulo='Dashboard de Frequência',sub=`Período ${brOf(ini)} a ${brOf(fim)} • Filtro: ${usuario}`;
+  let y=pdfCabecalhoPadrao(doc,titulo,sub);const out=$('dash-out');
+  const limpa=s=>(s||'').replace(/[^\x20-\x7EÀ-ÿ—•]/g,'').trim();
+  const indicadores=[...out.querySelectorAll('.ind')].map(el=>[limpa(el.querySelector('.ind-lbl')?.innerText),limpa(el.querySelector('.ind-val')?.innerText),limpa(el.querySelector('.ind-sub')?.innerText)]);
+  y=pdfTabelaPadrao(doc,{y,titulo,sub,head:['Indicador','Valor','Detalhamento'],body:indicadores,widths:[65,30,95]})+5;
+  const rows=[...out.querySelectorAll('table tbody tr')].map(tr=>[...tr.children].map(td=>limpa(td.innerText))).filter(r=>r.length>=4).map(r=>r.slice(0,4));
+  y=pdfTabelaPadrao(doc,{y,titulo,sub,head:['Colaborador','Faltas','Atrasos','Carga incompleta'],body:rows,widths:[85,30,30,45]})+6;
   [['dash-canvas','Ranking de Presença'],['dash-canvas-f','Índice de Faltas']].forEach(([id,tit])=>{
-    const c=$(id); if(!c)return; let img=''; try{img=c.toDataURL('image/png');}catch(_){return;}
-    const w=190,h=w*c.height/c.width; if(y+h>275){quebra();}
-    doc.setFontSize(10);doc.text(tit,10,y);y+=4;
+    const c=$(id);if(!c||!c.width||!c.height)return;let img='';try{img=c.toDataURL('image/png');}catch(_){return;}
+    const w=190,h=Math.min(160,w*c.height/c.width);
+    if(y+h+10>276){doc.addPage();y=pdfCabecalhoPadrao(doc,titulo,sub);}
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text(tit,10,y+4);y+=8;
     doc.addImage(img,'PNG',10,y,w,h);y+=h+6;
   });
-  pdfRodapesPadrao(doc,usuario);
-  doc.save('Dashboard_Frequencia.pdf');
+  pdfRodapesPadrao(doc,usuario);doc.save('Dashboard_Frequencia.pdf');
 }
 function imprimirArea(html,titulo,usuario='Conta '+(CONTA||'—')){
   const completo=/data-doc-completo/.test(html);
@@ -2083,7 +2078,29 @@ function pdfCabecalhoPadrao(doc,titulo,subtitulo=''){
   doc.setDrawColor(18,58,115);doc.setLineWidth(.7);doc.line(10,30,200,30);doc.setTextColor(12,34,70);doc.setFont('helvetica','bold');doc.setFontSize(13);doc.text(String(titulo||'Documento').toUpperCase(),105,37,{align:'center'});
   if(subtitulo){doc.setTextColor(82,98,122);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text(String(subtitulo).slice(0,135),105,42,{align:'center'});return 47;}return 43;
 }
-function pdfRodapesPadrao(doc,usuario){const m=identidadeDocumento(usuario),n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setDrawColor(156,173,195);doc.setLineWidth(.25);doc.line(10,282,200,282);doc.setTextColor(64,80,106);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.text(m.app,10,286);doc.text(`Emitido em ${m.quando} • Usuário: ${m.usuario}`.slice(0,116),10,290);doc.text(`Gestor: ${m.gestor}`.slice(0,92),105,290);doc.text(`Página ${i}/${n}`,200,290,{align:'right'});}}
+/* Shared A4 table layout: real cells, wrapped text and repeated headers. */
+function pdfTabelaPadrao(doc,{y,titulo,sub='',head,body,widths,fontSize=8}){
+  doc.autoTable({startY:y,head:head?[head]:[],body:body.length?body:[['Nenhum registro no período.']],
+    theme:'grid',margin:{left:10,right:10,top:47,bottom:21},tableWidth:190,
+    styles:{font:'helvetica',fontSize,cellPadding:2,lineWidth:.15,lineColor:[211,222,232],textColor:[35,50,75],overflow:'linebreak',valign:'middle'},
+    headStyles:{fillColor:[227,239,244],textColor:[18,58,83],fontStyle:'bold'},
+    alternateRowStyles:{fillColor:[247,250,252]},
+    columnStyles:Object.fromEntries((widths||[]).map((w,i)=>[i,{cellWidth:w}])),
+    rowPageBreak:'avoid',showHead:'everyPage',
+    willDrawPage:()=>{if(doc.getCurrentPageInfo().pageNumber>1)pdfCabecalhoPadrao(doc,titulo,sub);}
+  });return doc.lastAutoTable.finalY;
+}
+function pdfRodapesPadrao(doc,usuario){
+  const m=identidadeDocumento(usuario),n=doc.getNumberOfPages();
+  for(let i=1;i<=n;i++){
+    doc.setPage(i);doc.setDrawColor(156,173,195);doc.setLineWidth(.25);doc.line(10,280,200,280);
+    doc.setTextColor(64,80,106);doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+    doc.text(m.app,10,284);
+    doc.text(doc.splitTextToSize(`Emitido em ${m.quando} • Usuário: ${m.usuario}`,160),10,288);
+    doc.text(doc.splitTextToSize(`Gestor responsável: ${m.gestor}`,160),10,292);
+    doc.text(`Página ${i}/${n}`,200,292,{align:'right'});
+  }
+}
 function abaFolha(){
   const fs=get('funcionarios',[]),hoje=hojeISO();
   $('gestor-body').innerHTML=`<h3>Folha de Ponto — Padrão MTE Portaria 671/2021</h3>
@@ -2196,21 +2213,33 @@ async function gerarPDFComLogo(dados){
     const f=d.f,ini=d.ini,fim=d.fim,dt=getHoraOficial();
     if(!first)doc.addPage(); first=false;
     let y=pdfCabecalhoPadrao(doc,'Folha de Ponto — Portaria MTE 671/2021',`Período ${brOf(ini)} a ${brOf(fim)}`);
-    const L=(t,s=9,b=false)=>{if(y>270){doc.addPage();y=pdfCabecalhoPadrao(doc,'Folha de Ponto — Continuação',f.nome);}doc.setTextColor(24,34,53);doc.setFont('helvetica',b?'bold':'normal');doc.setFontSize(s);doc.text(String(t),10,y);y+=s<9?4:4.6;};
-    L(`Trabalhador: ${f.nome} • CPF: ${f.cpf||''} • Função: ${f.funcao||''} • Depto: ${f.departamento||''} • Admissão: ${brOf(f.admissao)}`,8);
-    L(`Emissão: ${brOf(isoOf(dt))} ${hhmm(dt)} • Período: ${brOf(ini)} a ${brOf(fim)} • Jornada: ${e.hEntrada||''}-${e.hSaiInt||''}/${e.hEntInt||''}-${e.hSaida||''} • Escala: ${f.escala||''}`,8);
-    if(preLegenda(f)) L(preLegenda(f),8,true);
-    y+=2; L('Dia   Sem Ent   SaiI  EntI  Sai   Trab     Saldo  Ocorrência',8,true);
-    d.linhas.forEach(l=>L(`${brOf(l.data).slice(0,5)} ${l.dia.slice(0,3)} ${(l.e1||'--:--')} ${(l.e2||'--:--')} ${(l.e3||'--:--')} ${(l.e4||'--:--')} ${toHHMM(l.trabalhado)}${l.noturno?'*N':'  '} ${toSaldo(l.saldo)} ${l.ocorrencia}${l.mov?' _':''}`.slice(0,125),7.5));
-    y+=2; L('TOTAIS DO PERÍODO',9,true);
-    L(`Faltas: ${d.tot.faltas} (Just.: ${d.tot.faltasJust} / Injust.: ${d.tot.faltasInj}) • Folgas: ${d.tot.folgas} • Feriados: ${d.tot.feriados}`,8);
-    L(`Horas Extras: ${toHHMM(d.tot.extras)} • Horas Faltantes/Atrasos: ${toHHMM(d.tot.faltantes)}`,8);
-    L(`Banco de Horas — Anterior ${toSaldo(d.banco.anterior)} | Créditos +${toHHMM(d.banco.creditos)} | Débitos -${toHHMM(d.banco.debitos)} | Atual ${toSaldo(d.banco.atual)}`,8);
-    if(d.just.length){L('TRATAMENTOS E JUSTIFICATIVAS',8,true);d.just.forEach(j=>doc.splitTextToSize(j,190).forEach(t=>L(t,6.8)));}
-    doc.splitTextToSize(`Legenda: ${LEGENDA}`,190).forEach(t=>L(t,7));
-    L(`${e.cidade||'Salinópolis'}-${e.uf||'PA'}, ${brOf(isoOf(dt))}`,8); y+=10;
-    L('____________________________        ____________________________',8);
-    L('Assinatura do Diretor                        Assinatura do Empregado',8);
+    const titulo='Folha de Ponto — Portaria MTE 671/2021',sub=`${f.nome} • Período ${brOf(ini)} a ${brOf(fim)}`;
+    const tabela=(head,body,widths,fontSize=8)=>{y=pdfTabelaPadrao(doc,{y,titulo,sub,head,body,widths,fontSize})+3;};
+    const escLabel=(ESCALAS.find(x=>x[0]===f.escala)||['',f.escala||'—'])[1];
+    tabela(null,[['Identificação do trabalhador',
+      `Trabalhador: ${f.nome}\nCPF: ${f.cpf||'—'}\nFunção: ${f.funcao||'—'} • Departamento: ${f.departamento||'—'}\nAdmissão: ${brOf(f.admissao)}\nEmissão: ${brOf(isoOf(dt))} ${hhmm(dt)} • Período: ${brOf(ini)} a ${brOf(fim)}\nJornada contratual: ${e.hEntrada||''}-${e.hSaiInt||''} / ${e.hEntInt||''}-${e.hSaida||''} • Escala: ${escLabel}`]], [38,152]);
+    tabela(['Dia','Dia\nSemana','Entrada','Saída\nInterv.','Entrada\nInterv.','Saída','Horas\nTrab.','Saldo\nDia','Ocorrência','Fonte'],
+      d.linhas.map(l=>[brOf(l.data).slice(0,5),l.dia,l.e1||'--:--',l.e2||'--:--',l.e3||'--:--',l.e4||'--:--',toHHMM(l.trabalhado)+(l.noturno?' *N':''),toSaldo(l.saldo),(l.ocorrencia||'—')+(l.mov?' _':''),l.fonte||'—']),
+      [14,22,18,18,18,18,19,19,25,19],7);
+    tabela(['Totais do período','Resultado'],[
+      ['Faltas / Justificadas / Injustificadas',`${d.tot.faltas} / ${d.tot.faltasJust} / ${d.tot.faltasInj}`],
+      ['Folgas / Feriados',`${d.tot.folgas} / ${d.tot.feriados}`],
+      ['Horas Extras / Horas Faltantes e Atrasos',`${toHHMM(d.tot.extras)} / ${toHHMM(d.tot.faltantes)}`],
+      ['Banco de Horas',`Anterior: ${toSaldo(d.banco.anterior)} • Créditos: +${toHHMM(d.banco.creditos)}\nDébitos: -${toHHMM(d.banco.debitos)} • Saldo Atual: ${toSaldo(d.banco.atual)}`]
+    ],[80,110],7.5);
+    if(d.just.length)tabela(['Tratamentos e Justificativas'],d.just.map(j=>[j]),[190],7);
+    const texto=(t)=>{
+      doc.setFont('helvetica','normal');doc.setFontSize(7);
+      doc.splitTextToSize(t,190).forEach(line=>{
+        if(y+4>275){doc.addPage();y=pdfCabecalhoPadrao(doc,titulo,sub);doc.setFont('helvetica','normal');doc.setFontSize(7);}
+        doc.text(line,10,y+3);y+=3.5;
+      });y+=2;
+    };
+    if(preLegenda(f))texto(preLegenda(f));texto(`Legenda: ${LEGENDA}`);
+    texto(`${e.cidade||'Salinópolis'}-${e.uf||'PA'}, ${brOf(isoOf(dt))}`);
+    if(y+18>275){doc.addPage();y=pdfCabecalhoPadrao(doc,titulo,sub);}
+    y+=10;doc.setDrawColor(120,135,151);doc.setLineWidth(.2);doc.line(10,y,95,y);doc.line(115,y,200,y);
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('Assinatura do Diretor',52.5,y+4,{align:'center'});doc.text('Assinatura do Empregado',157.5,y+4,{align:'center'});
   });
   pdfRodapesPadrao(doc,lista.length===1?lista[0].f.nome:`Lote com ${lista.length} colaboradores`);
   return {doc,base64:doc.output('datauristring').split(',')[1],blob:doc.output('blob')};
@@ -2473,11 +2502,10 @@ function abrirManual(){
   abrirModal(`<div class="row"><h3>Manual</h3><button class="btn sm right" onclick="manualPDF()">⬇ Baixar PDF</button><button class="btn sm ghost" onclick="fecharModal()">✕</button></div><div id="man-body">${html}</div>`);
 }
 function manualPDF(){
-  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),d=devCfg();let y=pdfCabecalhoPadrao(doc,'Manual do Usuário','Registro Eletrônico de Ponto • versão '+d.versao);
-  MANUAL.forEach(([t,x])=>{const ls=doc.splitTextToSize(x,185);if(y+8+ls.length*5>276){doc.addPage();y=pdfCabecalhoPadrao(doc,'Manual do Usuário — Continuação');}
-    doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(t,12,y);y+=6;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(ls,12,y);y+=ls.length*5+5;});
-  pdfRodapesPadrao(doc,CONTA||'Manual público');
-  doc.save('Manual_Ponto_Pro_Gestao.pdf');
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),d=devCfg(),titulo='Manual do Usuário',sub='Registro Eletrônico de Ponto • versão '+d.versao;
+  const y=pdfCabecalhoPadrao(doc,titulo,sub);
+  pdfTabelaPadrao(doc,{y,titulo,sub,head:['Seção','Orientações'],body:MANUAL,widths:[47,143],fontSize:9});
+  pdfRodapesPadrao(doc,CONTA||'Manual público');doc.save('Manual_Ponto_Pro_Gestao.pdf');
 }
 </script>
 <script>
@@ -2588,15 +2616,10 @@ function relatorioPins(){
 }
 function imprimirPins(){imprimirArea(`<div style="background:#c62828;color:#fff;padding:7px;text-align:center;font-weight:bold">DOCUMENTO CONFIDENCIAL - USO INTERNO DO RH</div>${$('pins-tbl').innerHTML}`,'Relatório de PINs (Confidencial)',CONTA||'RH');}
 function pdfPins(){
-  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'});let y=pdfCabecalhoPadrao(doc,'Relatório de PINs','Documento confidencial • Uso interno do RH');
-  doc.setTextColor(198,40,40);doc.text('DOCUMENTO CONFIDENCIAL - USO INTERNO DO RH',10,y);doc.setTextColor(0);y+=8;
-  doc.setFontSize(8);doc.text('Nome                               CPF              Cargo            Depto          PIN    Status',10,y);y+=5;
-  doc.setFont('helvetica','normal');
-  linhasPins().forEach(r=>{if(y>276){doc.addPage();y=pdfCabecalhoPadrao(doc,'Relatório de PINs — Continuação','Documento confidencial • Uso interno do RH');}
-    const c=[r[0].slice(0,32),r[1],r[2].slice(0,15),r[3].slice(0,13),r[4],r[5].slice(0,28)],x=[10,62,90,115,138,150];
-    c.forEach((t,i)=>doc.text(String(t),x[i],y));y+=5;});
-  pdfRodapesPadrao(doc,CONTA||'RH');
-  doc.save('Relatorio_PINs_CONFIDENCIAL.pdf'); log('Gerou PDF confidencial de PINs');
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),titulo='Relatório de PINs',sub='DOCUMENTO CONFIDENCIAL • Uso interno do RH';
+  const y=pdfCabecalhoPadrao(doc,titulo,sub);
+  pdfTabelaPadrao(doc,{y,titulo,sub,head:['Nome','CPF','Cargo','Departamento','PIN','Status'],body:linhasPins(),widths:[44,29,32,32,16,37],fontSize:8});
+  pdfRodapesPadrao(doc,CONTA||'RH');doc.save('Relatorio_PINs_CONFIDENCIAL.pdf');log('Gerou PDF confidencial de PINs');
 }
 
 /* Manual rápido da folha — 6 passos */
