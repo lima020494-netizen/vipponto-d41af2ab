@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Corrigir a folha PDF para preservar a tabela da tela em todos os downloads, portal e ZIP.
+- [ ] Revisar os demais PDFs com tabelas alinhadas, quebras seguras e conferência visual em preview, sem publicar.
+
 - [x] Unificar Sobre global e logo com gravação protegida e leitura compartilhada; testes de permissões e leitura passaram (gravação com conta master real não disponível no ambiente).
 - [x] Criar /conheca e convite discreto no login, preservando sistema raiz.
 - [x] Configurar metadados, sitemap e robots; validar somente em preview, sem publicação.
