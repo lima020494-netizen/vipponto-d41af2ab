@@ -2067,7 +2067,7 @@ function imprimirArea(html,titulo,usuario='Conta '+(CONTA||'—')){
     w.addEventListener('afterprint',()=>frame.remove(),{once:true});
     w.requestAnimationFrame(()=>{w.focus();w.print();});
   };
-  frame.srcdoc=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(titulo||'Folha de Ponto — Ponto Pro Gestão')}</title><style>${estilos}\n@page{size:A4;margin:8mm}html,body{background:#fff!important;page:auto!important}#area-impressao{display:block!important;position:static!important;width:100%!important}#comprovante{display:none!important;visibility:hidden!important}.tbl-wrap{overflow:visible!important}table{width:100%;border-collapse:collapse}thead{display:table-header-group}tr{break-inside:avoid}</style></head><body class="print-folha"><main id="area-impressao">${conteudo}</main></body></html>`;
+  frame.srcdoc=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><base href="${esc(location.origin+'/')}"><title>${esc(titulo||'Folha de Ponto — Ponto Pro Gestão')}</title><style>${estilos}\n@page{size:A4;margin:8mm}html,body{background:#fff!important;page:auto!important}#area-impressao{display:block!important;position:static!important;width:100%!important}#comprovante{display:none!important;visibility:hidden!important}.tbl-wrap{overflow:visible!important}table{width:100%;border-collapse:collapse}thead{display:table-header-group}tr{break-inside:avoid}</style></head><body class="print-folha"><main id="area-impressao">${conteudo}</main></body></html>`;
   document.body.appendChild(frame);
 }
 
@@ -2236,6 +2236,7 @@ async function gerarPDFComLogo(dados){
     tabela(['Dia','Dia\nSemana','Entrada','Saída\nInterv.','Entrada\nInterv.','Saída','Horas\nTrab.','Saldo\nDia','Ocorrência','Fonte'],
       d.linhas.map(l=>[brOf(l.data).slice(0,5),l.dia,l.e1||'--:--',l.e2||'--:--',l.e3||'--:--',l.e4||'--:--',toHHMM(l.trabalhado)+(l.noturno?' *N':''),toSaldo(l.saldo),(l.ocorrencia||'—')+(l.mov?' _':''),l.fonte||'—']),
       [14,22,18,18,18,18,19,19,25,19],7);
+    if(y+38>276){doc.addPage();y=pdfCabecalhoPadrao(doc,titulo,sub);}
     tabela(['Totais do período','Resultado'],[
       ['Faltas / Justificadas / Injustificadas',`${d.tot.faltas} / ${d.tot.faltasJust} / ${d.tot.faltasInj}`],
       ['Folgas / Feriados',`${d.tot.folgas} / ${d.tot.feriados}`],
