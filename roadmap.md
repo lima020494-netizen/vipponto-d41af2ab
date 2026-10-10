@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] Corrigir a folha PDF no gerador compartilhado por downloads, portal e ZIP; downloads individual, lote, portal e link conferidos com dados isolados (ZIP e conta real não verificados).
+- [x] Revisar os demais PDFs com tabelas alinhadas, quebras seguras e conferência visual de folha, PINs, manual, dashboard, atestado e cupom, sem publicar.
+- [x] Fazer Imprimir da Folha MTE abrir exclusivamente o espelho A4 completo, isolado do cupom térmico de 58 mm; teste de isolamento passou e A4 conferido visualmente (impressora física não verificada).
+
 - [x] Unificar Sobre global e logo com gravação protegida e leitura compartilhada; testes de permissões e leitura passaram (gravação com conta master real não disponível no ambiente).
 - [x] Criar /conheca e convite discreto no login, preservando sistema raiz.
 - [x] Configurar metadados, sitemap e robots; validar somente em preview, sem publicação.
