@@ -2055,9 +2055,20 @@ function pdfDash(){
 }
 function imprimirArea(html,titulo,usuario='Conta '+(CONTA||'—')){
   const completo=/data-doc-completo/.test(html);
-  $('area-impressao').innerHTML=completo?html:`<div class="doc-standard" data-doc-completo="1">${cabecalhoDocumentoHTML(titulo)}<div class="doc-body">${html}</div>${rodapeDocumentoHTML(usuario)}</div>`;
-  $('area-impressao').classList.remove('hidden'); document.body.classList.add('print-folha');
-  setTimeout(()=>{window.print();document.body.classList.remove('print-folha');$('area-impressao').classList.add('hidden');},200);
+  const conteudo=completo?html:`<div class="doc-standard" data-doc-completo="1">${cabecalhoDocumentoHTML(titulo)}<div class="doc-body">${html}</div>${rodapeDocumentoHTML(usuario)}</div>`;
+  const anterior=$('impressao-a4');if(anterior)anterior.remove();
+  const frame=document.createElement('iframe');frame.id='impressao-a4';frame.title='Impressão da folha A4';
+  frame.style.cssText='position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0';
+  const estilos=[...document.querySelectorAll('style')].map(el=>el.textContent).join('\n');
+  frame.onload=async()=>{
+    const w=frame.contentWindow,d=frame.contentDocument;if(!w||!d)return;
+    await Promise.all([...d.images].map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve;})));
+    if(d.fonts)await d.fonts.ready;
+    w.addEventListener('afterprint',()=>frame.remove(),{once:true});
+    w.requestAnimationFrame(()=>{w.focus();w.print();});
+  };
+  frame.srcdoc=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(titulo||'Folha de Ponto — Ponto Pro Gestão')}</title><style>${estilos}\n@page{size:A4;margin:8mm}html,body{background:#fff!important;page:auto!important}#area-impressao{display:block!important;position:static!important;width:100%!important}#comprovante{display:none!important;visibility:hidden!important}.tbl-wrap{overflow:visible!important}table{width:100%;border-collapse:collapse}thead{display:table-header-group}tr{break-inside:avoid}</style></head><body class="print-folha"><main id="area-impressao">${conteudo}</main></body></html>`;
+  document.body.appendChild(frame);
 }
 
 /* ============================== MÓDULO 4 — FOLHA MTE ============================== */
