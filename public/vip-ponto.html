@@ -126,15 +126,18 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   #comprovante,#comprovante *{visibility:visible !important}
   html,body{margin:0!important;padding:0!important}
   #comprovante{display:block !important;position:absolute;left:0;top:0;width:58mm;margin:0!important;padding:0!important}
-  @page{size:58mm auto;margin:0}
+  @page thermal{size:58mm auto;margin:0}
+  @page a4{size:A4;margin:8mm}
+  body{page:thermal}
+  body.print-folha{page:a4}
   body.print-folha #comprovante{display:none !important}
   body.print-folha #area-impressao,body.print-folha #area-impressao *{visibility:visible !important}
   body.print-folha #area-impressao{position:absolute;left:0;top:0;width:100%}
-  body.print-folha @page{size:A4;margin:8mm}
   body.print-folha .folha,body.print-folha .doc-standard{border:0;border-radius:0;padding:0;margin:0;box-shadow:none}
   body.print-folha .doc-header,body.print-folha .folha .cab{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body.print-folha table{break-inside:auto}
   body.print-folha tr{break-inside:avoid;break-after:auto}
+  body.print-folha thead{display:table-header-group}
 }
 
 /* ===== Visual referência (layouts enviados) ===== */
@@ -1188,9 +1191,10 @@ function imprimirRawBT(linhas){
 }
 function reimprimir(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);if(b)imprimirComprovante(b);}
 async function comprovantePDF(b){
-  const {jsPDF}=window.jspdf,{linhas}=await comprovanteTexto(b),doc=new jsPDF({unit:'mm',format:[58,Math.max(64,linhas.length*3.1+9)]});
-  let y=3;doc.setFont('courier','normal');doc.setFontSize(7);
-  linhas.forEach((l,i)=>{const destaque=l==='DATA E HORA DA MARCACAO'||/^\d{2}\/\d{2}\/\d{4}/.test(l);doc.setFont('courier',i<2||destaque?'bold':'normal');doc.setFontSize(destaque?9:7);doc.text(String(l).slice(0,42),29,y,{align:'center'});y+=destaque?3.8:2.8;});
+  const {jsPDF}=window.jspdf,{linhas}=await comprovanteTexto(b),medida=new jsPDF({unit:'mm',format:[58,100]});
+  const rows=linhas.map((l,i)=>{const destaque=l==='DATA E HORA DA MARCACAO'||/^\d{2}\/\d{2}\/\d{4}/.test(l),size=destaque?9:7;medida.setFont('courier',i<2||destaque?'bold':'normal');medida.setFontSize(size);return {text:medida.splitTextToSize(String(l),54),size,bold:i<2||destaque,step:destaque?3.8:2.8};});
+  const altura=Math.max(64,rows.reduce((n,r)=>n+r.text.length*r.step,9)),doc=new jsPDF({unit:'mm',format:[58,altura]});
+  let y=3;rows.forEach(r=>{doc.setFont('courier',r.bold?'bold':'normal');doc.setFontSize(r.size);r.text.forEach(t=>{doc.text(t,29,y,{align:'center'});y+=r.step;});});
   doc.save(`Comprovante_${b.nsr}.pdf`);
 }
 async function emailComprovante(nsr){
@@ -2184,12 +2188,12 @@ function htmlFolha(pin,ini,fim){
   return `<div class="folha" data-doc-completo="1">
     ${cabecalhoFolhaHTML(f,ini,fim)}
     <div class="tbl-wrap"><table>
-    <tr><th>Dia</th><th>Dia Semana</th><th>Entrada</th><th>Saída Interv.</th><th>Entrada Interv.</th><th>Saída</th><th>Horas Trab.</th><th>Saldo Dia</th><th>Ocorrência</th><th>Fonte</th></tr>
+    <thead><tr><th>Dia</th><th>Dia Semana</th><th>Entrada</th><th>Saída Interv.</th><th>Entrada Interv.</th><th>Saída</th><th>Horas Trab.</th><th>Saldo Dia</th><th>Ocorrência</th><th>Fonte</th></tr></thead><tbody>
     ${d.linhas.map(l=>`<tr><td>${brOf(l.data).slice(0,5)}</td><td>${l.dia}</td><td>${l.e1||'--:--'}</td><td>${l.e2||'--:--'}</td><td>${l.e3||'--:--'}</td><td>${l.e4||'--:--'}</td>
       <td>${toHHMM(l.trabalhado)}${l.noturno?' <b title="Hora noturna reduzida">*N</b>':''}</td><td>${toSaldo(l.saldo)}</td>
       <td>${l.cls?`<span class="tag ${l.cls}">${esc(l.ocorrencia)}</span>`:esc(l.ocorrencia)}${l.mov?' <b title="Tratada — ver quadro de justificativas">_</b>':''}</td>
       <td>${l.fonte}</td></tr>`).join('')}
-    </table></div>
+    </tbody></table></div>
     <div class="rodape">
       <h4>Totais do período</h4>
       <div>Total de Faltas: <b>${d.tot.faltas}</b> • Justificadas: <b>${d.tot.faltasJust}</b> • Injustificadas: <b>${d.tot.faltasInj}</b></div>
@@ -2468,9 +2472,10 @@ function atestadoTecnico(){
   const e=get('empregador',{})||{},d=devCfg(),dt=getHoraOficial();
   const html=`<div class="folha" data-doc-completo="1" style="font-size:13px;line-height:1.55">
   ${cabecalhoDocumentoHTML('Atestado Técnico e Termo de Responsabilidade','Portaria MTP nº 671/2021 • Art. 89 a 91')}
-  <p><b>Fabricante/Desenvolvedor:</b> ${esc(d.nome)} ${d.empresa?'— '+esc(d.empresa):''} • ${esc(d.tipoDoc)}: ${esc(d.doc||'________________')} • ${esc(d.email||'')} ${esc(d.telefone||'')}</p>
-  <p><b>Programa:</b> ${esc(d.programa)} — versão ${esc(d.versao)} — Tipo: ${esc(d.tipoRep)} — Registro INPI nº ${esc(d.registroINPI||'________________')}</p>
-  <p><b>Empregador usuário:</b> ${esc(e.razao||'')} — ${esc(e.fantasia||'')} — ${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'')}</p>
+  <table><thead><tr><th>Identificação</th><th>Dados</th></tr></thead><tbody>
+  <tr><td>Fabricante/Desenvolvedor</td><td>${esc(d.nome)} ${d.empresa?'— '+esc(d.empresa):''} • ${esc(d.tipoDoc)}: ${esc(d.doc||'________________')} • ${esc(d.email||'')} ${esc(d.telefone||'')}</td></tr>
+  <tr><td>Programa</td><td>${esc(d.programa)} — versão ${esc(d.versao)} — Tipo: ${esc(d.tipoRep)} — Registro INPI nº ${esc(d.registroINPI||'________________')}</td></tr>
+  <tr><td>Empregador usuário</td><td>${esc(e.razao||'')} — ${esc(e.fantasia||'')} — ${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'')}</td></tr></tbody></table>
   <p>O desenvolvedor acima identificado <b>ATESTA</b>, sob as penas da lei, que o programa descrito atende integralmente aos requisitos da Portaria MTP nº 671/2021, em especial: (I) não permite alteração ou exclusão das marcações originais (data, hora e NSR); (II) não possui funcionalidade de restrição de horário à marcação; (III) não permite marcação automática ou pré-assinalada; (IV) não exige autorização prévia para marcação; (V) emite comprovante de registro de ponto a cada marcação; (VI) gera o Arquivo Fonte de Dados (AFD) e o Arquivo Eletrônico de Jornada (AEJ) nos leiautes oficiais; (VII) registra a identificação de quem efetuou tratamentos, com motivo obrigatório; (VIII) utiliza hora oficial sincronizada com servidor de tempo.</p>
   <p>O desenvolvedor assume a <b>responsabilidade</b> pela veracidade das informações e pelo funcionamento do programa nas condições aqui descritas.</p>
   <p>${esc(d.cidade)}, ${brOf(isoOf(dt))}.</p>
