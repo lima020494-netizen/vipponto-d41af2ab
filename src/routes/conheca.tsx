@@ -11,10 +11,10 @@ const logo = "/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-ge
 export const Route = createFileRoute("/conheca")({
   head: () => ({
     meta: [
-      { title: "Conheça Ponto Pro Gestão — Ponto eletrônico para Kiosk, Sunmi e PWA" },
-      { name: "description", content: "Conheça o Ponto Pro Gestão: registro de ponto offline, comprovantes e relatórios para sua empresa. Planos Básico a R$ 49/mês e Pro a R$ 89/mês. Teste por 7 dias." },
+      { title: "Conheça Ponto Pro Gestão — Ponto eletrônico para quiosques e tablets" },
+      { name: "description", content: "Ponto Pro Gestão: desenhado em conformidade com as diretrizes da Portaria MTE 671/2021. Ponto offline, comprovantes e relatórios. Conheça os planos." },
       { property: "og:title", content: "Ponto Pro Gestão — Ponto eletrônico seguro para sua empresa" },
-      { property: "og:description", content: "Kiosk, Sunmi e PWA com funcionamento offline, comprovantes e relatórios. Conheça os planos e teste por 7 dias." },
+      { property: "og:description", content: "Ponto Pro Gestão para quiosques, tablets e terminais POS Android, desenhado em conformidade com as diretrizes da Portaria MTE 671/2021." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://vippontopro.app/conheca" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/conheca")({
 const resources = [
   { icon: WifiOff, title: "Sua jornada continua offline", copy: "Marcações guardadas no aparelho e sincronizadas quando a conexão retorna." },
   { icon: Printer, title: "Comprovante na hora", copy: "Impressão térmica 58 mm com data, hora, NSR e hash de autenticidade." },
-  { icon: Smartphone, title: "Kiosk, Sunmi e PWA", copy: "Registro por PIN no quiosque e acesso às folhas pelo celular." },
+  { icon: Smartphone, title: "Quiosques, tablets e PWA", copy: "Registro por PIN em terminais POS Android e acesso às folhas pelo celular." },
 ];
 
 function ConhecaPage() {
@@ -43,12 +43,12 @@ function ConhecaPage() {
   const plans = k.plans.map((p, i) => ({ ...p, featured: i === 1 }));
   return <div className="commercial min-h-screen bg-background text-foreground">
     <header className="border-b border-border">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-4 md:px-10">
-        <Link to="/conheca" aria-label="Ponto Pro Gestão — Conheça" className="flex items-center gap-3">
+      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-4 md:flex md:justify-between md:px-10">
+        <Link to="/conheca" aria-label="Ponto Pro Gestão — Conheça" className="flex min-w-0 items-center gap-3">
           <img src={logo} alt="Logo Ponto Pro Gestão" width={76} height={52} className="h-13 w-19 object-contain" />
-          <span className="text-lg font-extrabold">Ponto Pro <span className="text-primary">Gestão</span></span>
+          <span className="min-w-0 text-sm font-extrabold md:text-lg">Ponto Pro <span className="text-primary">Gestão</span></span>
         </Link>
-        <nav aria-label="Navegação comercial" className="order-3 flex w-full justify-center gap-7 text-sm font-semibold text-muted-foreground md:order-none md:w-auto">
+        <nav aria-label="Navegação comercial" className="order-3 col-span-2 flex w-full justify-center gap-7 text-sm font-semibold text-muted-foreground md:order-none md:w-auto">
           <a href="#recursos" className="hover:text-primary">Recursos</a><a href="#planos" className="hover:text-primary">Planos</a><a href="#contato" className="hover:text-primary">Contato</a>
         </nav>
         <Button asChild variant="outline" className="text-xs"><Link to="/">ACESSAR SISTEMA <ArrowUpRight /></Link></Button>
@@ -71,7 +71,7 @@ function ConhecaPage() {
       </section>
       <section className="border-y border-border bg-secondary/40">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-5 py-7 md:flex-row md:px-10">
-          <div><p className="text-xs uppercase text-muted-foreground">Presente na rotina de quem recebe bem</p><p className="mt-2 text-sm">Usado por <strong className="font-extrabold">ATALAIA VIP LOUNGE</strong></p></div>
+          <div><p className="text-xs uppercase text-muted-foreground">Registro e gestão de jornada</p><p className="mt-2 text-sm"><strong className="font-extrabold">Ponto Pro Gestão</strong></p></div>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-xs font-semibold">{[[ShieldCheck,"Kiosk Ilimitado"],[Clock3,"Relatórios em Tempo Real"],[Headphones,"Suporte"]].map(([Icon,label])=>{const BadgeIcon=Icon as typeof ShieldCheck;return <span key={String(label)} className="flex items-center gap-2"><BadgeIcon size={17} className="text-primary" />{String(label)}</span>;})}</div>
         </div>
       </section>
@@ -93,6 +93,6 @@ function ConhecaPage() {
       </section>
       <section id="contato" className="mx-auto flex max-w-7xl scroll-mt-8 flex-col items-start justify-between gap-6 px-5 py-14 md:flex-row md:items-center md:px-10"><div><p className="text-xs font-bold uppercase text-primary">Vamos conversar</p><h2 className="mt-3 text-2xl font-semibold">Sua empresa merece uma gestão tranquila.</h2><p className="mt-3 text-sm text-muted-foreground">Tire suas dúvidas e encontre o plano para a sua operação.</p></div><Button asChild size="lg"><a href={whatsapp} target="_blank" rel="noopener noreferrer"><MessageCircle/> Falar no WhatsApp <ArrowUpRight/></a></Button></section>
     </main>
-    <footer className="border-t border-border"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-7 text-xs text-muted-foreground md:px-10"><div><strong className="text-sm text-foreground">Ponto Pro Gestão · Atalaia Sistemas</strong><p className="mt-2">Portaria 671/2021 MTE · Registro e gestão de jornada</p></div><Link to="/" className="flex items-center gap-2 font-semibold hover:text-primary">Acessar o sistema <ArrowUpRight size={15}/></Link></div></footer>
+    <footer className="border-t border-border"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-7 text-xs text-muted-foreground md:px-10"><div><strong className="text-sm text-foreground">Ponto Pro Gestão</strong><p className="mt-2 max-w-xl">Desenhado em conformidade com as diretrizes da Portaria MTE 671/2021.</p></div><Link to="/" className="flex items-center gap-2 font-semibold hover:text-primary">Acessar o sistema <ArrowUpRight size={15}/></Link></div></footer>
   </div>;
 }

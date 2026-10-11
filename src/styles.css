@@ -167,6 +167,8 @@
 .commercial h1,.commercial h2,.commercial h3 { font-family: "Sora", sans-serif; }
 .commercial-hero::after { content:""; position:absolute; inset:0; background:var(--commercial-overlay); }
 .commercial-check { color:var(--commercial-success); }
+.commercial button,.commercial nav a,.commercial a[data-slot="button"] { min-height:44px; }
+.commercial nav a { display:inline-flex;align-items:center; }
 @media(max-width:767px) { .commercial { --commercial-overlay: linear-gradient(90deg, #0f172aee, #0f172abf); } }
 @media(prefers-reduced-motion:no-preference) { .commercial-enter { animation:commercial-enter .7s ease-out both; } }
 @keyframes commercial-enter { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }

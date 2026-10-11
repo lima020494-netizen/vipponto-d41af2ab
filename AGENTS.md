@@ -19,3 +19,6 @@
 - A4 printing uses an isolated temporary print iframe containing only the requested document and an explicit A4 page rule; kiosk receipt markup and thermal page rules cannot enter the print document.
 - Commercial content lives only at /conheca with a scoped palette; the root route retains the operational HTML iframe to avoid kiosk regressions.
 - Both About entry points read app_config.dev_info with shared offline cache; profile and raster logo writes go through the existing license endpoint with server-verified master email, admin role and PIN to prevent client privilege escalation.
+- The master listing response always includes validated commercial content with defaults for absent configuration; commercial writes reuse the protected license endpoint, never browser database writes.
+- Dismissed manager onboarding is stored in an account-scoped legacy namespace key so one company's choice cannot hide another company's onboarding.
+- Hardware bridge identifiers remain unchanged while presentation text is neutralized; regulatory wording in legacy commercial content is normalized at read time without overwriting stored configuration.
