@@ -2805,7 +2805,7 @@ function telaBloqueio(){
 }
 function prepararGestorLicenca(){
   const base=ABAS.filter(a=>a[0]!=='dev');
-  ABAS=LIC?.isDev&&ehMestre()?[...base,['dev','🛠️ Desenvolvedor']]:base;
+  ABAS=podeEditarDev()?[...base,['dev','🛠️ Desenvolvedor']]:base;
   let av=$('gestor-aviso'); if(!av){av=document.createElement('div');av.id='gestor-aviso';$('gestor-tabs').before(av);}
   const l=LIC?.licenca; let t='';
   if(l?.estado==='tolerancia') t=`⚠️ Fatura em aberto - Carência até ${brD(l.carencia_ate||new Date(new Date(l.data_vencimento).getTime()+7*DIA_MS))}`;
