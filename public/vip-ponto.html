@@ -487,7 +487,17 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
  .modal .inner{max-width:100%;overflow-wrap:anywhere}
  #gestor-body input,#gestor-body select,#gestor-body textarea,.modal input,.modal select,.modal textarea{font-size:16px}
 }
-@media(max-height:650px){.kiosk-entry-panel .key{height:44px;min-height:44px}#tela-home{overflow-y:auto}#tela-ponto.kiosk-shell{min-height:540px}}
+@media(min-width:761px) and (max-width:1050px){#tela-ponto.kiosk-shell{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);margin-left:80px;width:calc(100% - 96px)}}
+@media(max-width:760px){
+ .kiosk-rail{flex-direction:row}
+ #tela-ponto .key{height:48px;min-height:44px;font-size:24px}
+ #tela-ponto .keys{gap:8px}
+ #tela-ponto .pin-display{margin:7px auto;padding:7px;gap:10px}
+ #tela-ponto .pin-dot{height:48px;width:44px}
+ #tela-ponto #btn-bater{margin-top:8px;padding:12px;font-size:21px}
+ #tela-ponto .kiosk-company{max-width:calc(100% - 168px)}
+}
+@media(max-height:650px){#tela-ponto .key{height:44px;min-height:44px}#tela-home{overflow-y:auto}#tela-ponto.kiosk-shell{min-height:620px;overflow-y:visible}}
 @media(prefers-reduced-motion:reduce){.tbl-wrap{scroll-behavior:auto}}
 </style>
 </head>
