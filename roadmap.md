@@ -1,5 +1,11 @@
 # Roadmap
 
+- [ ] Remover impressão redundante da folha individual, lote e PINs, preservando PDF e ZIP.
+- [ ] Neutralizar marcas públicas e alegações regulatórias no sistema e /conheca.
+- [ ] Corrigir carregamento e edição comercial exclusiva do master.
+- [ ] Adicionar primeiros passos dispensáveis por conta na Central do Gestor.
+- [ ] Ajustar toque mínimo 44px, tabelas, filtros e teclado nos cinco fluxos; conferir apenas em preview.
+
 - [x] Corrigir a folha PDF no gerador compartilhado por downloads, portal e ZIP; downloads individual, lote, portal e link conferidos com dados isolados (ZIP e conta real não verificados).
 - [x] Revisar os demais PDFs com tabelas alinhadas, quebras seguras e conferência visual de folha, PINs, manual, dashboard, atestado e cupom, sem publicar.
 - [x] Fazer Imprimir da Folha MTE abrir exclusivamente o espelho A4 completo, isolado do cupom térmico de 58 mm; teste de isolamento passou e A4 conferido visualmente (impressora física não verificada).
