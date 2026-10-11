@@ -458,6 +458,37 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 @media print{.folha table td,.folha table th{padding:2px 4px!important;font-size:9px!important;white-space:nowrap}.trat-box{font-size:8px}}
 .folha-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0 8px}.folha-actions .btn{min-height:40px;border-radius:8px}.fiscal-menu{position:relative;margin-left:auto}.fiscal-menu summary{list-style:none;cursor:pointer}.fiscal-menu summary::-webkit-details-marker{display:none}.fiscal-options{position:absolute;right:0;top:calc(100% + 6px);z-index:30;width:300px;max-width:calc(100vw - 48px);display:grid;gap:4px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow)}.fiscal-options .btn{justify-content:flex-start;text-align:left;white-space:normal}.fiscal-menu summary:focus-visible{outline:3px solid var(--gold2);outline-offset:3px}@media(max-width:600px){.folha-actions{display:grid;grid-template-columns:1fr 1fr}.folha-actions .btn{width:100%;white-space:normal}.fiscal-menu{margin-left:0;min-width:0}.fiscal-menu summary{height:100%}}
 .login-plans-banner{display:block;text-align:center;font-size:12px;line-height:1.4;padding:7px 10px;margin:0 0 10px;border-bottom:1px solid var(--line);color:var(--navy);text-decoration:none}.login-plans-banner:focus-visible{outline:3px solid var(--gold2);outline-offset:2px}
+
+/* Shared comfortable controls and containment for operational screens. */
+:root{--space-section:24px;--onboard-bg:#edf7fa;--onboard-border:#cde4ea;--onboard-text:#315c70}
+.btn,.btn.sm,.tab,.icon-btn,.key,.folha-actions .btn{min-height:44px}
+input:not([type=checkbox]):not([type=radio]),select{min-height:44px}
+.grid>*,.row>*,.punch-toolbar>*,.hub-welcome>*{min-width:0}
+.tbl-wrap{max-width:100%;overscroll-behavior-x:contain;scroll-behavior:smooth;touch-action:pan-x pan-y}
+#gestor-body .tbl-wrap table,#gestor-hub-dashboard .tbl-wrap table,#pins-tbl table{min-width:680px}
+#gestor-body .folha{overflow-x:auto;-webkit-overflow-scrolling:touch}
+#gestor-body .folha table{min-width:760px}
+#gestor-body .grid,#gestor-hub-dashboard .grid,.punch-toolbar{gap:var(--space-section);align-items:end;margin-bottom:var(--space-section)}
+#gestor-body,#gestor-hub{padding:var(--space-section)}
+.onboarding{padding:var(--space-section);margin-bottom:var(--space-section);background:var(--onboard-bg);border:1px solid var(--onboard-border);border-radius:8px;color:var(--onboard-text)}
+.onboarding-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;margin-bottom:12px}.onboarding-head h3{margin:0;font-size:17px}
+.onboarding-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.onboarding-steps .btn{white-space:normal;text-align:left;justify-content:flex-start}
+#tela-gestor .gestor-head-actions .btn{min-width:44px;min-height:44px}
+#tela-gestor .inner{min-height:calc(100dvh - 36px)}
+#tela-login{min-height:100dvh}input,textarea,select{scroll-margin-block:100px}
+label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
+@media(max-width:760px){
+ .onboarding-steps{grid-template-columns:1fr}
+ #gestor-body>.row,#sub-body>.row,#pins-body>.row,#gestor-hub-dashboard>.row{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+ #gestor-body>.row .right,#sub-body>.row .right,#pins-body>.row .right,#gestor-hub-dashboard>.row .right{margin-left:0}
+ .gestor-head{display:grid!important;grid-template-columns:minmax(0,1fr) auto}.gestor-head-actions{flex-wrap:nowrap}.gestor-company{max-width:none}
+ #tela-home,#tela-ponto.kiosk-shell{height:100dvh}.kiosk-rail{z-index:25}
+ .folha-actions{grid-template-columns:minmax(0,1fr)}.fiscal-menu{width:100%}
+ .modal .inner{max-width:100%;overflow-wrap:anywhere}
+ #gestor-body input,#gestor-body select,#gestor-body textarea,.modal input,.modal select,.modal textarea{font-size:16px}
+}
+@media(max-height:650px){.kiosk-entry-panel .key{height:44px;min-height:44px}#tela-home{overflow-y:auto}#tela-ponto.kiosk-shell{min-height:540px}}
+@media(prefers-reduced-motion:reduce){.tbl-wrap{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -1117,7 +1148,7 @@ let SUNMI=null;
 function detectarImpressora(tent=0){
   const el=$('status-impressora'); if(!el) return;
   el.onclick=null;el.removeAttribute('role');el.removeAttribute('tabindex');el.setAttribute('aria-live','polite');
-  if(window.woyouService||window.sunmiPrinterService){SUNMI=window.woyouService||window.sunmiPrinterService;el.innerHTML='🖨️ SUNMI D2 MINI detectada (58mm nativa)';return;}
+  if(window.woyouService||window.sunmiPrinterService){SUNMI=window.woyouService||window.sunmiPrinterService;el.innerHTML='🖨️ Impressora térmica nativa detectada (58mm)';return;}
   if(tent<5) return setTimeout(()=>detectarImpressora(tent+1),1200);
   el.innerHTML=rawbtAtivo()?(localStorage.getItem('vip_rawbt_falhou')==='1'?'🖨️ RawBT sem resposta — usando navegador':'🖨️ Impressão automática: RawBT (fallback navegador)'):'🖨️ Impressão automática: navegador';
 }
@@ -1137,7 +1168,7 @@ async function comprovanteTexto(b){
   const hashCurto=hashAss.slice(0,32);
   return {hashAss,hashCurto,linhas:[
     (e.razao||'EMPREGADOR').toUpperCase(),e.fantasia||'',`${e.tipo||'CNPJ'}: ${e.doc||''}`,`Local: ${endereco||'Nao informado'}`,
-    '------------------------------------------','Comprovante de Registro de Ponto','Ponto Pro Gestao - Atalaia Sistemas',`NSR: ${String(b.nsr||'').padStart(9,'0')}`,
+    '------------------------------------------','Comprovante de Registro de Ponto','Ponto Pro Gestao',`NSR: ${String(b.nsr||'').padStart(9,'0')}`,
     `Colaborador: ${b.nome}`,`CPF: ${cpfProtegido}`,'DATA E HORA DA MARCACAO',`${brOf(b.data)}  ${b.hora}`,
     'SHA-256:',hashCurto.slice(0,16),hashCurto.slice(16),'Portaria MTE 671/2021'
   ].filter(Boolean)};
@@ -1151,8 +1182,8 @@ async function imprimirComprovante(b){
       SUNMI.printerInit&&SUNMI.printerInit();
       linhas.forEach(l=>SUNMI.printOriginalText?SUNMI.printOriginalText(l+'\n'):SUNMI.printText&&SUNMI.printText(l+'\n'));
       SUNMI.lineWrap&&SUNMI.lineWrap(3);
-      return toast('Comprovante enviado à impressora SUNMI.',3000);
-    }catch(err){ console.warn('SUNMI falhou, tentando RawBT/navegador',err); }
+      return toast('Comprovante enviado à impressora térmica.',3000);
+    }catch(err){ console.warn('Impressora nativa falhou, tentando RawBT/navegador',err); }
   }
   if(rawbtAtivo()&&imprimirRawBT(linhas)) return;
   imprimirNavegador();
@@ -1275,12 +1306,18 @@ function abrirGestor(){
   mostrarCentralGestor();
 }
 function fecharGestor(){$('tela-gestor').classList.add('hidden');GERENCIADOR=null;}
+function primeirosPassosVisiveis(){return !!CONTA&&localStorage.getItem(K('primeiros_passos_ocultos'))!=='1';}
+function dispensarPrimeirosPassos(){localStorage.setItem(K('primeiros_passos_ocultos'),'1');$('primeiros-passos')?.remove();}
+function primeirosPassosHTML(){
+  if(!primeirosPassosVisiveis())return '';
+  return `<section id="primeiros-passos" class="onboarding" aria-label="Primeiros passos"><div class="onboarding-head"><h3>Primeiros passos</h3><button class="btn sm ghost" onclick="dispensarPrimeirosPassos()" aria-label="Ocultar primeiros passos" title="Ocultar primeiros passos">✕</button></div><div class="onboarding-steps"><button class="btn ghost" onclick="irAba('emp')">1. Configurar Empresa →</button><button class="btn ghost" onclick="irAba('func')">2. Cadastrar Equipe →</button><button class="btn ghost" onclick="fecharGestor()">3. Abrir Quiosque →</button></div></section>`;
+}
 function mostrarCentralGestor(){
   ABA='dash';
   $('gestor-body').classList.add('hidden');$('gestor-hub').classList.remove('hidden');$('gestor-voltar').classList.remove('show');
   const cards=ABAS.map(([k])=>{const m=MODULOS_GESTOR[k]||MODULOS_GESTOR.dash;const acao=k==='dash'?"document.getElementById('gestor-hub-dashboard').scrollIntoView({behavior:'smooth'})":`irAba('${k}')`;
     return `<button type="button" class="module-card ${m.cls}" onclick="${acao}" aria-label="Abrir ${esc(m.nome)}"><span class="module-icon" aria-hidden="true">${m.ico}</span><strong>${m.nome}</strong><small>${m.desc}</small></button>`;}).join('');
-  $('gestor-hub').innerHTML=`<div class="hub-welcome"><div><h2>Central do Gestor</h2><p>Acesse os módulos e acompanhe a frequência da equipe em um só lugar.</p></div><span class="badge">${get('funcionarios',[]).length}/${MAX_FUNC} colaboradores</span></div><nav class="module-grid" aria-label="Módulos do gestor">${cards}</nav><section id="gestor-hub-dashboard" aria-label="Dashboard de Frequência"></section>`;
+  $('gestor-hub').innerHTML=`<div class="hub-welcome"><div><h2>Central do Gestor</h2><p>Acesse os módulos e acompanhe a frequência da equipe em um só lugar.</p></div><span class="badge">${get('funcionarios',[]).length}/${MAX_FUNC} colaboradores</span></div>${primeirosPassosHTML()}<nav class="module-grid" aria-label="Módulos do gestor">${cards}</nav><section id="gestor-hub-dashboard" aria-label="Dashboard de Frequência"></section>`;
   abaDash('gestor-hub-dashboard');
 }
 function irAba(k){
@@ -1537,7 +1574,7 @@ let SUB='dash';
 function abaPonto(){
   $('gestor-body').innerHTML=`<div class="tabs" style="margin-bottom:10px">
     ${[['fer','Feriados'],['bat','Batidas'],['esc','Escala Semanal'],['ban','Banco de Horas'],['rel','Relatórios PDF/XML']]
-    .map(([k,t])=>`<div class="tab ${SUB===k?'active':''}" data-sub="${k}" onclick="irSub('${k}')">${t}</div>`).join('')}</div>
+    .map(([k,t])=>`<button type="button" class="tab ${SUB===k?'active':''}" data-sub="${k}" onclick="irSub('${k}')">${t}</button>`).join('')}</div>
     <div id="sub-body"></div>`;
   if(!['fer','bat','esc','ban','rel'].includes(SUB))SUB='fer'; irSub(SUB);
 }
@@ -2075,8 +2112,8 @@ function imprimirArea(html,titulo,usuario='Conta '+(CONTA||'—')){
 const LEGENDA='FALTA = dia sem batida e sem folga/feriado | FOLGA = folga prevista em escala | FERIADO = feriado cadastrado | _ = batida tratada/movida com motivo obrigatório | *N = hora noturna reduzida 22h-05h (Art. 73 CLT)';
 const preLegenda=f=>f&&f.intervalo&&f.intervalo.preAssinalado?`Intervalo pré-assinalado ${f.intervalo.inicio||'12:00'}-${f.intervalo.fim||'13:00'} - Art. 71`:'';
 function identidadeDocumento(usuario='Conta '+(CONTA||'—')){
-  const d=getHoraOficial(),g=GERENCIADOR||{nome:'Portal do Empregado',funcao:'Autoatendimento'},dev=typeof devCfg==='function'?devCfg():{nome:'Atalaia Sistemas'};
-  return {quando:`${brOf(isoOf(d))} às ${hhmm(d)}`,usuario:String(usuario||CONTA||'—'),gestor:`${g.nome} — ${g.funcao}`,app:`Ponto Pro Gestão • ${dev.empresa||dev.nome||'Atalaia Sistemas'} • Portaria MTE 671/2021`};
+  const d=getHoraOficial(),g=GERENCIADOR||{nome:'Portal do Empregado',funcao:'Autoatendimento'},dev=typeof devCfg==='function'?devCfg():{nome:'Ponto Pro Gestão'};
+  return {quando:`${brOf(isoOf(d))} às ${hhmm(d)}`,usuario:String(usuario||CONTA||'—'),gestor:`${g.nome} — ${g.funcao}`,app:'Ponto Pro Gestão • Desenhado em conformidade com as diretrizes da Portaria MTE 671/2021'};
 }
 function cabecalhoDocumentoHTML(titulo,subtitulo=''){
   const e=get('empregador',{})||{},end=[e.logradouro,e.numero,e.complemento,e.bairro,`${e.cidade||''}/${e.uf||''}`,e.cep&&`CEP ${e.cep}`].filter(Boolean).join(', ');
@@ -2118,7 +2155,7 @@ function pdfRodapesPadrao(doc,usuario){
 }
 function abaFolha(){
   const fs=get('funcionarios',[]),hoje=hojeISO();
-  $('gestor-body').innerHTML=`<h3>Folha de Ponto — Padrão MTE Portaria 671/2021</h3>
+  $('gestor-body').innerHTML=`<h3>Folha de Ponto — Portaria MTE 671/2021</h3>
   <div class="grid g4">
     <div><label>Funcionário (inclui desligados)</label><select id="fl-pin">${fs.map(f=>`<option value="${f.pin}">${esc(f.nome)}${f.status==='Desligado'?' (desligado)':''}</option>`).join('')}</select></div>
     <div><label>Período — início</label><input type="date" id="fl-ini" value="${hoje.slice(0,8)}01"/></div>
@@ -2126,14 +2163,13 @@ function abaFolha(){
     <div style="display:flex;align-items:flex-end;gap:6px"><button class="btn gold" onclick="gerarFolha()">Gerar</button></div>
   </div>
   <div class="folha-actions" role="group" aria-label="Exportar folha de ponto">
-    <button class="btn sm ghost" onclick="imprimirFolhaTela()">🖨️ Imprimir</button>
     <button class="btn sm" onclick="baixarPDFFolha()"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6v20h12V6zM14 2v5h5M8 12h8M8 16h8"/></svg>Baixar PDF</button>
     <button id="fl-pacote" class="btn sm gold" onclick="pacoteContador()">📦 Pacote do Contador (ZIP)</button>
     <details class="fiscal-menu"><summary class="btn sm ghost">⚖️ Fiscal MTE <span aria-hidden="true">▾</span></summary>
       <div class="fiscal-options">
         <button class="btn sm ghost" onclick="acaoFiscalFolha('afd')">Exportar AFD Oficial (MTE 671)</button>
         <button class="btn sm ghost" onclick="acaoFiscalFolha('aej')">Exportar AEJ Oficial</button>
-        <button class="btn sm ghost" onclick="acaoFiscalFolha('atestado')">Atestado Técnico de Conformidade</button>
+        <button class="btn sm ghost" onclick="acaoFiscalFolha('atestado')">Atestado Técnico e Termo de Responsabilidade</button>
       </div>
     </details>
   </div><div id="fl-export-status" class="muted" role="status" aria-live="polite"></div>
@@ -2315,7 +2351,6 @@ function telaLote(){
     <div class="hr"></div>
     <div class="row">
       <button class="btn" onclick="loteVisualizar()">Visualizar em Lote na Tela</button>
-      <button class="btn ghost" onclick="loteImprimir()">Imprimir em Lote</button>
       <button class="btn gold" onclick="lotePDF()">Exportar PDF em Lote</button>
       <button class="btn gold" onclick="lotePDFZip()">PDF por funcionário (ZIP)</button>
       <button class="btn gold" onclick="loteXML()">Exportar XML em Lote (ZIP)</button>
@@ -2365,7 +2400,7 @@ async function loteXML(){
 
 <script>
 /* ===================== DESENVOLVEDOR / FABRICANTE (Portaria 671, art. 89-91) ===================== */
-const DEV={nome:'Henrique Lima',empresa:'Atalaia Sistemas',doc:'',tipoDoc:'CPF',email:'',telefone:'',cidade:'Salinópolis-PA',
+const DEV={nome:'Henrique Lima',empresa:'Ponto Pro Gestão',doc:'',tipoDoc:'CPF',email:'',telefone:'',cidade:'Salinópolis-PA',
   programa:'Ponto Pro Gestão',versao:'1.0.0',tipoRep:'REP-P (Programa)',registroINPI:''};
 function devCfg(){let g={};try{g=JSON.parse(localStorage.getItem('vip_ponto_dev_info')||'{}');}catch(e){}return Object.assign({},DEV,g,{programa:DEV.programa});}
 const logoApp=()=>localStorage.getItem('ponto_pro_gestao_logo_app')||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg';
@@ -2488,8 +2523,8 @@ function atestadoTecnico(){
   <tr><td>Fabricante/Desenvolvedor</td><td>${esc(d.nome)} ${d.empresa?'— '+esc(d.empresa):''} • ${esc(d.tipoDoc)}: ${esc(d.doc||'________________')} • ${esc(d.email||'')} ${esc(d.telefone||'')}</td></tr>
   <tr><td>Programa</td><td>${esc(d.programa)} — versão ${esc(d.versao)} — Tipo: ${esc(d.tipoRep)} — Registro INPI nº ${esc(d.registroINPI||'________________')}</td></tr>
   <tr><td>Empregador usuário</td><td>${esc(e.razao||'')} — ${esc(e.fantasia||'')} — ${esc(e.tipo||'CNPJ')}: ${esc(e.doc||'')}</td></tr></tbody></table>
-  <p>O desenvolvedor acima identificado <b>ATESTA</b>, sob as penas da lei, que o programa descrito atende integralmente aos requisitos da Portaria MTP nº 671/2021, em especial: (I) não permite alteração ou exclusão das marcações originais (data, hora e NSR); (II) não possui funcionalidade de restrição de horário à marcação; (III) não permite marcação automática ou pré-assinalada; (IV) não exige autorização prévia para marcação; (V) emite comprovante de registro de ponto a cada marcação; (VI) gera o Arquivo Fonte de Dados (AFD) e o Arquivo Eletrônico de Jornada (AEJ) nos leiautes oficiais; (VII) registra a identificação de quem efetuou tratamentos, com motivo obrigatório; (VIII) utiliza hora oficial sincronizada com servidor de tempo.</p>
-  <p>O desenvolvedor assume a <b>responsabilidade</b> pela veracidade das informações e pelo funcionamento do programa nas condições aqui descritas.</p>
+  <p>Minuta para análise e assinatura do responsável técnico: o programa foi <b>desenhado em conformidade com as diretrizes da Portaria MTE 671/2021</b>, contemplando: (I) não permite alteração ou exclusão das marcações originais (data, hora e NSR); (II) não possui funcionalidade de restrição de horário à marcação; (III) não permite marcação automática ou pré-assinalada; (IV) não exige autorização prévia para marcação; (V) emite comprovante de registro de ponto a cada marcação; (VI) gera o Arquivo Fonte de Dados (AFD) e o Arquivo Eletrônico de Jornada (AEJ) nos leiautes oficiais; (VII) registra a identificação de quem efetuou tratamentos, com motivo obrigatório; (VIII) utiliza hora oficial sincronizada com servidor de tempo.</p>
+  <p>A emissão deste documento não constitui homologação oficial. A validade das declarações depende da revisão e assinatura do responsável técnico, que assume a responsabilidade pela veracidade das informações e pela configuração utilizada.</p>
   <p>${esc(d.cidade)}, ${brOf(isoOf(dt))}.</p>
   <div class="assin"><div>${esc(d.nome)}<br>Desenvolvedor / Responsável técnico</div><div>${esc(e.razao||'Empregador')}<br>Ciente do empregador</div></div>${rodapeDocumentoHTML(CONTA||'Responsável técnico')}</div>`;
   abrirModal(`<div class="row"><h3>Atestado Técnico</h3><button class="btn sm right" onclick="imprimirArea(document.getElementById('at-body').innerHTML,'')">🖨 Imprimir / PDF</button><button class="btn sm ghost" onclick="fecharModal()">✕</button></div><div id="at-body">${html}</div>`);
@@ -2500,14 +2535,14 @@ function atestadoTecnico(){
 const MANUAL=[
  ['1. Primeiro acesso','Crie sua conta (até 3 por aparelho). A senha precisa de 8 caracteres com maiúscula, minúscula, número e símbolo (!@#$%&_). Depois preencha o cadastro do Empregador: CNPJ/CPF, razão social, nome fantasia, endereço, horário padrão e logo. Cadastre de 1 a 4 gerenciadores, cada um com PIN próprio.'],
  ['2. Bater o ponto','Na tela inicial o empregado digita o PIN de 4 números. Cada número aparece por 1 segundo e vira bolinha. O nome e as batidas do dia aparecem; toque em ✓ REGISTRAR. O sistema usa a hora oficial do servidor (🟢 NTP OK), gera o NSR e imprime o comprovante. Depois de 5 segundos a tela limpa sozinha.'],
- ['3. Comprovante','A cada batida o comprovante sai na impressora térmica (SUNMI D2 Mini ou USB 58/80mm). Se não imprimir, toque na batida no histórico para reimprimir ou enviar por e-mail.'],
+ ['3. Comprovante','A cada batida o comprovante sai na impressora térmica (terminais POS Android ou impressoras USB 58/80mm). Se não imprimir, toque na batida no histórico para reimprimir ou enviar por e-mail.'],
  ['4. Portal do Empregado (👤)','O empregado digita o PIN e vê a própria folha de ponto, podendo enviá-la para o seu e-mail.'],
  ['5. Gestor de ponto (⚙️)','Toque na engrenagem e digite o PIN de gerenciador. A primeira aba é o Dashboard de Frequência, com presença, faltas, absenteísmo, atrasos e carga incompleta, com filtros por período e funcionário.'],
  ['6. Empregados','Até 20 colaboradores por empresa. Informe nome, CPF, função, departamento, admissão, escala e o início da vigência do banco de horas. O PIN é criado automaticamente. Na aba "Funções, Cargos e Departamentos" você cadastra as listas. Status: Ativo, Desligado, Afastamento (com motivo) ou Férias.'],
  ['7. Escala semanal','Escolha a semana (pode começar no domingo ou na segunda). Em cada dia marque Trabalhado (com hora de entrada), DSR, Folga Domingo ou Folga Compensada — até 3 folgas por semana. A escala manda na folha: se o DSR foi para terça, o domingo vira dia de trabalho. A hora de entrada da escala é usada para calcular atraso (tolerância de 10 min). Após 7 dias a escala trava 🔒. Baixe o CSV para Excel/Google Sheets.'],
  ['8. Batidas e ajustes','Data, hora e NSR originais nunca podem ser alterados. Você pode mudar o tipo da batida, incluir batida manual ou lançar ocorrência (Falta Justificada, Férias, Folga, Compensada, Falta) — sempre com motivo de pelo menos 5 letras. Tudo fica registrado com o nome de quem alterou.'],
  ['9. Banco de horas','Calculado sozinho a partir da data de vigência: horas a mais geram crédito, horas a menos e faltas geram débito. Saldo Anterior + Créditos − Débitos = Saldo Atual.'],
- ['10. Folha de ponto MTE','Escolha o funcionário e o período e toque em Gerar. A folha traz logo, cabeçalho do empregador e do trabalhador, batidas, ocorrências coloridas, totais, banco de horas, legenda e assinaturas. Exporte em PDF, XML ou imprima. Na Exportação em Lote, marque vários funcionários de uma vez.'],
+ ['10. Folha de ponto MTE','Escolha o funcionário e o período e toque em Gerar. A folha traz logo, cabeçalho do empregador e do trabalhador, batidas, ocorrências coloridas, totais, banco de horas, legenda e assinaturas. Baixe o PDF para salvar, enviar ou imprimir; os arquivos fiscais ficam em Fiscal MTE. Na Exportação em Lote, marque vários funcionários de uma vez.'],
  ['11. Arquivos oficiais para fiscalização','Na Folha de Ponto use "AFD oficial" (Arquivo Fonte de Dados) e "AEJ oficial" (Arquivo Eletrônico de Jornada) — são os arquivos exigidos pelo auditor fiscal do trabalho. O "Atestado Técnico" é o documento do desenvolvedor que acompanha o programa.'],
  ['12. Dicas e segurança','O PIN nunca aparece em folhas, PDFs ou comprovantes. Os dados ficam na nuvem e também no aparelho (funciona sem internet e sobe sozinho quando a conexão volta). Para sair da conta, use o botão vermelho ⏻ na tela de ponto.']
 ];
@@ -2625,7 +2660,7 @@ function linhasPins(){return get('funcionarios',[]).map(f=>[f.nome,f.cpf||'',f.c
 function relatorioPins(){
   const ls=linhasPins();
   $('pins-body').innerHTML=`<div class="row"><h3>Relatório de PINs — CONFIDENCIAL</h3><div class="right row">
-    <button class="btn sm ghost" onclick="imprimirPins()">🖨️ Imprimir Lista de PINs</button><button class="btn sm gold" onclick="pdfPins()">📄 Baixar PDF Confidencial</button></div></div>
+    <button class="btn sm gold" onclick="pdfPins()">📄 Baixar PDF Confidencial</button></div></div>
   <div class="alert warn">Uso restrito aos gerenciadores. O PIN nunca é impresso na folha de ponto nem nos comprovantes.</div>
   <div class="tbl-wrap" id="pins-tbl"><table><tr><th>Nome</th><th>CPF</th><th>Cargo</th><th>Departamento</th><th>PIN</th><th>Status</th></tr>
   ${ls.map(r=>`<tr>${r.map((c,i)=>`<td>${i===4?'<b>'+esc(c)+'</b>':esc(c)}</td>`).join('')}</tr>`).join('')||'<tr><td colspan=6 class="muted">Nenhum empregado.</td></tr>'}</table></div>`;
@@ -2657,7 +2692,7 @@ function conteudoAFDOficial(ini,fim){
   const cnpj=padL(soNum(e.doc),14);
   const L=['000000000'+'1'+(e.tipo==='CPF'?'2':'1')+cnpj+padL(soNum(e.cei),12)+padR(e.razao,150)+dmy(ini)+dmy(fim)+dmy(isoOf(ag))+hhmm(ag).replace(':','')];
   bs.forEach(b=>L.push(padL(b.nsr,9)+'3'+dmy(b.data)+b.hora.replace(':','')+cnpj+padL(soNum(b.cpf),11)));
-  L.push('999999999'+padL(bs.length,9)+'Ponto Pro Gestão Atalaia Sistemas Salinópolis-PA');
+  L.push('999999999'+padL(bs.length,9)+'Ponto Pro Gestão');
   return L.join('\r\n')+'\r\n';
 }
 function gerarAFDOficial(ini,fim){
@@ -2782,7 +2817,7 @@ function prepararGestorLicenca(){
 function modalTermos(){
   abrirModal(`<div class="card" style="max-width:760px;margin:0 auto"><h3>Termos de Uso — Ponto Pro Gestão</h3>
   <div style="max-height:52vh;overflow:auto;font-size:14px;line-height:1.5">
-  <p><b>1. Ferramenta de apoio.</b> O Ponto Pro Gestão é um programa de tratamento de registro de ponto (REP-P) que auxilia o empregador no controle de jornada conforme a Portaria MTE 671/2021. Ele não substitui a assessoria contábil, jurídica ou trabalhista.</p>
+  <p><b>1. Ferramenta de apoio.</b> O Ponto Pro Gestão é um programa de gestão de ponto, desenhado em conformidade com as diretrizes da Portaria MTE 671/2021, que auxilia o empregador no controle de jornada. Não representa homologação oficial. Ele não substitui a assessoria contábil, jurídica ou trabalhista.</p>
   <p><b>2. Responsabilidade do cliente.</b> O empregador é o único responsável pelas marcações, pelo cadastro correto dos colaboradores, escalas, ajustes com motivo e pelo cumprimento da legislação trabalhista. As marcações originais (data, hora e NSR) são preservadas e não podem ser alteradas.</p>
   <p><b>3. Proteção de dados (LGPD).</b> O empregador é o <b>controlador</b> dos dados pessoais dos colaboradores. O Ponto Pro Gestão atua como <b>operador</b>, tratando os dados apenas para prestar o serviço, com medidas de segurança e sem compartilhamento com terceiros além da infraestrutura necessária.</p>
   <p><b>4. Retenção de dados.</b> Os registros são mantidos durante a vigência da assinatura e, para fins legais, por no mínimo 5 anos. Em caso de inadimplência o acesso é pausado, mas os dados <b>não são excluídos</b>. A exclusão definitiva só ocorre por solicitação expressa do empregador.</p>
@@ -2808,9 +2843,9 @@ function abaAssinatura(){
   <div class="card" style="margin-top:18px"><div class="row"><div><b>Resumo da assinatura</b><div class="muted">Vencimento: ${l.estado==='cortesia'?'Cortesia sem cobrança':brD(l.data_vencimento)}</div></div>${l.aceite_termos?`<span class="muted right">Termos aceitos em ${new Date(l.aceite_termos.aceito_em).toLocaleString('pt-BR')}</span>`:''}</div></div>`;
 }
 /* ---------- Painel do desenvolvedor (login do desenvolvedor + PIN mestre 1000; validado no servidor) ---------- */
-async function devApi(b){return apiLic('POST',Object.assign({pin:GERENCIADOR?.pin},b));}
+async function devApi(b){if(!podeEditarDev())throw new Error('Acesso restrito à conta master.');return apiLic('POST',Object.assign({pin:GERENCIADOR?.pin},b));}
 async function abaDesenvolvedor(){
-  if(!(LIC?.isDev&&ehMestre())) return $('gestor-body').innerHTML='<div class="alert err">Acesso restrito ao desenvolvedor.</div>';
+  if(!podeEditarDev()) return $('gestor-body').innerHTML='<div class="alert err">Acesso restrito ao desenvolvedor.</div>';
   $('gestor-body').innerHTML='<div class="muted">Carregando contas...</div>';
   let r; try{r=await devApi({acao:'listar'});}catch(e){return $('gestor-body').innerHTML=`<div class="alert err">${esc(e.message)}</div>`;}
   const c=r.config||{},pr=c.precos||{},pa=c.precosAnuais||{};
@@ -2821,7 +2856,7 @@ async function abaDesenvolvedor(){
   <div><label>WhatsApp de suporte</label><input id="dv-wa" placeholder="5591999999999" value="${esc(c.whatsapp||'')}"/></div><div></div>
   ${[1,2,3].map(p=>`<div><label>Plano ${p} — mensal (R$)</label>${inp('dv-pm'+p,pr[p])}<label>Plano ${p} — anual (R$)</label>${inp('dv-pa'+p,pa[p])}</div>`).join('')}</div>
   <button class="btn" style="margin-top:10px" onclick="devSalvarCfg()">Salvar cobrança</button></div>
-  ${r.conheca?devConhecaHtml(r.conheca):''}
+  ${devConhecaHtml(r.conheca)}
   <div class="card"><h4>Clientes (${r.contas.length})</h4><div class="tbl-wrap" style="max-height:60vh"><table><tr><th>Empresa / Gestor</th><th>Plano</th><th>Colab.</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr>
   ${r.contas.map(x=>{const e=esc(x.email_dono),q=JSON.stringify(x.email_dono).replace(/"/g,'&quot;');return `<tr><td><b>${esc(x.razao||'—')}</b><div class="muted">${e}</div></td>
   <td><select onchange="devAcao('plano',${q},{plano:+this.value})" style="width:auto">${[1,2,3].map(p=>`<option value="${p}" ${x.plano===p?'selected':''}>${p} empresa(s)</option>`).join('')}</select></td>
@@ -2845,6 +2880,7 @@ function devConhecaHtml(k){
   <button class="btn" style="margin-top:10px" onclick="devSalvarConheca()">Salvar página comercial</button></div>`;
 }
 async function devSalvarConheca(){
+  if(!podeEditarDev())return toast('Acesso restrito à conta master.');
   const v=id=>$(id).value.trim();
   const wa=v('ck-wa').replace(/\D/g,'');
   if(!/^\d{10,15}$/.test(wa))return alert('WhatsApp inválido: use DDI + DDD + número (ex.: 5591999999999).');
