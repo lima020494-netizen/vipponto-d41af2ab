@@ -1,10 +1,10 @@
 # Roadmap
 
-- [ ] Remover impressão redundante da folha individual, lote e PINs, preservando PDF e ZIP.
-- [ ] Neutralizar marcas públicas e alegações regulatórias no sistema e /conheca.
-- [ ] Corrigir carregamento e edição comercial exclusiva do master.
-- [ ] Adicionar primeiros passos dispensáveis por conta na Central do Gestor.
-- [ ] Ajustar toque mínimo 44px, tabelas, filtros e teclado nos cinco fluxos; conferir apenas em preview.
+- [x] Remover impressão redundante da folha individual, lote e PINs; downloads de PDFs e ZIP com PDF/AFD/CSV conferidos com dados isolados.
+- [x] Neutralizar marcas públicas e alegações regulatórias no sistema e /conheca, inclusive conteúdo comercial legado, preservando identificadores de impressora.
+- [x] Corrigir resposta de carregamento comercial e formulário master; testes de permissão passaram e API sem sessão retorna 401. Gravação autenticada com conta real não verificável no Supabase externo deste ambiente.
+- [x] Adicionar primeiros passos dispensáveis por conta; três acessos e persistência do ocultar conferidos.
+- [x] Ajustar toque mínimo 44px, tabelas, filtros e viewport dinâmico; cinco telas conferidas em computador, tablet e celular. Corrigidos botão cortado no celular e sobreposição lateral no tablet. Teclado virtual físico e impressora não testados; viewport reduzido com campo focado conferido.
 
 - [x] Corrigir a folha PDF no gerador compartilhado por downloads, portal e ZIP; downloads individual, lote, portal e link conferidos com dados isolados (ZIP e conta real não verificados).
 - [x] Revisar os demais PDFs com tabelas alinhadas, quebras seguras e conferência visual de folha, PINs, manual, dashboard, atestado e cupom, sem publicar.
