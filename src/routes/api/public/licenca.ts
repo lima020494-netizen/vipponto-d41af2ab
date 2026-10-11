@@ -32,12 +32,8 @@ async function auth(request: Request) {
   const { data, error } = await supabaseAdmin.auth.getUser(bearer);
   const email = data.user?.email?.toLowerCase();
   if (error || !data.user || !email) return null;
-  let { data: role } = await supabaseAdmin.from("user_roles" as never).select("role").eq("user_id", data.user.id).eq("role", "admin").maybeSingle();
-  if (!role && email === DEV_EMAIL && data.user.email_confirmed_at) {
-    await supabaseAdmin.from("user_roles" as never).insert({ user_id: data.user.id, role: "admin" } as never);
-    role = { role: "admin" } as never;
-  }
-  return { db: supabaseAdmin, user: data.user, email, isDev: !!role };
+  const { data: role, error: roleError } = await supabaseAdmin.from("user_roles" as never).select("role").eq("user_id", data.user.id).eq("role", "admin").maybeSingle();
+  return { db: supabaseAdmin, user: data.user, email, isDev: !roleError && !!role && email === DEV_EMAIL };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,16 +102,18 @@ export const Route = createFileRoute("/api/public/licenca")({
         }
         const tbl = () => a.db.from("licencas" as never);
         if (d.acao === "listar") {
-          const [l, e, f] = await Promise.all([
+          const [l, e, f, commercial] = await Promise.all([
             tbl().select("*").order("created_at", { ascending: false }),
             a.db.from("empregador").select("email_dono,dados"),
             a.db.from("funcionarios").select("email_dono").not("email_dono", "is", null),
+            a.db.from("app_config").select("valor").eq("chave", "conheca").maybeSingle(),
           ]);
+          if (commercial.error) return json({ error: "Não foi possível carregar a página comercial. Tente novamente." }, 500);
           const nomes = new Map((e.data || []).map((x) => [x.email_dono.toLowerCase(), (x.dados as Record<string, string>)?.["razao"] || (x.dados as Record<string, string>)?.["fantasia"] || ""]));
           const qtd = new Map<string, number>();
           (f.data || []).forEach((x) => { const k = String(x.email_dono).toLowerCase(); qtd.set(k, (qtd.get(k) || 0) + 1); });
           const cfg = await getConfig(a.db);
-          return json({ config: cfg, contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: nomes.get(x.email_dono) || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
+          return json({ config: cfg, conheca: resolveConheca(commercial.data?.valor), contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: nomes.get(x.email_dono) || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
         }
         if (d.acao === "config") {
           const { error } = await a.db.from("app_config" as never).upsert({ chave: "cobranca", valor: { pix: d.pix, whatsapp: d.whatsapp, precos: d.precos, precosAnuais: d.precosAnuais } } as never);

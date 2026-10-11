@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Registro de ponto com hora oficial, NSR, comprovante térmico SUNMI, escala, banco de horas e folha MTE 671/2021.",
+          "Ponto Pro Gestão: registro de ponto, comprovante térmico, escala e banco de horas, desenhado em conformidade com as diretrizes da Portaria MTE 671/2021.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -26,7 +26,7 @@ function Index() {
   // O aplicativo completo é um único arquivo HTML/CSS/JS puro em /vip-ponto.html
   return (
     <iframe
-      src="/vip-ponto.html?v=20261010-pdf-tabelas"
+      src="/vip-ponto.html?v=20261011-melhorias"
       title="Ponto Pro Gestão"
       style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: 0 }}
     />
