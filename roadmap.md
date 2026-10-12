@@ -1,9 +1,9 @@
 # Roadmap
 
-- [ ] Comprimir logo e disponibilizar bibliotecas locais nas mesmas versões, com cache offline.
-- [ ] Trocar Dashboard, Banco e Atestado por PDF e remover funções de impressão órfãs.
-- [ ] Harmonizar botões, tabelas, espaçamentos e ocorrências; ajustar celular e tablet retrato/paisagem.
-- [ ] Validar downloads e layouts na prévia, sem publicação e sem alterar dados.
+- [x] Comprimir logo de 752.474 para 44.054 bytes e disponibilizar bibliotecas locais com cache offline; Supabase @2 fixado em 2.117.3, versão efetivamente servida pelo CDN na conferência.
+- [x] Trocar Dashboard, Banco e Atestado por PDF; remover funções órfãs e caminho A4 pelo navegador, preservando comprovante térmico.
+- [x] Harmonizar botões, tabelas, espaçamentos e ocorrências; celular de 360px e tablet retrato/paisagem conferidos sem transbordamento lateral.
+- [x] Validar os três downloads PDF tabelados, recarga offline com bibliotecas disponíveis e seis testes; somente prévia, sem alterar dados reais. Conta autenticada real e dispositivos físicos não verificáveis neste ambiente.
 
 - [x] Remover impressão redundante da folha individual, lote e PINs; downloads de PDFs e ZIP com PDF/AFD/CSV conferidos com dados isolados.
 - [x] Neutralizar marcas públicas e alegações regulatórias no sistema e /conheca, inclusive conteúdo comercial legado, preservando identificadores de impressora.
