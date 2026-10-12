@@ -1,5 +1,10 @@
 # Roadmap
 
+- [ ] Comprimir logo e disponibilizar bibliotecas locais nas mesmas versões, com cache offline.
+- [ ] Trocar Dashboard, Banco e Atestado por PDF e remover funções de impressão órfãs.
+- [ ] Harmonizar botões, tabelas, espaçamentos e ocorrências; ajustar celular e tablet retrato/paisagem.
+- [ ] Validar downloads e layouts na prévia, sem publicação e sem alterar dados.
+
 - [x] Remover impressão redundante da folha individual, lote e PINs; downloads de PDFs e ZIP com PDF/AFD/CSV conferidos com dados isolados.
 - [x] Neutralizar marcas públicas e alegações regulatórias no sistema e /conheca, inclusive conteúdo comercial legado, preservando identificadores de impressora.
 - [x] Corrigir resposta de carregamento comercial e formulário master; testes de permissão passaram e API sem sessão retorna 401. Gravação autenticada com conta real não verificável no Supabase externo deste ambiente.
