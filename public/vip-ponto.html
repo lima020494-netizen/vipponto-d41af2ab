@@ -125,17 +125,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   html,body{margin:0!important;padding:0!important}
   #comprovante{display:block !important;position:absolute;left:0;top:0;width:58mm;margin:0!important;padding:0!important}
   @page thermal{size:58mm auto;margin:0}
-  @page a4{size:A4;margin:8mm}
   body{page:thermal}
-  body.print-folha{page:a4}
-  body.print-folha #comprovante{display:none !important}
-  body.print-folha #area-impressao,body.print-folha #area-impressao *{visibility:visible !important}
-  body.print-folha #area-impressao{position:absolute;left:0;top:0;width:100%}
-  body.print-folha .folha,body.print-folha .doc-standard{border:0;border-radius:0;padding:0;margin:0;box-shadow:none}
-  body.print-folha .doc-header,body.print-folha .folha .cab{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  body.print-folha table{break-inside:auto}
-  body.print-folha tr{break-inside:avoid;break-after:auto}
-  body.print-folha thead{display:table-header-group}
 }
 
 /* ===== Visual referência (layouts enviados) ===== */
@@ -512,6 +502,7 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 .tabs-scroll::before{left:1px;background:var(--tab-fade);transform:rotate(180deg)}.tabs-scroll::after{right:1px;background:var(--tab-fade)}
 .tabs-scroll[data-left="true"]::before,.tabs-scroll[data-right="true"]::after{opacity:1}
 #tela-ponto .status-ntp{display:inline-flex;justify-content:center;align-items:center;gap:8px;max-width:100%;padding:6px 12px;border:1px solid var(--kiosk-status-border);border-radius:8px;background:var(--kiosk-status-bg);color:var(--kiosk-status-text);font-size:11px;font-weight:500;line-height:1.4;text-wrap:balance}
+#tela-ponto #btn-bater{background:var(--navy);color:var(--action-text);border-color:var(--navy2);box-shadow:none}
 .kiosk-status-wrap{text-align:center}.sync-dot{width:6px;height:6px;flex:none;border-radius:50%;background:var(--kiosk-status-warn)}.sync-dot.ok{background:var(--kiosk-status-ok)}
 @media(max-width:760px){.onboarding-head{gap:12px;padding-bottom:12px}.onboarding-head .btn{padding:12px;min-width:44px;margin-left:12px}.escala-table td{padding:12px!important;min-width:144px}.escala-table input{margin-top:8px!important}.tabs-scroll .tabs{padding-right:20px;padding-left:20px}}
 @media(min-width:761px) and (max-width:1100px) and (orientation:portrait){
@@ -634,7 +625,6 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 
 <div id="modal-generico" class="modal hidden"><div class="inner" id="modal-generico-inner"></div></div>
 <div id="modal-pin" class="modal small hidden"><div class="inner" id="modal-pin-inner"></div></div>
-<div id="area-impressao" class="hidden"></div>
 <div id="comprovante"></div>
 <div id="tela-folha-link" class="hidden" style="min-height:100vh;background:#f4f6fb;padding:16px">
   <div style="max-width:1180px;margin:0 auto">
@@ -1220,7 +1210,6 @@ async function imprimirComprovante(b){
   imprimirNavegador();
 }
 function imprimirNavegador(){
-  document.body.classList.remove('print-folha');
   setTimeout(()=>{try{window.print();}catch(e){console.warn('print',e);}},120);
 }
 /* RawBT: impressão térmica silenciosa (ESC/POS) via rawbt: e intent Android */
@@ -2113,24 +2102,6 @@ function pdfDash(){
   });
   pdfRodapesPadrao(doc,usuario);doc.save('Dashboard_Frequencia.pdf');
 }
-function imprimirArea(html,titulo,usuario='Conta '+(CONTA||'—')){
-  const completo=/data-doc-completo/.test(html);
-  const conteudo=completo?html:`<div class="doc-standard" data-doc-completo="1">${cabecalhoDocumentoHTML(titulo)}<div class="doc-body">${html}</div>${rodapeDocumentoHTML(usuario)}</div>`;
-  const anterior=$('impressao-a4');if(anterior)anterior.remove();
-  const frame=document.createElement('iframe');frame.id='impressao-a4';frame.title='Impressão da folha A4';
-  frame.style.cssText='position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0';
-  const estilos=[...document.querySelectorAll('style')].map(el=>el.textContent).join('\n');
-  frame.onload=async()=>{
-    const w=frame.contentWindow,d=frame.contentDocument;if(!w||!d)return;
-    await Promise.all([...d.images].map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve;})));
-    if(d.fonts)await d.fonts.ready;
-    w.addEventListener('afterprint',()=>frame.remove(),{once:true});
-    w.requestAnimationFrame(()=>{w.focus();w.print();});
-  };
-  frame.srcdoc=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><base href="${esc(location.origin+'/')}"><title>${esc(titulo||'Folha de Ponto — Ponto Pro Gestão')}</title><style>${estilos}\n@page{size:A4;margin:8mm}html,body{background:#fff!important;page:auto!important}#area-impressao{display:block!important;position:static!important;width:100%!important}#comprovante{display:none!important;visibility:hidden!important}.tbl-wrap{overflow:visible!important}table{width:100%;border-collapse:collapse}thead{display:table-header-group}tr{break-inside:avoid}</style></head><body class="print-folha"><main id="area-impressao">${conteudo}</main></body></html>`;
-  document.body.appendChild(frame);
-}
-
 /* ============================== MÓDULO 4 — FOLHA MTE ============================== */
 const LEGENDA='FALTA = dia sem batida e sem folga/feriado | FOLGA = folga prevista em escala | FERIADO = feriado cadastrado | _ = batida tratada/movida com motivo obrigatório | *N = hora noturna reduzida 22h-05h (Art. 73 CLT)';
 const preLegenda=f=>f&&f.intervalo&&f.intervalo.preAssinalado?`Intervalo pré-assinalado ${f.intervalo.inicio||'12:00'}-${f.intervalo.fim||'13:00'} - Art. 71`:'';
