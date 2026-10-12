@@ -10,18 +10,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Sora:wght@600;700;800&amp;display=swap" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="/jspdf-2.5.1.umd.min.js"></script>
 <script src="/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="/jszip-3.10.1.min.js"></script>
+<script src="/xlsx-0.18.5.full.min.js"></script>
 <script src="/qrcode-generator.min.js"></script>
 <meta name="theme-color" content="#0f172a" />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/supabase-2.117.3.min.js"></script>
+<script src="/ponto-offline-register.js" defer></script>
 <style>
 /* ===================== DESIGN SYSTEM ===================== */
-:root{
-  --navy:#0d2murder; /* placeholder removido abaixo */
-}
 :root{
   --navy:#0c2246; --navy2:#123a73; --gold:#c9992b; --gold2:#e9c05a;
   --bg:#f4f6fb; --card:#ffffff; --txt:#12203a; --muted:#6b7a93;
@@ -61,7 +59,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .tbl-wrap{overflow:auto;-webkit-overflow-scrolling:touch}
 .tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:800;color:#fff}
 .t-falta{background:var(--red)}.t-feriado{background:var(--orange)}.t-folga{background:var(--blue)}
-.t-deslig{background:var(--gray)}.t-afast{background:#6d28d9}.t-ferias{background:#0f766e}.t-atraso{background:#b45309}
+.t-deslig{background:var(--gray)}.t-afast{background:var(--occ-afast)}.t-ferias{background:var(--occ-ferias)}.t-atraso{background:var(--occ-atraso)}
 .muted{color:var(--muted);font-size:12.5px}
 .hr{height:1px;background:var(--line);margin:12px 0}
 .badge{font-size:12px;font-weight:800;padding:5px 10px;border-radius:99px;background:#eef2f9;color:var(--navy)}
@@ -127,17 +125,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   html,body{margin:0!important;padding:0!important}
   #comprovante{display:block !important;position:absolute;left:0;top:0;width:58mm;margin:0!important;padding:0!important}
   @page thermal{size:58mm auto;margin:0}
-  @page a4{size:A4;margin:8mm}
   body{page:thermal}
-  body.print-folha{page:a4}
-  body.print-folha #comprovante{display:none !important}
-  body.print-folha #area-impressao,body.print-folha #area-impressao *{visibility:visible !important}
-  body.print-folha #area-impressao{position:absolute;left:0;top:0;width:100%}
-  body.print-folha .folha,body.print-folha .doc-standard{border:0;border-radius:0;padding:0;margin:0;box-shadow:none}
-  body.print-folha .doc-header,body.print-folha .folha .cab{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  body.print-folha table{break-inside:auto}
-  body.print-folha tr{break-inside:avoid;break-after:auto}
-  body.print-folha thead{display:table-header-group}
 }
 
 /* ===== Visual referência (layouts enviados) ===== */
@@ -252,8 +240,8 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .punch-summary-card small{display:block;color:var(--muted);font-weight:800;text-transform:uppercase;font-size:11px}.punch-summary-card strong{display:block;font:800 25px Sora,system-ui;margin-top:4px;color:var(--txt)}
 .daily-punches{min-width:960px}.daily-punches td{vertical-align:middle;padding:9px 8px}.daily-punches th{white-space:nowrap}
 .day-cell strong,.day-cell small{display:block}.day-cell small{color:var(--muted);margin-top:2px;text-transform:capitalize}
-.status-day{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap;background:#e2e8f0;color:#334155}
-.status-day.trabalhado{background:#dcfce7;color:#166534}.status-day.incompleto{background:#fef3c7;color:#92400e}.status-day.atestado{background:#dbeafe;color:#1e40af}.status-day.folga{background:#e2e8f0;color:#475569}
+.status-day{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap;background:var(--occ-rest-bg);color:var(--occ-rest-text)}
+.status-day.trabalhado{background:var(--occ-work-bg);color:var(--occ-work-text)}.status-day.incompleto{background:var(--occ-pending-bg);color:var(--occ-pending-text)}.status-day.atestado{background:var(--occ-medical-bg);color:var(--occ-medical-text)}.status-day.folga{background:var(--occ-rest-bg);color:var(--occ-rest-text)}
 .marks-cell{display:flex;gap:5px;align-items:center;flex-wrap:wrap;min-width:180px}.mark-pill{display:inline-flex;padding:4px 8px;border:1px solid #cbd5e1;border-radius:999px;background:#f8fafc;color:#0f172a;font-weight:800;font-variant-numeric:tabular-nums}
 .day-actions{position:relative}.action-sheet{max-width:520px}.action-sheet-grid{display:grid;gap:8px;margin-top:14px}.action-sheet-grid .btn{justify-content:flex-start;text-align:left;width:100%}
 .punch-detail{display:grid;gap:8px;margin-top:12px}.punch-detail-row{padding:10px;border:1px solid var(--line);border-radius:9px;background:#f8fafc}.punch-hash{font:11px ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere;color:#475569;margin-top:5px}
@@ -499,6 +487,30 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 }
 @media(max-height:650px){#tela-ponto .key{height:44px;min-height:44px}#tela-home{overflow-y:auto}#tela-ponto.kiosk-shell{min-height:620px;overflow-y:visible}}
 @media(prefers-reduced-motion:reduce){.tbl-wrap{scroll-behavior:auto}}
+/* Maintenance tokens: operational controls, occurrence badges and table rhythm. */
+:root{--space-1:8px;--space-2:16px;--space-3:24px;--action-text:#fff;--table-head:#e3eff4;--table-alt:#f7fafc;--table-rule:#d3dee8;--occ-afast:#6d28d9;--occ-ferias:#0f766e;--occ-atraso:#b45309;--occ-work-bg:#dcfce7;--occ-work-text:#166534;--occ-pending-bg:#fef3c7;--occ-pending-text:#92400e;--occ-medical-bg:#dbeafe;--occ-medical-text:#1e40af;--occ-rest-bg:#e2e8f0;--occ-rest-text:#475569;--kiosk-status-bg:#142237;--kiosk-status-text:#aebdce;--kiosk-status-border:#304157;--kiosk-status-ok:#7ee4b6;--kiosk-status-warn:#e9c05a;--tab-fade:linear-gradient(to right,transparent,var(--bg))}
+#gestor-body .btn:not(.ghost):not(.red),#gestor-hub-dashboard .btn:not(.ghost):not(.red),#modal-generico .btn:not(.ghost):not(.red),#tela-empregador .btn:not(.ghost):not(.red){background:var(--navy);color:var(--action-text)}
+#gestor-body .plan-actions .btn.gold,#modal-generico .pix-copy .btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy)}
+#gestor-body .tab.active{background:var(--navy);color:var(--action-text);box-shadow:none}
+.grid,.punch-summary,.module-grid{gap:var(--space-2)}.card{margin-bottom:var(--space-2)}.hr{margin:var(--space-2) 0}.folha-actions{gap:var(--space-1)}
+.onboarding-steps{gap:var(--space-2)}.onboarding-head{margin-bottom:var(--space-2)}
+#gestor-body .daily-punches th,#gestor-body .folha th{background:var(--table-head);color:var(--navy);border-color:var(--table-rule);padding:var(--space-1);font-size:11.5px}
+#gestor-body .daily-punches td,#gestor-body .folha td{border-color:var(--table-rule);padding:var(--space-1);vertical-align:middle}
+#gestor-body .daily-punches tbody tr:nth-child(even) td{background:var(--table-alt)}
+.tabs-scroll{position:relative;min-width:0;--bg:#e8f3f6}.tabs-scroll .tabs{margin:0;scrollbar-width:thin}
+.tabs-scroll::before,.tabs-scroll::after{content:"";position:absolute;top:1px;bottom:1px;width:20px;pointer-events:none;z-index:2;opacity:0;transition:opacity .15s}
+.tabs-scroll::before{left:1px;background:var(--tab-fade);transform:rotate(180deg)}.tabs-scroll::after{right:1px;background:var(--tab-fade)}
+.tabs-scroll[data-left="true"]::before,.tabs-scroll[data-right="true"]::after{opacity:1}
+#tela-ponto .status-ntp{display:inline-flex;justify-content:center;align-items:center;gap:8px;max-width:100%;padding:6px 12px;border:1px solid var(--kiosk-status-border);border-radius:8px;background:var(--kiosk-status-bg);color:var(--kiosk-status-text);font-size:11px;font-weight:500;line-height:1.4;text-wrap:balance}
+#tela-ponto #btn-bater{background:var(--navy);color:var(--action-text);border-color:var(--navy2);box-shadow:none}
+.kiosk-status-wrap{text-align:center}.sync-dot{width:6px;height:6px;flex:none;border-radius:50%;background:var(--kiosk-status-warn)}.sync-dot.ok{background:var(--kiosk-status-ok)}
+@media(max-width:760px){.onboarding-head{gap:12px;padding-bottom:12px}.onboarding-head .btn{padding:12px;min-width:44px;margin-left:12px}.escala-table td{padding:12px!important;min-width:144px}.escala-table input{margin-top:8px!important}.tabs-scroll .tabs{padding-right:20px;padding-left:20px}}
+@media(min-width:761px) and (max-width:1100px) and (orientation:portrait){
+ #tela-ponto.kiosk-shell{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);gap:16px;height:100dvh;padding:16px 0;min-height:0}
+ .kiosk-info-panel{padding:16px;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:16px;align-items:center}
+ .kiosk-company{margin:0}.kiosk-company img{height:64px;width:80px;margin-bottom:8px}.kiosk-company-name{font-size:15px}.kiosk-info-title,.kiosk-message{display:none}
+ .kiosk-entry-panel{padding:16px 32px;align-items:center}.kiosk-entry-panel>div{width:100%;max-width:560px}.kiosk-entry-panel .keys{max-width:560px;gap:16px}.kiosk-entry-panel .key{height:64px;font-size:28px}.kiosk-entry-panel #relogio-kiosk{font-size:52px}.kiosk-entry-panel .pin-display{margin:8px auto}.kiosk-entry-panel #btn-bater{margin-top:16px}
+}
 </style>
 </head>
 <body>
@@ -613,7 +625,6 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 
 <div id="modal-generico" class="modal hidden"><div class="inner" id="modal-generico-inner"></div></div>
 <div id="modal-pin" class="modal small hidden"><div class="inner" id="modal-pin-inner"></div></div>
-<div id="area-impressao" class="hidden"></div>
 <div id="comprovante"></div>
 <div id="tela-folha-link" class="hidden" style="min-height:100vh;background:#f4f6fb;padding:16px">
   <div style="max-width:1180px;margin:0 auto">
@@ -934,7 +945,7 @@ function tick(){const d=getHoraOficial();
   if($('data-kiosk'))$('data-kiosk').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   setTimeout(tick,1000);}
 function atualizaStatus(){const el=$('status-ntp');if(!el)return;const p=CONTA?pendentes().length:0;
-  el.innerHTML=(NTP_OK?'🟢 SERVIDOR NTP OK':'🟡 LOCAL SEM NTP')+(NUVEM_OK?' • ☁️ Nuvem sincronizada':' • ⚠️ Offline (dados no aparelho)')+(p?` • ⏳ ${p} batida(s) na fila`:'');}
+  el.innerHTML=`<span class="sync-dot ${NTP_OK&&NUVEM_OK?'ok':''}" aria-hidden="true"></span><span>${NTP_OK?'Hora oficial':'Hora local'} · ${NUVEM_OK?'Sincronizado':'Offline — dados no aparelho'}${p?` · ${p} na fila`:''}</span>`;}
 
 /* ============================== MÓDULO 1 — EMPREGADOR ============================== */
 const UFS=['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
@@ -1199,7 +1210,6 @@ async function imprimirComprovante(b){
   imprimirNavegador();
 }
 function imprimirNavegador(){
-  document.body.classList.remove('print-folha');
   setTimeout(()=>{try{window.print();}catch(e){console.warn('print',e);}},120);
 }
 /* RawBT: impressão térmica silenciosa (ESC/POS) via rawbt: e intent Android */
@@ -1802,7 +1812,7 @@ function subEscala(){
     <input type="file" id="imp-esc" accept=".csv,.xlsx,.xls" class="hidden" onchange="importarEscala(this)"/>
   </div>
   <div class="muted">Períodos entre meses aparecem na mesma tela. Máx. 3 folgas por funcionário em cada semana.</div>
-  <div class="tbl-wrap"><table><tr><th>Funcionário</th>${dias.map(d=>`<th>${DIAS[dow(d)].slice(0,3)}<br>${brOf(d).slice(0,5)}</th>`).join('')}</tr>${rows}</table></div>
+  <div class="tbl-wrap"><table class="escala-table"><tr><th>Funcionário</th>${dias.map(d=>`<th>${DIAS[dow(d)].slice(0,3)}<br>${brOf(d).slice(0,5)}</th>`).join('')}</tr>${rows}</table></div>
   <div class="hr"></div><h4>Histórico de alterações da escala</h4>
   <div class="tbl-wrap"><table><tr><th>Registro</th></tr>${hist.map(h=>`<tr><td>${esc(h.texto)}</td></tr>`).join('')||'<tr><td class="muted">Sem alterações.</td></tr>'}</table></div>`;
 }
@@ -1918,7 +1928,7 @@ function subBanco(){
   <div id="bh-out" style="margin-top:12px"></div>
   <hr style="margin:18px 0;border:0;border-top:1px solid #dbe3ee"/>
   <div class="row"><div><h3>Resumo geral — todos os colaboradores</h3><div class="muted">Fechamento consolidado do banco de horas.</div></div>
-    <div class="right row"><button class="btn sm ghost" onclick="imprimirResumoBanco()">Imprimir</button><button class="btn sm gold" onclick="csvResumoBanco()">Exportar CSV</button></div></div>
+    <div class="right row"><button class="btn sm" onclick="pdfResumoBanco()">📄 Baixar PDF</button><button class="btn sm ghost" onclick="csvResumoBanco()">Exportar CSV</button></div></div>
   <div class="grid g4"><div><label>Data inicial</label><input type="date" id="bhr-ini" value="${hoje.slice(0,8)}01" onchange="renderResumoBanco()"/></div>
   <div><label>Data final</label><input type="date" id="bhr-fim" value="${hoje}" onchange="renderResumoBanco()"/></div>
   <div><label>Status</label><select id="bhr-st" onchange="renderResumoBanco()">${['Todos','Ativos','Desligados','Afastamento','Férias'].map(s=>`<option>${s}</option>`).join('')}</select></div></div>
@@ -1944,10 +1954,14 @@ function renderResumoBanco(){
   if(r.ini>r.fim){$('bhr-out').innerHTML='<div class="alert err">A data inicial deve ser anterior à data final.</div>';return;}
   $('bhr-out').innerHTML=tabelaResumoBanco(r);
 }
-function imprimirResumoBanco(){
-  const r=dadosResumoBanco();
-  imprimirArea(`<div class="muted">Período ${brOf(r.ini)} a ${brOf(r.fim)} • Status: ${esc(r.st)}</div>${tabelaResumoBanco(r)}`,'Fechamento do Banco de Horas');
-  log(`Imprimiu fechamento consolidado do banco de horas ${brOf(r.ini)}–${brOf(r.fim)}`);
+function pdfResumoBanco(){
+  const r=dadosResumoBanco();if(!r.ini||!r.fim||r.ini>r.fim)return toast('Informe um período válido.');
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),titulo='Fechamento do Banco de Horas',sub=`Período ${brOf(r.ini)} a ${brOf(r.fim)} • Status: ${r.st}`;
+  const totais=r.linhas.reduce((a,{b})=>({anterior:a.anterior+b.anterior,creditos:a.creditos+b.creditos,debitos:a.debitos+b.debitos,atual:a.atual+b.atual}),{anterior:0,creditos:0,debitos:0,atual:0});
+  const body=r.linhas.map(({f,b})=>[`${f.nome}\n${f.funcao||'—'}`,f.status||'Ativo',toSaldo(b.anterior),'+'+toHHMM(b.creditos),'-'+toHHMM(b.debitos),toSaldo(b.atual)]);
+  if(body.length)body.push([`Total (${r.linhas.length})`,'',toSaldo(totais.anterior),'+'+toHHMM(totais.creditos),'-'+toHHMM(totais.debitos),toSaldo(totais.atual)]);
+  pdfTabelaPadrao(doc,{y:pdfCabecalhoPadrao(doc,titulo,sub),titulo,sub,head:['Colaborador / Cargo','Status','Saldo anterior','Créditos','Débitos','Saldo atual'],body,widths:[58,28,26,26,26,26]});
+  pdfRodapesPadrao(doc,CONTA||'Gestor');doc.save(`Banco_Horas_${r.ini}_${r.fim}.pdf`);log('Exportou PDF consolidado do banco de horas');
 }
 function csvResumoBanco(){
   const r=dadosResumoBanco(),q=v=>`"${String(v??'').replace(/"/g,'""')}"`;
@@ -1979,8 +1993,7 @@ function subRelatorios(){
 function abaDash(alvo='gestor-body'){
   const hoje=hojeISO();
   $(alvo).innerHTML=`<div class="row"><h3>Dashboard de Frequência</h3>
-    <div class="right row"><button class="btn sm ghost" onclick="printDash()">Imprimir</button>
-    <button class="btn sm gold" onclick="pdfDash()">Exportar PDF</button></div></div>
+    <div class="right row"><button class="btn sm" onclick="pdfDash()">📄 Baixar PDF</button></div></div>
   <div class="grid g4">
     <div><label>Período</label><select id="d-per" onchange="calcDash()"><option value="sem">Esta Semana</option><option value="mes" selected>Este Mês</option><option value="ano">Este Ano</option><option value="pers">Personalizado</option></select></div>
     <div><label>De</label><input type="date" id="d-ini" value="${hoje.slice(0,8)}01" onchange="calcDash()"/></div>
@@ -2070,17 +2083,6 @@ function desenharFaltas(res){
     x.fillStyle=gr;x.fillRect(110,y,w,h);
     x.fillStyle='#5b1a12';x.font='700 11px Segoe UI, sans-serif';x.textAlign='left';x.fillText(r.faltas+' ('+pct+'%)',114+w,y+h-4);});
 }
-function printDash(){
-  const wrap=document.createElement('div'); wrap.innerHTML=$('dash-out').innerHTML;
-  wrap.querySelectorAll('canvas').forEach(c=>{
-    const src=c.id&&$(c.id); const img=document.createElement('img');
-    img.alt=c.getAttribute('aria-label')||'Gráfico'; img.style.cssText='width:100%;height:auto';
-    try{img.src=src?src.toDataURL('image/png'):'';}catch(_){img.src='';}
-    c.replaceWith(img);
-  });
-  const filtro=$('d-func').value,usuario=filtro?(funcPorPin(filtro)||{}).nome:'Todos os colaboradores';
-  imprimirArea(wrap.innerHTML,'Dashboard de Frequência',usuario);
-}
 function pdfDash(){
   const {jsPDF}=window.jspdf,[ini,fim]=periodoDash(),doc=new jsPDF({unit:'mm',format:'a4'});
   const filtro=$('d-func').value,usuario=filtro?(funcPorPin(filtro)||{}).nome:'Todos os colaboradores';
@@ -2100,24 +2102,6 @@ function pdfDash(){
   });
   pdfRodapesPadrao(doc,usuario);doc.save('Dashboard_Frequencia.pdf');
 }
-function imprimirArea(html,titulo,usuario='Conta '+(CONTA||'—')){
-  const completo=/data-doc-completo/.test(html);
-  const conteudo=completo?html:`<div class="doc-standard" data-doc-completo="1">${cabecalhoDocumentoHTML(titulo)}<div class="doc-body">${html}</div>${rodapeDocumentoHTML(usuario)}</div>`;
-  const anterior=$('impressao-a4');if(anterior)anterior.remove();
-  const frame=document.createElement('iframe');frame.id='impressao-a4';frame.title='Impressão da folha A4';
-  frame.style.cssText='position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0';
-  const estilos=[...document.querySelectorAll('style')].map(el=>el.textContent).join('\n');
-  frame.onload=async()=>{
-    const w=frame.contentWindow,d=frame.contentDocument;if(!w||!d)return;
-    await Promise.all([...d.images].map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve;})));
-    if(d.fonts)await d.fonts.ready;
-    w.addEventListener('afterprint',()=>frame.remove(),{once:true});
-    w.requestAnimationFrame(()=>{w.focus();w.print();});
-  };
-  frame.srcdoc=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><base href="${esc(location.origin+'/')}"><title>${esc(titulo||'Folha de Ponto — Ponto Pro Gestão')}</title><style>${estilos}\n@page{size:A4;margin:8mm}html,body{background:#fff!important;page:auto!important}#area-impressao{display:block!important;position:static!important;width:100%!important}#comprovante{display:none!important;visibility:hidden!important}.tbl-wrap{overflow:visible!important}table{width:100%;border-collapse:collapse}thead{display:table-header-group}tr{break-inside:avoid}</style></head><body class="print-folha"><main id="area-impressao">${conteudo}</main></body></html>`;
-  document.body.appendChild(frame);
-}
-
 /* ============================== MÓDULO 4 — FOLHA MTE ============================== */
 const LEGENDA='FALTA = dia sem batida e sem folga/feriado | FOLGA = folga prevista em escala | FERIADO = feriado cadastrado | _ = batida tratada/movida com motivo obrigatório | *N = hora noturna reduzida 22h-05h (Art. 73 CLT)';
 const preLegenda=f=>f&&f.intervalo&&f.intervalo.preAssinalado?`Intervalo pré-assinalado ${f.intervalo.inicio||'12:00'}-${f.intervalo.fim||'13:00'} - Art. 71`:'';
@@ -2193,7 +2177,6 @@ function periodoFolhaValido(){
   return {ini,fim};
 }
 function gerarFolha(){if(periodoFolhaValido())$('fl-out').innerHTML=htmlFolha($('fl-pin').value,$('fl-ini').value,$('fl-fim').value);}
-function imprimirFolhaTela(){if(!periodoFolhaValido())return;gerarFolha();if(!$('fl-pin').value)return toast('Selecione um colaborador.');imprimirArea($('fl-out').innerHTML,'');}
 async function baixarPDFFolha(){const p=periodoFolhaValido();if(!p||!$('fl-pin').value)return;if(typeof window.jspdf?.jsPDF!=='function')return toast('PDF indisponível. Verifique a conexão e tente novamente.',5000);try{await pdfFolhas([$('fl-pin').value],p.ini,p.fim);}catch(e){toast('Não foi possível gerar o PDF. Tente novamente.',5000);}}
 function acaoFiscalFolha(acao){
   const menu=document.querySelector('.fiscal-menu');if(menu)menu.open=false;
@@ -2370,7 +2353,6 @@ function lotSelAll(v){document.querySelectorAll('.lt-cb').forEach(c=>c.checked=v
 const lotePins=()=>[...document.querySelectorAll('.lt-cb:checked')].map(c=>c.value);
 function loteValida(){const p=lotePins();if(!$('lt-ini').value||!$('lt-fim').value){alert('Período obrigatório.');return null;}if(!p.length){alert('Selecione ao menos 1 funcionário.');return null;}return p;}
 function loteVisualizar(){const p=loteValida();if(!p)return;$('lt-out').innerHTML=p.map(x=>htmlFolha(x,$('lt-ini').value,$('lt-fim').value)).join('');}
-function loteImprimir(){const p=loteValida();if(!p)return;imprimirArea(p.map(x=>htmlFolha(x,$('lt-ini').value,$('lt-fim').value)).join(''),'');}
 function lotePDF(){const p=loteValida();if(!p)return;const ini=$('lt-ini').value;
   const mes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][Number(ini.slice(5,7))-1];
   pdfFolhas(p,ini,$('lt-fim').value,`Folhas_MTE_${mes}_${ini.slice(0,4)}.pdf`);}
@@ -2537,8 +2519,20 @@ function atestadoTecnico(){
   <p>A emissão deste documento não constitui homologação oficial. A validade das declarações depende da revisão e assinatura do responsável técnico, que assume a responsabilidade pela veracidade das informações e pela configuração utilizada.</p>
   <p>${esc(d.cidade)}, ${brOf(isoOf(dt))}.</p>
   <div class="assin"><div>${esc(d.nome)}<br>Desenvolvedor / Responsável técnico</div><div>${esc(e.razao||'Empregador')}<br>Ciente do empregador</div></div>${rodapeDocumentoHTML(CONTA||'Responsável técnico')}</div>`;
-  abrirModal(`<div class="row"><h3>Atestado Técnico</h3><button class="btn sm right" onclick="imprimirArea(document.getElementById('at-body').innerHTML,'')">🖨 Imprimir / PDF</button><button class="btn sm ghost" onclick="fecharModal()">✕</button></div><div id="at-body">${html}</div>`);
+  abrirModal(`<div class="row"><h3>Atestado Técnico</h3><button class="btn sm right" onclick="pdfAtestadoTecnico()">📄 Baixar PDF</button><button class="btn sm ghost" onclick="fecharModal()">✕</button></div><div id="at-body">${html}</div>`);
   log('Emitiu Atestado Técnico e Termo de Responsabilidade');
+}
+function pdfAtestadoTecnico(){
+  const out=$('at-body');if(!out)return;
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),titulo='Atestado Técnico',sub='Termo de Responsabilidade • Portaria MTP nº 671/2021 • Art. 89 a 91';
+  let y=pdfCabecalhoPadrao(doc,titulo,sub);
+  const body=[...out.querySelectorAll('tbody tr')].map(tr=>[...tr.cells].map(td=>td.textContent.trim()));
+  y=pdfTabelaPadrao(doc,{y,titulo,sub,head:['Identificação','Dados'],body,widths:[48,142]})+4;
+  y=pdfTabelaPadrao(doc,{y,titulo,sub,head:['Declarações e responsabilidade'],body:[...out.querySelectorAll('p')].map(p=>[p.textContent.trim()]),widths:[190],fontSize:8})+16;
+  if(y+16>275){doc.addPage();y=pdfCabecalhoPadrao(doc,titulo,sub)+16;}
+  const d=devCfg(),e=get('empregador',{})||{};doc.setDrawColor(120,135,151);doc.line(10,y,95,y);doc.line(115,y,200,y);doc.setFontSize(8);
+  doc.text(doc.splitTextToSize(`${d.nome}\nDesenvolvedor / Responsável técnico`,85),52.5,y+5,{align:'center'});doc.text(doc.splitTextToSize(`${e.razao||'Empregador'}\nCiente do empregador`,85),157.5,y+5,{align:'center'});
+  pdfRodapesPadrao(doc,CONTA||'Responsável técnico');doc.save('Atestado_Tecnico.pdf');log('Exportou PDF do Atestado Técnico');
 }
 
 /* ===================== MANUAL DO USUÁRIO ===================== */
@@ -2676,7 +2670,6 @@ function relatorioPins(){
   ${ls.map(r=>`<tr>${r.map((c,i)=>`<td>${i===4?'<b>'+esc(c)+'</b>':esc(c)}</td>`).join('')}</tr>`).join('')||'<tr><td colspan=6 class="muted">Nenhum empregado.</td></tr>'}</table></div>`;
   log('Consultou relatório confidencial de PINs');
 }
-function imprimirPins(){imprimirArea(`<div style="background:#c62828;color:#fff;padding:7px;text-align:center;font-weight:bold">DOCUMENTO CONFIDENCIAL - USO INTERNO DO RH</div>${$('pins-tbl').innerHTML}`,'Relatório de PINs (Confidencial)',CONTA||'RH');}
 function pdfPins(){
   const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),titulo='Relatório de PINs',sub='DOCUMENTO CONFIDENCIAL • Uso interno do RH';
   const y=pdfCabecalhoPadrao(doc,titulo,sub);

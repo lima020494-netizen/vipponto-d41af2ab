@@ -1,5 +1,10 @@
 # Roadmap
 
+- [x] Comprimir logo de 752.474 para 22.127 bytes preservando transparência e disponibilizar bibliotecas locais com cache offline; Supabase @2 fixado em 2.117.3, versão efetivamente servida pelo CDN na conferência.
+- [x] Trocar Dashboard, Banco e Atestado por PDF; remover funções órfãs e caminho A4 pelo navegador, preservando comprovante térmico.
+- [x] Harmonizar botões, tabelas, espaçamentos e ocorrências; celular de 360px e tablet retrato/paisagem conferidos sem transbordamento lateral.
+- [x] Validar os três downloads PDF tabelados, recarga offline com bibliotecas disponíveis e seis testes; somente prévia, sem alterar dados reais. Conta autenticada real e dispositivos físicos não verificáveis neste ambiente.
+
 - [x] Remover impressão redundante da folha individual, lote e PINs; downloads de PDFs e ZIP com PDF/AFD/CSV conferidos com dados isolados.
 - [x] Neutralizar marcas públicas e alegações regulatórias no sistema e /conheca, inclusive conteúdo comercial legado, preservando identificadores de impressora.
 - [x] Corrigir resposta de carregamento comercial e formulário master; testes de permissão passaram e API sem sessão retorna 401. Gravação autenticada com conta real não verificável no Supabase externo deste ambiente.
