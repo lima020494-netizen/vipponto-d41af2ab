@@ -1,6 +1,6 @@
 # Roadmap
 
-- [x] Comprimir logo de 752.474 para 44.054 bytes e disponibilizar bibliotecas locais com cache offline; Supabase @2 fixado em 2.117.3, versão efetivamente servida pelo CDN na conferência.
+- [x] Comprimir logo de 752.474 para 20.697 bytes preservando transparência e disponibilizar bibliotecas locais com cache offline; Supabase @2 fixado em 2.117.3, versão efetivamente servida pelo CDN na conferência.
 - [x] Trocar Dashboard, Banco e Atestado por PDF; remover funções órfãs e caminho A4 pelo navegador, preservando comprovante térmico.
 - [x] Harmonizar botões, tabelas, espaçamentos e ocorrências; celular de 360px e tablet retrato/paisagem conferidos sem transbordamento lateral.
 - [x] Validar os três downloads PDF tabelados, recarga offline com bibliotecas disponíveis e seis testes; somente prévia, sem alterar dados reais. Conta autenticada real e dispositivos físicos não verificáveis neste ambiente.
