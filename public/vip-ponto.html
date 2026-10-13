@@ -860,7 +860,7 @@ async function fazerLogin(){
   // 2) Conta nova neste aparelho: decide pelo plano REAL no banco (desenvolvedor e cortesia sempre entram)
   if(!jaNoAparelho&&email!=='lima020494@gmail.com'){
     let j=null; try{ j=await apiLic('GET'); localStorage.setItem('vip:lic:'+email,JSON.stringify(j)); }catch(e){}
-    if(j&&!j.isDev&&j.licenca?.status!=='cortesia'){
+    if(j&&!j.isDev){ // cortesia também respeita o nível de plano atribuído
       const limite=Math.min(3,Math.max(1,j.licenca?.plano||1));
       const outras=cs.filter(c=>c.email!==email).length;
       if(outras>=limite){ try{await sb.auth.signOut();}catch(e){}
@@ -2563,7 +2563,7 @@ const MANUAL=[
  ['3. Comprovante','A cada batida o comprovante sai na impressora térmica (terminais POS Android ou impressoras USB 58/80mm). Se não imprimir, toque na batida no histórico para reimprimir ou enviar por e-mail.'],
  ['4. Portal do Empregado (👤)','O empregado digita o PIN e vê a própria folha de ponto, podendo enviá-la para o seu e-mail.'],
  ['5. Gestor de ponto (⚙️)','Toque na engrenagem e digite o PIN de gerenciador. A primeira aba é o Dashboard de Frequência, com presença, faltas, absenteísmo, atrasos e carga incompleta, com filtros por período e funcionário.'],
- ['6. Empregados','Até 20 colaboradores por empresa. Informe nome, CPF, função, departamento, admissão, escala e o início da vigência do banco de horas. O PIN é criado automaticamente. Na aba "Funções, Cargos e Departamentos" você cadastra as listas. Status: Ativo, Desligado, Afastamento (com motivo) ou Férias.'],
+ ['6. Empregados','Até 10 (Plano 1), 25 (Plano 2) ou 50 (Plano 3) colaboradores por empresa. Informe nome, CPF, função, departamento, admissão, escala e o início da vigência do banco de horas. O PIN é criado automaticamente. Na aba "Funções, Cargos e Departamentos" você cadastra as listas. Status: Ativo, Desligado, Afastamento (com motivo) ou Férias.'],
  ['7. Escala semanal','Escolha a semana (pode começar no domingo ou na segunda). Em cada dia marque Trabalhado (com hora de entrada), DSR, Folga Domingo ou Folga Compensada — até 3 folgas por semana. A escala manda na folha: se o DSR foi para terça, o domingo vira dia de trabalho. A hora de entrada da escala é usada para calcular atraso (tolerância de 10 min). Após 7 dias a escala trava 🔒. Baixe o CSV para Excel/Google Sheets.'],
  ['8. Batidas e ajustes','Data, hora e NSR originais nunca podem ser alterados. Você pode mudar o tipo da batida, incluir batida manual ou lançar ocorrência (Falta Justificada, Férias, Folga, Compensada, Falta) — sempre com motivo de pelo menos 5 letras. Tudo fica registrado com o nome de quem alterou.'],
  ['9. Banco de horas','Calculado sozinho a partir da data de vigência: horas a mais geram crédito, horas a menos e faltas geram débito. Saldo Anterior + Créditos − Débitos = Saldo Atual.'],
