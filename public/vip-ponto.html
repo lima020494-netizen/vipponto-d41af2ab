@@ -1086,7 +1086,7 @@ function buscarFuncionario(){
 }
 function mostrarHistoricoDia(f){
   const d=jornadaAtualISO(f.pin);
-  const bs=get('batidas',[]).filter(b=>!b.excluida&&b.pin===f.pin&&b.data===d).sort((a,b)=>a.hora.localeCompare(b.hora));
+  const bs=batidasJornada(f.pin,d);
   const ultima=bs[bs.length-1];
   $('hist-dia').innerHTML=`<section class="kiosk-day" aria-label="Marcações de hoje de ${esc(f.nome)}">
     <div class="kiosk-day-head"><strong class="kiosk-day-name">${esc(f.nome)}</strong><span class="kiosk-day-date">${brOf(d)}</span></div>
@@ -1099,15 +1099,35 @@ function mostrarHistoricoDia(f){
     </div>
   </section>`;
 }
-/* Virada noturna (item E): jornada iniciada à noite continua no dia anterior */
+/* Virada noturna: batida de madrugada (00:00–05:59) fecha a jornada aberta do dia anterior.
+   b.data/b.hora (carimbo original, NSR/AFD) nunca são alterados; a jornada é derivada. */
+let __jIdx={sig:'',map:null};
+function indiceJornadas(){
+  const all=get('batidas',[])||[];
+  const sig=all.length+'|'+all.map(b=>(b.nsr||'')+(b.excluida?'x':'')+(b.data||'')+(b.hora||'')+(b.jornada||'')).join(',');
+  if(__jIdx.sig===sig&&__jIdx.map) return __jIdx.map;
+  const map=new Map(), cnt={};
+  all.filter(b=>!b.excluida).slice().sort((a,b)=>String(a.data+a.hora).localeCompare(String(b.data+b.hora))).forEach(b=>{
+    let j=b.data;
+    if(b.jornada) j=b.jornada;
+    else if(toMin(b.hora)<360){
+      const ontem=addDias(b.data,-1),k=b.pin+'|'+ontem,n=cnt[k]||0;
+      const h=horarioEscala(b.pin,b.data), escMadrugada=h&&toMin(h)<360;
+      if(n%2===1&&n<4&&!escMadrugada) j=ontem;
+    }
+    const k=b.pin+'|'+j; cnt[k]=(cnt[k]||0)+1; map.set(b,j); map.set(b.pin+'#'+b.nsr,j);
+  });
+  __jIdx={sig,map}; return map;
+}
+function jornadaDe(b){const m=indiceJornadas();return m.get(b)||m.get(b.pin+'#'+b.nsr)||b.jornada||b.data;}
+const ordemJornada=(a,b)=>String(a.data+a.hora).localeCompare(String(b.data+b.hora));
+function batidasJornada(pin,iso){return get('batidas',[]).filter(b=>!b.excluida&&b.pin===pin&&jornadaDe(b)===iso).sort(ordemJornada);}
 function jornadaAtualISO(pin){
   const agora=getHoraOficial(), hoje=isoOf(agora), ontem=addDias(hoje,-1);
   if(agora.getHours()<6){
-    const bs=get('batidas',[]).filter(b=>!b.excluida&&b.pin===pin&&b.data===ontem);
-    if(bs.length){
-      const ent=bs.find(b=>b.tipo==='Entrada');
-      if(ent&&toMin(ent.hora)>=720&&bs.length<4) return ontem; // entrada após 12:00 => jornada noturna do dia anterior
-    }
+    const n=batidasJornada(pin,ontem).length, h=horarioEscala(pin,hoje);
+    const f=funcPorPin(pin), max=tiposDo(f).length;
+    if(n%2===1&&n<max&&!(h&&toMin(h)<360)) return ontem; // ciclo aberto ontem => esta marcação é a SAÍDA
   }
   return hoje;
 }
@@ -1136,8 +1156,8 @@ async function registrarPonto(){
   if(!NTP_OK){ await sincronizarNTP();
     if(!NTP_OK && !confirm('Sem servidor de hora oficial (NTP). Art. 82 — risco de invalidade do registro. Confirmar registro com hora LOCAL?')) return;
   }
-  const data=jornadaAtualISO(f.pin), agora=getHoraOficial();
-  const bs=get('batidas',[]).filter(b=>!b.excluida&&b.pin===f.pin&&b.data===data);
+  const jornada=jornadaAtualISO(f.pin), agora=getHoraOficial(), data=isoOf(agora);
+  const bs=batidasJornada(f.pin,jornada);
   const tps=tiposDo(f);
   if(bs.length>=tps.length) return toast(`Limite de ${tps.length} marcações no dia atingido.`,4000);
   const ultima=bs.slice().sort((a,b)=>String(a.criadoEm||`${a.data}T${a.hora}:00`).localeCompare(String(b.criadoEm||`${b.data}T${b.hora}:00`))).pop();
@@ -1145,7 +1165,7 @@ async function registrarPonto(){
     const instante=Date.parse(ultima.criadoEm||`${ultima.data}T${ultima.hora}:00`),decorridos=Date.now()-instante;
     if(Number.isFinite(decorridos)&&decorridos>=0&&decorridos<120000&&!(await confirmarMarcacaoRecente(ultima.hora))) return;
   }
-  const b={pin:f.pin,nome:f.nome,cpf:f.cpf,data,hora:hhmm(agora),tipo:tps[bs.length],nsr:proximoNSR(),
+  const b={pin:f.pin,nome:f.nome,cpf:f.cpf,data,jornada,hora:hhmm(agora),tipo:tps[bs.length],nsr:proximoNSR(),
     fonte:NTP_OK?'SERVIDOR':'LOCAL',sync:NTP_OK,offset:get('ntpOffset',0),gerenciador:GERENCIADOR?GERENCIADOR.nome:'—',
     criadoEm:new Date().toISOString()};
   const all=get('batidas',[]); all.push(b); set('batidas',all); // 1º salva no aparelho
@@ -1493,7 +1513,7 @@ function previstoDia(f,iso){
   if(f.escala==='4x3'&&(d===0||d===6)) return 0;
   return cargaEscala(f.escala);
 }
-function batidasDia(pin,iso){return get('batidas',[]).filter(b=>!b.excluida&&b.pin===pin&&b.data===iso).sort((a,b)=>toMin(a.hora)-toMin(b.hora));}
+function batidasDia(pin,iso){return batidasJornada(pin,iso);}
 /* Pares de batidas (máx. 4: Entrada | Intervalo Saída | Intervalo Volta | Saída) */
 function paresBatidas(bs){
   const g=tp=>bs.filter(b=>b.tipo===tp)[0];
@@ -1745,7 +1765,7 @@ function salvarBatidaManual(){
   if(!data||!hora)return alert('Informe data e hora.');
   if(motivo.length<5)return alert('Motivo obrigatório (mín. 5 caracteres).');
   const f=funcPorPin(pin), all=get('batidas',[]);
-  if(all.filter(b=>!b.excluida&&b.pin===pin&&b.data===data).length>=4)return alert('Limite de 4 marcações no dia.');
+  if(batidasJornada(pin,data).length>=4)return alert('Limite de 4 marcações no dia.');
   const nsrM=proximoNSR();
   all.push({pin,nome:f.nome,cpf:f.cpf,data,hora,tipo,nsr:nsrM,fonte:'MANUAL',sync:false,offset:get('ntpOffset',0),
     gerenciador:GERENCIADOR.nome,movimento:`Inserida manualmente - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`,criadoEm:new Date().toISOString()});
@@ -2517,7 +2537,7 @@ function gerarAEJ(ini,fim){
   add('04',['1',padL(cargaEscala('5x2'),4),(e.hEntrada||'08:00').replace(':',''),(e.hSaiInt||'12:00').replace(':',''),(e.hEntInt||'14:00').replace(':',''),(e.hSaida||'18:00').replace(':','')]);
   fs.forEach((f,i)=>{
     const bs=get('batidas',[]).filter(b=>!b.excluida&&b.pin===f.pin&&b.data>=ini&&b.data<=fim).sort((a,b)=>(a.data+a.hora).localeCompare(b.data+b.hora));
-    const seq={};bs.forEach(b=>{seq[b.data]=(seq[b.data]||0)+1;const n=seq[b.data];
+    const seq={};bs.forEach(b=>{const jd=jornadaDe(b);seq[jd]=(seq[jd]||0)+1;const n=seq[jd];
       add('05',[i+1,dtTZ(b.data,b.hora),'1',/Entrada/.test(b.tipo)?'E':'S',Math.ceil(n/2),b.manual?'I':'O','1',b.movimento||b.motivo||'']);});
     get('ocorrencias',[]).filter(o=>o.pin===f.pin&&o.data>=ini&&o.data<=fim).forEach(o=>add('06',[i+1,o.data,o.tipo==='Falta'?'2':'1',padL(cargaEscala(f.escala),4),o.motivo||o.tipo]));
   });
