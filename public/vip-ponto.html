@@ -860,7 +860,7 @@ async function fazerLogin(){
   // 2) Conta nova neste aparelho: decide pelo plano REAL no banco (desenvolvedor e cortesia sempre entram)
   if(!jaNoAparelho&&email!=='lima020494@gmail.com'){
     let j=null; try{ j=await apiLic('GET'); localStorage.setItem('vip:lic:'+email,JSON.stringify(j)); }catch(e){}
-    if(j&&!j.isDev&&j.licenca?.status!=='cortesia'){
+    if(j&&!j.isDev){ // cortesia também respeita o nível de plano atribuído
       const limite=Math.min(3,Math.max(1,j.licenca?.plano||1));
       const outras=cs.filter(c=>c.email!==email).length;
       if(outras>=limite){ try{await sb.auth.signOut();}catch(e){}
@@ -1337,7 +1337,7 @@ function mostrarCentralGestor(){
   $('gestor-body').classList.add('hidden');$('gestor-hub').classList.remove('hidden');$('gestor-voltar').classList.remove('show');
   const cards=ABAS.map(([k])=>{const m=MODULOS_GESTOR[k]||MODULOS_GESTOR.dash;const acao=k==='dash'?"document.getElementById('gestor-hub-dashboard').scrollIntoView({behavior:'smooth'})":`irAba('${k}')`;
     return `<button type="button" class="module-card ${m.cls}" onclick="${acao}" aria-label="Abrir ${esc(m.nome)}"><span class="module-icon" aria-hidden="true">${m.ico}</span><strong>${m.nome}</strong><small>${m.desc}</small></button>`;}).join('');
-  $('gestor-hub').innerHTML=`<div class="hub-welcome"><div><h2>Central do Gestor</h2><p>Acesse os módulos e acompanhe a frequência da equipe em um só lugar.</p></div><span class="badge">${get('funcionarios',[]).length}/${MAX_FUNC} colaboradores</span></div>${primeirosPassosHTML()}<nav class="module-grid" aria-label="Módulos do gestor">${cards}</nav><section id="gestor-hub-dashboard" aria-label="Dashboard de Frequência"></section>`;
+  $('gestor-hub').innerHTML=`<div class="hub-welcome"><div><h2>Central do Gestor</h2><p>Acesse os módulos e acompanhe a frequência da equipe em um só lugar.</p></div><span class="badge">${get('funcionarios',[]).length}/${maxFuncAtual()} colaboradores</span></div>${primeirosPassosHTML()}<nav class="module-grid" aria-label="Módulos do gestor">${cards}</nav><section id="gestor-hub-dashboard" aria-label="Dashboard de Frequência"></section>`;
   abaDash('gestor-hub-dashboard');
 }
 function irAba(k){
@@ -1371,8 +1371,8 @@ function abaFunc(){
   const tabs=`<div class="tabs" style="margin-bottom:10px">${[['lista','Empregados'],['listas','Funções, Cargos e Departamentos'],['pins','🔒 Relatório de PINs (Confidencial)']].map(([k,t])=>`<div class="tab ${SUBF===k?'active':''}" onclick="SUBF='${k}';abaFunc()">${t}</div>`).join('')}</div>`;
   if(SUBF==='listas'){ $('gestor-body').innerHTML=tabs+'<div id="listas-body"></div>'; return gerirListas(); }
   if(SUBF==='pins'){ $('gestor-body').innerHTML=tabs+'<div id="pins-body"></div>'; return relatorioPins(); }
-  $('gestor-body').innerHTML=tabs+`<div class="row"><h3>Empregados — ${fs.length}/${MAX_FUNC} colaboradores</h3>
-    <button class="btn right" ${fs.length>=MAX_FUNC?'disabled':''} onclick="formFunc(-1)">+ Novo empregado</button></div>
+  $('gestor-body').innerHTML=tabs+`<div class="row"><h3>Empregados — ${fs.length}/${maxFuncAtual()} colaboradores</h3>
+    <button class="btn right" ${fs.length>=maxFuncAtual()?'disabled':''} onclick="formFunc(-1)">+ Novo empregado</button></div>
     <div class="tbl-wrap" style="max-height:62vh"><table><tr><th>#</th><th>Nome</th><th>CPF</th><th>Cargo/Função</th><th>Depto</th><th>Escala</th><th>Banco desde</th><th>Status</th><th>PIN (só gestor)</th><th></th></tr>
     ${fs.map((f,i)=>`<tr><td>${i+1}</td><td>${esc(f.nome)}</td><td>${esc(f.cpf)}</td><td>${esc(f.funcao||f.cargo)}</td><td>${esc(f.departamento)}</td>
     <td>${esc(f.escala)}</td><td>${brOf(f.inicioVigenciaBancoHoras||f.bancoInicio||f.admissao)}</td><td>${esc(statusTexto(f))}</td><td><b>${esc(f.pin)}</b></td>
@@ -1452,7 +1452,7 @@ function salvarFunc(i){
   if(o.status==='Afastamento'&&(!o.afastDe||!o.afastAte||!o.motivoAfast)) err.push('Período e motivo do afastamento obrigatórios.');
   if(o.status==='Férias'&&(!o.feriasIni||!o.feriasFim)) err.push('Início e término das férias obrigatórios.');
   if(err.length) return $('f-msg').innerHTML=`<div class="alert err">${err.join('<br>')}</div>`;
-  if(i>=0) fs[i]=o; else { if(fs.length>=MAX_FUNC) return $('f-msg').innerHTML=`<div class="alert err">Limite de ${MAX_FUNC} colaboradores por empresa atingido.</div>`; fs.push(o); }
+  if(i>=0) fs[i]=o; else { if(fs.length>=maxFuncAtual()) return $('f-msg').innerHTML=`<div class="alert err">Seu plano permite até ${maxFuncAtual()} colaboradores e esse limite já foi atingido. Para cadastrar mais pessoas, fale com o suporte e mude de plano.</div>`; fs.push(o); }
   set('funcionarios',fs); log(`${i>=0?'Editou':'Cadastrou'} empregado ${o.nome} (${statusTexto(o)})`); fecharModal(); abaFunc();
 }
 function delFunc(i){const fs=get('funcionarios',[]);const f=fs[i];if(!f)return;if(!confirm('Excluir o colaborador '+f.nome+'?\n\nA ficha, o PIN e a escala dele saem da lista. As batidas já registradas ficam guardadas no histórico.\n\nEsta ação não pode ser desfeita.'))return;log(`Excluiu empregado ${fs[i].nome}`);fs.splice(i,1);set('funcionarios',fs);abaFunc();}
@@ -1776,7 +1776,8 @@ function subEscala(){
   const fim=window.__escFim||addDias(ini,nd-1);
   window.__escIni=ini; window.__escFim=fim;
   const esc_=(get('escalas',{})||{})[ini]||{criacaoData:null};
-  const travada=esc_.criacaoData?((Date.now()-new Date(esc_.criacaoData).getTime())/864e5)>7:false;
+  const diasRest=esc_.criacaoData?Math.max(0,Math.ceil(ESC_TRAVA_DIAS-(Date.now()-new Date(esc_.criacaoData).getTime())/864e5)):ESC_TRAVA_DIAS;
+  const travada=esc_.criacaoData?((Date.now()-new Date(esc_.criacaoData).getTime())/864e5)>ESC_TRAVA_DIAS:false;
   const fs=get('funcionarios',[]).filter(f=>f.status!=='Desligado');
   const deps=[...new Set(fs.map(f=>f.departamento))];
   const dias=[]; for(let d=ini;d<=fim&&dias.length<31;d=addDias(d,1)) dias.push(d);
@@ -1794,7 +1795,7 @@ function subEscala(){
     });
   });
   const hist=get('logsEscala',[]).filter(h=>h.semana===ini);
-  $('sub-body').innerHTML=`<div class="row"><h3>Escala ${brOf(ini)} a ${brOf(fim)} ${travada?'<span class="lock">🔒 travada (7 dias após criação)</span>':''}</h3></div>
+  $('sub-body').innerHTML=`<div class="row"><h3>Escala ${brOf(ini)} a ${brOf(fim)} ${travada?'<span class="lock">🔒 travada (30 dias após criação)</span>':`<span class="muted" style="font-size:13px">🔓 editável por mais ${diasRest} dia(s)</span>`}</h3></div>
   <div class="grid g4">
     <div><label>Período</label><select id="escala-dias" onchange="setEscPeriodo(this.value)">${[7,15,30].map(n=>`<option value="${n}" ${nd===n?'selected':''}>${n} dias</option>`).join('')}</select></div>
     <div><label>Início</label><input type="date" id="escala-inicio" value="${ini}" onchange="escIniChange(this.value)"/></div>
@@ -1806,16 +1807,17 @@ function subEscala(){
     <button class="btn sm ghost" onclick="navSemana(-1)">◀ Anterior</button>
     <button class="btn sm ghost" onclick="navSemana(1)">Próximo ▶</button>
     <button class="btn sm" onclick="salvarEscala('${ini}','${fim}')" ${travada?'disabled':''}>Salvar escala</button>
-    <button class="btn sm gold" onclick="csvEscala('${ini}','${fim}')">⬇ Baixar CSV</button>
-    <button class="btn sm ghost" onclick="modeloCSVEscala('${ini}','${fim}')">⬇ Baixar Modelo CSV</button>
-    <button class="btn sm ghost" onclick="$('imp-esc').click()">⬆ Importar CSV/XLSX</button>
+    <button class="btn sm ghost" onclick="planilhaEscala('${ini}','${fim}','xlsx')">⬇ Planilha da escala (Excel)</button>
+    <button class="btn sm ghost" onclick="planilhaEscala('${ini}','${fim}','csv')">⬇ CSV</button>
+    <button class="btn sm ghost" onclick="$('imp-esc').click()">⬆ Importar planilha</button>
     <input type="file" id="imp-esc" accept=".csv,.xlsx,.xls" class="hidden" onchange="importarEscala(this)"/>
   </div>
-  <div class="muted">Períodos entre meses aparecem na mesma tela. Máx. 3 folgas por funcionário em cada semana.</div>
+  <div class="muted">Períodos entre meses aparecem na mesma tela. Máx. 3 folgas por funcionário em cada semana. Cada escala pode ser alterada livremente por 30 dias após a criação; depois fica travada para preservar o histórico.</div>
   <div class="tbl-wrap"><table class="escala-table"><tr><th>Funcionário</th>${dias.map(d=>`<th>${DIAS[dow(d)].slice(0,3)}<br>${brOf(d).slice(0,5)}</th>`).join('')}</tr>${rows}</table></div>
   <div class="hr"></div><h4>Histórico de alterações da escala</h4>
   <div class="tbl-wrap"><table><tr><th>Registro</th></tr>${hist.map(h=>`<tr><td>${esc(h.texto)}</td></tr>`).join('')||'<tr><td class="muted">Sem alterações.</td></tr>'}</table></div>`;
 }
+const ESC_TRAVA_DIAS=30;
 const TIPOS_ESC=['Trabalhado','DSR','Folga Domingo','Folga Compensada'];
 function setEscPeriodo(n){window.__escDias=Number(n);const i=$('escala-inicio').value||window.__escIni;window.__escIni=i;window.__escFim=addDias(i,Number(n)-1);subEscala();}
 function escIniChange(v){if(v)$('escala-fim').value=addDias(v,(window.__escDias||7)-1);}
@@ -1856,24 +1858,22 @@ function histEscala(semana,pin,dia,de,para){
   l.unshift({semana,texto:`Escala alterada em ${brOf(isoOf(d))} ${hhmm(d)} por ${assinaGerenciador()} - De: ${de} para: ${para} no dia ${brOf(dia).slice(0,5)} funcionário ${f.nome}`});
   set('logsEscala',l); log(`Escala ${brOf(dia)} ${f.nome}: ${de} → ${para}`);
 }
-function salvarEscala(ini,fim){const {all}=escalaObj(ini,fim);set('escalas',all);histEscala(ini,'—',ini,'salvamento','escala salva');toast('Escala salva. Alterações livres por 7 dias.',4000);subEscala();}
+function salvarEscala(ini,fim){const {all}=escalaObj(ini,fim);set('escalas',all);histEscala(ini,'—',ini,'salvamento','escala salva');toast('Escala salva. Alterações livres por 30 dias.',4000);subEscala();}
 function diasPeriodo(ini,fim){const d=[];for(let x=ini;x<=fim&&d.length<31;x=addDias(x,1))d.push(x);return d;}
-function csvEscala(ini,fim){
+function celulaEscala(it){if(!it||it.tipo==='Trabalhado'){const h=it&&it.horarioEntrada;return h?(it.horarioSaida?h+'-'+it.horarioSaida:h):'';}
+  return {DSR:'DSR','Folga Compensada':'FOLGA','Folga Domingo':'FOLGA DOMINGO'}[it.tipo]||it.tipo.toUpperCase();}
+function gradeEscala(ini,fim){
   const dias=diasPeriodo(ini,fim||addDias(ini,6)), fs=get('funcionarios',[]).filter(f=>f.status!=='Desligado');
-  let csv='\uFEFFDepartamento;Funcionario;PIN;'+dias.map(d=>`${DIAS[dow(d)]} ${brOf(d)}`).join(';')+';Total Folgas\n';
-  fs.forEach(f=>{let folgas=0;
-    const cols=dias.map(d=>{const it=buscaNaEscala(f.pin,d);if(!it||it.tipo==='Trabalhado')return (it&&it.horarioEntrada)||'Trabalhado';folgas++;return it.tipo;});
-    csv+=`${f.departamento};${f.nome};${f.pin};${cols.join(';')};${folgas}\n`;});
-  baixar(`Escala_${ini}_${fim}.csv`,csv,'text/csv;charset=utf-8');
+  return [['ID (PIN)','Nome',...dias.map(d=>brOf(d))],...fs.map(f=>[f.pin,f.nome,...dias.map(d=>celulaEscala(buscaNaEscala(f.pin,d)))])];
 }
-function modeloCSVEscala(ini,fim){
-  const dias=diasPeriodo(ini,fim), fs=get('funcionarios',[]).filter(f=>f.status!=='Desligado');
-  let csv='\uFEFFDepto;Func;PIN;Data;Dia;Tipo;Horario;Folgas\n';
-  fs.forEach(f=>{const its=dias.map(d=>buscaNaEscala(f.pin,d)||{tipo:'Trabalhado',horarioEntrada:''});
-    const folgas=its.filter(x=>x.tipo!=='Trabalhado').length;
-    dias.forEach((d,i)=>{csv+=`${f.departamento};${f.nome};${f.pin};${brOf(d)};${DIAS[dow(d)]};${its[i].tipo};${its[i].horarioEntrada||''};${folgas}\n`;});});
-  baixar(`Modelo_Escala_${ini}_${fim}.csv`,csv,'text/csv;charset=utf-8');
+function planilhaEscala(ini,fim,fmt){
+  const g=gradeEscala(ini,fim), nome=`Escala_${ini}_${fim}`;
+  if(fmt==='xlsx'&&window.XLSX){const ws=XLSX.utils.aoa_to_sheet(g);ws['!cols']=[{wch:10},{wch:28},...g[0].slice(2).map(()=>({wch:13}))];
+    const leg=XLSX.utils.aoa_to_sheet([['Como preencher'],['Horário de trabalho: 08:00-17:00 (ou só a entrada, 08:00)'],['DSR = descanso semanal remunerado'],['FOLGA = folga compensada'],['FOLGA DOMINGO = folga de domingo'],['Célula vazia = trabalhado no horário padrão'],['Não altere a coluna ID (PIN) nem a linha de datas.']]);
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Escala');XLSX.utils.book_append_sheet(wb,leg,'Instruções');XLSX.writeFile(wb,nome+'.xlsx');return;}
+  baixar(nome+'.csv','\uFEFF'+g.map(r=>r.join(';')).join('\n'),'text/csv;charset=utf-8');
 }
+const csvEscala=(i,f)=>planilhaEscala(i,f,'csv'), modeloCSVEscala=csvEscala;
 function importarEscala(inp){
   const file=inp.files[0]; if(!file) return; const rd=new FileReader();
   if(/\.xlsx?$/i.test(file.name)){
@@ -1887,7 +1887,25 @@ function importarEscala(inp){
   inp.value='';
 }
 function normData(v){v=String(v||'').trim();let m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(m)return `${m[3]}-${pad(m[2])}-${pad(m[1])}`;m=v.match(/^\d{4}-\d{2}-\d{2}/);return m?m[0]:'';}
+function lerCelulaEscala(v){v=String(v||'').trim().toUpperCase();
+  if(!v||v==='TRABALHADO')return {tipo:'Trabalhado',horarioEntrada:''};
+  const m=v.match(/^(\d{1,2}):(\d{2})(?:\s*[-–às]+\s*(\d{1,2}):(\d{2}))?$/);
+  if(m)return {tipo:'Trabalhado',horarioEntrada:pad(m[1])+':'+m[2],horarioSaida:m[3]?pad(m[3])+':'+m[4]:''};
+  const t={DSR:'DSR',FOLGA:'Folga Compensada','FOLGA COMPENSADA':'Folga Compensada','FOLGA DOMINGO':'Folga Domingo'}[v];
+  return t?{tipo:t,horarioEntrada:''}:null;}
 function previewImport(rows){
+  const hdr=(rows[0]||[]).map(x=>String(x??'').trim());
+  if(hdr.length>2&&normData(hdr[2])){ // grade: ID | Nome | datas...
+    const fs=get('funcionarios',[]),itens=[],erros=[],datas=hdr.map(normData);
+    rows.slice(1).forEach((r,i)=>{r=r.map(x=>String(x??'').trim());if(!r[0]&&!r[1])return;
+      const f=fs.find(x=>x.pin===r[0])||fs.find(x=>(x.nome||'').toLowerCase()===r[1].toLowerCase());
+      if(!f){erros.push(`Linha ${i+2}: colaborador não encontrado`);return;}
+      for(let c=2;c<datas.length;c++){if(!datas[c])continue;const it=lerCelulaEscala(r[c]);
+        if(!it){erros.push(`Linha ${i+2}, ${hdr[c]}: valor "${r[c]}" inválido`);continue;}
+        itens.push({pin:f.pin,nome:f.nome,dia:datas[c],...it});}
+    });
+    return mostrarImport(itens,erros);
+  }
   const start=String((rows[0]||[])[0]||'').trim().toLowerCase().startsWith('depto')?1:0;
   const fs=get('funcionarios',[]), itens=[], erros=[];
   rows.slice(start).forEach((r,i)=>{
@@ -1899,19 +1917,22 @@ function previewImport(rows){
     const h=hr.test(hor)?hor:(hr.test(tipo)?tipo:'');
     itens.push({pin:f.pin,nome:f.nome,dia:d,tipo:tp,horarioEntrada:tp==='Trabalhado'?h.padStart(5,'0').replace(/^(\d):/,'0$1:'):''});
   });
+  mostrarImport(itens,erros);
+}
+function mostrarImport(itens,erros){
   window.__import=itens;
   abrirModal(`<div class="row"><h3>Pré-visualização da importação</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
   <div class="card"><div><b>${itens.length}</b> registro(s) válidos • <b>${erros.length}</b> com erro</div>
   ${erros.length?`<div class="alert err">${erros.slice(0,20).map(esc).join('<br>')}</div>`:''}
   <div class="tbl-wrap" style="max-height:50vh"><table><tr><th>Funcionário</th><th>Data</th><th>Tipo</th><th>Horário</th></tr>
-  ${itens.slice(0,300).map(x=>`<tr><td>${esc(x.nome)}</td><td>${brOf(x.dia)}</td><td>${esc(x.tipo)}</td><td>${x.horarioEntrada||''}</td></tr>`).join('')}</table></div>
+  ${itens.slice(0,300).map(x=>`<tr><td>${esc(x.nome)}</td><td>${brOf(x.dia)}</td><td>${esc(x.tipo)}</td><td>${x.horarioEntrada||''}${x.horarioSaida?'-'+x.horarioSaida:''}</td></tr>`).join('')}</table></div>
   <button class="btn gold" style="margin-top:10px" ${itens.length?'':'disabled'} onclick="confirmarImport()">Confirmar importação</button></div>`);
 }
 function confirmarImport(){
   const it=window.__import||[]; if(!it.length) return;
   const ds=it.map(x=>x.dia).sort(), ini=ds[0], fim=ds[ds.length-1];
   const {all,e}=escalaObj(ini,fim);
-  it.forEach(x=>{const i=e.folgas.findIndex(y=>y.pin===x.pin&&y.dia===x.dia);const o={pin:x.pin,dia:x.dia,tipo:x.tipo,horarioEntrada:x.horarioEntrada};if(i>=0)e.folgas[i]=o;else e.folgas.push(o);});
+  it.forEach(x=>{const i=e.folgas.findIndex(y=>y.pin===x.pin&&y.dia===x.dia);const o={pin:x.pin,dia:x.dia,tipo:x.tipo,horarioEntrada:x.horarioEntrada,...(x.horarioSaida?{horarioSaida:x.horarioSaida}:{})};if(i>=0)e.folgas[i]=o;else e.folgas.push(o);});
   set('escalas',all);
   log(`Escala importada via planilha: ${it.length} registro(s) de ${brOf(ini)} a ${brOf(fim)}`);
   fecharModal(); window.__escIni=ini; window.__escFim=fim; subEscala(); toast('Escala importada e salva na nuvem.',4000);
@@ -2542,7 +2563,7 @@ const MANUAL=[
  ['3. Comprovante','A cada batida o comprovante sai na impressora térmica (terminais POS Android ou impressoras USB 58/80mm). Se não imprimir, toque na batida no histórico para reimprimir ou enviar por e-mail.'],
  ['4. Portal do Empregado (👤)','O empregado digita o PIN e vê a própria folha de ponto, podendo enviá-la para o seu e-mail.'],
  ['5. Gestor de ponto (⚙️)','Toque na engrenagem e digite o PIN de gerenciador. A primeira aba é o Dashboard de Frequência, com presença, faltas, absenteísmo, atrasos e carga incompleta, com filtros por período e funcionário.'],
- ['6. Empregados','Até 20 colaboradores por empresa. Informe nome, CPF, função, departamento, admissão, escala e o início da vigência do banco de horas. O PIN é criado automaticamente. Na aba "Funções, Cargos e Departamentos" você cadastra as listas. Status: Ativo, Desligado, Afastamento (com motivo) ou Férias.'],
+ ['6. Empregados','Até 10 (Plano 1), 25 (Plano 2) ou 50 (Plano 3) colaboradores por empresa. Informe nome, CPF, função, departamento, admissão, escala e o início da vigência do banco de horas. O PIN é criado automaticamente. Na aba "Funções, Cargos e Departamentos" você cadastra as listas. Status: Ativo, Desligado, Afastamento (com motivo) ou Férias.'],
  ['7. Escala semanal','Escolha a semana (pode começar no domingo ou na segunda). Em cada dia marque Trabalhado (com hora de entrada), DSR, Folga Domingo ou Folga Compensada — até 3 folgas por semana. A escala manda na folha: se o DSR foi para terça, o domingo vira dia de trabalho. A hora de entrada da escala é usada para calcular atraso (tolerância de 10 min). Após 7 dias a escala trava 🔒. Baixe o CSV para Excel/Google Sheets.'],
  ['8. Batidas e ajustes','Data, hora e NSR originais nunca podem ser alterados. Você pode mudar o tipo da batida, incluir batida manual ou lançar ocorrência (Falta Justificada, Férias, Folga, Compensada, Falta) — sempre com motivo de pelo menos 5 letras. Tudo fica registrado com o nome de quem alterou.'],
  ['9. Banco de horas','Calculado sozinho a partir da data de vigência: horas a mais geram crédito, horas a menos e faltas geram débito. Saldo Anterior + Créditos − Débitos = Saldo Atual.'],
@@ -2753,7 +2774,9 @@ async function executarExclusao(){
 </script>
 <script>
 /* ===================== LICENÇA, ASSINATURA E PAINEL DO DESENVOLVEDOR ===================== */
-const MAX_FUNC=20, DIA_MS=86400000;
+const PLANO_LIMITES={1:10,2:25,3:50}, DIA_MS=86400000;
+const limitePlano=p=>PLANO_LIMITES[Math.min(3,Math.max(1,Number(p)||1))];
+function maxFuncAtual(){const l=LIC||licCache(CONTA);return limitePlano(l?.licenca?.plano);}
 let LIC=null;
 const licCache=e=>{try{return JSON.parse(localStorage.getItem('vip:lic:'+e)||'null');}catch(x){return null;}};
 function limiteEmpresas(){const ps=contas().map(c=>licCache(c.email)?.licenca?.plano||0);return Math.min(3,Math.max(1,...ps));}
@@ -2777,12 +2800,12 @@ async function verificarLicenca(){
 }
 const brD=iso=>iso?new Date(iso).toLocaleDateString('pt-BR'):'—';
 const moeda=v=>v==null||v===''?'a definir':Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-const ROT_EST={trial:'Teste grátis',ativo:'Ativo',tolerancia:'Tolerância',bloqueado:'Bloqueado',cortesia:'Cortesia'};
+const ROT_EST={trial:'Teste grátis',ativo:'Ativo',tolerancia:'Tolerância',bloqueado:'Bloqueado',cortesia:'Cortesia Especial'};
 function blocoPix(){
   const c=LIC?.config||{},l=LIC?.licenca||{},p=l.plano||1, wa=String(c.whatsapp||'').replace(/\D/g,'');
-  return `<div class="grid g3"><div><label>Plano atual</label><b>Plano ${p} — ${p} empresa(s), até ${MAX_FUNC} colaboradores cada</b></div>
-  <div><label>Vencimento</label><b>${l.estado==='cortesia'?'Cortesia (sem cobrança)':brD(l.data_vencimento)}</b></div>
-  <div><label>Mensalidade</label><b>${moeda(l.valor_mensal??c.precos?.[p])}</b>${c.precosAnuais?.[p]!=null?`<div class="muted">Anual: ${moeda(c.precosAnuais[p])}</div>`:''}</div></div>
+  return `<div class="grid g3"><div><label>Plano atual</label><b>${l.estado==='cortesia'?'Licença Cortesia Especial (Isento) · ':''}Plano ${p} — ${p} empresa(s), até ${limitePlano(p)} colaboradores cada</b></div>
+  <div><label>Vencimento</label><b>${l.estado==='cortesia'?'Isento':brD(l.data_vencimento)}</b></div>
+  <div><label>Mensalidade</label><b>${l.estado==='cortesia'?'Isento':moeda(l.valor_mensal??c.precos?.[p])}</b>${c.precosAnuais?.[p]!=null?`<div class="muted">Anual: ${moeda(c.precosAnuais[p])}</div>`:''}</div></div>
   <div class="hr"></div><label>Chave PIX</label>
   ${c.pix?`<div class="row"><input id="pix-chave" value="${esc(c.pix)}" readonly style="max-width:420px"/><button class="btn gold" onclick="copiarPix()">📋 Copiar Chave PIX</button></div>`:'<div class="muted">Chave PIX ainda não cadastrada pelo suporte.</div>'}
   <div class="alert" style="margin-top:10px">Após o pagamento, envie o comprovante para o suporte/WhatsApp para ativação imediata.</div>
@@ -2837,10 +2860,10 @@ function abaAssinatura(){
   const l=LIC?.licenca;
   if(!l)return $('gestor-body').innerHTML='<div class="muted">Sem conexão para carregar a assinatura.</div>';
   const c=LIC?.config||{}, atual=l.plano||1;
-  $('gestor-body').innerHTML=`<div class="plans-intro"><div><h3>Planos e Pagamento</h3><p>Escolha a capacidade ideal para sua operação. Cada empresa inclui até ${MAX_FUNC} colaboradores, suporte ao quiosque e todos os relatórios legais.</p></div><span class="license-badge" data-state="${esc(l.estado)}">${ROT_EST[l.estado]||l.estado}</span></div>
+  $('gestor-body').innerHTML=`<div class="plans-intro"><div><h3>Planos e Pagamento</h3><p>Escolha a capacidade ideal para sua operação. Plano 1 inclui até 10, Plano 2 até 25 e Plano 3 até 50 colaboradores, suporte ao quiosque e todos os relatórios legais.</p></div><span class="license-badge" data-state="${esc(l.estado)}">${ROT_EST[l.estado]||l.estado}</span></div>
   <div class="plans-grid">${[1,2,3].map(p=>`<article class="plan-card ${p===2?'recommended':''} ${p===atual?'current':''}">${p===2?'<span class="plan-reco">Mais escolhido</span>':''}<div class="plan-kicker">PLANO ${p}</div><h4>${p===1?'Essencial':p===2?'Profissional':'Multiempresa'}</h4>
   <div class="plan-price">${moeda(c.precos?.[p])}<small> / mês</small></div><div class="plan-annual">${c.precosAnuais?.[p]!=null?`${moeda(c.precosAnuais[p])} por ano`:'Plano anual a definir'}</div>
-  <ul class="plan-benefits"><li>${p} empresa${p>1?'s':''} no mesmo dispositivo</li><li>Até ${MAX_FUNC} colaboradores por empresa</li><li>Folha MTE, AFD e banco de horas</li><li>Operação offline com sincronização</li><li>Comprovante térmico e PDF oficial</li></ul>
+  <ul class="plan-benefits"><li>${p} empresa${p>1?'s':''} no mesmo dispositivo</li><li>Até ${limitePlano(p)} colaboradores por empresa</li><li>Folha MTE, AFD e banco de horas</li><li>Operação offline com sincronização</li><li>Comprovante térmico e PDF oficial</li></ul>
   <div class="plan-actions"><button class="btn ${p===2?'gold':''}" onclick="abrirPagamentoPix(${p})">${p===atual?'Pagar ou renovar':'Escolher Plano '+p}</button></div></article>`).join('')}</div>
   <div class="payment-note">Pagamento via PIX com confirmação pelo suporte</div>
   <div class="card" style="margin-top:18px"><div class="row"><div><b>Resumo da assinatura</b><div class="muted">Vencimento: ${l.estado==='cortesia'?'Cortesia sem cobrança':brD(l.data_vencimento)}</div></div>${l.aceite_termos?`<span class="muted right">Termos aceitos em ${new Date(l.aceite_termos.aceito_em).toLocaleString('pt-BR')}</span>`:''}</div></div>`;
@@ -2862,11 +2885,11 @@ async function abaDesenvolvedor(){
   ${devConhecaHtml(r.conheca)}
   <div class="card"><h4>Clientes (${r.contas.length})</h4><div class="tbl-wrap" style="max-height:60vh"><table><tr><th>Empresa / Gestor</th><th>Plano</th><th>Colab.</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr>
   ${r.contas.map(x=>{const e=esc(x.email_dono),q=JSON.stringify(x.email_dono).replace(/"/g,'&quot;');return `<tr><td><b>${esc(x.razao||'—')}</b><div class="muted">${e}</div></td>
-  <td><select onchange="devAcao('plano',${q},{plano:+this.value})" style="width:auto">${[1,2,3].map(p=>`<option value="${p}" ${x.plano===p?'selected':''}>${p} empresa(s)</option>`).join('')}</select></td>
-  <td>${x.colaboradores}/${MAX_FUNC}</td><td>${x.estado==='cortesia'?'—':brD(x.data_vencimento)}</td>
+  <td><select onchange="devAcao('plano',${q},{plano:+this.value})" style="width:auto">${[1,2,3].map(p=>`<option value="${p}" ${x.plano===p?'selected':''}>Plano ${p} · ${p} empresa(s) · ${limitePlano(p)} colab.</option>`).join('')}</select></td>
+  <td>${x.colaboradores}/${limitePlano(x.plano)}</td><td>${x.estado==='cortesia'?'—':brD(x.data_vencimento)}</td>
   <td><span class="badge" style="background:${cor[x.estado]};color:#fff">${ROT_EST[x.estado]}</span></td>
   <td class="row"><button class="btn sm green" onclick="devAcao('renovar',${q},{dias:30})">+30 dias</button><button class="btn sm" onclick="devAcao('renovar',${q},{dias:365})">+1 ano</button>
-  <button class="btn sm ghost" onclick="devAcao('cortesia',${q})">Cortesia</button><button class="btn sm red" onclick="devAcao('bloquear',${q})">Bloquear</button></td></tr>`;}).join('')||'<tr><td colspan=6 class="muted">Nenhuma conta.</td></tr>'}
+  <button class="btn sm ghost" title="Isenta a conta mantendo o plano escolhido ao lado" onclick="devAcao('cortesia',${q})">Cortesia (Plano ${x.plano})</button><button class="btn sm red" onclick="devAcao('bloquear',${q})">Bloquear</button></td></tr>`;}).join('')||'<tr><td colspan=6 class="muted">Nenhuma conta.</td></tr>'}
   </table></div></div>`;
 }
 function devConhecaHtml(k){
