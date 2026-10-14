@@ -13,7 +13,7 @@ function jornada(rows: [string, string, string, string][], dia: string) {
   const helpers = `const pad=n=>String(n).padStart(2,'0');const isoOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const hhmm=d=>pad(d.getHours())+':'+pad(d.getMinutes());const toMin=h=>{if(!h)return 0;const [a,b]=h.split(':').map(Number);return a*60+(b||0);};
 const addDias=(iso,n)=>{const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return isoOf(d);};const horarioEscala=()=>null;const get=()=>batidas;`;
-  return runInNewContext(`${helpers}${source.slice(start, end)}; batidasJornada('1', dia).map(b=>b.hora)`, { batidas }) as string[];
+  return runInNewContext(`${helpers}${source.slice(start, end)}; batidasJornada('1', '${dia}').map(b=>b.hora)`, { batidas }) as string[];
 }
 
 test("legacy after-midnight exit stored with the shift date stays last, in punch order", () => {
