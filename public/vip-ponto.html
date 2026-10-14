@@ -1100,16 +1100,30 @@ function mostrarHistoricoDia(f){
   </section>`;
 }
 /* Virada noturna: batida de madrugada (00:00–05:59) fecha a jornada aberta do dia anterior.
-   b.data/b.hora (carimbo original, NSR/AFD) nunca são alterados; a jornada é derivada. */
+   b.data/b.hora (carimbo original, NSR/AFD) nunca são alterados; a jornada é derivada.
+   A ORDEM segue o instante real da marcação (criadoEm/timestamp + NSR), não data+hora:
+   registros antigos gravaram a madrugada com a data da jornada (ex.: 09/10 00:23 batido em 10/10). */
+function instanteBatida(b){
+  const nsr=String(b.nsr||'').padStart(9,'0'), c=b.criadoEm||b.timestamp;
+  if(c&&b.hora){
+    const d=new Date(c);
+    if(!isNaN(d)){
+      const dif=Math.abs(toMin(hhmm(d))-toMin(b.hora));
+      if(dif<=1||dif>=1439) return {civil:isoOf(d),key:isoOf(d)+'T'+b.hora+'#'+nsr};
+    }
+  }
+  return {civil:b.data,key:String(b.data)+'T'+String(b.hora)+'#'+nsr};
+}
 let __jIdx={sig:'',map:null};
 function indiceJornadas(){
   const all=get('batidas',[])||[];
-  const sig=all.length+'|'+all.map(b=>(b.nsr||'')+(b.excluida?'x':'')+(b.data||'')+(b.hora||'')+(b.jornada||'')).join(',');
+  const sig=all.length+'|'+all.map(b=>(b.nsr||'')+(b.excluida?'x':'')+(b.data||'')+(b.hora||'')+(b.jornada||'')+(b.criadoEm||'')).join(',');
   if(__jIdx.sig===sig&&__jIdx.map) return __jIdx.map;
   const map=new Map(), cnt={};
-  all.filter(b=>!b.excluida).slice().sort((a,b)=>String(a.data+a.hora).localeCompare(String(b.data+b.hora))).forEach(b=>{
+  all.filter(b=>!b.excluida).map(b=>({b,i:instanteBatida(b)})).sort((x,y)=>x.i.key.localeCompare(y.i.key)).forEach(({b,i})=>{
     let j=b.data;
     if(b.jornada) j=b.jornada;
+    else if(i.civil!==b.data) j=b.data; // legado: madrugada já gravada com a data da jornada
     else if(toMin(b.hora)<360){
       const ontem=addDias(b.data,-1),k=b.pin+'|'+ontem,n=cnt[k]||0;
       const h=horarioEscala(b.pin,b.data), escMadrugada=h&&toMin(h)<360;
@@ -1120,7 +1134,7 @@ function indiceJornadas(){
   __jIdx={sig,map}; return map;
 }
 function jornadaDe(b){const m=indiceJornadas();return m.get(b)||m.get(b.pin+'#'+b.nsr)||b.jornada||b.data;}
-const ordemJornada=(a,b)=>String(a.data+a.hora).localeCompare(String(b.data+b.hora));
+const ordemJornada=(a,b)=>instanteBatida(a).key.localeCompare(instanteBatida(b).key);
 function batidasJornada(pin,iso){return get('batidas',[]).filter(b=>!b.excluida&&b.pin===pin&&jornadaDe(b)===iso).sort(ordemJornada);}
 function jornadaAtualISO(pin){
   const agora=getHoraOficial(), hoje=isoOf(agora), ontem=addDias(hoje,-1);
@@ -2540,7 +2554,7 @@ function gerarAEJ(ini,fim){
   const hc=`${e.hEntrada||'08:00'}`.replace(':','');
   add('04',['1',padL(cargaEscala('5x2'),4),(e.hEntrada||'08:00').replace(':',''),(e.hSaiInt||'12:00').replace(':',''),(e.hEntInt||'14:00').replace(':',''),(e.hSaida||'18:00').replace(':','')]);
   fs.forEach((f,i)=>{
-    const bs=get('batidas',[]).filter(b=>!b.excluida&&b.pin===f.pin&&b.data>=ini&&b.data<=fim).sort((a,b)=>(a.data+a.hora).localeCompare(b.data+b.hora));
+    const bs=get('batidas',[]).filter(b=>!b.excluida&&b.pin===f.pin&&b.data>=ini&&b.data<=fim).sort(ordemJornada);
     const seq={};bs.forEach(b=>{const jd=jornadaDe(b);seq[jd]=(seq[jd]||0)+1;const n=seq[jd];
       add('05',[i+1,dtTZ(b.data,b.hora),'1',/Entrada/.test(b.tipo)?'E':'S',Math.ceil(n/2),b.manual?'I':'O','1',b.movimento||b.motivo||'']);});
     get('ocorrencias',[]).filter(o=>o.pin===f.pin&&o.data>=ini&&o.data<=fim).forEach(o=>add('06',[i+1,o.data,o.tipo==='Falta'?'2':'1',padL(cargaEscala(f.escala),4),o.motivo||o.tipo]));
