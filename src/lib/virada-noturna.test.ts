@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 
-process.env.TZ = "America/Sao_Paulo";
+process.env["TZ"] = "America/Sao_Paulo";
 
 function jornada(rows: [string, string, string, string][], dia: string) {
   const source = readFileSync("public/vip-ponto.html", "utf8");
