@@ -1402,6 +1402,11 @@ function primeirosPassosHTML(){
 }
 const MENU_GESTOR=[['dash','🏠','Início'],['bat','⏱️','Batidas do Dia'],['folha','📄','Folha MTE'],['func','👥','Colaboradores'],['esc','📅','Escalas & Jornadas'],['ban','⏳','Banco de Horas'],['contador','💼','Pacote do Contador'],['kiosk','🖥️','Terminal Quiosque'],['emp','⚙️','Empresa & Licença']];
 let MENU_ATUAL='dash',relogioGestor=null;
+function iconeGestor(k){
+  const paths={dash:'M3 10l9-7 9 7v10H3z M9 20v-7h6v7',bat:'M12 8v4l3 2 M9 2h6 M12 2v3 M19 5l2 2',folha:'M6 3h8l4 4v14H6z M14 3v5h4 M9 12h6 M9 16h6',func:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M17 4a4 4 0 0 1 0 8 M22 21v-2a4 4 0 0 0-3-4',esc:'M3 5h18v16H3z M7 3v4 M17 3v4 M3 10h18 M7 14h3 M14 14h3 M7 18h3',ban:'M6 3h12 M6 21h12 M7 3v4l5 5-5 5v4 M17 3v4l-5 5 5 5v4',contador:'M3 7h18v14H3z M8 7V3h8v4 M3 12h18 M10 12v3h4v-3',kiosk:'M3 3h18v13H3z M12 16v5 M8 21h8',emp:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M12 3v2 M12 19v2 M3 12h2 M19 12h2 M5 5l2 2 M17 17l2 2 M19 5l-2 2 M7 17l-2 2',logs:'M6 3h12v18H6z M9 7h6 M9 11h6 M9 15h4',dev:'M8 5l-6 7 6 7 M16 5l6 7-6 7 M14 3l-4 18',crown:'M3 6l4 4 5-7 5 7 4-4-2 14H5z',shield:'M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6z M8 12l3 3 5-6'};
+  const extras=k==='bat'?'<circle cx="12" cy="13" r="8"/>':k==='func'?'<circle cx="9" cy="7" r="4"/>':'';
+  return `<svg class="manager-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[k]||paths.folha}"/>${extras}</svg>`;
+}
 function renderMenuGestor(){
   const g=GERENCIADOR||{},nome=g.nome||'Gestor',iniciais=nome.split(/\s+/).filter(Boolean).slice(0,2).map(n=>n[0]).join('');
   const l=LIC?.licenca,plano=l?.plano||1;
