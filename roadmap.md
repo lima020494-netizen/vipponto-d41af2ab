@@ -1,5 +1,9 @@
 # Roadmap
 
+- [ ] Modernizar navegação do Gestor com gaveta acessível, atalhos diretos e retorno ao Dashboard.
+- [ ] Adicionar painel executivo com relógio ao vivo e indicadores derivados das jornadas existentes, sem alterar cálculos.
+- [ ] Conferir navegação e apresentação no celular, tablet e computador; preservar PDFs, dados e prévia sem publicação.
+
 - [x] Comprimir logo de 752.474 para 22.127 bytes preservando transparência e disponibilizar bibliotecas locais com cache offline; Supabase @2 fixado em 2.117.3, versão efetivamente servida pelo CDN na conferência.
 - [x] Trocar Dashboard, Banco e Atestado por PDF; remover funções órfãs e caminho A4 pelo navegador, preservando comprovante térmico.
 - [x] Harmonizar botões, tabelas, espaçamentos e ocorrências; celular de 360px e tablet retrato/paisagem conferidos sem transbordamento lateral.
