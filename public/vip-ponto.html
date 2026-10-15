@@ -511,6 +511,35 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
  .kiosk-company{margin:0}.kiosk-company img{height:64px;width:80px;margin-bottom:8px}.kiosk-company-name{font-size:15px}.kiosk-info-title,.kiosk-message{display:none}
  .kiosk-entry-panel{padding:16px 32px;align-items:center}.kiosk-entry-panel>div{width:100%;max-width:560px}.kiosk-entry-panel .keys{max-width:560px;gap:16px}.kiosk-entry-panel .key{height:64px;font-size:28px}.kiosk-entry-panel #relogio-kiosk{font-size:52px}.kiosk-entry-panel .pin-display{margin:8px auto}.kiosk-entry-panel #btn-bater{margin-top:16px}
 }
+
+/* Executive manager presentation; fiscal and kiosk styles stay unchanged. */
+:root{--manager-bg:#f8fafc;--manager-dark:#0f172a;--manager-dark-end:#1e293b;--manager-text:#f8fafc;--manager-muted:#b8c5d6;--manager-panel:rgba(255,255,255,.06);--manager-rule:rgba(255,255,255,.14);--manager-overlay:rgba(15,23,42,.6);--manager-gold-bg:rgba(201,153,43,.12);--manager-gradient:linear-gradient(125deg,var(--manager-dark),var(--manager-dark-end));--manager-shadow:0 16px 40px rgba(15,23,42,.12);--manager-accent:#7ee4b6}
+#tela-gestor{padding:0;background:var(--manager-bg);overflow-x:hidden}
+#tela-gestor .inner{width:100%;max-width:none;min-height:100dvh;margin:0;border:0;border-radius:0;background:var(--manager-bg);color:var(--txt);box-shadow:none;transition:margin .24s ease,width .24s ease}
+#tela-gestor .inner>.gestor-head{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:16px;min-height:80px;padding:16px 24px;background:var(--card);border-color:var(--line);box-shadow:none}
+#tela-gestor .gestor-head .btn.ghost{background:var(--card);color:var(--navy);border-color:var(--line);border-radius:8px}
+#gestor-menu-toggle{padding:0;font-size:25px;width:44px}
+.gestor-head .license-badge{display:none}.gestor-head-actions{gap:8px;flex-wrap:nowrap;margin:0}.gestor-brand{min-width:0}.gestor-company{color:var(--txt);max-width:none}.gestor-user{color:var(--muted)}
+#gestor-hub,#gestor-body{background:var(--manager-bg);max-width:1320px;margin:auto;padding:24px;border:0;box-shadow:none;color:var(--txt)}
+#gestor-body .card,#gestor-hub-dashboard .card{box-shadow:none;border-color:var(--line);border-radius:8px}
+#gestor-aviso{font-size:12px!important;padding:8px 24px!important}
+.manager-scrim{position:fixed;inset:0;z-index:31;background:var(--manager-overlay);border:0;opacity:0;visibility:hidden;transition:opacity .24s,visibility .24s}
+.manager-drawer{position:fixed;inset:0 auto 0 0;width:296px;max-width:calc(100vw - 48px);z-index:32;background:var(--manager-dark);color:var(--manager-text);padding:24px 16px;display:flex;flex-direction:column;gap:24px;overflow-y:auto;overscroll-behavior:contain;transform:translateX(-100%);visibility:hidden;transition:transform .24s ease,visibility .24s ease}
+#tela-gestor.drawer-open .manager-drawer{transform:none;visibility:visible}
+.drawer-brand{display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:center;gap:8px}.drawer-brand>div{display:flex;align-items:center;gap:12px;min-width:0}.drawer-brand img{width:64px;height:52px;object-fit:contain;border-radius:8px}.drawer-brand strong{font:600 14px 'Sora',sans-serif}
+#tela-gestor .manager-drawer .btn{color:var(--manager-text);background:transparent;border-color:var(--manager-rule);border-radius:8px}.drawer-profile{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center;padding:16px 8px;border-block:1px solid var(--manager-rule)}
+.drawer-avatar{display:grid;place-items:center;width:44px;height:44px;background:var(--manager-panel);color:var(--gold2);border:1px solid var(--manager-rule);border-radius:50%;font-weight:800}.drawer-profile strong{display:block;font-size:15px;overflow-wrap:anywhere}.drawer-profile small{display:block;color:var(--manager-muted);font-size:12px;margin-top:4px}.drawer-plan{display:inline-block;margin-top:8px;font-size:11px;color:var(--gold2)}
+.drawer-section-label{font-size:10px;text-transform:uppercase;color:var(--manager-muted);margin:0 12px 8px}.drawer-nav{display:grid;gap:4px}.drawer-nav .btn{width:100%;justify-content:flex-start;font-size:13px;font-weight:600;text-align:left;min-height:48px;border:0;padding:12px}.drawer-nav .btn[aria-current=page]{background:var(--manager-panel);color:var(--gold2);box-shadow:inset 3px 0 var(--gold2)}.drawer-nav .btn:hover{background:var(--manager-panel)}.drawer-nav span{width:24px;flex:none;text-align:center;font-size:18px}.drawer-footer{margin-top:auto;padding-top:16px;border-top:1px solid var(--manager-rule);display:grid;gap:8px}
+.manager-conformity{font-size:12px!important;min-height:44px;white-space:nowrap}.manager-executive{background:var(--manager-gradient);color:var(--manager-text);border:1px solid var(--manager-rule);border-radius:20px;padding:32px;margin-bottom:24px;box-shadow:var(--manager-shadow)}
+.executive-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;line-height:1.5;color:var(--gold2);background:var(--manager-gold-bg);border:1px solid var(--gold);padding:8px 14px;border-radius:99px;max-width:100%}
+.manager-executive h2{font:700 32px 'Sora',sans-serif;margin:24px 0 12px;color:var(--manager-text)}.executive-date{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;color:var(--manager-muted);font-size:13px}.executive-date time{font-weight:800;color:var(--manager-accent);font-variant-numeric:tabular-nums;min-width:68px}.manager-executive p{color:var(--manager-muted);margin:24px 0;font-size:14px;line-height:1.6}
+.executive-actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}.manager-executive .btn{background:var(--manager-panel);color:var(--manager-text);border:1px solid var(--manager-rule);border-radius:99px;font-size:12px;padding:10px 16px;min-height:44px}.manager-executive .btn:first-child{background:var(--manager-text);color:var(--manager-dark);border-color:var(--manager-text)}
+.executive-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.executive-kpi{padding:20px 24px;background:var(--manager-panel);border:1px solid var(--manager-rule);border-radius:8px;min-width:0;min-height:105px}.executive-kpi strong{display:block;font:700 30px 'Sora',sans-serif;margin-bottom:8px;font-variant-numeric:tabular-nums}.executive-kpi span{display:block;color:var(--manager-muted);font-size:12px;line-height:1.4}.executive-kpi small{font-size:14px;color:var(--manager-muted)}
+@media(min-width:1101px){#tela-gestor.drawer-open>.inner{margin-left:296px;width:calc(100% - 296px)}}
+@media(max-width:1100px){#tela-gestor.drawer-open .manager-scrim{opacity:1;visibility:visible}}
+@media(max-width:760px){#tela-gestor .inner>.gestor-head{padding:12px 16px;gap:12px;min-height:72px}.gestor-head-actions .btn{width:44px;height:44px;padding:0;font-size:0}.gestor-head-actions .action-icon{font-size:18px}.gestor-head-actions .manager-conformity{display:none}.gestor-head-actions .manager-manual{display:none}.gestor-brand-logo{width:32px;height:32px}.gestor-company{font-size:12px}.gestor-user{font-size:10px}.gestor-brand{gap:8px}#gestor-hub,#gestor-body{padding:16px}.manager-executive{padding:24px 20px;border-radius:20px}.executive-badge{font-size:9px;padding:8px 10px}.manager-executive h2{font-size:27px;margin-top:20px}.executive-date{font-size:12px}.executive-kpis{gap:12px}.executive-kpi{padding:16px 12px;min-height:100px}.executive-kpi strong{font-size:27px}.executive-kpi span{font-size:11px}.executive-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.manager-executive .btn{padding:10px 8px;font-size:11px;white-space:normal}.manager-executive p{font-size:13px}.gestor-back.show{font-size:0!important;width:44px}.gestor-back .action-icon{font-size:18px}.onboarding{padding:16px}}
+@media(prefers-reduced-motion:reduce){.manager-drawer,.manager-scrim,#tela-gestor .inner{transition:none}}
+
 </style>
 </head>
 <body>
@@ -603,17 +632,21 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 
 <!-- ======================= GESTOR (4 MÓDULOS) ======================= -->
 <div id="tela-gestor" class="modal hidden">
+  <div class="manager-scrim" onclick="fecharMenuGestor()" aria-hidden="true"></div>
+  <aside id="gestor-drawer" class="manager-drawer" aria-label="Menu do gestor" inert></aside>
   <div class="inner">
     <div class="gestor-head">
+      <button id="gestor-menu-toggle" class="btn ghost" type="button" onclick="alternarMenuGestor()" aria-label="Abrir menu do gestor" aria-controls="gestor-drawer" aria-expanded="false" title="Menu do gestor">☰</button>
       <div class="gestor-brand">
         <img id="gestor-logo" class="gestor-brand-logo" src="/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg" alt="Logo da empresa"/>
         <div style="min-width:0"><div id="gestor-empresa" class="gestor-company">Ponto Pro Gestão</div><div id="gestor-quem" class="gestor-user"></div></div>
       </div>
       <span id="gestor-licenca" class="license-badge" data-state="ativo">Ativo</span>
       <div class="row right gestor-head-actions">
-        <button id="gestor-voltar" class="btn sm ghost gestor-back" onclick="mostrarCentralGestor()" title="Voltar à central" aria-label="Voltar à central"><span class="action-icon" aria-hidden="true">←</span> Central</button>
+        <button class="btn sm ghost manager-conformity" onclick="abrirSobre()" title="Desenhado em conformidade com as diretrizes da Portaria MTE 671/2021 — não representa homologação oficial" aria-label="Informações sobre a Portaria MTE 671/2021"><span class="action-icon" aria-hidden="true">♧</span> Portaria 671</button>
+        <button id="gestor-voltar" class="btn sm ghost gestor-back" onclick="mostrarCentralGestor()" title="Voltar ao Dashboard" aria-label="Voltar ao Dashboard"><span class="action-icon" aria-hidden="true">←</span> Voltar</button>
         <button class="btn sm ghost" onclick="abrirSobre()" title="Sobre" aria-label="Sobre"><span class="action-icon" aria-hidden="true">ⓘ</span> Sobre</button>
-        <button class="btn sm ghost" onclick="abrirManual()" title="Manual" aria-label="Manual"><span class="action-icon" aria-hidden="true">📖</span> Manual</button>
+        <button class="btn sm ghost manager-manual" onclick="abrirManual()" title="Manual" aria-label="Manual"><span class="action-icon" aria-hidden="true">📖</span> Manual</button>
         <button class="btn sm ghost" onclick="fecharGestor()" title="Sair" aria-label="Sair da área do gestor"><span class="action-icon" aria-hidden="true">✕</span> Sair</button>
       </div>
     </div>
@@ -1357,27 +1390,63 @@ function abrirGestor(){
   $('gestor-licenca').textContent=ROT_EST?.[estado]||estado;
   $('gestor-licenca').dataset.state=estado;
   prepararGestorLicenca();
+  renderMenuGestor();
   mostrarCentralGestor();
 }
-function fecharGestor(){$('tela-gestor').classList.add('hidden');GERENCIADOR=null;}
+function fecharGestor(){fecharMenuGestor(false);$('tela-gestor').classList.add('hidden');pararRelogioGestor();GERENCIADOR=null;}
 function primeirosPassosVisiveis(){return !!CONTA&&localStorage.getItem(K('primeiros_passos_ocultos'))!=='1';}
 function dispensarPrimeirosPassos(){localStorage.setItem(K('primeiros_passos_ocultos'),'1');$('primeiros-passos')?.remove();}
 function primeirosPassosHTML(){
   if(!primeirosPassosVisiveis())return '';
   return `<section id="primeiros-passos" class="onboarding" aria-label="Primeiros passos"><div class="onboarding-head"><h3>Primeiros passos</h3><button class="btn sm ghost" onclick="dispensarPrimeirosPassos()" aria-label="Ocultar primeiros passos" title="Ocultar primeiros passos">✕</button></div><div class="onboarding-steps"><button class="btn ghost" onclick="irAba('emp')">1. Configurar Empresa →</button><button class="btn ghost" onclick="irAba('func')">2. Cadastrar Equipe →</button><button class="btn ghost" onclick="fecharGestor()">3. Abrir Quiosque →</button></div></section>`;
 }
+const MENU_GESTOR=[['dash','🏠','Início'],['bat','⏱️','Batidas do Dia'],['folha','📄','Folha MTE'],['func','👥','Colaboradores'],['esc','📅','Escalas & Jornadas'],['ban','⏳','Banco de Horas'],['contador','💼','Pacote do Contador'],['kiosk','🖥️','Terminal Quiosque'],['emp','⚙️','Empresa & Licença']];
+let MENU_ATUAL='dash',relogioGestor=null;
+function renderMenuGestor(){
+  const g=GERENCIADOR||{},nome=g.nome||'Gestor',iniciais=nome.split(/\s+/).filter(Boolean).slice(0,2).map(n=>n[0]).join('');
+  const l=LIC?.licenca,plano=l?.plano||1;
+  $('gestor-drawer').innerHTML=`<div class="drawer-brand"><div><img src="${esc(logoApp())}" alt="Ponto Pro Gestão"/><strong>Ponto Pro<br>Gestão</strong></div><button class="btn ghost" onclick="fecharMenuGestor()" aria-label="Fechar menu do gestor" title="Fechar menu">✕</button></div><div class="drawer-profile"><span class="drawer-avatar" aria-hidden="true">${esc(iniciais)}</span><div><strong>${esc(nome)}</strong><small>${esc(podeEditarDev()?'Gestor Master':g.funcao||'Gestor')}</small><span class="drawer-plan">${l?.estado==='cortesia'?'Licença Cortesia Especial · ':''}Plano ${esc(plano)} · ${maxFuncAtual()} colaboradores</span></div></div><div><div class="drawer-section-label">Menu</div><nav class="drawer-nav" aria-label="Módulos do gestor">${MENU_GESTOR.map(([k,i,n])=>`<button type="button" class="btn" data-menu="${k}" onclick="navegarGestor('${k}')"><span aria-hidden="true">${i}</span>${n}</button>`).join('')}${podeEditarDev()?'<button class="btn" data-menu="dev" onclick="navegarGestor(\'dev\')"><span aria-hidden="true">🛠️</span>Desenvolvedor</button>':''}<button class="btn" data-menu="logs" onclick="navegarGestor('logs')"><span aria-hidden="true">📜</span>Histórico / Auditoria</button></nav></div><div class="drawer-footer"><button class="btn" onclick="navegarGestor('assin')">💳 Empresa & Licença — Assinatura</button><button class="btn" onclick="fecharMenuGestor();abrirSobre()" title="Desenhado em conformidade com as diretrizes da Portaria MTE 671/2021 — não representa homologação oficial">ⓘ Portaria MTE 671/2021</button><button class="btn" onclick="fecharMenuGestor();abrirManual()">📖 Manual</button></div>`;
+  atualizarMenuGestor(MENU_ATUAL);
+}
+function atualizarMenuGestor(k){MENU_ATUAL=k;$('gestor-drawer').querySelectorAll('[data-menu]').forEach(el=>{if(el.dataset.menu===k)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});}
+function alternarMenuGestor(){if($('tela-gestor').classList.contains('drawer-open'))return fecharMenuGestor();$('tela-gestor').classList.add('drawer-open');$('gestor-drawer').inert=false;$('gestor-menu-toggle').setAttribute('aria-expanded','true');$('gestor-menu-toggle').setAttribute('aria-label','Fechar menu do gestor');$('gestor-drawer').querySelector('button')?.focus();}
+function fecharMenuGestor(foco=true){$('tela-gestor').classList.remove('drawer-open');$('gestor-drawer').inert=true;$('gestor-menu-toggle').setAttribute('aria-expanded','false');$('gestor-menu-toggle').setAttribute('aria-label','Abrir menu do gestor');if(foco)$('gestor-menu-toggle').focus();}
+document.addEventListener('keydown',e=>{if(!$('tela-gestor').classList.contains('drawer-open'))return;if(e.key==='Escape'){e.preventDefault();fecharMenuGestor();}if(e.key==='Tab'&&matchMedia('(max-width:1100px)').matches){const itens=[...$('gestor-drawer').querySelectorAll('button')],primeiro=itens[0],ultimo=itens[itens.length-1];if(e.shiftKey&&document.activeElement===primeiro){e.preventDefault();ultimo?.focus();}else if(!e.shiftKey&&document.activeElement===ultimo){e.preventDefault();primeiro?.focus();}}});
+function navegarGestor(k){
+  fecharMenuGestor();
+  if(k==='kiosk')return fecharGestor();
+  if(k==='dev'&&!podeEditarDev())return;
+  if(['bat','esc','ban'].includes(k)){SUB=k;irAba('ponto');}
+  else if(k==='contador'){irAba('folha');$('gestor-body').querySelector('.folha-actions')?.scrollIntoView({block:'center'});}
+  else irAba(k);
+  atualizarMenuGestor(k);
+}
+function indicadoresExecutivos(fs,hoje,agora){
+  let presentes=0,atencao=0,folgas=0;
+  const ativos=fs.filter(f=>(f.status||'Ativo')!=='Desligado'&&(!f.admissao||f.admissao<=hoje));
+  ativos.forEach(f=>{const atual=batidasDia(f.pin,hoje),anterior=batidasDia(f.pin,addDias(hoje,-1)),abertoHoje=atual.length%2===1,abertoOntem=anterior.length%2===1;
+    if(abertoHoje||(agora.getHours()<6&&abertoOntem&&!atual.length))presentes++;
+    if(abertoHoje||abertoOntem)atencao++;
+    const escala=buscaNaEscala(f.pin,hoje);
+    if(escala?escala.tipo!=='Trabalhado':previstoDia(f,hoje)===0&&(f.status||'Ativo')==='Ativo')folgas++;
+  });
+  return {presentes,atencao,folgas,total:ativos.length};
+}
+function painelExecutivoHTML(){return `<section class="manager-executive" aria-label="Painel de controle"><div class="executive-badge">👑 PONTO PRO GESTÃO — PAINEL DE CONTROLE</div><h2>Dashboard</h2><div class="executive-date"><span id="gestor-data"></span><time id="gestor-relogio" aria-label="Hora atual"></time></div><p>Visão geral em tempo real — operação & conformidade MTE</p><div class="executive-actions"><button class="btn" onclick="navegarGestor('bat')">⏱️ Batidas</button><button class="btn" onclick="navegarGestor('folha')">📄 Folha MTE</button><button class="btn" onclick="navegarGestor('bat');lancarOcorrencia()">＋ Lançar Ocorrência</button><button class="btn" onclick="fecharGestor()">🖥️ Ir pro Quiosque</button></div><div class="executive-kpis"><div class="executive-kpi"><strong id="exec-presentes">0</strong><span>Presentes Agora</span></div><div class="executive-kpi"><strong id="exec-atencao">0</strong><span>Atenção / Incompletos</span></div><div class="executive-kpi"><strong id="exec-folgas">0</strong><span>Folgas / DSR</span></div><div class="executive-kpi"><strong><span id="exec-total" style="display:inline;font:inherit;color:inherit">0</span><small> / ${maxFuncAtual()}</small></strong><span>Total Colaboradores · ativos</span></div></div></section>`;}
+function atualizarPainelExecutivo(){if(!$('gestor-relogio'))return;const agora=getHoraOficial(),hoje=isoOf(agora),k=indicadoresExecutivos(get('funcionarios',[]),hoje,agora);$('gestor-data').textContent=agora.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});$('gestor-relogio').textContent=agora.toLocaleTimeString('pt-BR');['presentes','atencao','folgas','total'].forEach(n=>$('exec-'+n).textContent=k[n]);}
+function pararRelogioGestor(){if(relogioGestor)clearInterval(relogioGestor);relogioGestor=null;}
 function mostrarCentralGestor(){
-  ABA='dash';
+  pararRelogioGestor();fecharMenuGestor(false);ABA='dash';atualizarMenuGestor('dash');
   $('gestor-body').classList.add('hidden');$('gestor-hub').classList.remove('hidden');$('gestor-voltar').classList.remove('show');
-  const cards=ABAS.map(([k])=>{const m=MODULOS_GESTOR[k]||MODULOS_GESTOR.dash;const acao=k==='dash'?"document.getElementById('gestor-hub-dashboard').scrollIntoView({behavior:'smooth'})":`irAba('${k}')`;
-    return `<button type="button" class="module-card ${m.cls}" onclick="${acao}" aria-label="Abrir ${esc(m.nome)}"><span class="module-icon" aria-hidden="true">${m.ico}</span><strong>${m.nome}</strong><small>${m.desc}</small></button>`;}).join('');
-  $('gestor-hub').innerHTML=`<div class="hub-welcome"><div><h2>Central do Gestor</h2><p>Acesse os módulos e acompanhe a frequência da equipe em um só lugar.</p></div><span class="badge">${get('funcionarios',[]).length}/${maxFuncAtual()} colaboradores</span></div>${primeirosPassosHTML()}<nav class="module-grid" aria-label="Módulos do gestor">${cards}</nav><section id="gestor-hub-dashboard" aria-label="Dashboard de Frequência"></section>`;
-  abaDash('gestor-hub-dashboard');
+  $('gestor-hub').innerHTML=painelExecutivoHTML()+primeirosPassosHTML()+'<section id="gestor-hub-dashboard" aria-label="Dashboard de Frequência"></section>';
+  abaDash('gestor-hub-dashboard');atualizarPainelExecutivo();relogioGestor=setInterval(atualizarPainelExecutivo,1000);$('tela-gestor').scrollTop=0;
 }
 function irAba(k){
   if(k==='dash')return mostrarCentralGestor();
+  if(k==='dev'&&!podeEditarDev())return;
+  fecharMenuGestor(false);pararRelogioGestor();atualizarMenuGestor(k);
   ABA=k;$('gestor-hub').classList.add('hidden');$('gestor-body').classList.remove('hidden');$('gestor-voltar').classList.add('show');
-  ({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs,assin:abaAssinatura,dev:abaDesenvolvedor})[k]();
+  ({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs,assin:abaAssinatura,dev:abaDesenvolvedor})[k]();$('tela-gestor').scrollTop=0;
 }
 /* Empregador/Gerenciadores dentro do gestor (reutiliza o mesmo formulário) */
 function abaEmp(){ $('empregador-form').innerHTML=''; telaEmpregador('gestor-body'); }
