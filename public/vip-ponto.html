@@ -1430,7 +1430,8 @@ function indicadoresExecutivos(fs,hoje,agora){
   let presentes=0,atencao=0,folgas=0;
   const ativos=fs.filter(f=>(f.status||'Ativo')!=='Desligado'&&(!f.admissao||f.admissao<=hoje));
   ativos.forEach(f=>{const atual=batidasDia(f.pin,hoje),anterior=batidasDia(f.pin,addDias(hoje,-1)),abertoHoje=atual.length%2===1,abertoOntem=anterior.length%2===1;
-    if(abertoHoje||(agora.getHours()<6&&abertoOntem&&!atual.length))presentes++;
+    const inicio=horarioEscala(f.pin,hoje),entradaMadrugada=inicio&&toMin(inicio)<360;
+    if(abertoHoje||(agora.getHours()<6&&abertoOntem&&!atual.length&&!entradaMadrugada))presentes++;
     if(abertoHoje||abertoOntem)atencao++;
     const escala=buscaNaEscala(f.pin,hoje);
     if(escala?escala.tipo!=='Trabalhado':previstoDia(f,hoje)===0&&(f.status||'Ativo')==='Ativo')folgas++;

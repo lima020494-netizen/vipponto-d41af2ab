@@ -13,6 +13,8 @@ function indicators(hour: number, shifts: Record<string, number>, schedule: Reco
     batidasDia: (pin: string, day: string) => Array(shifts[`${pin}|${day}`] || 0).fill({}),
     buscaNaEscala: (pin: string) => schedule[pin] ? { tipo: schedule[pin] } : null,
     previstoDia: () => 480,
+    horarioEscala: () => null,
+    toMin: (hour: string) => Number(hour.split(":")[0]) * 60,
   })));
 }
 
