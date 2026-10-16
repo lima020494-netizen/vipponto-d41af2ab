@@ -1,5 +1,10 @@
 # Roadmap
 
+- [ ] Clarear o Dashboard com saudação, três indicadores e ações compactas, preservando a gaveta.
+- [ ] Conferir regra jurídica e corrigir previsão/apuração de feriados, DSR e folgas sem modificar marcações nem assumir descanso aos fins de semana.
+- [ ] Fechar gaveta imediatamente e carregar Folha, Banco e Logs com casca visual e cache de sessão preservado.
+- [ ] Executar testes de cálculo e conferir navegação/apresentação apenas em preview.
+
 - [x] Modernizar navegação do Gestor com gaveta acessível, atalhos diretos e retorno ao Dashboard.
 - [x] Adicionar painel executivo com relógio ao vivo e indicadores derivados das jornadas existentes, sem alterar cálculos.
 - [x] Conferir navegação em 390px, 768px e 1280px com dados isolados; relógio, indicadores, módulos, ocorrência, retorno e quiosque passaram sem erros. Testes de regras preservadas passaram; conta real e aparelhos físicos não conferidos. Nenhuma publicação.
