@@ -24,4 +24,5 @@
 - Hardware bridge identifiers remain unchanged while presentation text is neutralized; regulatory wording in legacy commercial content is normalized at read time without overwriting stored configuration.
 - Kiosk browser libraries are version-pinned public scripts, cached with the operational HTML by a static-only service worker; API/auth/company responses are excluded so offline assets never become a second data source.
 - Bank and technical-certificate PDF exports use the shared A4 table renderer and footer, preserving the same calculations and declaration text as their on-screen documents.
-- Manager drawer shortcuts reuse the existing module/subtab renderers; live executive indicators read existing shift and schedule helpers without writing data or replacing fiscal calculations.
+- Manager drawer shortcuts close immediately and defer existing module/subtab renderers through animation frames; dashboard indicators are read-only and session caches never replace Supabase synchronization.
+- Holiday and explicit rest-day calculations use zero planned time before standard shifts; bank credits represent worked minutes, not monetary premiums, and generic rest days never create inferred compensation debits.
