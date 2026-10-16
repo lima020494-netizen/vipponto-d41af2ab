@@ -1445,11 +1445,11 @@ function indicadoresExecutivos(fs,hoje,agora){
 }
 function indicadoresDashboard(fs,hoje,agora){
   const ativos=fs.filter(f=>(f.status||'Ativo')!=='Desligado'&&(!f.admissao||f.admissao<=hoje));
-  let marcacoes=0,ocorrencias=0;
-  const formais=get('ocorrencias',[]);
-  ativos.forEach(f=>{const bs=batidasDia(f.pin,hoje);marcacoes+=bs.length;const prev=previstoDia(f,hoje),entrada=bs.find(b=>b.tipo==='Entrada'),inicio=horarioEscala(f.pin,hoje)||(get('empregador',{})||{}).hEntrada||'08:00';let atraso=entrada?toMin(entrada.hora)-toMin(inicio):0;if(atraso<-720)atraso+=1440;else if(atraso>720)atraso-=1440;const ontem=batidasDia(f.pin,addDias(hoje,-1));if(formais.some(o=>o.pin===f.pin&&o.data===hoje)||bs.length%2===1||ontem.length%2===1||(prev>0&&(atraso>10||(!bs.length&&toMin(hhmm(agora))>toMin(inicio)+10))))ocorrencias++;});
-  const pins=new Set(ativos.map(f=>f.pin)),fila=get('batidas',[]).filter(b=>pendentes().includes(b.nsr)&&!pins.has(b.pin));
-  return {total:ativos.length,marcacoes,ocorrencias:ocorrencias+fila.length};
+  const todas=get('batidas',[]),fila=new Set(pendentes()),formais=get('ocorrencias',[]);
+  let ocorrencias=0;
+  ativos.forEach(f=>{const bs=batidasDia(f.pin,hoje),prev=previstoDia(f,hoje),entrada=bs.find(b=>b.tipo==='Entrada'),inicio=horarioEscala(f.pin,hoje)||(get('empregador',{})||{}).hEntrada||'08:00';let atraso=entrada?toMin(entrada.hora)-toMin(inicio):0;if(atraso<-720)atraso+=1440;else if(atraso>720)atraso-=1440;const ontem=batidasDia(f.pin,addDias(hoje,-1));if(formais.some(o=>o.pin===f.pin&&o.data===hoje)||bs.length%2===1||ontem.length%2===1||todas.some(b=>b.pin===f.pin&&fila.has(b.nsr))||(prev>0&&(atraso>10||(!bs.length&&toMin(hhmm(agora))>toMin(inicio)+10))))ocorrencias++;});
+  const pins=new Set(ativos.map(f=>f.pin)),outros=new Set(todas.filter(b=>fila.has(b.nsr)&&!pins.has(b.pin)).map(b=>b.pin));
+  return {total:ativos.length,marcacoes:todas.filter(b=>instanteBatida(b).civil===hoje).length,ocorrencias:ocorrencias+outros.size};
 }
 function painelExecutivoHTML(){const e=get('empregador',{})||{},nome=GERENCIADOR?.nome||e.fantasia||e.razao||'Gestor';return `<section class="manager-executive" aria-label="Resumo de hoje"><header class="manager-welcome"><h2>Olá, ${esc(nome)}</h2><time id="gestor-data"></time></header><div class="executive-kpis"><div class="executive-kpi"><span>Colaboradores Ativos</span><strong><span id="exec-total" class="executive-total">0</span><small> / ${maxFuncAtual()}</small></strong></div><div class="executive-kpi"><span>Marcações Registradas Hoje</span><strong id="exec-marcacoes">0</strong></div><div class="executive-kpi"><span>Ocorrências / Pendências</span><strong id="exec-ocorrencias">0</strong></div></div><div class="executive-actions"><button class="btn ghost" onclick="navegarGestor('bat')">${iconeGestor('bat')} Ver Batidas de Hoje</button><button class="btn ghost" onclick="navegarGestor('folha')">${iconeGestor('folha')} Abrir Folha MTE</button></div></section>`;}
 function atualizarPainelExecutivo(){if(!$('gestor-data'))return;const agora=getHoraOficial(),hoje=isoOf(agora),k=indicadoresDashboard(get('funcionarios',[]),hoje,agora);$('gestor-data').textContent=agora.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});$('gestor-data').dateTime=hoje;['total','marcacoes','ocorrencias'].forEach(n=>$('exec-'+n).textContent=k[n]);}
@@ -1613,9 +1613,9 @@ function previstoDia(f,iso){
   if(iso<f.admissao) return 0;
   if(f.status==='Férias'&&iso>=f.feriasIni&&iso<=f.feriasFim) return 0;
   if(f.status==='Afastamento'&&iso>=f.afastDe&&iso<=f.afastAte) return 0;
+  if(feriadoDe(iso)) return 0;
   const diaEscala=buscaNaEscala(f.pin,iso);
   if(diaEscala) return diaEscala.tipo==='Trabalhado'?cargaEscala(f.escala):0;
-  if(feriadoDe(iso)) return 0;
   const d=dow(iso);
   if(f.escala==='5x2'&&(d===0||d===6)) return 0;
   if(f.escala==='6x1'&&d===0) return 0;
@@ -1703,12 +1703,8 @@ function calcBanco(pin,ini,fim){
         else if(trab<prev){deb+=prev-trab;det.push(`Débito - Carga incompleta dia ${brOf(d)}`);}
       } else if(prev>0){deb+=prev;det.push(`Débito - Falta dia ${brOf(d)}`);}
     }
-    // folgas extras além do direito semanal
-    const folgas=[]; for(let d=de;d<=ate;d=addDias(d,1)){const g=folgaEscala(pin,d);if(g)folgas.push({d,g});}
-    const semanas=Math.max(1,Math.ceil((new Date(ate)-new Date(de))/(7*864e5)));
-    const direito=semanas*(f.escala==='6x1'?1:2);
-    const extrasFolga=Math.max(0,folgas.length-direito);
-    for(let i=0;i<extrasFolga;i++){const it=folgas[folgas.length-1-i];deb+=cargaEscala(f.escala);det.push(`Débito - Folga Compensatória dia ${brOf(it.d)}`);}
+    // Descanso cadastrado não prova compensação: nunca inferir débito por quantidade de folgas.
+    // Créditos são minutos trabalhados (1:1), não pagamento: adicional monetário depende da regra aplicável.
     return {cred,deb,det};
   };
   const vig=f.inicioVigenciaBancoHoras||f.bancoInicio||f.admissao||ini; // só conta a partir da vigência
@@ -1727,7 +1723,7 @@ function abaPonto(){
     <div id="sub-body"></div>`;
   if(!['fer','bat','esc','ban','rel'].includes(SUB))SUB='fer'; irSub(SUB);
 }
-function irSub(k){SUB=k;if(k==='ban')carregarTelaGestor('sub-body','Banco de Horas',abaPonto2);else abaPonto2();}
+function irSub(k){SUB=k;if(k==='ban')carregarTelaGestor('sub-body','Banco de Horas',abaPonto2);else {trocaGestor++;abaPonto2();}}
 function abaPonto2(){
   $('gestor-body').querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.sub===SUB));
   ({fer:subFeriados,bat:subBatidas,esc:subEscala,ban:subBanco,rel:subRelatorios})[SUB]();
