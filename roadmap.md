@@ -1,9 +1,9 @@
 # Roadmap
 
-- [ ] Clarear o Dashboard com saudação, três indicadores e ações compactas, preservando a gaveta.
-- [ ] Conferir regra jurídica e corrigir previsão/apuração de feriados, DSR e folgas sem modificar marcações nem assumir descanso aos fins de semana.
-- [ ] Fechar gaveta imediatamente e carregar Folha, Banco e Logs com casca visual e cache de sessão preservado.
-- [ ] Executar testes de cálculo e conferir navegação/apresentação apenas em preview.
+- [x] Clarear o Dashboard com saudação, três indicadores e ações compactas, preservando a gaveta.
+- [x] Conferir Lei 605/49 art. 9 e Súmula 146 TST; feriados precedem jornadas, descansos não geram falta/débito inferido, crédito integral 1:1 sem presumir adicional monetário ou dobrar banco. Escala específica de sábado/domingo preservada; marcações intactas.
+- [x] Fechar gaveta imediatamente e carregar Folha, Banco e Logs com casca visual e cache de sessão preservado.
+- [x] 21 testes passaram; navegação em 390/768/1280 sem erros ou transbordamento. Feriado com 09:00 extras/crédito e zero débito conferido na folha e no PDF oficial. Somente preview, sem publicação ou alteração de dados reais; conta autenticada externa não verificável neste ambiente.
 
 - [x] Modernizar navegação do Gestor com gaveta acessível, atalhos diretos e retorno ao Dashboard.
 - [x] Adicionar painel executivo com relógio ao vivo e indicadores derivados das jornadas existentes, sem alterar cálculos.
