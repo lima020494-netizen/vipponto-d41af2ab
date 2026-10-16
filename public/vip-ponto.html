@@ -530,14 +530,17 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 #tela-gestor .manager-drawer .btn{color:var(--manager-text);background:transparent;border-color:var(--manager-rule);border-radius:8px}.drawer-profile{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center;padding:16px 8px;border-block:1px solid var(--manager-rule)}
 .drawer-avatar{display:grid;place-items:center;width:44px;height:44px;background:var(--manager-panel);color:var(--gold2);border:1px solid var(--manager-rule);border-radius:50%;font-weight:800}.drawer-profile strong{display:block;font-size:15px;overflow-wrap:anywhere}.drawer-profile small{display:block;color:var(--manager-muted);font-size:12px;margin-top:4px}.drawer-plan{display:inline-block;margin-top:8px;font-size:11px;color:var(--gold2)}
 .drawer-section-label{font-size:10px;text-transform:uppercase;color:var(--manager-muted);margin:0 12px 8px}.drawer-nav{display:grid;gap:4px}.drawer-nav .btn{width:100%;justify-content:flex-start;font-size:13px;font-weight:600;text-align:left;min-height:48px;border:0;padding:12px}.drawer-nav .btn[aria-current=page]{background:var(--manager-panel);color:var(--gold2);box-shadow:inset 3px 0 var(--gold2)}.drawer-nav .btn:hover{background:var(--manager-panel)}.drawer-nav span{width:24px;flex:none;text-align:center;font-size:18px}.drawer-footer{margin-top:auto;padding-top:16px;border-top:1px solid var(--manager-rule);display:grid;gap:8px}
-.manager-conformity{font-size:12px!important;min-height:44px;white-space:nowrap}.manager-executive{background:var(--manager-gradient);color:var(--manager-text);border:1px solid var(--manager-rule);border-radius:20px;padding:32px;margin-bottom:24px;box-shadow:var(--manager-shadow)}
-.executive-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;line-height:1.5;color:var(--gold2);background:var(--manager-gold-bg);border:1px solid var(--gold);padding:8px 14px;border-radius:99px;max-width:100%}
-.manager-executive h2{font:700 32px 'Sora',sans-serif;margin:24px 0 12px;color:var(--manager-text)}.executive-date{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;color:var(--manager-muted);font-size:13px}.executive-date time{font-weight:800;color:var(--manager-accent);font-variant-numeric:tabular-nums;min-width:68px}.manager-executive p{color:var(--manager-muted);margin:24px 0;font-size:14px;line-height:1.6}
-.executive-actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}.manager-executive .btn{background:var(--manager-panel);color:var(--manager-text);border:1px solid var(--manager-rule);border-radius:99px;font-size:12px;padding:10px 16px;min-height:44px}.manager-executive .btn:first-child{background:var(--manager-text);color:var(--manager-dark);border-color:var(--manager-text)}
-.executive-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.executive-kpi{padding:20px 24px;background:var(--manager-panel);border:1px solid var(--manager-rule);border-radius:8px;min-width:0;min-height:105px}.executive-kpi strong{display:block;font:700 30px 'Sora',sans-serif;margin-bottom:8px;font-variant-numeric:tabular-nums}.executive-kpi span{display:block;color:var(--manager-muted);font-size:12px;line-height:1.4}.executive-kpi .executive-total{display:inline;font:inherit;color:inherit}.manager-icon{flex:none;vertical-align:middle}.drawer-nav .btn>span{display:grid;place-items:center}.executive-kpi small{font-size:14px;color:var(--manager-muted)}
+.manager-conformity{font-size:12px!important;min-height:44px;white-space:nowrap}
+:root{--manager-soft-shadow:0 3px 12px rgba(15,23,42,.04)}
+.manager-executive{margin-bottom:24px;color:var(--txt)}
+.manager-welcome{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}.manager-welcome h2{font:600 24px 'Sora',sans-serif;margin:0;overflow-wrap:anywhere}.manager-welcome time{color:var(--muted);font-size:12px}
+.executive-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.executive-kpi{padding:24px;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--manager-soft-shadow);min-width:0}.executive-kpi strong{display:block;font:600 28px 'Sora',sans-serif;margin:12px 0 0;font-variant-numeric:tabular-nums}.executive-kpi span{color:var(--muted);font-size:13px}.executive-kpi .executive-total{font:inherit;color:inherit}.executive-kpi small{font-size:14px;color:var(--muted)}
+.executive-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.executive-actions .btn{font-size:13px;min-height:44px}.manager-icon{flex:none;vertical-align:middle}.drawer-nav .btn>span{display:grid;place-items:center}
+#gestor-hub-dashboard .ind{background:var(--card);border:1px solid var(--line);color:var(--txt);box-shadow:none}#gestor-hub-dashboard .ind-val,#gestor-hub-dashboard .ind-lbl{color:var(--txt)}#gestor-hub-dashboard .ind-sub{color:var(--muted)}#gestor-hub-dashboard th{background:var(--manager-bg);color:var(--muted)}
+.module-loading{padding:24px 0;color:var(--muted)}.module-loading h3{color:var(--txt)}.module-loading-bar{height:12px;max-width:480px;background:var(--line);border-radius:4px;margin-top:16px}
 @media(min-width:1101px){#tela-gestor.drawer-open>.inner{margin-left:296px;width:calc(100% - 296px)}}
 @media(max-width:1100px){#tela-gestor.drawer-open .manager-scrim{opacity:1;visibility:visible}}
-@media(max-width:760px){#tela-gestor .inner>.gestor-head{padding:12px 16px;gap:12px;min-height:72px}.gestor-head-actions .btn{width:44px;height:44px;padding:0;font-size:0}.gestor-head-actions .action-icon{font-size:18px}.gestor-head-actions .manager-conformity{display:none}.gestor-head-actions .manager-manual{display:none}.gestor-brand-logo{width:32px;height:32px}.gestor-company{font-size:12px}.gestor-user{font-size:10px}.gestor-brand{gap:8px}#gestor-hub,#gestor-body{padding:16px}.manager-executive{padding:24px 20px;border-radius:20px}.executive-badge{font-size:9px;padding:8px 10px}.manager-executive h2{font-size:27px;margin-top:20px}.executive-date{font-size:12px}.executive-kpis{gap:12px}.executive-kpi{padding:16px 12px;min-height:100px}.executive-kpi strong{font-size:27px}.executive-kpi span{font-size:11px}.executive-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.manager-executive .btn{padding:10px 8px;font-size:11px;white-space:normal}.manager-executive p{font-size:13px}.gestor-back.show{font-size:0!important;width:44px}.gestor-back .action-icon{font-size:18px}.onboarding{padding:16px}}
+@media(max-width:760px){#tela-gestor .inner>.gestor-head{padding:12px 16px;gap:12px;min-height:72px}.gestor-head-actions .btn{width:44px;height:44px;padding:0;font-size:0}.gestor-head-actions .action-icon{font-size:18px}.gestor-head-actions .manager-conformity{display:none}.gestor-head-actions .manager-manual{display:none}.gestor-brand-logo{width:32px;height:32px}.gestor-company{font-size:12px}.gestor-user{font-size:10px}.gestor-brand{gap:8px}#gestor-hub,#gestor-body{padding:16px}.manager-welcome h2{font-size:20px}.executive-kpis{grid-template-columns:1fr;gap:12px}.executive-kpi{padding:16px}.executive-kpi strong{font-size:24px}.executive-actions .btn{white-space:normal}.gestor-back.show{font-size:0!important;width:44px}.gestor-back .action-icon{font-size:18px}.onboarding{padding:16px}}
 @media(prefers-reduced-motion:reduce){.manager-drawer,.manager-scrim,#tela-gestor .inner{transition:none}}
 
 </style>
@@ -695,7 +698,8 @@ function baixar(nome,conteudo,tipo){const b=new Blob([conteudo],{type:tipo||'tex
 let CONTA=null;                                     // e-mail da conta logada
 const K  = k => `vip:${CONTA}:${k}`;
 let SHARE_DATA=null;
-const get = (k,d) => { if(SHARE_DATA&&Object.prototype.hasOwnProperty.call(SHARE_DATA,k))return SHARE_DATA[k];try{ const v=localStorage.getItem(K(k)); return v?JSON.parse(v):d; }catch(e){ return d; } };
+const CACHE_SESSAO=new Map();
+const get = (k,d) => { if(SHARE_DATA&&Object.prototype.hasOwnProperty.call(SHARE_DATA,k))return SHARE_DATA[k];try{const chave=K(k),raw=localStorage.getItem(chave);if(!raw){CACHE_SESSAO.delete(chave);return d;}const cache=CACHE_SESSAO.get(chave);if(cache?.raw===raw)return cache.valor;const valor=JSON.parse(raw);CACHE_SESSAO.set(chave,{raw,valor});return valor;}catch(e){return d;} };
 let CARREGANDO=false; // evita eco de gravação durante a carga da nuvem
 const set = (k,v) => { localStorage.setItem(K(k),JSON.stringify(v)); if(!CARREGANDO) nuvemPush(k,v); };
 
@@ -752,7 +756,7 @@ async function carregarNuvem(){
     const todas=[...mapa.values()]; set('batidas',todas);
     const maxN=todas.reduce((m,b)=>Math.max(m,Number(b.nsr)||0),0); if(maxN>(get('nsr',0)||0)) set('nsr',maxN);
     if((fer.data||[]).length) set('feriados',fer.data.map(r=>r.dados||{data:r.data,nome:r.nome,tipo:r.tipo}));
-    localStorage.setItem(K('logs'),JSON.stringify(lg.data||[]));
+    localStorage.setItem(K('logs'),JSON.stringify(lg.data||[]));LOGS_SESSAO.add(CONTA);
     const escs={}; (es.data||[]).forEach(r=>{if(r.semana&&r.dados)escs[r.semana]=r.dados;});
     if(Object.keys(escs).length) set('escalas',escs);
     NUVEM_OK=true;
@@ -1393,7 +1397,7 @@ function abrirGestor(){
   renderMenuGestor();
   mostrarCentralGestor();
 }
-function fecharGestor(){fecharMenuGestor(false);$('tela-gestor').classList.add('hidden');pararRelogioGestor();GERENCIADOR=null;}
+function fecharGestor(){trocaGestor++;fecharMenuGestor(false);$('tela-gestor').classList.add('hidden');pararRelogioGestor();GERENCIADOR=null;}
 function primeirosPassosVisiveis(){return !!CONTA&&localStorage.getItem(K('primeiros_passos_ocultos'))!=='1';}
 function dispensarPrimeirosPassos(){localStorage.setItem(K('primeiros_passos_ocultos'),'1');$('primeiros-passos')?.remove();}
 function primeirosPassosHTML(){
@@ -1401,7 +1405,8 @@ function primeirosPassosHTML(){
   return `<section id="primeiros-passos" class="onboarding" aria-label="Primeiros passos"><div class="onboarding-head"><h3>Primeiros passos</h3><button class="btn sm ghost" onclick="dispensarPrimeirosPassos()" aria-label="Ocultar primeiros passos" title="Ocultar primeiros passos">✕</button></div><div class="onboarding-steps"><button class="btn ghost" onclick="irAba('emp')">1. Configurar Empresa →</button><button class="btn ghost" onclick="irAba('func')">2. Cadastrar Equipe →</button><button class="btn ghost" onclick="fecharGestor()">3. Abrir Quiosque →</button></div></section>`;
 }
 const MENU_GESTOR=[['dash','🏠','Início'],['bat','⏱️','Batidas do Dia'],['folha','📄','Folha MTE'],['func','👥','Colaboradores'],['esc','📅','Escalas & Jornadas'],['ban','⏳','Banco de Horas'],['contador','💼','Pacote do Contador'],['kiosk','🖥️','Terminal Quiosque'],['emp','⚙️','Empresa & Licença']];
-let MENU_ATUAL='dash',relogioGestor=null;
+let MENU_ATUAL='dash',relogioGestor=null,trocaGestor=0;
+const LOGS_SESSAO=new Set(),LOGS_CARGAS=new Map();
 function iconeGestor(k){
   const paths={dash:'M3 10l9-7 9 7v10H3z M9 20v-7h6v7',bat:'M12 8v4l3 2 M9 2h6 M12 2v3 M19 5l2 2',folha:'M6 3h8l4 4v14H6z M14 3v5h4 M9 12h6 M9 16h6',func:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M17 4a4 4 0 0 1 0 8 M22 21v-2a4 4 0 0 0-3-4',esc:'M3 5h18v16H3z M7 3v4 M17 3v4 M3 10h18 M7 14h3 M14 14h3 M7 18h3',ban:'M6 3h12 M6 21h12 M7 3v4l5 5-5 5v4 M17 3v4l-5 5 5 5v4',contador:'M3 7h18v14H3z M8 7V3h8v4 M3 12h18 M10 12v3h4v-3',kiosk:'M3 3h18v13H3z M12 16v5 M8 21h8',emp:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M12 3v2 M12 19v2 M3 12h2 M19 12h2 M5 5l2 2 M17 17l2 2 M19 5l-2 2 M7 17l-2 2',logs:'M6 3h12v18H6z M9 7h6 M9 11h6 M9 15h4',dev:'M8 5l-6 7 6 7 M16 5l6 7-6 7 M14 3l-4 18',crown:'M3 6l4 4 5-7 5 7 4-4-2 14H5z',shield:'M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6z M8 12l3 3 5-6'};
   const extras=k==='bat'?'<circle cx="12" cy="13" r="8"/>':k==='func'?'<circle cx="9" cy="7" r="4"/>':'';
@@ -1438,28 +1443,39 @@ function indicadoresExecutivos(fs,hoje,agora){
   });
   return {presentes,atencao,folgas,total:ativos.length};
 }
-function painelExecutivoHTML(){return `<section class="manager-executive" aria-label="Painel de controle"><div class="executive-badge">${iconeGestor('crown')} PONTO PRO GESTÃO — PAINEL DE CONTROLE</div><h2>Dashboard</h2><div class="executive-date"><span id="gestor-data"></span><time id="gestor-relogio" aria-label="Hora atual"></time></div><p>Visão geral em tempo real — operação & conformidade MTE</p><div class="executive-actions"><button class="btn" onclick="navegarGestor('bat')">${iconeGestor('bat')} Batidas</button><button class="btn" onclick="navegarGestor('folha')">${iconeGestor('folha')} Folha MTE</button><button class="btn" onclick="navegarGestor('bat');lancarOcorrencia()">＋ Lançar Ocorrência</button><button class="btn" onclick="fecharGestor()">${iconeGestor('kiosk')} Ir pro Quiosque</button></div><div class="executive-kpis"><div class="executive-kpi"><strong id="exec-presentes">0</strong><span>Presentes Agora</span></div><div class="executive-kpi"><strong id="exec-atencao">0</strong><span>Atenção / Incompletos</span></div><div class="executive-kpi"><strong id="exec-folgas">0</strong><span>Folgas / DSR</span></div><div class="executive-kpi"><strong><span id="exec-total" class="executive-total">0</span><small> / ${maxFuncAtual()}</small></strong><span>Total Colaboradores · ativos</span></div></div></section>`;}
-function atualizarPainelExecutivo(){if(!$('gestor-relogio'))return;const agora=getHoraOficial(),hoje=isoOf(agora),k=indicadoresExecutivos(get('funcionarios',[]),hoje,agora);$('gestor-data').textContent=agora.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});$('gestor-relogio').textContent=agora.toLocaleTimeString('pt-BR');['presentes','atencao','folgas','total'].forEach(n=>$('exec-'+n).textContent=k[n]);}
+function indicadoresDashboard(fs,hoje,agora){
+  const ativos=fs.filter(f=>(f.status||'Ativo')!=='Desligado'&&(!f.admissao||f.admissao<=hoje));
+  const todas=get('batidas',[]),fila=new Set(pendentes()),formais=get('ocorrencias',[]);
+  let ocorrencias=0;
+  ativos.forEach(f=>{const bs=batidasDia(f.pin,hoje),prev=previstoDia(f,hoje),entrada=bs.find(b=>b.tipo==='Entrada'),inicio=horarioEscala(f.pin,hoje)||(get('empregador',{})||{}).hEntrada||'08:00';let atraso=entrada?toMin(entrada.hora)-toMin(inicio):0;if(atraso<-720)atraso+=1440;else if(atraso>720)atraso-=1440;const ontem=batidasDia(f.pin,addDias(hoje,-1));if(formais.some(o=>o.pin===f.pin&&o.data===hoje)||bs.length%2===1||ontem.length%2===1||todas.some(b=>b.pin===f.pin&&fila.has(b.nsr))||(prev>0&&(atraso>10||(!bs.length&&toMin(hhmm(agora))>toMin(inicio)+10))))ocorrencias++;});
+  const pins=new Set(ativos.map(f=>f.pin)),outros=new Set(todas.filter(b=>fila.has(b.nsr)&&!pins.has(b.pin)).map(b=>b.pin));
+  return {total:ativos.length,marcacoes:todas.filter(b=>instanteBatida(b).civil===hoje).length,ocorrencias:ocorrencias+outros.size};
+}
+function painelExecutivoHTML(){const e=get('empregador',{})||{},nome=GERENCIADOR?.nome||e.fantasia||e.razao||'Gestor';return `<section class="manager-executive" aria-label="Resumo de hoje"><header class="manager-welcome"><h2>Olá, ${esc(nome)}</h2><time id="gestor-data"></time></header><div class="executive-kpis"><div class="executive-kpi"><span>Colaboradores Ativos</span><strong><span id="exec-total" class="executive-total">0</span><small> / ${maxFuncAtual()}</small></strong></div><div class="executive-kpi"><span>Marcações Registradas Hoje</span><strong id="exec-marcacoes">0</strong></div><div class="executive-kpi"><span>Ocorrências / Pendências</span><strong id="exec-ocorrencias">0</strong></div></div><div class="executive-actions"><button class="btn ghost" onclick="navegarGestor('bat')">${iconeGestor('bat')} Ver Batidas de Hoje</button><button class="btn ghost" onclick="navegarGestor('folha')">${iconeGestor('folha')} Abrir Folha MTE</button></div></section>`;}
+function atualizarPainelExecutivo(){if(!$('gestor-data'))return;const agora=getHoraOficial(),hoje=isoOf(agora),k=indicadoresDashboard(get('funcionarios',[]),hoje,agora);$('gestor-data').textContent=agora.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});$('gestor-data').dateTime=hoje;['total','marcacoes','ocorrencias'].forEach(n=>$('exec-'+n).textContent=k[n]);}
+function carregarTelaGestor(alvo,titulo,render){const id=++trocaGestor;$(alvo).innerHTML=`<section class="module-loading" role="status" aria-live="polite"><h3>${esc(titulo)}</h3><span>Carregando…</span><div class="module-loading-bar" aria-hidden="true"></div></section>`;requestAnimationFrame(()=>requestAnimationFrame(()=>{if(id!==trocaGestor||$('tela-gestor').classList.contains('hidden'))return;render();}));}
 function pararRelogioGestor(){if(relogioGestor)clearInterval(relogioGestor);relogioGestor=null;}
 function mostrarCentralGestor(){
   pararRelogioGestor();fecharMenuGestor(false);ABA='dash';atualizarMenuGestor('dash');
   $('gestor-body').classList.add('hidden');$('gestor-hub').classList.remove('hidden');$('gestor-voltar').classList.remove('show');
   $('gestor-hub').innerHTML=painelExecutivoHTML()+primeirosPassosHTML()+'<section id="gestor-hub-dashboard" aria-label="Dashboard de Frequência"></section>';
-  abaDash('gestor-hub-dashboard');atualizarPainelExecutivo();relogioGestor=setInterval(atualizarPainelExecutivo,1000);$('tela-gestor').scrollTop=0;
+  carregarTelaGestor('gestor-hub-dashboard','Dashboard de Frequência',()=>abaDash('gestor-hub-dashboard'));atualizarPainelExecutivo();relogioGestor=setInterval(atualizarPainelExecutivo,30000);$('tela-gestor').scrollTop=0;
 }
 function irAba(k){
   if(k==='dash')return mostrarCentralGestor();
   if(k==='dev'&&!podeEditarDev())return;
   fecharMenuGestor(false);pararRelogioGestor();atualizarMenuGestor(k);
   ABA=k;$('gestor-hub').classList.add('hidden');$('gestor-body').classList.remove('hidden');$('gestor-voltar').classList.add('show');
-  ({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs,assin:abaAssinatura,dev:abaDesenvolvedor})[k]();$('tela-gestor').scrollTop=0;
+  carregarTelaGestor('gestor-body',MODULOS_GESTOR[k]?.nome||'Carregando',()=>{({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs,assin:abaAssinatura,dev:abaDesenvolvedor})[k]?.();if(MENU_ATUAL==='contador')$('gestor-body').querySelector('.folha-actions')?.scrollIntoView({block:'center'});});$('tela-gestor').scrollTop=0;
 }
 /* Empregador/Gerenciadores dentro do gestor (reutiliza o mesmo formulário) */
 function abaEmp(){ $('empregador-form').innerHTML=''; telaEmpregador('gestor-body'); }
 async function abaLogs(){
   renderLogs(get('logs',[]));
-  if(sb&&CONTA){const r=await sb.from('logs').select('quando,por,acao').eq('email_dono',CONTA).order('quando',{ascending:false}).limit(3000);
-    if(!r.error){localStorage.setItem(K('logs'),JSON.stringify(r.data));if(ABA==='logs')renderLogs(r.data);}}
+  if(!sb||!CONTA||SHARE_DATA||LOGS_SESSAO.has(CONTA))return;
+  const conta=CONTA;
+  if(!LOGS_CARGAS.has(conta))LOGS_CARGAS.set(conta,(async()=>{try{const r=await sb.from('logs').select('quando,por,acao').eq('email_dono',conta).order('quando',{ascending:false}).limit(3000);if(!r.error){localStorage.setItem(`vip:${conta}:logs`,JSON.stringify(r.data||[]));LOGS_SESSAO.add(conta);return r.data||[];}}finally{LOGS_CARGAS.delete(conta);}})());
+  const dados=await LOGS_CARGAS.get(conta);if(dados&&CONTA===conta&&ABA==='logs')renderLogs(dados);
 }
 function renderLogs(l){
   $('gestor-body').innerHTML=`<h3>Histórico de ações (auditoria — nuvem)</h3><div class="tbl-wrap"><table><tr><th>Quando</th><th>Por</th><th>Ação</th></tr>
@@ -1597,9 +1613,9 @@ function previstoDia(f,iso){
   if(iso<f.admissao) return 0;
   if(f.status==='Férias'&&iso>=f.feriasIni&&iso<=f.feriasFim) return 0;
   if(f.status==='Afastamento'&&iso>=f.afastDe&&iso<=f.afastAte) return 0;
+  if(feriadoDe(iso)) return 0;
   const diaEscala=buscaNaEscala(f.pin,iso);
   if(diaEscala) return diaEscala.tipo==='Trabalhado'?cargaEscala(f.escala):0;
-  if(feriadoDe(iso)) return 0;
   const d=dow(iso);
   if(f.escala==='5x2'&&(d===0||d===6)) return 0;
   if(f.escala==='6x1'&&d===0) return 0;
@@ -1687,12 +1703,8 @@ function calcBanco(pin,ini,fim){
         else if(trab<prev){deb+=prev-trab;det.push(`Débito - Carga incompleta dia ${brOf(d)}`);}
       } else if(prev>0){deb+=prev;det.push(`Débito - Falta dia ${brOf(d)}`);}
     }
-    // folgas extras além do direito semanal
-    const folgas=[]; for(let d=de;d<=ate;d=addDias(d,1)){const g=folgaEscala(pin,d);if(g)folgas.push({d,g});}
-    const semanas=Math.max(1,Math.ceil((new Date(ate)-new Date(de))/(7*864e5)));
-    const direito=semanas*(f.escala==='6x1'?1:2);
-    const extrasFolga=Math.max(0,folgas.length-direito);
-    for(let i=0;i<extrasFolga;i++){const it=folgas[folgas.length-1-i];deb+=cargaEscala(f.escala);det.push(`Débito - Folga Compensatória dia ${brOf(it.d)}`);}
+    // Descanso cadastrado não prova compensação: nunca inferir débito por quantidade de folgas.
+    // Créditos são minutos trabalhados (1:1), não pagamento: adicional monetário depende da regra aplicável.
     return {cred,deb,det};
   };
   const vig=f.inicioVigenciaBancoHoras||f.bancoInicio||f.admissao||ini; // só conta a partir da vigência
@@ -1711,7 +1723,7 @@ function abaPonto(){
     <div id="sub-body"></div>`;
   if(!['fer','bat','esc','ban','rel'].includes(SUB))SUB='fer'; irSub(SUB);
 }
-function irSub(k){SUB=k;abaPonto2();}
+function irSub(k){SUB=k;if(k==='ban')carregarTelaGestor('sub-body','Banco de Horas',abaPonto2);else {trocaGestor++;abaPonto2();}}
 function abaPonto2(){
   $('gestor-body').querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.sub===SUB));
   ({fer:subFeriados,bat:subBatidas,esc:subEscala,ban:subBanco,rel:subRelatorios})[SUB]();

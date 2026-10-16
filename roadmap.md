@@ -1,5 +1,10 @@
 # Roadmap
 
+- [x] Clarear o Dashboard com saudação, três indicadores e ações compactas, preservando a gaveta.
+- [x] Conferir Lei 605/49 art. 9 e Súmula 146 TST; feriados precedem jornadas, descansos não geram falta/débito inferido, crédito integral 1:1 sem presumir adicional monetário ou dobrar banco. Escala específica de sábado/domingo preservada; marcações intactas.
+- [x] Fechar gaveta imediatamente e carregar Folha, Banco e Logs com casca visual e cache de sessão preservado.
+- [x] 21 testes passaram; navegação em 390/768/1280 sem erros ou transbordamento. Feriado com 09:00 extras/crédito e zero débito conferido na folha e no PDF oficial. Somente preview, sem publicação ou alteração de dados reais; conta autenticada externa não verificável neste ambiente.
+
 - [x] Modernizar navegação do Gestor com gaveta acessível, atalhos diretos e retorno ao Dashboard.
 - [x] Adicionar painel executivo com relógio ao vivo e indicadores derivados das jornadas existentes, sem alterar cálculos.
 - [x] Conferir navegação em 390px, 768px e 1280px com dados isolados; relógio, indicadores, módulos, ocorrência, retorno e quiosque passaram sem erros. Testes de regras preservadas passaram; conta real e aparelhos físicos não conferidos. Nenhuma publicação.
