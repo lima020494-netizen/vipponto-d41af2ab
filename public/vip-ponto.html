@@ -1770,7 +1770,7 @@ function dadosCabecalhoFolha(f,ini,fim){
 function horarioTrabalhoFolha(){
   const e=get('empregador',{})||{},horas=[e.hEntrada??'08:00',e.hSaiInt??'12:00',e.hEntInt??'14:00',e.hSaida??'18:00'].filter(Boolean).join('  ')||'Não informado';
   const sabado=[e.hSabEntrada??'08:00',e.hSabSaida??'12:00'].filter(Boolean).join('  ')||'Não informado';
-  return ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'].map((dia,i)=>[dia,i===0?(e.dsr==='Não'?horas:'Descanso Semanal Remunerado'):i===6?sabado:horas]);
+  return ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'].map((dia,i)=>[dia,i===0?(e.dsr==='Não'?horas:'DSR'):i===6?sabado:horas]);
 }
 function totaisCartaoFolha(d){
   return {dias:d.linhas.filter(l=>l.trabalhado>0).length,faltas:d.tot.faltas,dsrs:d.linhas.filter(l=>/DSR/.test(l.ocorrencia)).length,folgas:d.linhas.filter(l=>/FOLGA/.test(l.ocorrencia)&&!/DSR/.test(l.ocorrencia)).length,

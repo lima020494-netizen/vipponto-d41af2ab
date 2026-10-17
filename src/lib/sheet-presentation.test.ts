@@ -24,7 +24,7 @@ test('work hours show Sunday DSR, weekdays 08-12/14-18 and Saturday 08-12',()=>{
   const company={dsr:'Sim',hEntrada:'08:00',hSaiInt:'12:00',hEntInt:'14:00',hSaida:'18:00'};
   const source=html.slice(html.indexOf('function horarioTrabalhoFolha('),html.indexOf('function totaisCartaoFolha('));
   const rows=JSON.parse(JSON.stringify(runInNewContext(source+';horarioTrabalhoFolha()',{get:()=>company})));
-  assert.equal(rows.length,7);assert.equal(rows[0][1],'Descanso Semanal Remunerado');
+  assert.equal(rows.length,7);assert.equal(rows[0][1],'DSR');
   for(let i=1;i<=5;i++)assert.equal(rows[i][1],'08:00  12:00  14:00  18:00');
   assert.equal(rows[6][1],'08:00  12:00');
   const missing=JSON.parse(JSON.stringify(runInNewContext(source+';horarioTrabalhoFolha()',{get:()=>({})})));
