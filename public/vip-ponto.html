@@ -1672,7 +1672,7 @@ const buscaNaEscala=(pin,data)=>{const e=escalaDaSemana(data,pin);return e?((e.f
 /* Linhas da folha + totais + banco de horas */
 function dadosFolha(pin,ini,fim){
   const f=funcPorPin(pin)||{}; const linhas=[];
-  let tot={faltas:0,faltasJust:0,faltasInj:0,folgas:0,feriados:0,extras:0,faltantes:0,trabalhado:0,atrasos:0};
+  let tot={faltas:0,faltasJust:0,faltasInj:0,folgas:0,feriados:0,extras:0,extras50:0,extras100:0,faltantes:0,trabalhado:0,atrasos:0};
   const just=[];
   for(let d=ini; d<=fim; d=addDias(d,1)){
     const bs=batidasDia(pin,d), prev=previstoDia(f,d), trab=trabalhadoDia(f,bs), noct=calculaNoturna(bs);
@@ -1699,8 +1699,8 @@ function dadosFolha(pin,ini,fim){
     if(prev>0&&bs.length&&g('Entrada')){let at=toMin(g('Entrada').hora)-toMin(prevEntrada);if(at<-720)at+=1440;else if(at>720)at-=1440;if(at>10){atrasoMin=at;tot.atrasos++;}}
     if(bs.length){
       tot.trabalhado+=trab;
-      if(prev>0){ if(trab>prev) tot.extras+=trab-prev; else if(trab<prev) tot.faltantes+=prev-trab; }
-      else tot.extras+=trab; // trabalho em folga/feriado credita
+      if(prev>0){ if(trab>prev){tot.extras+=trab-prev;tot.extras50+=trab-prev;} else if(trab<prev) tot.faltantes+=prev-trab; }
+      else {tot.extras+=trab;tot.extras100+=trab;} // trabalho em folga/feriado credita
     } else if(prev>0) tot.faltantes+=prev;
     // movimentações/observações de tratamento
     const mov=bs.filter(b=>b.movimento).map(b=>`_${b.hora} ${b.movimento}`).join(' | ');
@@ -1723,7 +1723,7 @@ function resumoMensalFolha(d){return [
 function miniResumoFolha(d){
   const r=resumoMensalFolha(d);
   return [[['Horas Previstas',r[0][1]],['Horas Realizadas',r[1][1]],['Adicional Noturno',r[4][1]]],
-    [['Horas Extras 50%','—'],['Horas Extras 100%','—'],['Faltas e Atrasos',`${r[3][1]} / ${toHHMM(d.linhas.reduce((n,l)=>n+(l.atrasoMin||0),0))} atraso`]],
+    [['Horas Extras 50%',toHHMM(d.tot.extras50||0)],['Horas Extras 100%',toHHMM(d.tot.extras100||0)],['Faltas e Atrasos',`${r[3][1]} / ${toHHMM(d.linhas.reduce((n,l)=>n+(l.atrasoMin||0),0))} atraso`]],
     [['Saldo Anterior',toSaldo(d.banco.anterior)],['Saldo do Mês',r[5][1]],['Saldo Acumulado',toSaldo(d.banco.atual)]]];
 }
 const FOLHA_RODAPE='Ponto Pro Gestão v1.0 · Sistema de Tratamento de Ponto · Emissão conforme Portaria MTE nº 671/2021';
@@ -1737,7 +1737,7 @@ function modeloEspelho(d){
       return b.hora+(tratada?'*':'');};
     return [brOf(l.data).slice(0,5),marca('Entrada'),marca('Saída Intervalo'),marca('Entrada Intervalo'),marca('Saída'),toHHMM(l.previsto),toHHMM(l.trabalhado),toHHMM(Math.max(0,l.saldo)),`${toHHMM(Math.max(0,-l.saldo))} / ${toHHMM(l.atrasoMin||0)}`,toHHMM(l.noturno),l.ocorrencia||(bs.length%2?'INCOMPLETO':bs.length?'TRABALHADO':'—')];
   });
-  const notas=[`* Marcação manual/tratada. E1/S1/E2/S2: entrada, saída intervalo, retorno, saída. Extras totais: ${toHHMM(d.tot.extras)}; 50%/100% sem enquadramento configurado. Banco em minutos, sem multiplicação de adicional. Faltantes e atrasos não são somados em duplicidade.`,...new Set(just)];
+  const notas=[`* Marcação manual/tratada. E1/S1/E2/S2: entrada, saída intervalo, retorno, saída. Extras 50%: além do previsto em dia útil; 100%: trabalho em folga/feriado (enquadramento padrão — conferir a regra aplicável à empresa). Banco em minutos, sem multiplicação de adicional. Faltantes e atrasos não são somados em duplicidade.`,...new Set(just)];
   if(preLegenda(d.f))notas.push(preLegenda(d.f));
   return {head,body,resumo:miniResumoFolha(d),notas};
 }
@@ -1950,7 +1950,7 @@ function lancarOcorrencia(pinSelecionado='',dataSelecionada=''){
   <div class="card grid g2">
     <div><label>Funcionário</label><select id="oc-pin" ${pinSelecionado?'disabled':''}>${fs.map(f=>`<option value="${f.pin}" ${f.pin===pinSelecionado?'selected':''}>${esc(f.nome)}</option>`).join('')}</select></div>
     <div><label>Data</label><input type="date" id="oc-data" value="${dataSelecionada||hojeISO()}" ${dataSelecionada?'readonly':''}/></div>
-    <div><label>Motivo do abono</label><select id="oc-tipo">${['Atestado médico','Falta Justificada','Folga compensatória','Férias','Compensada','Falta'].map(t=>`<option ${t===ex.tipo?'selected':''}>${t}</option>`).join('')}</select></div>
+    <div><label>Motivo do abono</label><select id="oc-tipo">${['Atestado médico','Falta Justificada','Folga compensatória','Férias','Falta'].map(t=>`<option ${t===ex.tipo?'selected':''}>${t}</option>`).join('')}</select></div>
     <div><label>Motivo (obrigatório, mín. 5 caracteres)</label><input id="oc-motivo" value="${esc(ex.motivo||'')}"/></div>
   </div><button class="btn gold" onclick="salvarOcorrencia()">Salvar ocorrência</button>`);
 }
@@ -2475,7 +2475,7 @@ async function gerarPDFComLogo(dados){
         doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Dias Trabalhados: ${t.dias} · Dias de Falta: ${t.faltas} · DSRs: ${t.dsrs} · Folgas: ${t.folgas}`,10,y);y+=3;
         y=pdfTabelaPadrao(doc,{...common,y,head:null,body:m.resumo.map(r=>r.map(([t,v])=>`${t}: ${v}`)),widths:[63,64,63],fontSize:6.5})+3;
         doc.setFontSize(6);const lines=m.notas.flatMap(t=>doc.splitTextToSize(t,105)),capacity=Math.max(1,Math.floor((249-y-8)/2.7));
-        const appendix=lines.length>capacity,visible=appendix?doc.splitTextToSize('* Marcações manuais/tratadas. Observações e justificativas completas no anexo. Extras sem enquadramento 50%/100%; banco 1:1.',105):lines;
+        const appendix=lines.length>capacity,visible=appendix?doc.splitTextToSize('* Marcações manuais/tratadas. Observações e justificativas completas no anexo. Banco 1:1.',105):lines;
         const h=Math.max(24,8+visible.length*2.7);frame(10,y,77,h,'Banco de Horas');frame(90,y,110,h,'Observações');
         bancoCartaoFolha(d).forEach(([title,v,c],i)=>{const x=12+(i%2)*37,yy=y+9+Math.floor(i/2)*8;doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(...palette.ink);doc.text(title,x,yy);doc.setFont('helvetica','bold');doc.setTextColor(...(c==='sheet-debit'?palette.debit:palette.credit));doc.text(v,x,yy+3);});
         doc.setTextColor(...palette.ink);doc.setFont('helvetica','normal');doc.setFontSize(6);visible.forEach((l,i)=>doc.text(l,92,y+8+i*2.7));
@@ -2743,7 +2743,7 @@ const MANUAL=[
  ['5. Gestor de ponto (⚙️)','Toque na engrenagem e digite o PIN de gerenciador. A primeira aba é o Dashboard de Frequência, com presença, faltas, absenteísmo, atrasos e carga incompleta, com filtros por período e funcionário.'],
  ['6. Empregados','Até 10 (Plano 1), 25 (Plano 2) ou 50 (Plano 3) colaboradores por empresa. Informe nome, CPF, função, departamento, admissão, escala e o início da vigência do banco de horas. O PIN é criado automaticamente. Na aba "Funções, Cargos e Departamentos" você cadastra as listas. Status: Ativo, Desligado, Afastamento (com motivo) ou Férias.'],
  ['7. Escala semanal','Escolha a semana (pode começar no domingo ou na segunda). Em cada dia marque Trabalhado (com hora de entrada), DSR, Folga Domingo ou Folga Compensada — até 3 folgas por semana. A escala manda na folha: se o DSR foi para terça, o domingo vira dia de trabalho. A hora de entrada da escala é usada para calcular atraso (tolerância de 10 min). Após 30 dias a escala trava 🔒. Baixe o CSV para Excel/Google Sheets.'],
- ['8. Batidas e ajustes','Data, hora e NSR originais nunca podem ser alterados. Você pode mudar o tipo da batida, incluir batida manual ou lançar ocorrência (Falta Justificada, Férias, Folga, Compensada, Falta) — sempre com motivo de pelo menos 5 letras. Tudo fica registrado com o nome de quem alterou.'],
+ ['8. Batidas e ajustes','Data, hora e NSR originais nunca podem ser alterados. Você pode mudar o tipo da batida, incluir batida manual ou lançar ocorrência (Falta Justificada, Férias, Folga compensatória, Falta) — sempre com motivo de pelo menos 5 letras. Tudo fica registrado com o nome de quem alterou.'],
  ['9. Banco de horas','Calculado sozinho a partir da data de vigência: horas a mais geram crédito, horas a menos e faltas geram débito. Saldo Anterior + Créditos − Débitos = Saldo Atual.'],
  ['10. Folha de ponto MTE','Escolha o funcionário e o período e toque em Gerar. A folha traz logo, cabeçalho do empregador e do trabalhador, batidas, ocorrências coloridas, totais, banco de horas, legenda e assinaturas. Baixe o PDF para salvar, enviar ou imprimir; os arquivos fiscais ficam em Fiscal MTE. Na Exportação em Lote, marque vários funcionários de uma vez.'],
  ['11. Arquivos oficiais para fiscalização','Na Folha de Ponto use "AFD oficial" (Arquivo Fonte de Dados) e "AEJ oficial" (Arquivo Eletrônico de Jornada) — são os arquivos exigidos pelo auditor fiscal do trabalho. O "Atestado Técnico" é o documento do desenvolvedor que acompanha o programa.'],
