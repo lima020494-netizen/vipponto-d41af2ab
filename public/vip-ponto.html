@@ -1466,8 +1466,9 @@ function carregarTelaGestor(alvo,titulo,render){const id=++trocaGestor;$(alvo).i
 function pararRelogioGestor(){if(relogioGestor)clearInterval(relogioGestor);relogioGestor=null;}
 function mostrarCentralGestor(){
   pararRelogioGestor();fecharMenuGestor(false);ABA='dash';atualizarMenuGestor('dash');
-  $('gestor-body').classList.add('hidden');$('gestor-hub').classList.remove('hidden');$('gestor-voltar').classList.remove('show');
+  $('gestor-body').classList.remove('hidden');$('gestor-hub').classList.remove('hidden');$('gestor-voltar').classList.remove('show');
   $('gestor-hub').innerHTML=painelExecutivoHTML();
+  carregarTelaGestor('gestor-body','Dashboard de Frequência',()=>abaDash());
   atualizarPainelExecutivo();relogioGestor=setInterval(atualizarPainelExecutivo,30000);$('tela-gestor').scrollTop=0;
 }
 function irAba(k){
