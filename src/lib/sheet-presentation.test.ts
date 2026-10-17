@@ -35,4 +35,9 @@ test('work hours follow separately edited Saturday company settings',()=>{
   const company={dsr:'Não',hEntrada:'09:00',hSaiInt:'12:30',hEntInt:'14:30',hSaida:'19:00',hSabEntrada:'09:00',hSabSaida:'13:00'};
   const rows=JSON.parse(JSON.stringify(runInNewContext(source+';horarioTrabalhoFolha()',{get:()=>company})));
   assert.equal(rows[6][1],'09:00  13:00');assert.equal(rows[1][1],'09:00  12:30  14:30  19:00');assert.equal(rows[0][1],rows[1][1]);
+});test('sheet header shows CPF instead of PIS',()=>{
+  const source=html.slice(html.indexOf('function dadosCabecalhoFolha('),html.indexOf('function horarioTrabalhoFolha('));
+  const rows=JSON.parse(JSON.stringify(runInNewContext(source+';dadosCabecalhoFolha({nome:"Ana",cpf:"123.456.789-00",admissao:"2026-01-05"},null,null)',{get:()=>({razao:'Empresa X'}),brOf:(s:string)=>s.split('-').reverse().join('/')})));
+  const colab=rows[0][1] as string;
+  assert.ok(colab.includes('CPF: 123.456.789-00'));assert.ok(!/PIS/.test(colab));
 });
