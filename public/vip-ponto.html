@@ -1746,15 +1746,7 @@ function dadosCabecalhoFolha(f,ini,fim){
   return [[`EMPREGADOR\nRazão Social: ${e.razao||e.fantasia||'Não informado'}\n${e.tipo||'CNPJ'}: ${e.doc||'—'}\nEndereço: ${end||'—'}\nCidade/UF: ${[e.cidade,e.uf].filter(Boolean).join('/')||'—'}`,
     `COLABORADOR\nNome: ${f.nome||'—'}\nCargo: ${f.cargo||f.funcao||'—'} · Setor: ${f.departamento||'—'}\nPIS: ${f.pis||f.pisPasep||'—'} · Matrícula/PIN: ${f.matricula||f.pin||'—'}\nAdmissão: ${brOf(f.admissao)||'—'} · Escala: ${f.escala||'—'}`]];
 }
-function horarioSemanalFolha(d){
-  const e=get('empregador',{})||{},inicio=addDias(d.ini,-((dow(d.ini)+6)%7));
-  const body=Array.from({length:7},(_,i)=>{
-    const iso=addDias(inicio,i),dia=buscaNaEscala(d.f.pin,iso),n=dow(iso);
-    const descanso=dia&&dia.tipo!=='Trabalhado'?String(dia.tipo).toUpperCase():!dia&&((['5x2','4x3'].includes(d.f.escala)&&(n===0||n===6))||(d.f.escala==='6x1'&&n===0))?'FOLGA':'';
-    return [DIAS[n],...(descanso?[descanso,'—','—','—']:[dia?.horarioEntrada||e.hEntrada||'—',e.hSaiInt||'—',e.hEntInt||'—',e.hSaida||'—'])];
-  });
-  return {inicio,head:['Dia','E1','S1','E2','S2'],body};
-}
+function buscaEscalaSemanalFolha(d){
 function totaisCartaoFolha(d){
   return {dias:d.linhas.filter(l=>l.trabalhado>0).length,faltas:d.tot.faltas,dsrs:d.linhas.filter(l=>/DSR/.test(l.ocorrencia)).length,folgas:d.linhas.filter(l=>/FOLGA/.test(l.ocorrencia)&&!/DSR/.test(l.ocorrencia)).length,
     row:['Totais','—','—','—','—',toHHMM(d.linhas.reduce((n,l)=>n+l.previsto,0)),toHHMM(d.tot.trabalhado),toHHMM(d.tot.extras),`${toHHMM(d.tot.faltantes)} / ${toHHMM(d.linhas.reduce((n,l)=>n+(l.atrasoMin||0),0))}`,toHHMM(d.linhas.reduce((n,l)=>n+l.noturno,0)),'—']};
