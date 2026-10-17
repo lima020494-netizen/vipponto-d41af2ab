@@ -1527,11 +1527,7 @@ function abaFunc(){
     ${fs.map((f,i)=>`<tr><td>${i+1}</td><td>${esc(f.nome)}</td><td>${esc(f.cpf)}</td><td>${esc(f.funcao||f.cargo)}</td><td>${esc(f.departamento)}</td>
     <td>${esc(f.escala)}</td><td>${brOf(f.inicioVigenciaBancoHoras||f.bancoInicio||f.admissao)}</td><td>${esc(statusTexto(f))}</td><td><b>${esc(f.pin)}</b></td>
     <td class="row"><button class="btn sm ghost" onclick="formFunc(${i})">Editar</button><button class="btn sm red" onclick="delFunc(${i})">Excluir</button></td></tr>`).join('')
-    ||'<tr><td colspan=10 class="muted">Nenhum empregado cadastrado.</td></tr>'}</table></div>
-    <div class="emp-cards">${fs.map((f,i)=>`<div class="emp-card"><div class="emp-top"><span class="emp-n">#${i+1}</span><b class="emp-nome">${esc(f.nome)}</b><span class="emp-st">${esc(statusTexto(f))}</span></div>
-    <div class="emp-cargo">${esc(f.funcao||f.cargo||'—')} • ${esc(f.departamento||'—')}</div>
-    <div class="emp-meta"><span>CPF <b class="emp-cpf">${esc(f.cpf||'—')}</b></span><span>PIN <b>${esc(f.pin)}</b></span></div>
-    <div class="emp-acts"><button class="btn ghost" onclick="formFunc(${i})">Editar</button><button class="btn red" onclick="delFunc(${i})">Excluir</button></div></div>`).join('')||'<p class="muted">Nenhum empregado cadastrado.</p>'}</div>`;
+    ||'<tr><td colspan=10 class="muted">Nenhum empregado cadastrado.</td></tr>'}</table></div>`;
 }
 function statusTexto(f){
   if(f.status==='Desligado') return `Desligado em ${brOf(f.dataDesligamento)}`;
