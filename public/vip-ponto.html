@@ -552,6 +552,18 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 @media(max-width:760px){#tela-gestor .inner>.gestor-head{padding:12px 16px;gap:12px;min-height:72px}.gestor-head-actions .btn{width:44px;height:44px;padding:0;font-size:0}.gestor-head-actions .action-icon{font-size:18px}.gestor-head-actions .manager-conformity{display:none}.gestor-head-actions .manager-manual{display:none}.gestor-brand-logo{width:32px;height:32px}.gestor-company{font-size:12px}.gestor-user{font-size:10px}.gestor-brand{gap:8px}#gestor-hub,#gestor-body{padding:16px}.manager-welcome h2{font-size:20px}.executive-kpis{grid-template-columns:1fr;gap:12px}.executive-kpi{padding:16px}.executive-kpi strong{font-size:24px}.executive-actions .btn{white-space:normal}.gestor-back.show{font-size:0!important;width:44px}.gestor-back .action-icon{font-size:18px}.onboarding{padding:16px}}
 @media(prefers-reduced-motion:reduce){.manager-drawer,.manager-scrim,#tela-gestor .inner{transition:none}}
 
+.sheet-a4{border-radius:0;padding:16px;max-width:960px;margin-inline:auto;background:var(--sheet-paper);color:var(--sheet-ink)}
+#gestor-body .sheet-a4 .sheet-title{font:700 18px Arial,sans-serif;text-align:center;margin:0 0 12px;letter-spacing:0;color:var(--sheet-ink)}
+.sheet-identification{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--sheet-rule);font-size:11px;line-height:1.5;margin-bottom:8px}
+.sheet-identification>div{padding:8px;overflow-wrap:anywhere}.sheet-identification>div+div{border-left:1px solid var(--sheet-rule)}
+#gestor-body .sheet-daily th,#gestor-body .sheet-daily td{font-size:10px;padding:4px;text-align:center;line-height:1.2;white-space:normal}.sheet-daily{table-layout:fixed;min-width:820px}
+.sheet-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--sheet-rule);margin-top:8px}
+.sheet-summary>div{padding:6px 8px;border-right:1px solid var(--sheet-rule);border-bottom:1px solid var(--sheet-rule);font-size:10px;min-width:0;overflow-wrap:anywhere}.sheet-summary>div:nth-child(3n){border-right:0}.sheet-summary>div:nth-last-child(-n+3){border-bottom:0}.sheet-summary span,.sheet-summary strong{display:block}.sheet-summary strong{margin-top:3px}
+.sheet-notes{font-size:10px;line-height:1.35;margin-top:8px;overflow-wrap:anywhere}.sheet-notes p{margin:3px 0}.sheet-awareness{font-size:10px;margin:8px 0}.sheet-a4 .assin{font-size:11px;gap:24px;margin-top:28px}.sheet-footer{border-top:1px solid var(--sheet-rule);padding-top:6px;margin-top:12px;font-size:9px;text-align:center}
+@media(max-width:600px){.sheet-a4{padding:8px}.sheet-identification{font-size:10px}.sheet-summary>div{padding:5px;font-size:9px}}
+/* A4 sizing only; thermal visibility/page isolation remains unchanged. */
+@media print{.sheet-a4{width:190mm;padding:0;border:0;border-radius:0;break-after:page;print-color-adjust:exact}.sheet-identification{font-size:7pt;line-height:1.3}.sheet-daily{min-width:0!important;width:100%;font-size:6.8pt}.sheet-a4 .tbl-wrap{overflow:visible}.sheet-a4 .sheet-daily th,.sheet-a4 .sheet-daily td{font-size:6.8pt!important;padding:.7mm!important;white-space:normal!important}.sheet-summary{grid-template-columns:repeat(3,minmax(0,1fr))}.sheet-summary>div{font-size:7pt;padding:1mm}.sheet-notes,.sheet-awareness{font-size:6.8pt}.sheet-footer{font-size:6pt}.sheet-a4 .assin{break-inside:avoid}}
+
 </style>
 </head>
 <body>
@@ -1436,7 +1448,7 @@ function navegarGestor(k){
   if(k==='kiosk')return fecharGestor();
   if(k==='dev'&&!podeEditarDev())return;
   if(['bat','esc','ban'].includes(k)){SUB=k;irAba('ponto');}
-  else if(k==='contador'){irAba('folha');$('gestor-body').querySelector('.folha-actions')?.scrollIntoView({block:'center'});}
+  else if(k==='contador')irAba('contador');
   else irAba(k);
   atualizarMenuGestor(k);
 }
@@ -1476,7 +1488,7 @@ function irAba(k){
   if(k==='dev'&&!podeEditarDev())return;
   fecharMenuGestor(false);pararRelogioGestor();atualizarMenuGestor(k);
   ABA=k;$('gestor-hub').classList.add('hidden');$('gestor-body').classList.remove('hidden');$('gestor-voltar').classList.add('show');
-  carregarTelaGestor('gestor-body',MODULOS_GESTOR[k]?.nome||'Carregando',()=>{({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs,assin:abaAssinatura,dev:abaDesenvolvedor})[k]?.();if(MENU_ATUAL==='contador')$('gestor-body').querySelector('.folha-actions')?.scrollIntoView({block:'center'});});$('tela-gestor').scrollTop=0;
+  carregarTelaGestor('gestor-body',MODULOS_GESTOR[k]?.nome||'Carregando',()=>{({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,contador:abaContador,emp:abaEmp,logs:abaLogs,assin:abaAssinatura,dev:abaDesenvolvedor})[k]?.();});$('tela-gestor').scrollTop=0;
 }
 /* Empregador/Gerenciadores dentro do gestor (reutiliza o mesmo formulário) */
 function abaEmp(){ $('empregador-form').innerHTML=''; telaEmpregador('gestor-body'); }
@@ -1554,7 +1566,7 @@ function formFunc(i){
     <div><label>Cidade</label><input id="f-cidade" value="${esc(f.cidade||'')}"/></div>
     <div><label>UF</label><select id="f-uf">${UFS.map(u=>`<option ${f.uf===u?'selected':''}>${u}</option>`).join('')}</select></div>
     <div><label>PIN (automático, único — visível só ao gestor)</label><input id="f-pin" value="${esc(f.pin)}" readonly/></div>
-    <div><label>Início vigência banco de horas *</label><input type="date" id="inicio-vigencia-banco" required value="${f.inicioVigenciaBancoHoras||f.bancoInicio||''}"/></div>
+    <div><label>Início vigência banco de horas (opcional)</label><input type="date" id="inicio-vigencia-banco" value="${f.inicioVigenciaBancoHoras||f.bancoInicio||''}"/></div>
     <div><label>Data de admissão *</label><input type="date" id="f-adm" value="${f.admissao||''}"/></div>
     <div><label>Escala MTE *</label><select id="f-escala">${ESCALAS.map(e=>`<option value="${e[0]}" ${f.escala===e[0]?'selected':''}>${e[1]}</option>`).join('')}</select></div>
     <div><label>Status *</label><select id="f-status" onchange="statusCond()">${['Ativo','Desligado','Afastamento','Férias'].map(s=>`<option ${f.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
@@ -1586,7 +1598,7 @@ function salvarFunc(i){
     intervalo:{preAssinalado:$('intervalo-pre-func').checked,inicio:v('pre-inicio-func')||'12:00',fim:v('pre-fim-func')||'13:00'},status:v('f-status'),
     dataDesligamento:v('f-desl'),afastDe:v('f-ade'),afastAte:v('f-aate'),motivoAfast:v('f-amot'),feriasIni:v('f-fi'),feriasFim:v('f-ff')};
   const err=[];
-  if(!o.nome||!o.cpf||!o.funcao||!o.departamento||!o.admissao||!o.inicioVigenciaBancoHoras) err.push('Nome, CPF, Função, Departamento, Admissão e Início da vigência do banco de horas são obrigatórios.');
+  if(!o.nome||!o.cpf||!o.funcao||!o.departamento||!o.admissao) err.push('Nome, CPF, Função, Departamento e Admissão são obrigatórios.');
   if(o.status==='Desligado'&&!o.dataDesligamento) err.push('Data de desligamento obrigatória.');
   if(o.status==='Afastamento'&&(!o.afastDe||!o.afastAte||!o.motivoAfast)) err.push('Período e motivo do afastamento obrigatórios.');
   if(o.status==='Férias'&&(!o.feriasIni||!o.feriasFim)) err.push('Início e término das férias obrigatórios.');
@@ -1709,6 +1721,32 @@ function resumoMensalFolha(d){return [
   ['Adicional Noturno do Período',toHHMM(d.linhas.reduce((n,l)=>n+l.noturno,0))],
   ['Saldo do Mês (Banco de Horas)',toSaldo(d.banco.creditos-d.banco.debitos)]
 ];}
+function miniResumoFolha(d){
+  const r=resumoMensalFolha(d);
+  return [[['Horas Previstas',r[0][1]],['Horas Realizadas',r[1][1]],['Adicional Noturno',r[4][1]]],
+    [['Horas Extras 50%','—'],['Horas Extras 100%','—'],['Faltas e Atrasos',`${r[3][1]} / ${toHHMM(d.linhas.reduce((n,l)=>n+(l.atrasoMin||0),0))} atraso`]],
+    [['Saldo Anterior',toSaldo(d.banco.anterior)],['Saldo do Mês',r[5][1]],['Saldo Acumulado',toSaldo(d.banco.atual)]]];
+}
+const FOLHA_RODAPE='Ponto Pro Gestão v1.0 · Sistema de Tratamento de Ponto · Emissão conforme Portaria MTE nº 671/2021';
+const FOLHA_CIENCIA='Declaro ciência das marcações e dos tratamentos apresentados neste espelho de ponto.';
+function modeloEspelho(d){
+  const head=['Dia','E1','S1','E2','S2','Prevista','Realizada','Extras','Faltantes / Atraso','Noturno','Status'];
+  const just=[...d.just];
+  const body=d.linhas.map(l=>{
+    const bs=batidasDia(d.f.pin,l.data),marca=tipo=>{const b=bs.find(x=>x.tipo===tipo);if(!b)return '--:--';const tratada=!!(b.manual||b.movimento||b.fonte==='MANUAL');
+      if(tratada){const motivo=b.movimento||b.motivo||'Marcação manual; justificativa não informada no registro.',nota=`${brOf(l.data)} ${b.hora} * ${motivo}`,original=`${brOf(l.data)} ${b.hora} - ${motivo}`,i=just.indexOf(original);if(i>=0)just[i]=nota;else if(!just.includes(nota))just.push(nota);}
+      return b.hora+(tratada?'*':'');};
+    return [brOf(l.data).slice(0,5),marca('Entrada'),marca('Saída Intervalo'),marca('Entrada Intervalo'),marca('Saída'),toHHMM(l.previsto),toHHMM(l.trabalhado),toHHMM(Math.max(0,l.saldo)),`${toHHMM(Math.max(0,-l.saldo))} / ${toHHMM(l.atrasoMin||0)}`,toHHMM(l.noturno),l.ocorrencia||(bs.length%2?'INCOMPLETO':bs.length?'TRABALHADO':'—')];
+  });
+  const notas=[`* Marcação manual/tratada. E1/S1/E2/S2: entrada, saída intervalo, retorno, saída. Extras totais: ${toHHMM(d.tot.extras)}; 50%/100% sem enquadramento configurado. Banco em minutos, sem multiplicação de adicional. Faltantes e atrasos não são somados em duplicidade.`,...new Set(just)];
+  if(preLegenda(d.f))notas.push(preLegenda(d.f));
+  return {head,body,resumo:miniResumoFolha(d),notas};
+}
+function dadosCabecalhoFolha(f,ini,fim){
+  const e=get('empregador',{})||{},end=[e.logradouro,e.numero,e.bairro,e.cidade,e.uf,e.cep].filter(Boolean).join(', ');
+  return [[`EMPREGADOR\n${e.razao||e.fantasia||'Não informado'}\n${e.tipo||'CNPJ'}: ${e.doc||'—'}\n${end||'Endereço não informado'}`,
+    `COLABORADOR\n${f.nome||'—'} · CPF: ${f.cpf||'—'}\nCargo: ${f.cargo||f.funcao||'—'} · PIS: ${f.pis||f.pisPasep||'—'}\nJornada: ${e.hEntrada||'—'}–${e.hSaiInt||'—'} / ${e.hEntInt||'—'}–${e.hSaida||'—'} · Escala: ${f.escala||'—'}\nPeríodo: ${brOf(ini)} a ${brOf(fim)}`]];
+}
 const gerarFolhaMTE=(pin,ini,fim)=>dadosFolha(pin,ini,fim); // consulta buscaNaEscala() em cada dia
 function calcBanco(pin,ini,fim){
   const f=funcPorPin(pin)||{};
@@ -1735,11 +1773,9 @@ function calcBanco(pin,ini,fim){
 /* ============================== MÓDULO 3 — GERENCIAMENTO ============================== */
 let SUB='dash';
 function abaPonto(){
-  $('gestor-body').innerHTML=`<div class="tabs" style="margin-bottom:10px">
-    ${[['fer','Feriados'],['bat','Batidas'],['esc','Escala Semanal'],['ban','Banco de Horas'],['rel','Relatórios PDF/XML']]
-    .map(([k,t])=>`<button type="button" class="tab ${SUB===k?'active':''}" data-sub="${k}" onclick="irSub('${k}')">${t}</button>`).join('')}</div>
-    <div id="sub-body"></div>`;
-  if(!['fer','bat','esc','ban','rel'].includes(SUB))SUB='fer'; irSub(SUB);
+  if(!['fer','bat','esc','ban','rel'].includes(SUB))SUB='bat';
+  $('gestor-body').innerHTML=`${SUB==='esc'?`<div class="row"><button class="btn sm ghost" onclick="irSub('esc')">Escalas</button><button class="btn sm ghost" onclick="irSub('fer')">Feriados</button></div>`:''}<div id="sub-body"></div>`;
+  irSub(SUB);
 }
 function irSub(k){SUB=k;if(k==='ban')carregarTelaGestor('sub-body','Banco de Horas',abaPonto2);else {trocaGestor++;abaPonto2();}}
 function abaPonto2(){
@@ -1938,7 +1974,7 @@ function subEscala(){
     });
   });
   const hist=get('logsEscala',[]).filter(h=>h.semana===ini);
-  $('sub-body').innerHTML=`<div class="row"><h3>Escala ${brOf(ini)} a ${brOf(fim)} ${travada?'<span class="lock">🔒 travada (30 dias após criação)</span>':`<span class="muted" style="font-size:13px">🔓 editável por mais ${diasRest} dia(s)</span>`}</h3></div>
+  $('sub-body').innerHTML=`<div class="row"><h3>Escala ${brOf(ini)} a ${brOf(fim)} ${travada?'<span class="lock">🔒 bloqueada após 30 dias</span>':`<span class="muted" style="font-size:13px">🔓 editável por mais ${diasRest} dia(s)</span>`}</h3></div>
   <div class="grid g4">
     <div><label>Período</label><select id="escala-dias" onchange="setEscPeriodo(this.value)">${[7,15,30].map(n=>`<option value="${n}" ${nd===n?'selected':''}>${n} dias</option>`).join('')}</select></div>
     <div><label>Início</label><input type="date" id="escala-inicio" value="${ini}" onchange="escIniChange(this.value)"/></div>
@@ -1955,7 +1991,7 @@ function subEscala(){
     <button class="btn sm ghost" onclick="$('imp-esc').click()">⬆ Importar planilha</button>
     <input type="file" id="imp-esc" accept=".csv,.xlsx,.xls" class="hidden" onchange="importarEscala(this)"/>
   </div>
-  <div class="muted">Períodos entre meses aparecem na mesma tela. Máx. 3 folgas por funcionário em cada semana. Cada escala pode ser alterada livremente por 30 dias após a criação; depois fica travada para preservar o histórico.</div>
+  <div class="muted">A escala prevalece sobre a jornada do cadastro. Edição por 30 dias após criação; depois, bloqueada. Máx. 3 folgas por semana.</div>
   <div class="tbl-wrap"><table class="escala-table"><tr><th>Funcionário</th>${dias.map(d=>`<th>${DIAS[dow(d)].slice(0,3)}<br>${brOf(d).slice(0,5)}</th>`).join('')}</tr>${rows}</table></div>
   <div class="hr"></div><h4>Histórico de alterações da escala</h4>
   <div class="tbl-wrap"><table><tr><th>Registro</th></tr>${hist.map(h=>`<tr><td>${esc(h.texto)}</td></tr>`).join('')||'<tr><td class="muted">Sem alterações.</td></tr>'}</table></div>`;
@@ -2082,9 +2118,10 @@ function confirmarImport(){
 }
 
 /* D) Banco de horas */
+function ajudaBancoHoras(){abrirModal(`<div class="row"><h3>Banco de Horas</h3><button class="btn sm ghost right" aria-label="Fechar ajuda" onclick="fecharModal()">✕</button></div><p>Saldo anterior + créditos − débitos = saldo acumulado. A vigência informada é respeitada; quando vazia, vale a admissão ou o início do período.</p><p>A escala prevalece sobre o cadastro. Feriados e descansos previstos não geram faltas. Créditos representam minutos trabalhados, sem multiplicação por adicional monetário.</p>`);}
 function subBanco(){
   const fs=get('funcionarios',[]),hoje=hojeISO();
-  $('sub-body').innerHTML=`<h3>Banco de Horas automático</h3>
+  $('sub-body').innerHTML=`<div class="row"><h3>Banco de Horas</h3><button class="btn sm ghost right" aria-label="Ajuda sobre banco de horas" title="Ajuda sobre banco de horas" onclick="ajudaBancoHoras()">ⓘ</button></div>
   <div class="grid g4"><div><label>Funcionário</label><select id="bh-pin">${fs.map(f=>`<option value="${f.pin}">${esc(f.nome)}</option>`).join('')}</select></div>
   <div><label>Período inicial</label><input type="date" id="bh-ini" value="${hoje.slice(0,8)}01"/></div>
   <div><label>Período final</label><input type="date" id="bh-fim" value="${hoje}"/></div>
@@ -2138,7 +2175,7 @@ function calcBancoView(){
   $('bh-out').innerHTML=`<div class="grid g4">
     ${[['Saldo Anterior',toSaldo(b.anterior)],['Créditos','+'+toHHMM(b.creditos)],['Débitos','-'+toHHMM(b.debitos)],['Saldo Atual',toSaldo(b.atual)]]
     .map(([t,v])=>`<div class="card" style="margin:0;text-align:center"><div class="muted">${t}</div><div style="font-size:26px;font-weight:900">${v}</div></div>`).join('')}
-  </div><div class="muted" style="margin-top:6px">Saldo Anterior + Créditos − Débitos = Saldo Atual</div>
+  </div>
   <div class="tbl-wrap" style="margin-top:10px"><table><tr><th>Movimentações do período</th></tr>
   ${b.detalhes.map(d=>`<tr><td>${esc(d)}</td></tr>`).join('')||'<tr><td class="muted">Sem movimentações.</td></tr>'}</table></div>`;
 }
@@ -2289,15 +2326,15 @@ function pdfCabecalhoPadrao(doc,titulo,subtitulo=''){
   if(subtitulo){doc.setTextColor(82,98,122);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text(String(subtitulo).slice(0,135),105,42,{align:'center'});return 47;}return 43;
 }
 /* Shared A4 table layout: real cells, wrapped text and repeated headers. */
-function pdfTabelaPadrao(doc,{y,titulo,sub='',head,body,widths,fontSize=8,cellPadding=2,monochrome=false}){
+function pdfTabelaPadrao(doc,{y,titulo,sub='',head,body,widths,fontSize=8,cellPadding=2,monochrome=false,compact=false}){
   doc.autoTable({startY:y,head:head?[head]:[],body:body.length?body:[['Nenhum registro no período.']],
-    theme:'grid',margin:{left:10,right:10,top:47,bottom:21},tableWidth:190,
+    theme:'grid',margin:{left:10,right:10,top:compact?14:47,bottom:compact?22:21},tableWidth:190,
     styles:{font:'helvetica',fontSize,cellPadding,lineWidth:.15,lineColor:[211,222,232],textColor:[35,50,75],overflow:'linebreak',valign:'middle'},
     headStyles:{fillColor:monochrome?[255,255,255]:[227,239,244],textColor:[18,58,83],fontStyle:'bold'},
     alternateRowStyles:{fillColor:monochrome?[255,255,255]:[247,250,252]},
     columnStyles:Object.fromEntries((widths||[]).map((w,i)=>[i,{cellWidth:w}])),
     rowPageBreak:'avoid',showHead:'everyPage',
-    willDrawPage:()=>{if(doc.getCurrentPageInfo().pageNumber>1)pdfCabecalhoPadrao(doc,titulo,sub);}
+    willDrawPage:()=>{if(!compact&&doc.getCurrentPageInfo().pageNumber>1)pdfCabecalhoPadrao(doc,titulo,sub);}
   });return doc.lastAutoTable.finalY;
 }
 function pdfRodapesPadrao(doc,usuario){
@@ -2334,6 +2371,12 @@ function abaFolha(){
   <div id="fl-out" style="margin-top:12px"></div>`;
   if(fs.length)gerarFolha();
 }
+function abaContador(){
+  const mes=hojeISO().slice(0,7);
+  $('gestor-body').innerHTML=`<h3>Pacote do Contador</h3><div class="row"><div><label>Mês de fechamento</label><input type="month" id="ct-mes" value="${mes}" onchange="periodoContador()"/></div><button id="fl-pacote" class="btn" onclick="pacoteContador()">📦 Baixar pacote mensal (ZIP)</button></div><input type="hidden" id="fl-ini"/><input type="hidden" id="fl-fim"/><div id="fl-export-status" class="muted" role="status" aria-live="polite"></div>`;
+  periodoContador();
+}
+function periodoContador(){const mes=$('ct-mes')?.value;if(!/^\d{4}-\d{2}$/.test(mes||''))return;const [ano,m]=mes.split('-').map(Number);$('fl-ini').value=mes+'-01';$('fl-fim').value=isoOf(new Date(ano,m,0,12));}
 function periodoFolhaValido(){
   const ini=$('fl-ini')?.value,fim=$('fl-fim')?.value;
   if(!ini||!fim||ini>fim){toast('Informe um período válido: início até a data final.',4000);return null;}
@@ -2374,82 +2417,53 @@ async function pacoteContador(){
   }catch(e){status.textContent='Não foi possível gerar o pacote. Tente novamente.';}
   finally{btn.disabled=false;btn.removeAttribute('aria-busy');}
 }
-function cabecalhoFolhaHTML(f,ini,fim){
-  const e=get('empregador',{})||{},d=getHoraOficial();
-  const escLabel=(ESCALAS.find(x=>x[0]===f.escala)||['','—'])[1];
-  return `${cabecalhoDocumentoHTML('Folha de Ponto — Portaria MTE 671/2021',`Período ${brOf(ini)} a ${brOf(fim)}`)}<div class="cab">
-    <div><b>Identificação do trabalhador</b></div>
-    <div><div><b>Trabalhador:</b> ${esc(f.nome)}</div><div><b>CPF:</b> ${esc(f.cpf||'')}</div>
-      <div><b>Função:</b> ${esc(f.funcao||'')} • <b>Departamento:</b> ${esc(f.departamento||'')}</div>
-      <div><b>Admissão:</b> ${brOf(f.admissao)}</div>
-      <div><b>Emissão:</b> ${brOf(isoOf(d))} ${hhmm(d)} • <b>Período:</b> ${brOf(ini)} a ${brOf(fim)}</div>
-      <div><b>Jornada contratual:</b> ${e.hEntrada||''}–${e.hSaiInt||''} / ${e.hEntInt||''}–${e.hSaida||''} • <b>Escala:</b> ${esc(escLabel)}</div></div>
-  </div>`;
-}
+function cabecalhoFolhaHTML(f,ini,fim){return `<h3 class="sheet-title">Folha de Ponto</h3><div class="sheet-identification">${dadosCabecalhoFolha(f,ini,fim)[0].map(t=>`<div>${esc(t).replace(/\n/g,'<br>')}</div>`).join('')}</div>`;}
 function htmlFolha(pin,ini,fim){
-  if(!pin||!ini||!fim) return '<div class="alert err">Selecione funcionário e período.</div>';
-  const d=dadosFolha(pin,ini,fim),f=d.f,dt=getHoraOficial(),e=get('empregador',{})||{};
-  return `<div class="folha" data-doc-completo="1">
-    ${cabecalhoFolhaHTML(f,ini,fim)}
-    <div class="tbl-wrap"><table>
-    <thead><tr><th>Dia</th><th>Dia Semana</th><th>Entrada</th><th>Saída Interv.</th><th>Entrada Interv.</th><th>Saída</th><th>Horas Trab.</th><th>Saldo Dia</th><th>Ocorrência</th><th>Fonte</th></tr></thead><tbody>
-    ${d.linhas.map(l=>`<tr><td>${brOf(l.data).slice(0,5)}</td><td>${l.dia}</td><td>${l.e1||'--:--'}</td><td>${l.e2||'--:--'}</td><td>${l.e3||'--:--'}</td><td>${l.e4||'--:--'}</td>
-      <td>${toHHMM(l.trabalhado)}${l.noturno?' <b title="Hora noturna reduzida">*N</b>':''}</td><td>${toSaldo(l.saldo)}</td>
-      <td>${l.cls?`<span class="tag ${l.cls}">${esc(l.ocorrencia)}</span>`:esc(l.ocorrencia)}${l.mov?' <b title="Tratada — ver quadro de justificativas">_</b>':''}</td>
-      <td>${l.fonte}</td></tr>`).join('')}
-    </tbody></table></div>
-    <div class="rodape">
-      <h4>Resumo mensal — ${brOf(ini)} a ${brOf(fim)}</h4>
-      <div class="resumo-mensal" aria-label="Resumo mensal da folha">${resumoMensalFolha(d).map(([rotulo,valor])=>`<div><span>${rotulo}</span><strong>${valor}</strong></div>`).join('')}</div>
-      <div>Faltas justificadas: <b>${d.tot.faltasJust}</b> • Injustificadas: <b>${d.tot.faltasInj}</b> • Folgas: <b>${d.tot.folgas}</b> • Feriados: <b>${d.tot.feriados}</b></div>
-      <div>Banco acumulado — Anterior: <b>${toSaldo(d.banco.anterior)}</b> • Créditos: <b>+${toHHMM(d.banco.creditos)}</b> • Débitos: <b>-${toHHMM(d.banco.debitos)}</b> • Atual: <b>${toSaldo(d.banco.atual)}</b></div>
-      ${d.just.length?`<div class="trat-box"><b>Tratamentos e Justificativas</b><ul>${d.just.map(j=>`<li>${esc(j)}</li>`).join('')}</ul></div>`:''}
-      ${preLegenda(f)?`<div style="margin-top:6px"><b>${esc(preLegenda(f))}</b></div>`:''}
-      <div class="muted" style="margin-top:6px"><b>Legenda:</b> ${LEGENDA}</div>
-      <div>${esc(e.cidade||'Salinópolis')}-${esc(e.uf||'PA')}, ${brOf(isoOf(dt))}</div>
-      <div class="assin"><div>Assinatura do Diretor</div><div>Assinatura do Empregado</div></div>
-    </div>${rodapeDocumentoHTML(f.nome)}</div>`;
+  if(!pin||!ini||!fim)return '<div class="alert err">Selecione funcionário e período.</div>';
+  const d=dadosFolha(pin,ini,fim),m=modeloEspelho(d);
+  return `<div class="folha sheet-a4" data-doc-completo="1">${cabecalhoFolhaHTML(d.f,ini,fim)}
+    <div class="tbl-wrap"><table class="sheet-daily"><thead><tr>${m.head.map(t=>`<th>${esc(t)}</th>`).join('')}</tr></thead><tbody>${m.body.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="sheet-summary" aria-label="Resumo mensal da folha">${m.resumo.flat().map(([t,v])=>`<div><span>${esc(t)}</span><strong>${esc(v)}</strong></div>`).join('')}</div>
+    <div class="sheet-notes"><b>Ocorrências e justificativas</b>${m.notas.map(t=>`<p>${esc(t)}</p>`).join('')}</div>
+    <p class="sheet-awareness">${FOLHA_CIENCIA}</p><div class="assin"><div>Empregador</div><div>Empregado</div></div>
+    <footer class="sheet-footer">${FOLHA_RODAPE}</footer></div>`;
 }
 /* PDF OFICIAL ÚNICO — gerarPDFComLogo(dados): usado na Folha Individual, Lote e Portal.
    dados = {pins,ini,fim} | {pin,ini,fim} | {folhas:[gerarFolhaMTE(...)]}. Retorna {doc,base64,blob}. */
 async function gerarPDFComLogo(dados){
   const lista=dados.folhas||(dados.pins||[dados.pin]).map(p=>dadosFolha(p,dados.ini,dados.fim));
-  const {jsPDF}=window.jspdf,e=get('empregador',{})||{},doc=new jsPDF({unit:'mm',format:'a4'});
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'});
   let first=true;
+  const footer=()=>{doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(35,50,75);doc.setDrawColor(211,222,232);doc.line(10,281,200,281);doc.text(FOLHA_RODAPE,105,285,{align:'center'});};
   lista.forEach(d=>{
-    const f=d.f,ini=d.ini,fim=d.fim,dt=getHoraOficial();
-    if(!first)doc.addPage(); first=false;
-    let y=pdfCabecalhoPadrao(doc,'Folha de Ponto — Portaria MTE 671/2021',`Período ${brOf(ini)} a ${brOf(fim)}`);
-    const titulo='Folha de Ponto — Portaria MTE 671/2021',sub=`${f.nome} • Período ${brOf(ini)} a ${brOf(fim)}`;
-    const tabela=(head,body,widths,fontSize=8)=>{y=pdfTabelaPadrao(doc,{y,titulo,sub,head,body,widths,fontSize,cellPadding:1.3,monochrome:true})+3;};
-    const escLabel=(ESCALAS.find(x=>x[0]===f.escala)||['',f.escala||'—'])[1];
-    tabela(null,[['Identificação do trabalhador',
-      `Trabalhador: ${f.nome}\nCPF: ${f.cpf||'—'}\nFunção: ${f.funcao||'—'} • Departamento: ${f.departamento||'—'}\nAdmissão: ${brOf(f.admissao)}\nEmissão: ${brOf(isoOf(dt))} ${hhmm(dt)} • Período: ${brOf(ini)} a ${brOf(fim)}\nJornada contratual: ${e.hEntrada||''}-${e.hSaiInt||''} / ${e.hEntInt||''}-${e.hSaida||''} • Escala: ${escLabel}`]], [38,152]);
-    tabela(['Dia','Dia\nSemana','Entrada','Saída\nInterv.','Entrada\nInterv.','Saída','Horas\nTrab.','Saldo\nDia','Ocorrência','Fonte'],
-      d.linhas.map(l=>[brOf(l.data).slice(0,5),l.dia,l.e1||'--:--',l.e2||'--:--',l.e3||'--:--',l.e4||'--:--',toHHMM(l.trabalhado)+(l.noturno?' *N':''),toSaldo(l.saldo),(l.ocorrencia||'—')+(l.mov?' _':''),l.fonte||'—']),
-      [14,22,18,18,18,18,19,19,25,19],7);
-    if(y+38>276){doc.addPage();y=pdfCabecalhoPadrao(doc,titulo,sub);}
-    tabela(['Resumo mensal do período','Resultado'],resumoMensalFolha(d),[100,90],7.5);
-    tabela(null,[
-      ['Faltas justificadas / Injustificadas',`${d.tot.faltasJust} / ${d.tot.faltasInj}`],
-      ['Folgas / Feriados',`${d.tot.folgas} / ${d.tot.feriados}`],
-      ['Banco acumulado',`Anterior: ${toSaldo(d.banco.anterior)} • Créditos: +${toHHMM(d.banco.creditos)}\nDébitos: -${toHHMM(d.banco.debitos)} • Atual: ${toSaldo(d.banco.atual)}`]
-    ],[80,110],7);
-    if(d.just.length)tabela(['Tratamentos e Justificativas'],d.just.map(j=>[j]),[190],7);
-    const texto=(t)=>{
-      doc.setFont('helvetica','normal');doc.setFontSize(7);
-      doc.splitTextToSize(t,190).forEach(line=>{
-        if(y+4>275){doc.addPage();y=pdfCabecalhoPadrao(doc,titulo,sub);doc.setFont('helvetica','normal');doc.setFontSize(7);}
-        doc.text(line,10,y+3);y+=3.5;
-      });y+=2;
-    };
-    if(preLegenda(f))texto(preLegenda(f));texto(`Legenda: ${LEGENDA}`);
-    texto(`${e.cidade||'Salinópolis'}-${e.uf||'PA'}, ${brOf(isoOf(dt))}`);
-    if(y+18>275){doc.addPage();y=pdfCabecalhoPadrao(doc,titulo,sub);}
-    y+=10;doc.setDrawColor(120,135,151);doc.setLineWidth(.2);doc.line(10,y,95,y);doc.line(115,y,200,y);
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('Assinatura do Diretor',52.5,y+4,{align:'center'});doc.text('Assinatura do Empregado',157.5,y+4,{align:'center'});
+    const m=modeloEspelho(d),chunks=[];for(let i=0;i<m.body.length;i+=31)chunks.push(m.body.slice(i,i+31));if(!chunks.length)chunks.push([]);
+    chunks.forEach((body,idx)=>{
+      if(!first)doc.addPage();first=false;
+      doc.setTextColor(35,50,75);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('FOLHA DE PONTO',105,12,{align:'center'});
+      let y=17;
+      const tabela=(head,body,widths,fontSize=7)=>{y=pdfTabelaPadrao(doc,{y,titulo:'Folha de Ponto',head,body,widths,fontSize,cellPadding:.75,monochrome:true,compact:true})+2;};
+      tabela(null,dadosCabecalhoFolha(d.f,d.ini,d.fim),[95,95],7.2);
+      tabela(m.head,body,[12,13,13,13,13,16,16,15,25,16,38],6.8);
+      if(idx===chunks.length-1){
+        tabela(null,m.resumo.map(r=>r.map(([t,v])=>`${t}\n${v}`)),[63,64,63],7);
+        doc.setFont('helvetica','normal');doc.setFontSize(6.8);
+        const lines=m.notas.flatMap(t=>doc.splitTextToSize(t,190));
+        const capacity=Math.max(0,Math.floor((251-y)/3));
+        const appendix=lines.length>capacity;
+        const visible=appendix?doc.splitTextToSize(m.notas[0]+' Justificativas completas no anexo deste espelho.',190):lines;
+        doc.setFont('helvetica','bold');doc.text('Ocorrências e justificativas',10,y+2);y+=5;doc.setFont('helvetica','normal');
+        visible.forEach(line=>{doc.text(line,10,y+2);y+=3;});
+        doc.text(FOLHA_CIENCIA,10,257);
+        doc.setDrawColor(120,135,151);doc.setLineWidth(.2);doc.line(10,269,95,269);doc.line(115,269,200,269);
+        doc.setFontSize(7);doc.text('Empregador',52.5,273,{align:'center'});doc.text('Empregado',157.5,273,{align:'center'});footer();
+        if(appendix){
+          doc.addPage();y=14;doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('ANEXO — OCORRÊNCIAS E JUSTIFICATIVAS',10,y);y+=7;
+          doc.setFont('helvetica','normal');doc.setFontSize(7);doc.text(doc.splitTextToSize(`${d.f.nome} · ${brOf(d.ini)} a ${brOf(d.fim)}`,190),10,y);y+=9;
+          lines.forEach(line=>{if(y>273){footer();doc.addPage();y=14;}doc.text(line,10,y);y+=3.3;});footer();
+        }
+      }else footer();
+    });
   });
-  pdfRodapesPadrao(doc,lista.length===1?lista[0].f.nome:`Lote com ${lista.length} colaboradores`);
   return {doc,base64:doc.output('datauristring').split(',')[1],blob:doc.output('blob')};
 }
 async function pdfFolhas(pins,ini,fim,nomeArq){
@@ -2706,7 +2720,7 @@ const MANUAL=[
  ['4. Portal do Empregado (👤)','O empregado digita o PIN e vê a própria folha de ponto, podendo enviá-la para o seu e-mail.'],
  ['5. Gestor de ponto (⚙️)','Toque na engrenagem e digite o PIN de gerenciador. A primeira aba é o Dashboard de Frequência, com presença, faltas, absenteísmo, atrasos e carga incompleta, com filtros por período e funcionário.'],
  ['6. Empregados','Até 10 (Plano 1), 25 (Plano 2) ou 50 (Plano 3) colaboradores por empresa. Informe nome, CPF, função, departamento, admissão, escala e o início da vigência do banco de horas. O PIN é criado automaticamente. Na aba "Funções, Cargos e Departamentos" você cadastra as listas. Status: Ativo, Desligado, Afastamento (com motivo) ou Férias.'],
- ['7. Escala semanal','Escolha a semana (pode começar no domingo ou na segunda). Em cada dia marque Trabalhado (com hora de entrada), DSR, Folga Domingo ou Folga Compensada — até 3 folgas por semana. A escala manda na folha: se o DSR foi para terça, o domingo vira dia de trabalho. A hora de entrada da escala é usada para calcular atraso (tolerância de 10 min). Após 7 dias a escala trava 🔒. Baixe o CSV para Excel/Google Sheets.'],
+ ['7. Escala semanal','Escolha a semana (pode começar no domingo ou na segunda). Em cada dia marque Trabalhado (com hora de entrada), DSR, Folga Domingo ou Folga Compensada — até 3 folgas por semana. A escala manda na folha: se o DSR foi para terça, o domingo vira dia de trabalho. A hora de entrada da escala é usada para calcular atraso (tolerância de 10 min). Após 30 dias a escala trava 🔒. Baixe o CSV para Excel/Google Sheets.'],
  ['8. Batidas e ajustes','Data, hora e NSR originais nunca podem ser alterados. Você pode mudar o tipo da batida, incluir batida manual ou lançar ocorrência (Falta Justificada, Férias, Folga, Compensada, Falta) — sempre com motivo de pelo menos 5 letras. Tudo fica registrado com o nome de quem alterou.'],
  ['9. Banco de horas','Calculado sozinho a partir da data de vigência: horas a mais geram crédito, horas a menos e faltas geram débito. Saldo Anterior + Créditos − Débitos = Saldo Atual.'],
  ['10. Folha de ponto MTE','Escolha o funcionário e o período e toque em Gerar. A folha traz logo, cabeçalho do empregador e do trabalhador, batidas, ocorrências coloridas, totais, banco de horas, legenda e assinaturas. Baixe o PDF para salvar, enviar ou imprimir; os arquivos fiscais ficam em Fiscal MTE. Na Exportação em Lote, marque vários funcionários de uma vez.'],
