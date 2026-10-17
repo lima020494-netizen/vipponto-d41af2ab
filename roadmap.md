@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Mini tabela DOM–SÁB de horário de trabalho conforme anexo, usando cadastro da empresa na tela e no PDF compartilhado; sete testes aprovados, 31 dias em uma A4 e tabela sem transbordamento em 390px, com dados isolados. Somente preview.
+
 - [x] Remover cards duplicados dos colaboradores, mantendo somente a tabela formatada; tabela única e Editar conferidos com dados isolados.
 
 - [x] Aplicar Cartão de Ponto Calculado com logo, identificação e jornada semanal, grade funcional zebrada, totais e quadros Banco/Observações na tela e PDF compartilhado, sem alterar apuração; referência IMG_20261016_221807.jpg ausente, seguido texto enviado.
