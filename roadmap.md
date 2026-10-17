@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Restaurar Dashboard de Frequência completo abaixo do resumo executivo na entrada do Gestor e no retorno pela gaveta; conferir filtros, gráficos e PDF em preview, sem alterar dados reais.
+- [x] Restaurar Dashboard de Frequência abaixo do resumo executivo na entrada e no retorno pela gaveta; filtros, dois gráficos e download PDF conferidos com dados isolados, sem transbordamento em 390px. 18 testes passaram e build OK; somente preview, sem alteração de dados reais ou validação autenticada externa.
 
 - [x] Fixar cabeçalho do Gestor e harmonizar fundo, gaveta e três indicadores com a logo; home sem blocos redundantes, Quiosque intacto.
 - [x] Consolidar resumo do período na folha branca e PDF oficial compartilhado pelo ZIP, preservando cálculos e separando saldo mensal do acumulado.
