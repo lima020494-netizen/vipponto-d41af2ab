@@ -564,6 +564,12 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 .sheet-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--sheet-rule);margin-top:8px}.sheet-summary>div{padding:5px 8px;border-right:1px solid var(--sheet-rule);border-bottom:1px solid var(--sheet-rule);font-size:10px;min-width:0;overflow-wrap:anywhere}.sheet-summary>div:nth-child(3n){border-right:0}.sheet-summary>div:nth-last-child(-n+3){border-bottom:0}.sheet-summary strong{font-weight:700}
 .sheet-bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:8px;margin-top:8px}.sheet-bank{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:7px;font-size:10px}.sheet-bank span,.sheet-bank strong{display:block}.sheet-notes{font-size:9px;line-height:1.3;padding:6px;overflow-wrap:anywhere}.sheet-notes p{margin:2px 0}.sheet-awareness,.sheet-place{font-size:9px;margin:8px 0}.sheet-a4 .assin{font-size:10px;gap:48px;margin-top:24px}.sheet-footer{border-top:1px solid var(--sheet-rule);padding-top:5px;margin-top:10px;font-size:8px;text-align:center}
 @media(max-width:600px){.sheet-a4{padding:8px}.sheet-top{gap:8px}.sheet-top img{width:70px;height:42px}.sheet-title,#gestor-body .sheet-a4 .sheet-title{font-size:17px}.sheet-identification,.sheet-bottom{grid-template-columns:1fr}.sheet-summary>div{padding:5px;font-size:9px}}
+/* Compact company schedule: one day and its hours per row. */
+.sheet-a4 .sheet-work-hours,#gestor-body .sheet-a4 .sheet-work-hours{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse}
+.sheet-a4 .sheet-work-hours th,#gestor-body .sheet-a4 .sheet-work-hours th{width:38px;background:var(--sheet-paper);color:var(--sheet-ink);font-weight:700;text-align:left;letter-spacing:0}
+.sheet-a4 .sheet-work-hours th,.sheet-a4 .sheet-work-hours td,#gestor-body .sheet-a4 .sheet-work-hours th,#gestor-body .sheet-a4 .sheet-work-hours td{padding:3px 6px;font-size:10px;line-height:1.35;white-space:normal;border-bottom:1px solid var(--sheet-rule)}
+.sheet-work-hours td{font-variant-numeric:tabular-nums}.sheet-work-hours tr:last-child th,.sheet-work-hours tr:last-child td{border-bottom:0}
+@media print{.sheet-a4 .sheet-work-hours th,.sheet-a4 .sheet-work-hours td{font-size:6.5pt!important;padding:.6mm 1mm!important}.sheet-a4 .sheet-work-hours th{width:10mm}}
 /* Geometry only: receipt browser-print isolation remains unchanged. */
 @media print{.sheet-a4{width:190mm;max-width:190mm;padding:0;border:0;break-after:page;print-color-adjust:exact}.sheet-top{margin-bottom:2mm;padding-bottom:2mm}.sheet-top img{width:24mm;height:12mm}.sheet-title,#gestor-body .sheet-a4 .sheet-title{font-size:13pt}.sheet-issued{font-size:6pt}.sheet-identification{grid-template-columns:1.35fr 1fr;font-size:6.5pt;gap:2mm}.sheet-people{padding:1.5mm}.sheet-box-title{font-size:7pt;padding:1mm}.sheet-a4 .sheet-schedule td,.sheet-a4 .sheet-schedule th{font-size:6pt;padding:.5mm}.sheet-a4 .tbl-wrap{overflow:visible}.sheet-daily{min-width:0!important;width:100%}.sheet-a4 .sheet-daily th,.sheet-a4 .sheet-daily td{font-size:6.3pt!important;padding:.65mm!important;white-space:normal!important}.sheet-summary>div{font-size:6.5pt;padding:1mm}.sheet-bottom{grid-template-columns:1fr 1.35fr;gap:2mm}.sheet-bank,.sheet-notes,.sheet-awareness,.sheet-place,.sheet-day-counts{font-size:6pt}.sheet-footer{font-size:6pt}.sheet-a4 .assin{font-size:7pt;margin-top:6mm;break-inside:avoid}}
 
@@ -1746,6 +1752,10 @@ function dadosCabecalhoFolha(f,ini,fim){
   return [[`EMPREGADOR\nRazão Social: ${e.razao||e.fantasia||'Não informado'}\n${e.tipo||'CNPJ'}: ${e.doc||'—'}\nEndereço: ${end||'—'}\nCidade/UF: ${[e.cidade,e.uf].filter(Boolean).join('/')||'—'}`,
     `COLABORADOR\nNome: ${f.nome||'—'}\nCargo: ${f.cargo||f.funcao||'—'} · Setor: ${f.departamento||'—'}\nPIS: ${f.pis||f.pisPasep||'—'} · Matrícula/PIN: ${f.matricula||f.pin||'—'}\nAdmissão: ${brOf(f.admissao)||'—'} · Escala: ${f.escala||'—'}`]];
 }
+function horarioTrabalhoFolha(){
+  const e=get('empregador',{})||{},horas=[e.hEntrada,e.hSaiInt,e.hEntInt,e.hSaida].filter(Boolean).join('  ')||'Não informado';
+  return ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'].map((dia,i)=>[dia,i===0?(e.dsr==='Sim'?'Descanso Semanal Remunerado':e.dsr==='Não'?horas:'Não informado'):horas]);
+}
 function totaisCartaoFolha(d){
   return {dias:d.linhas.filter(l=>l.trabalhado>0).length,faltas:d.tot.faltas,dsrs:d.linhas.filter(l=>/DSR/.test(l.ocorrencia)).length,folgas:d.linhas.filter(l=>/FOLGA/.test(l.ocorrencia)&&!/DSR/.test(l.ocorrencia)).length,
     row:['Totais','—','—','—','—',toHHMM(d.linhas.reduce((n,l)=>n+l.previsto,0)),toHHMM(d.tot.trabalhado),toHHMM(d.tot.extras),`${toHHMM(d.tot.faltantes)} / ${toHHMM(d.linhas.reduce((n,l)=>n+(l.atrasoMin||0),0))}`,toHHMM(d.linhas.reduce((n,l)=>n+l.noturno,0)),'—']};
@@ -2427,7 +2437,7 @@ async function pacoteContador(){
 function cabecalhoFolhaHTML(f,ini,fim){
   const e=get('empregador',{})||{};
   return `<header class="sheet-top"><img src="${esc(e.logo||logoApp())}" alt="Logo da empresa"><div><h3 class="sheet-title">Espelho de Ponto</h3><div class="sheet-issued">Emissão: ${esc(getHoraOficial().toLocaleString('pt-BR'))} · Período: ${brOf(ini)} a ${brOf(fim)}</div></div></header>
-  <div class="sheet-identification"><div class="sheet-people">${dadosCabecalhoFolha(f,ini,fim)[0].map(t=>`<div>${esc(t).replace(/\n/g,'<br>')}</div>`).join('')}</div></div>`;
+  <div class="sheet-identification"><div class="sheet-people">${dadosCabecalhoFolha(f,ini,fim)[0].map(t=>`<div>${esc(t).replace(/\n/g,'<br>')}</div>`).join('')}</div><section class="sheet-box"><div class="sheet-box-title">Horário de Trabalho</div><table class="sheet-work-hours" aria-label="Horário de trabalho padrão da empresa"><tbody>${horarioTrabalhoFolha().map(([dia,horas])=>`<tr><th scope="row">${dia}</th><td>${esc(horas)}</td></tr>`).join('')}</tbody></table></section></div>`;
 }
 function htmlFolha(pin,ini,fim){
   if(!pin||!ini||!fim)return '<div class="alert err">Selecione funcionário e período.</div>';
@@ -2460,7 +2470,9 @@ async function gerarPDFComLogo(dados){
       doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Emissão: ${getHoraOficial().toLocaleString('pt-BR')} · Período: ${brOf(d.ini)} a ${brOf(d.fim)}`,40,20);
       doc.setDrawColor(...palette.navy);doc.setLineWidth(.5);doc.line(10,24,200,24);
       const common={palette,compact:true,cellPadding:.7,fontSize:6.5};
-      let y=pdfTabelaPadrao(doc,{...common,y:27,head:null,body:dadosCabecalhoFolha(d.f,d.ini,d.fim)[0].map(x=>[x]),widths:[95,95],tableWidth:190,left:10})+3;
+      const peopleEnd=pdfTabelaPadrao(doc,{...common,y:27,head:null,body:dadosCabecalhoFolha(d.f,d.ini,d.fim)[0].map(x=>[x]),widths:[99],tableWidth:99,left:10});
+      const hoursEnd=pdfTabelaPadrao(doc,{...common,y:27,left:113,tableWidth:87,head:[{content:'Horário de Trabalho',colSpan:2}],body:horarioTrabalhoFolha(),widths:[13,74],fontSize:6.5,cellPadding:.7});
+      let y=Math.max(peopleEnd,hoursEnd)+3;
       y=pdfTabelaPadrao(doc,{...common,y,head:m.head,body:chunks[idx],foot:idx===chunks.length-1?[t.row]:[],widths:[12,13,13,13,13,16,17,15,25,15,38],fontSize:6.3,cellPadding:.43,cellStyle:c=>{const role=corCelulaFolha(c.column.index,String(c.cell.raw));return role==='sheet-credit'?palette.credit:role==='sheet-debit'?palette.debit:role==='sheet-rest'?palette.rest:null;}})+3;
       if(idx===chunks.length-1){
         doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Dias Trabalhados: ${t.dias} · Dias de Falta: ${t.faltas} · DSRs: ${t.dsrs} · Folgas: ${t.folgas}`,10,y);y+=3;
