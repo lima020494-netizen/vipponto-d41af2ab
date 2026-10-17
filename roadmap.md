@@ -1,8 +1,8 @@
 # Roadmap
 
-- [ ] Reformular espelho A4 com cabeçalho dividido, grade diária, asteriscos e resumo em três linhas, preservando apuração e justificativas.
-- [ ] Simplificar vigência opcional, Batidas, Escalas, ajuda do Banco e pacote mensal; conferir retorno e toque do Quiosque.
-- [ ] Validar downloads PDF/ZIP, 31 dias e assinaturas em A4, módulos e testes em preview; não publicar.
+- [x] Reformular espelho A4 com cabeçalho dividido, grade diária, asteriscos e resumo em três linhas, preservando apuração e justificativas; 50%/100% não classificados sem regra configurada, extras totais preservadas.
+- [x] Simplificar vigência opcional, Batidas sem sub-abas, Escalas, ajuda do Banco e pacote mensal direto; retorno limpo de 2s do Quiosque preservado e conferido.
+- [x] Downloads PDF/ZIP conferidos com dados isolados: 31 dias, resumo e assinaturas em uma A4; justificativa duplicada corrigida, notas extensas preservadas em anexo sem corte. Telas 390/768/1280 sem transbordamento, 22 testes aprovados e build OK. Sem publicação ou alteração de dados reais; acesso autenticado externo e dispositivos físicos não verificados.
 
 - [x] Restaurar Dashboard de Frequência abaixo do resumo executivo na entrada e no retorno pela gaveta; filtros, dois gráficos e download PDF conferidos com dados isolados, sem transbordamento em 390px. 18 testes passaram e build OK; somente preview, sem alteração de dados reais ou validação autenticada externa.
 
