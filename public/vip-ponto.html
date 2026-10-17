@@ -1038,12 +1038,16 @@ function telaEmpregador(alvo){
       <div><label>Atividade da empresa</label><input id="e-ativ" value="${esc(e.atividade||'')}"/></div>
       <div><label>DSR (domingo)</label><select id="e-dsr"><option ${e.dsr!=='Não'?'selected':''}>Sim</option><option ${e.dsr==='Não'?'selected':''}>Não</option></select></div>
     </div>
-    <div class="hr"></div><h4>Horário padrão Seg–Sáb</h4>
+    <div class="hr"></div><h4>Horário padrão Segunda a Sexta</h4>
     <div class="grid g4">
       <div><label>Entrada</label><input id="e-h1" type="time" value="${e.hEntrada||'08:00'}"/></div>
       <div><label>Saída intervalo</label><input id="e-h2" type="time" value="${e.hSaiInt||'12:00'}"/></div>
       <div><label>Entrada intervalo</label><input id="e-h3" type="time" value="${e.hEntInt||'14:00'}"/></div>
       <div><label>Saída</label><input id="e-h4" type="time" value="${e.hSaida||'18:00'}"/></div>
+    </div>
+    <h4>Sábado</h4><div class="grid g2">
+      <div><label>Entrada sábado</label><input id="e-sab-entrada" type="time" value="${e.hSabEntrada??'08:00'}"/></div>
+      <div><label>Saída sábado</label><input id="e-sab-saida" type="time" value="${e.hSabSaida??'12:00'}"/></div>
     </div>
     <label>Logo da empresa (salva em base64)</label><input type="file" accept="image/*" id="e-logo-file" onchange="lerLogo(this)"/>
     <img id="e-logo-prev" src="${e.logo||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg'}" style="height:60px;margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px"/>
@@ -1068,7 +1072,7 @@ function salvarEmpregador(){
   const v=id=>$(id).value.trim();
   const o={tipo:v('e-tipo'),doc:v('e-doc'),cei:v('e-cei'),razao:v('e-razao'),fantasia:v('e-fantasia'),email:v('e-mail'),
     logradouro:v('e-log'),numero:v('e-num'),bairro:v('e-bairro'),cidade:v('e-cidade'),uf:v('e-uf'),cep:v('e-cep'),
-    complemento:v('e-compl'),atividade:v('e-ativ'),dsr:v('e-dsr'),hEntrada:v('e-h1'),hSaiInt:v('e-h2'),hEntInt:v('e-h3'),hSaida:v('e-h4'),
+    complemento:v('e-compl'),atividade:v('e-ativ'),dsr:v('e-dsr'),hEntrada:v('e-h1'),hSaiInt:v('e-h2'),hEntInt:v('e-h3'),hSaida:v('e-h4'),hSabEntrada:v('e-sab-entrada'),hSabSaida:v('e-sab-saida'),
     logo:LOGO_TMP||(get('empregador',{})||{}).logo||''};
   const falta=['doc','razao','fantasia','email','logradouro','numero','bairro','cidade','uf','cep'].filter(k=>!o[k]);
   if(falta.length) return $('e-msg').innerHTML='<div class="alert err">Preencha todos os campos obrigatórios (*).</div>';
@@ -1753,8 +1757,9 @@ function dadosCabecalhoFolha(f,ini,fim){
     `COLABORADOR\nNome: ${f.nome||'—'}\nCargo: ${f.cargo||f.funcao||'—'} · Setor: ${f.departamento||'—'}\nPIS: ${f.pis||f.pisPasep||'—'} · Matrícula/PIN: ${f.matricula||f.pin||'—'}\nAdmissão: ${brOf(f.admissao)||'—'} · Escala: ${f.escala||'—'}`]];
 }
 function horarioTrabalhoFolha(){
-  const e=get('empregador',{})||{},horas=[e.hEntrada,e.hSaiInt,e.hEntInt,e.hSaida].filter(Boolean).join('  ')||'Não informado';
-  return ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'].map((dia,i)=>[dia,i===0?(e.dsr==='Sim'?'Descanso Semanal Remunerado':e.dsr==='Não'?horas:'Não informado'):horas]);
+  const e=get('empregador',{})||{},horas=[e.hEntrada??'08:00',e.hSaiInt??'12:00',e.hEntInt??'14:00',e.hSaida??'18:00'].filter(Boolean).join('  ')||'Não informado';
+  const sabado=[e.hSabEntrada??'08:00',e.hSabSaida??'12:00'].filter(Boolean).join('  ')||'Não informado';
+  return ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'].map((dia,i)=>[dia,i===0?(e.dsr==='Não'?horas:'Descanso Semanal Remunerado'):i===6?sabado:horas]);
 }
 function totaisCartaoFolha(d){
   return {dias:d.linhas.filter(l=>l.trabalhado>0).length,faltas:d.tot.faltas,dsrs:d.linhas.filter(l=>/DSR/.test(l.ocorrencia)).length,folgas:d.linhas.filter(l=>/FOLGA/.test(l.ocorrencia)&&!/DSR/.test(l.ocorrencia)).length,
