@@ -1734,7 +1734,7 @@ function modeloEspelho(d){
   const just=[...d.just];
   const body=d.linhas.map(l=>{
     const bs=batidasDia(d.f.pin,l.data),marca=tipo=>{const b=bs.find(x=>x.tipo===tipo);if(!b)return '--:--';const tratada=!!(b.manual||b.movimento||b.fonte==='MANUAL');
-      if(tratada){const nota=`${brOf(l.data)} ${b.hora} * ${b.movimento||b.motivo||'Marcação manual; justificativa não informada no registro.'}`;if(!just.includes(nota))just.push(nota);}
+      if(tratada){const motivo=b.movimento||b.motivo||'Marcação manual; justificativa não informada no registro.',nota=`${brOf(l.data)} ${b.hora} * ${motivo}`,original=`${brOf(l.data)} ${b.hora} - ${motivo}`,i=just.indexOf(original);if(i>=0)just[i]=nota;else if(!just.includes(nota))just.push(nota);}
       return b.hora+(tratada?'*':'');};
     return [brOf(l.data).slice(0,5),marca('Entrada'),marca('Saída Intervalo'),marca('Entrada Intervalo'),marca('Saída'),toHHMM(l.previsto),toHHMM(l.trabalhado),toHHMM(Math.max(0,l.saldo)),`${toHHMM(Math.max(0,-l.saldo))} / ${toHHMM(l.atrasoMin||0)}`,toHHMM(l.noturno),l.ocorrencia||(bs.length%2?'INCOMPLETO':bs.length?'TRABALHADO':'—')];
   });
