@@ -552,17 +552,20 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 @media(max-width:760px){#tela-gestor .inner>.gestor-head{padding:12px 16px;gap:12px;min-height:72px}.gestor-head-actions .btn{width:44px;height:44px;padding:0;font-size:0}.gestor-head-actions .action-icon{font-size:18px}.gestor-head-actions .manager-conformity{display:none}.gestor-head-actions .manager-manual{display:none}.gestor-brand-logo{width:32px;height:32px}.gestor-company{font-size:12px}.gestor-user{font-size:10px}.gestor-brand{gap:8px}#gestor-hub,#gestor-body{padding:16px}.manager-welcome h2{font-size:20px}.executive-kpis{grid-template-columns:1fr;gap:12px}.executive-kpi{padding:16px}.executive-kpi strong{font-size:24px}.executive-actions .btn{white-space:normal}.gestor-back.show{font-size:0!important;width:44px}.gestor-back .action-icon{font-size:18px}.onboarding{padding:16px}}
 @media(prefers-reduced-motion:reduce){.manager-drawer,.manager-scrim,#tela-gestor .inner{transition:none}}
 
-.sheet-a4{border-radius:0;padding:16px;max-width:960px;margin-inline:auto;background:var(--sheet-paper);color:var(--sheet-ink)}
-#gestor-body .sheet-a4 .sheet-title{font:700 18px Arial,sans-serif;text-align:center;margin:0 0 12px;letter-spacing:0;color:var(--sheet-ink)}
-.sheet-identification{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--sheet-rule);font-size:11px;line-height:1.5;margin-bottom:8px}
-.sheet-identification>div{padding:8px;overflow-wrap:anywhere}.sheet-identification>div+div{border-left:1px solid var(--sheet-rule)}
-#gestor-body .sheet-daily th,#gestor-body .sheet-daily td{font-size:10px;padding:4px;text-align:center;line-height:1.2;white-space:normal}.sheet-daily{table-layout:fixed;min-width:820px}
-.sheet-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--sheet-rule);margin-top:8px}
-.sheet-summary>div{padding:6px 8px;border-right:1px solid var(--sheet-rule);border-bottom:1px solid var(--sheet-rule);font-size:10px;min-width:0;overflow-wrap:anywhere}.sheet-summary>div:nth-child(3n){border-right:0}.sheet-summary>div:nth-last-child(-n+3){border-bottom:0}.sheet-summary span,.sheet-summary strong{display:block}.sheet-summary strong{margin-top:3px}
-.sheet-notes{font-size:10px;line-height:1.35;margin-top:8px;overflow-wrap:anywhere}.sheet-notes p{margin:3px 0}.sheet-awareness{font-size:10px;margin:8px 0}.sheet-a4 .assin{font-size:11px;gap:24px;margin-top:28px}.sheet-footer{border-top:1px solid var(--sheet-rule);padding-top:6px;margin-top:12px;font-size:9px;text-align:center}
-@media(max-width:600px){.sheet-a4{padding:8px}.sheet-identification{font-size:10px}.sheet-summary>div{padding:5px;font-size:9px}}
-/* A4 sizing only; thermal visibility/page isolation remains unchanged. */
-@media print{.sheet-a4{width:190mm;padding:0;border:0;border-radius:0;break-after:page;print-color-adjust:exact}.sheet-identification{font-size:7pt;line-height:1.3}.sheet-daily{min-width:0!important;width:100%;font-size:6.8pt}.sheet-a4 .tbl-wrap{overflow:visible}.sheet-a4 .sheet-daily th,.sheet-a4 .sheet-daily td{font-size:6.8pt!important;padding:.7mm!important;white-space:normal!important}.sheet-summary{grid-template-columns:repeat(3,minmax(0,1fr))}.sheet-summary>div{font-size:7pt;padding:1mm}.sheet-notes,.sheet-awareness{font-size:6.8pt}.sheet-footer{font-size:6pt}.sheet-a4 .assin{break-inside:avoid}}
+/* Functional sheet palette, shared by screen and PDF via computed tokens. */
+:root{--sheet-navy:oklch(.29 .08 258);--sheet-credit:oklch(.45 .14 252);--sheet-debit:oklch(.47 .18 26);--sheet-rest:oklch(.43 .10 151);--sheet-zebra:oklch(.975 .005 250);--sheet-heading:oklch(.94 .018 250)}
+.sheet-a4{border-radius:0;padding:16px;max-width:1040px;margin-inline:auto;background:var(--sheet-paper);color:var(--sheet-ink);font-family:Arial,sans-serif}
+.sheet-top{display:flex;align-items:center;gap:16px;border-bottom:2px solid var(--sheet-navy);padding-bottom:8px;margin-bottom:8px}.sheet-top img{width:104px;height:48px;object-fit:contain}.sheet-top>div{min-width:0}
+#gestor-body .sheet-a4 .sheet-title,.sheet-title{font:700 20px Arial,sans-serif;text-align:left;margin:0 0 5px;letter-spacing:0;color:var(--sheet-navy);text-transform:none}.sheet-issued{font-size:10px;color:var(--muted);line-height:1.5}
+.sheet-identification{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:8px;font-size:10px;line-height:1.45;margin-bottom:8px}.sheet-people{border:1px solid var(--sheet-rule);padding:8px;overflow-wrap:anywhere}.sheet-people>div+div{border-top:1px solid var(--sheet-rule);padding-top:5px;margin-top:5px}.sheet-box{border:1px solid var(--sheet-rule);min-width:0;overflow-wrap:anywhere}.sheet-box-title{background:var(--sheet-heading);color:var(--sheet-navy);font-size:10px;font-weight:700;padding:5px 7px;border-bottom:1px solid var(--sheet-rule)}
+#gestor-body .sheet-a4 .sheet-schedule,.sheet-a4 .sheet-schedule{table-layout:fixed;min-width:0;width:100%;font-size:9px}.sheet-a4 .sheet-schedule th,.sheet-a4 .sheet-schedule td{padding:3px;text-align:center;font-size:9px;white-space:normal}.sheet-schedule small{display:block;font-size:8px;padding:3px}
+.sheet-daily{table-layout:fixed;min-width:820px}.sheet-a4 .sheet-daily th,.sheet-a4 .sheet-daily td,#gestor-body .sheet-daily th,#gestor-body .sheet-daily td{font-size:10px;padding:4px;text-align:center;line-height:1.2;white-space:normal}.sheet-a4 .sheet-daily th,#gestor-body .sheet-daily th{background:var(--sheet-heading);text-transform:none;letter-spacing:0;color:var(--sheet-navy)}.sheet-a4 .sheet-daily tbody tr:nth-child(even) td,#gestor-body .sheet-daily tbody tr:nth-child(even) td{background:var(--sheet-zebra)}
+.sheet-a4 .sheet-credit,#gestor-body .sheet-a4 .sheet-credit{color:var(--sheet-credit)!important}.sheet-a4 .sheet-debit,#gestor-body .sheet-a4 .sheet-debit{color:var(--sheet-debit)!important}.sheet-a4 .sheet-rest,#gestor-body .sheet-a4 .sheet-rest{color:var(--sheet-rest)!important}.sheet-daily tfoot td{font-weight:700;background:var(--sheet-heading)!important}.sheet-day-counts{font-size:10px;margin:6px 0;line-height:1.5}
+.sheet-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--sheet-rule);margin-top:8px}.sheet-summary>div{padding:5px 8px;border-right:1px solid var(--sheet-rule);border-bottom:1px solid var(--sheet-rule);font-size:10px;min-width:0;overflow-wrap:anywhere}.sheet-summary>div:nth-child(3n){border-right:0}.sheet-summary>div:nth-last-child(-n+3){border-bottom:0}.sheet-summary span,.sheet-summary strong{display:block}.sheet-summary strong{margin-top:2px}
+.sheet-bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:8px;margin-top:8px}.sheet-bank{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:7px;font-size:10px}.sheet-bank span,.sheet-bank strong{display:block}.sheet-notes{font-size:9px;line-height:1.3;padding:6px;overflow-wrap:anywhere}.sheet-notes p{margin:2px 0}.sheet-awareness,.sheet-place{font-size:9px;margin:8px 0}.sheet-a4 .assin{font-size:10px;gap:48px;margin-top:24px}.sheet-footer{border-top:1px solid var(--sheet-rule);padding-top:5px;margin-top:10px;font-size:8px;text-align:center}
+@media(max-width:600px){.sheet-a4{padding:8px}.sheet-top{gap:8px}.sheet-top img{width:70px;height:42px}.sheet-title,#gestor-body .sheet-a4 .sheet-title{font-size:17px}.sheet-identification,.sheet-bottom{grid-template-columns:1fr}.sheet-summary>div{padding:5px;font-size:9px}}
+/* Geometry only: receipt browser-print isolation remains unchanged. */
+@media print{.sheet-a4{width:190mm;max-width:190mm;padding:0;border:0;break-after:page;print-color-adjust:exact}.sheet-top{margin-bottom:2mm;padding-bottom:2mm}.sheet-top img{width:24mm;height:12mm}.sheet-title,#gestor-body .sheet-a4 .sheet-title{font-size:13pt}.sheet-issued{font-size:6pt}.sheet-identification{grid-template-columns:1.35fr 1fr;font-size:6.5pt;gap:2mm}.sheet-people{padding:1.5mm}.sheet-box-title{font-size:7pt;padding:1mm}.sheet-a4 .sheet-schedule td,.sheet-a4 .sheet-schedule th{font-size:6pt;padding:.5mm}.sheet-a4 .tbl-wrap{overflow:visible}.sheet-daily{min-width:0!important;width:100%}.sheet-a4 .sheet-daily th,.sheet-a4 .sheet-daily td{font-size:6.3pt!important;padding:.65mm!important;white-space:normal!important}.sheet-summary>div{font-size:6.5pt;padding:1mm}.sheet-bottom{grid-template-columns:1fr 1.35fr;gap:2mm}.sheet-bank,.sheet-notes,.sheet-awareness,.sheet-place,.sheet-day-counts{font-size:6pt}.sheet-footer{font-size:6pt}.sheet-a4 .assin{font-size:7pt;margin-top:6mm;break-inside:avoid}}
 
 </style>
 </head>
@@ -1524,11 +1527,7 @@ function abaFunc(){
     ${fs.map((f,i)=>`<tr><td>${i+1}</td><td>${esc(f.nome)}</td><td>${esc(f.cpf)}</td><td>${esc(f.funcao||f.cargo)}</td><td>${esc(f.departamento)}</td>
     <td>${esc(f.escala)}</td><td>${brOf(f.inicioVigenciaBancoHoras||f.bancoInicio||f.admissao)}</td><td>${esc(statusTexto(f))}</td><td><b>${esc(f.pin)}</b></td>
     <td class="row"><button class="btn sm ghost" onclick="formFunc(${i})">Editar</button><button class="btn sm red" onclick="delFunc(${i})">Excluir</button></td></tr>`).join('')
-    ||'<tr><td colspan=10 class="muted">Nenhum empregado cadastrado.</td></tr>'}</table></div>
-    <div class="emp-cards">${fs.map((f,i)=>`<div class="emp-card"><div class="emp-top"><span class="emp-n">#${i+1}</span><b class="emp-nome">${esc(f.nome)}</b><span class="emp-st">${esc(statusTexto(f))}</span></div>
-    <div class="emp-cargo">${esc(f.funcao||f.cargo||'—')} • ${esc(f.departamento||'—')}</div>
-    <div class="emp-meta"><span>CPF <b class="emp-cpf">${esc(f.cpf||'—')}</b></span><span>PIN <b>${esc(f.pin)}</b></span></div>
-    <div class="emp-acts"><button class="btn ghost" onclick="formFunc(${i})">Editar</button><button class="btn red" onclick="delFunc(${i})">Excluir</button></div></div>`).join('')||'<p class="muted">Nenhum empregado cadastrado.</p>'}</div>`;
+    ||'<tr><td colspan=10 class="muted">Nenhum empregado cadastrado.</td></tr>'}</table></div>`;
 }
 function statusTexto(f){
   if(f.status==='Desligado') return `Desligado em ${brOf(f.dataDesligamento)}`;
@@ -1730,7 +1729,7 @@ function miniResumoFolha(d){
 const FOLHA_RODAPE='Ponto Pro Gestão v1.0 · Sistema de Tratamento de Ponto · Emissão conforme Portaria MTE nº 671/2021';
 const FOLHA_CIENCIA='Declaro ciência das marcações e dos tratamentos apresentados neste espelho de ponto.';
 function modeloEspelho(d){
-  const head=['Dia','E1','S1','E2','S2','Prevista','Realizada','Extras','Faltantes / Atraso','Noturno','Status'];
+  const head=['Dia','Entrada 1','Saída 1','Entrada 2','Saída 2','Prevista','Trabalhadas','Extras','Débito / Atraso','Noturno','Status'];
   const just=[...d.just];
   const body=d.linhas.map(l=>{
     const bs=batidasDia(d.f.pin,l.data),marca=tipo=>{const b=bs.find(x=>x.tipo===tipo);if(!b)return '--:--';const tratada=!!(b.manual||b.movimento||b.fonte==='MANUAL');
@@ -1743,10 +1742,25 @@ function modeloEspelho(d){
   return {head,body,resumo:miniResumoFolha(d),notas};
 }
 function dadosCabecalhoFolha(f,ini,fim){
-  const e=get('empregador',{})||{},end=[e.logradouro,e.numero,e.bairro,e.cidade,e.uf,e.cep].filter(Boolean).join(', ');
-  return [[`EMPREGADOR\n${e.razao||e.fantasia||'Não informado'}\n${e.tipo||'CNPJ'}: ${e.doc||'—'}\n${end||'Endereço não informado'}`,
-    `COLABORADOR\n${f.nome||'—'} · CPF: ${f.cpf||'—'}\nCargo: ${f.cargo||f.funcao||'—'} · PIS: ${f.pis||f.pisPasep||'—'}\nJornada: ${e.hEntrada||'—'}–${e.hSaiInt||'—'} / ${e.hEntInt||'—'}–${e.hSaida||'—'} · Escala: ${f.escala||'—'}\nPeríodo: ${brOf(ini)} a ${brOf(fim)}`]];
+  const e=get('empregador',{})||{},end=[e.logradouro,e.numero,e.complemento,e.bairro,e.cep].filter(Boolean).join(', ');
+  return [[`EMPREGADOR\nRazão Social: ${e.razao||e.fantasia||'Não informado'}\n${e.tipo||'CNPJ'}: ${e.doc||'—'}\nEndereço: ${end||'—'}\nCidade/UF: ${[e.cidade,e.uf].filter(Boolean).join('/')||'—'}`,
+    `COLABORADOR\nNome: ${f.nome||'—'}\nCargo: ${f.cargo||f.funcao||'—'} · Setor: ${f.departamento||'—'}\nPIS: ${f.pis||f.pisPasep||'—'} · Matrícula/PIN: ${f.matricula||f.pin||'—'}\nAdmissão: ${brOf(f.admissao)||'—'} · Escala: ${f.escala||'—'}`]];
 }
+function horarioSemanalFolha(d){
+  const e=get('empregador',{})||{},inicio=addDias(d.ini,-((dow(d.ini)+6)%7));
+  const body=Array.from({length:7},(_,i)=>{
+    const iso=addDias(inicio,i),dia=buscaNaEscala(d.f.pin,iso),n=dow(iso);
+    const descanso=dia&&dia.tipo!=='Trabalhado'?String(dia.tipo).toUpperCase():!dia&&((['5x2','4x3'].includes(d.f.escala)&&(n===0||n===6))||(d.f.escala==='6x1'&&n===0))?'FOLGA':'';
+    return [DIAS[n],...(descanso?[descanso,'—','—','—']:[dia?.horarioEntrada||e.hEntrada||'—',e.hSaiInt||'—',e.hEntInt||'—',e.hSaida||'—'])];
+  });
+  return {inicio,head:['Dia','E1','S1','E2','S2'],body};
+}
+function totaisCartaoFolha(d){
+  return {dias:d.linhas.filter(l=>l.trabalhado>0).length,faltas:d.tot.faltas,dsrs:d.linhas.filter(l=>/DSR/.test(l.ocorrencia)).length,folgas:d.linhas.filter(l=>/FOLGA/.test(l.ocorrencia)&&!/DSR/.test(l.ocorrencia)).length,
+    row:['Totais','—','—','—','—',toHHMM(d.linhas.reduce((n,l)=>n+l.previsto,0)),toHHMM(d.tot.trabalhado),toHHMM(d.tot.extras),`${toHHMM(d.tot.faltantes)} / ${toHHMM(d.linhas.reduce((n,l)=>n+(l.atrasoMin||0),0))}`,toHHMM(d.linhas.reduce((n,l)=>n+l.noturno,0)),'—']};
+}
+function corCelulaFolha(col,value){if(col===7)return 'sheet-credit';if(col===8)return 'sheet-debit';if(col===10){if(/FALTA/.test(value))return 'sheet-debit';if(/DSR|FOLGA/.test(value))return 'sheet-rest';if(/ATESTADO|AFASTAMENTO/.test(value))return 'sheet-credit';}return '';}
+function bancoCartaoFolha(d){return [['Crédito',toHHMM(d.banco.creditos),'sheet-credit'],['Débito',toHHMM(d.banco.debitos),'sheet-debit'],['Saldo do Mês',toSaldo(d.banco.creditos-d.banco.debitos),d.banco.creditos-d.banco.debitos<0?'sheet-debit':'sheet-credit'],['Saldo Acumulado',toSaldo(d.banco.atual),d.banco.atual<0?'sheet-debit':'sheet-credit']];}
 const gerarFolhaMTE=(pin,ini,fim)=>dadosFolha(pin,ini,fim); // consulta buscaNaEscala() em cada dia
 function calcBanco(pin,ini,fim){
   const f=funcPorPin(pin)||{};
@@ -2326,12 +2340,14 @@ function pdfCabecalhoPadrao(doc,titulo,subtitulo=''){
   if(subtitulo){doc.setTextColor(82,98,122);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text(String(subtitulo).slice(0,135),105,42,{align:'center'});return 47;}return 43;
 }
 /* Shared A4 table layout: real cells, wrapped text and repeated headers. */
-function pdfTabelaPadrao(doc,{y,titulo,sub='',head,body,widths,fontSize=8,cellPadding=2,monochrome=false,compact=false}){
+function pdfTabelaPadrao(doc,{y,titulo,sub='',head,body,widths,fontSize=8,cellPadding=2,monochrome=false,compact=false,palette=null,tableWidth=190,left=10,foot=[],cellStyle=null}){
   doc.autoTable({startY:y,head:head?[head]:[],body:body.length?body:[['Nenhum registro no período.']],
-    theme:'grid',margin:{left:10,right:10,top:compact?14:47,bottom:compact?22:21},tableWidth:190,
-    styles:{font:'helvetica',fontSize,cellPadding,lineWidth:.15,lineColor:[211,222,232],textColor:[35,50,75],overflow:'linebreak',valign:'middle'},
-    headStyles:{fillColor:monochrome?[255,255,255]:[227,239,244],textColor:[18,58,83],fontStyle:'bold'},
-    alternateRowStyles:{fillColor:monochrome?[255,255,255]:[247,250,252]},
+    theme:'grid',foot,margin:{left,right:210-left-tableWidth,top:compact?14:47,bottom:compact?22:21},tableWidth,
+    styles:{font:'helvetica',fontSize,cellPadding,lineWidth:.15,lineColor:palette?.rule||[211,222,232],textColor:palette?.ink||[35,50,75],overflow:'linebreak',valign:'middle'},
+    headStyles:{fillColor:palette?.heading||(monochrome?[255,255,255]:[227,239,244]),textColor:palette?.navy||[18,58,83],fontStyle:'bold'},
+    footStyles:{fillColor:palette?.heading||[227,239,244],textColor:palette?.ink||[35,50,75],fontStyle:'bold'},
+    alternateRowStyles:{fillColor:palette?.zebra||(monochrome?[255,255,255]:[247,250,252])},
+    didParseCell:c=>{const color=cellStyle?.(c);if(color)c.cell.styles.textColor=color;},
     columnStyles:Object.fromEntries((widths||[]).map((w,i)=>[i,{cellWidth:w}])),
     rowPageBreak:'avoid',showHead:'everyPage',
     willDrawPage:()=>{if(!compact&&doc.getCurrentPageInfo().pageNumber>1)pdfCabecalhoPadrao(doc,titulo,sub);}
@@ -2417,53 +2433,64 @@ async function pacoteContador(){
   }catch(e){status.textContent='Não foi possível gerar o pacote. Tente novamente.';}
   finally{btn.disabled=false;btn.removeAttribute('aria-busy');}
 }
-function cabecalhoFolhaHTML(f,ini,fim){return `<h3 class="sheet-title">Folha de Ponto</h3><div class="sheet-identification">${dadosCabecalhoFolha(f,ini,fim)[0].map(t=>`<div>${esc(t).replace(/\n/g,'<br>')}</div>`).join('')}</div>`;}
+function cabecalhoFolhaHTML(f,ini,fim){
+  const e=get('empregador',{})||{},w=horarioSemanalFolha({f,ini,fim});
+  return `<header class="sheet-top"><img src="${esc(e.logo||logoApp())}" alt="Logo da empresa"><div><h3 class="sheet-title">Cartão de Ponto Calculado</h3><div class="sheet-issued">Emissão: ${esc(getHoraOficial().toLocaleString('pt-BR'))} · Período: ${brOf(ini)} a ${brOf(fim)}</div></div></header>
+  <div class="sheet-identification"><div class="sheet-people">${dadosCabecalhoFolha(f,ini,fim)[0].map(t=>`<div>${esc(t).replace(/\n/g,'<br>')}</div>`).join('')}</div><section class="sheet-box"><div class="sheet-box-title">Horário de Trabalho</div><table class="sheet-schedule"><thead><tr>${w.head.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${w.body.map(r=>`<tr>${r.map(c=>`<td class="${/DSR|FOLGA/.test(c)?'sheet-rest':''}">${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table><small class="sheet-issued">Semana de ${brOf(w.inicio)} · Alterações diárias conforme escala.</small></section></div>`;
+}
 function htmlFolha(pin,ini,fim){
   if(!pin||!ini||!fim)return '<div class="alert err">Selecione funcionário e período.</div>';
-  const d=dadosFolha(pin,ini,fim),m=modeloEspelho(d);
+  const d=dadosFolha(pin,ini,fim),m=modeloEspelho(d),t=totaisCartaoFolha(d),e=get('empregador',{})||{};
+  const cells=r=>r.map((c,i)=>`<td class="${corCelulaFolha(i,c)}">${esc(c)}</td>`).join('');
   return `<div class="folha sheet-a4" data-doc-completo="1">${cabecalhoFolhaHTML(d.f,ini,fim)}
-    <div class="tbl-wrap"><table class="sheet-daily"><thead><tr>${m.head.map(t=>`<th>${esc(t)}</th>`).join('')}</tr></thead><tbody>${m.body.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="tbl-wrap"><table class="sheet-daily"><thead><tr>${m.head.map((x,i)=>`<th class="${corCelulaFolha(i,x)}">${esc(x)}</th>`).join('')}</tr></thead><tbody>${m.body.map(r=>`<tr>${cells(r)}</tr>`).join('')}</tbody><tfoot><tr>${cells(t.row)}</tr></tfoot></table></div>
+    <p class="sheet-day-counts">Dias Trabalhados: <b>${t.dias}</b> · Dias de Falta: <b class="sheet-debit">${t.faltas}</b> · DSRs: <b class="sheet-rest">${t.dsrs}</b> · Folgas: <b class="sheet-rest">${t.folgas}</b></p>
     <div class="sheet-summary" aria-label="Resumo mensal da folha">${m.resumo.flat().map(([t,v])=>`<div><span>${esc(t)}</span><strong>${esc(v)}</strong></div>`).join('')}</div>
-    <div class="sheet-notes"><b>Ocorrências e justificativas</b>${m.notas.map(t=>`<p>${esc(t)}</p>`).join('')}</div>
-    <p class="sheet-awareness">${FOLHA_CIENCIA}</p><div class="assin"><div>Empregador</div><div>Empregado</div></div>
+    <div class="sheet-bottom"><section class="sheet-box"><div class="sheet-box-title">Banco de Horas</div><div class="sheet-bank">${bancoCartaoFolha(d).map(([t,v,c])=>`<div><span>${t}</span><strong class="${c}">${v}</strong></div>`).join('')}</div></section><section class="sheet-box"><div class="sheet-box-title">Observações</div><div class="sheet-notes">${m.notas.map(t=>`<p>${esc(t)}</p>`).join('')}</div></section></div>
+    <p class="sheet-awareness">${FOLHA_CIENCIA}</p><p class="sheet-place">Local: ${esc([e.cidade,e.uf].filter(Boolean).join('/')||'________________')} · Data: ____/____/________</p><div class="assin"><div>Colaborador</div><div>Empregador</div></div>
     <footer class="sheet-footer">${FOLHA_RODAPE}</footer></div>`;
 }
-/* PDF OFICIAL ÚNICO — gerarPDFComLogo(dados): usado na Folha Individual, Lote e Portal.
-   dados = {pins,ini,fim} | {pin,ini,fim} | {folhas:[gerarFolhaMTE(...)]}. Retorna {doc,base64,blob}. */
+/* Official sheet renderer shared by individual, batch, portal, link and ZIP. */
 async function gerarPDFComLogo(dados){
   const lista=dados.folhas||(dados.pins||[dados.pin]).map(p=>dadosFolha(p,dados.ini,dados.fim));
-  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'});
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),e=get('empregador',{})||{};
+  const rgb=token=>{const ctx=document.createElement('canvas').getContext('2d');if(!ctx)return [35,50,75];ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue(token).trim();ctx.fillRect(0,0,1,1);return Array.from(ctx.getImageData(0,0,1,1).data).slice(0,3);};
+  const palette={ink:rgb('--sheet-ink'),navy:rgb('--sheet-navy'),rule:rgb('--sheet-rule'),paper:rgb('--sheet-paper'),heading:rgb('--sheet-heading'),zebra:rgb('--sheet-zebra'),credit:rgb('--sheet-credit'),debit:rgb('--sheet-debit'),rest:rgb('--sheet-rest')};
+  let image=null;try{image=await new Promise(resolve=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>resolve(im);im.onerror=()=>resolve(null);im.src=e.logo||logoApp();});}catch(_){}
+  const footer=()=>{doc.setFont('helvetica','normal');doc.setFontSize(5.8);doc.setTextColor(...palette.ink);doc.setDrawColor(...palette.rule);doc.line(10,281,200,281);doc.text(FOLHA_RODAPE,105,285,{align:'center'});};
+  const frame=(x,y,w,h,title)=>{doc.setDrawColor(...palette.rule);doc.setLineWidth(.18);doc.rect(x,y,w,h);doc.setFillColor(...palette.heading);doc.rect(x,y,w,5,'F');doc.setTextColor(...palette.navy);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text(title,x+2,y+3.5);};
   let first=true;
-  const footer=()=>{doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(35,50,75);doc.setDrawColor(211,222,232);doc.line(10,281,200,281);doc.text(FOLHA_RODAPE,105,285,{align:'center'});};
-  lista.forEach(d=>{
-    const m=modeloEspelho(d),chunks=[];for(let i=0;i<m.body.length;i+=31)chunks.push(m.body.slice(i,i+31));if(!chunks.length)chunks.push([]);
-    chunks.forEach((body,idx)=>{
+  for(const d of lista){
+    const m=modeloEspelho(d),t=totaisCartaoFolha(d),w=horarioSemanalFolha(d),chunks=[];for(let i=0;i<m.body.length;i+=31)chunks.push(m.body.slice(i,i+31));if(!chunks.length)chunks.push([]);
+    for(let idx=0;idx<chunks.length;idx++){
       if(!first)doc.addPage();first=false;
-      doc.setTextColor(35,50,75);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('FOLHA DE PONTO',105,12,{align:'center'});
-      let y=17;
-      const tabela=(head,body,widths,fontSize=7)=>{y=pdfTabelaPadrao(doc,{y,titulo:'Folha de Ponto',head,body,widths,fontSize,cellPadding:.75,monochrome:true,compact:true})+2;};
-      tabela(null,dadosCabecalhoFolha(d.f,d.ini,d.fim),[95,95],7.2);
-      tabela(m.head,body,[12,13,13,13,13,16,16,15,25,16,38],6.8);
+      if(image){const ratio=Math.min(25/image.width,13/image.height);try{doc.addImage(image,10,8,image.width*ratio,image.height*ratio);}catch(_){}}
+      doc.setTextColor(...palette.navy);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text('Cartão de Ponto Calculado',40,14);
+      doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Emissão: ${getHoraOficial().toLocaleString('pt-BR')} · Período: ${brOf(d.ini)} a ${brOf(d.fim)}`,40,20);
+      doc.setDrawColor(...palette.navy);doc.setLineWidth(.5);doc.line(10,24,200,24);
+      const common={palette,compact:true,cellPadding:.7,fontSize:6.5};
+      pdfTabelaPadrao(doc,{...common,y:27,head:null,body:dadosCabecalhoFolha(d.f,d.ini,d.fim)[0].map(x=>[x]),widths:[108],tableWidth:108,left:10});
+      frame(121,27,79,5,'Horário de Trabalho');
+      pdfTabelaPadrao(doc,{...common,y:32,head:w.head,body:w.body,widths:[23,14,14,14,14],tableWidth:79,left:121,fontSize:6,cellPadding:.6,cellStyle:c=>/DSR|FOLGA/.test(String(c.cell.raw))?palette.rest:null});
+      doc.setFontSize(5.5);doc.setTextColor(...palette.ink);doc.text(`Semana de ${brOf(w.inicio)} · Alterações conforme escala.`,122,69);
+      let y=71;
+      y=pdfTabelaPadrao(doc,{...common,y,head:m.head,body:chunks[idx],foot:idx===chunks.length-1?[t.row]:[],widths:[12,13,13,13,13,16,17,15,25,15,38],fontSize:6.3,cellPadding:.43,cellStyle:c=>{const role=corCelulaFolha(c.column.index,String(c.cell.raw));return role==='sheet-credit'?palette.credit:role==='sheet-debit'?palette.debit:role==='sheet-rest'?palette.rest:null;}})+3;
       if(idx===chunks.length-1){
-        tabela(null,m.resumo.map(r=>r.map(([t,v])=>`${t}\n${v}`)),[63,64,63],7);
-        doc.setFont('helvetica','normal');doc.setFontSize(6.8);
-        const lines=m.notas.flatMap(t=>doc.splitTextToSize(t,190));
-        const capacity=Math.max(0,Math.floor((251-y)/3));
-        const appendix=lines.length>capacity;
-        const visible=appendix?doc.splitTextToSize(m.notas[0]+' Justificativas completas no anexo deste espelho.',190):lines;
-        doc.setFont('helvetica','bold');doc.text('Ocorrências e justificativas',10,y+2);y+=5;doc.setFont('helvetica','normal');
-        visible.forEach(line=>{doc.text(line,10,y+2);y+=3;});
-        doc.text(FOLHA_CIENCIA,10,257);
-        doc.setDrawColor(120,135,151);doc.setLineWidth(.2);doc.line(10,269,95,269);doc.line(115,269,200,269);
-        doc.setFontSize(7);doc.text('Empregador',52.5,273,{align:'center'});doc.text('Empregado',157.5,273,{align:'center'});footer();
-        if(appendix){
-          doc.addPage();y=14;doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('ANEXO — OCORRÊNCIAS E JUSTIFICATIVAS',10,y);y+=7;
-          doc.setFont('helvetica','normal');doc.setFontSize(7);doc.text(doc.splitTextToSize(`${d.f.nome} · ${brOf(d.ini)} a ${brOf(d.fim)}`,190),10,y);y+=9;
-          lines.forEach(line=>{if(y>273){footer();doc.addPage();y=14;}doc.text(line,10,y);y+=3.3;});footer();
-        }
+        doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Dias Trabalhados: ${t.dias} · Dias de Falta: ${t.faltas} · DSRs: ${t.dsrs} · Folgas: ${t.folgas}`,10,y);y+=3;
+        y=pdfTabelaPadrao(doc,{...common,y,head:null,body:m.resumo.map(r=>r.map(([t,v])=>`${t}
+${v}`)),widths:[63,64,63],fontSize:6.5})+3;
+        doc.setFontSize(6);const lines=m.notas.flatMap(t=>doc.splitTextToSize(t,105)),capacity=Math.max(1,Math.floor((249-y-8)/2.7));
+        const appendix=lines.length>capacity,visible=appendix?doc.splitTextToSize('* Marcações manuais/tratadas. Observações e justificativas completas no anexo. Extras sem enquadramento 50%/100%; banco 1:1.',105):lines;
+        const h=Math.max(24,8+visible.length*2.7);frame(10,y,77,h,'Banco de Horas');frame(90,y,110,h,'Observações');
+        bancoCartaoFolha(d).forEach(([title,v,c],i)=>{const x=12+(i%2)*37,yy=y+9+Math.floor(i/2)*8;doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(...palette.ink);doc.text(title,x,yy);doc.setFont('helvetica','bold');doc.setTextColor(...(c==='sheet-debit'?palette.debit:palette.credit));doc.text(v,x,yy+3);});
+        doc.setTextColor(...palette.ink);doc.setFont('helvetica','normal');doc.setFontSize(6);visible.forEach((l,i)=>doc.text(l,92,y+8+i*2.7));
+        doc.setFontSize(6.5);doc.text(FOLHA_CIENCIA,10,255);doc.text(`Local: ${[e.cidade,e.uf].filter(Boolean).join('/')||'________________'} · Data: ____/____/________`,10,260);
+        doc.setDrawColor(...palette.rule);doc.setLineWidth(.2);doc.line(10,270,95,270);doc.line(115,270,200,270);doc.text('Colaborador',52.5,274,{align:'center'});doc.text('Empregador',157.5,274,{align:'center'});footer();
+        if(appendix){doc.addPage();let ay=15;doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('ANEXO — OBSERVAÇÕES E JUSTIFICATIVAS',10,ay);ay+=7;doc.setFont('helvetica','normal');doc.setFontSize(7);doc.text(`${d.f.nome} · ${brOf(d.ini)} a ${brOf(d.fim)}`,10,ay);ay+=8;
+          m.notas.flatMap(t=>doc.splitTextToSize(t,190)).forEach(l=>{if(ay>273){footer();doc.addPage();ay=14;}doc.text(l,10,ay);ay+=3.3;});footer();}
       }else footer();
-    });
-  });
+    }
+  }
   return {doc,base64:doc.output('datauristring').split(',')[1],blob:doc.output('blob')};
 }
 async function pdfFolhas(pins,ini,fim,nomeArq){
