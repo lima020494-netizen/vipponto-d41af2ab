@@ -1,0 +1,51 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
+
+const html=readFileSync('public/vip-ponto.html','utf8');
+const source=html.slice(html.indexOf('const feriadoDe ='),html.indexOf('/* ============================== MÓDULO 3'));
+function calculate(tipo:string,hours?:[string,string],previous=false,rest=false){
+  const day='2026-10-13',f={pin:'1',status:'Ativo',escala:'5x2',admissao:day};
+  const punches=(hours||[]).map((hora,i)=>({pin:'1',data:day,hora,tipo:i?'Saída':'Entrada',nsr:String(i+1),criadoEm:`${day}T${hora}:00`}));
+  const original=JSON.stringify(punches);
+  const data:Record<string,unknown>={ocorrencias:[{pin:'1',data:day,tipo}],escalas:rest?{a:{semanaInicio:day,semanaFim:day,folgas:[{pin:'1',dia:day,tipo:'DSR'}]}}:{},empregador:{},feriados:[]};
+  const result=runInNewContext(source+`;dadosFolha('1',ini,ini)`,{
+    ini:previous?'2026-10-14':day,get:(k:string,fallback:unknown)=>data[k]??fallback,funcPorPin:()=>f,
+    batidasJornada:(_pin:string,d:string)=>d===day?punches:[],cargaEscala:()=>480,
+    toMin:(h:string)=>Number(h.slice(0,2))*60+Number(h.slice(3,5)),
+    addDias:(d:string,n:number)=>new Date(Date.parse(d)+n*86400000).toISOString().slice(0,10),
+    dow:(d:string)=>new Date(d+'T12:00:00Z').getUTCDay(),brOf:(d:string)=>d,
+    toHHMM:(n:number)=>`${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`,DIAS:Array(7).fill('Dia'),
+  });
+  assert.equal(JSON.stringify(punches),original,'timestamps, NSR and original punches stay intact');
+  return JSON.parse(JSON.stringify(result));
+}
+test('compensatory leave debits the planned eight hours, never an absence or missing hours',()=>{
+  const d=calculate('Folga compensatória');
+  assert.equal(d.banco.debitos,480);assert.equal(d.banco.atual,-480);
+  assert.equal(d.linhas[0].saldo,-480);assert.equal(d.tot.faltas,0);assert.equal(d.tot.faltantes,0);
+  assert.match(d.banco.detalhes[0],/^Débito - Folga Compensatória.*08:00$/);
+  assert.equal(d.banco.detalhes.length,1);
+});
+for(const tipo of ['Atestado médico','Falta Justificada','Falta Abonada','Falta Justificada/Abonada']){
+  test(`${tipo} generates no bank debit, even with partial punches`,()=>{
+    for(const hours of [undefined,['08:00','12:00'] as [string,string]]){
+      const d=calculate(tipo,hours);assert.equal(d.banco.debitos,0);assert.equal(d.banco.atual,0);
+      assert.equal(d.linhas[0].saldo,0);assert.equal(d.tot.faltantes,0);assert.deepEqual(d.banco.detalhes,[]);
+    }
+  });
+}
+test('opening balance uses the same compensated and excused occurrence rules',()=>{
+  assert.equal(calculate('Folga compensatória',undefined,true).banco.anterior,-480);
+  assert.equal(calculate('Atestado médico',undefined,true).banco.anterior,0);
+  assert.equal(calculate('Falta Justificada',undefined,true).banco.anterior,0);
+});
+test('compensation on a day with zero planned time does not infer a debit',()=>{
+  const d=calculate('Folga compensatória',undefined,false,true);assert.equal(d.banco.debitos,0);assert.equal(d.tot.faltas,0);
+});
+test('ordinary absence and partial work keep scheduled debits and excess work keeps its credit',()=>{
+  assert.equal(calculate('Falta').banco.debitos,480);
+  assert.equal(calculate('', ['08:00','12:00']).banco.debitos,240);
+  assert.equal(calculate('Atestado médico',['08:00','17:00']).banco.creditos,60);
+});

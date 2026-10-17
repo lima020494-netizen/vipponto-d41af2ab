@@ -69,6 +69,7 @@ test('multiple explicit rest days do not imply compensatory debit', () => {
   const result = runInNewContext(`${html.slice(start, end)};calcBanco('1','2026-10-13','2026-10-19')`, {
     funcPorPin: () => ({ ...employee, bancoInicio: '2026-10-13' }),
     batidasDia: () => [], previstoDia: () => 0, trabalhadoDia: () => 0,
+    movimentoBancoDia: () => ({ saldo: 0, abonado: false, compensacao: false }),
     folgaEscala: () => ({ tipo: 'DSR' }), cargaEscala: () => 480,
     addDias: (d: string, n: number) => new Date(Date.parse(d) + n * 86400000).toISOString().slice(0, 10),
   });

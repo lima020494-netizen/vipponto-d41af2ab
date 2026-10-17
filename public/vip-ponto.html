@@ -1679,6 +1679,15 @@ function calculaNoturna(bs,horaFim){
 }
 const trabalhadoDia=(f,bs)=>minutosTrabalhados(bs,f)+calculaNoturna(bs).adicional;
 const buscaNaEscala=(pin,data)=>{const e=escalaDaSemana(data,pin);return e?((e.folgas||[]).find(x=>x.pin===pin&&x.dia===data)||null):null;};
+/* Ocorrências abonadas não debitam; compensação explícita não é falta. */
+function movimentoBancoDia(pin,data,prev,trab){
+  const ocorr=(get('ocorrencias',[])||[]).find(o=>o.pin===pin&&o.data===data);
+  const tipo=String(ocorr?.tipo||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+  const compensacao=tipo==='folga compensatoria'||tipo==='compensacao de banco';
+  const abonado=tipo==='atestado medico'||/^falta (justificada|abonada)(?:\s*\/\s*(?:justificada|abonada))?$/.test(tipo);
+  const saldo=abonado?Math.max(0,trab-prev):trab-prev;
+  return {saldo,compensacao,abonado,faltantes:compensacao||abonado?0:Math.max(0,prev-trab)};
+}
 /* Linhas da folha + totais + banco de horas */
 function dadosFolha(pin,ini,fim){
   const f=funcPorPin(pin)||{}; const linhas=[];
@@ -1686,6 +1695,7 @@ function dadosFolha(pin,ini,fim){
   const just=[];
   for(let d=ini; d<=fim; d=addDias(d,1)){
     const bs=batidasDia(pin,d), prev=previstoDia(f,d), trab=trabalhadoDia(f,bs), noct=calculaNoturna(bs);
+    const movimento=movimentoBancoDia(pin,d,prev,trab);
     const fer=feriadoDe(d), folga=folgaEscala(pin,d);
     let oc='', cls='';
     const por=b=>b?(b.hora):'';
@@ -1709,14 +1719,15 @@ function dadosFolha(pin,ini,fim){
     if(prev>0&&bs.length&&g('Entrada')){let at=toMin(g('Entrada').hora)-toMin(prevEntrada);if(at<-720)at+=1440;else if(at>720)at-=1440;if(at>10){atrasoMin=at;tot.atrasos++;}}
     if(bs.length){
       tot.trabalhado+=trab;
-      if(prev>0){ if(trab>prev){tot.extras+=trab-prev;tot.extras50+=trab-prev;} else if(trab<prev) tot.faltantes+=prev-trab; }
+      if(prev>0){ if(trab>prev){tot.extras+=trab-prev;tot.extras50+=trab-prev;} }
       else {tot.extras+=trab;tot.extras100+=trab;} // trabalho em folga/feriado credita
-    } else if(prev>0) tot.faltantes+=prev;
+    }
+    tot.faltantes+=movimento.faltantes;
     // movimentações/observações de tratamento
     const mov=bs.filter(b=>b.movimento).map(b=>`_${b.hora} ${b.movimento}`).join(' | ');
     bs.filter(b=>b.movimento).forEach(b=>just.push(`${brOf(d)} ${b.hora} - ${b.movimento}`));
     linhas.push({data:d,dia:DIAS[dow(d)],e1:por(g('Entrada')),e2:por(g('Saída Intervalo')),e3:por(g('Entrada Intervalo')),e4:por(g('Saída')),
-      noturno:noct.min,trabalhado:trab,previsto:prev,saldo:bs.length?trab-prev:(prev>0?-prev:0),
+      noturno:noct.min,trabalhado:trab,previsto:prev,saldo:movimento.saldo,
       atrasoMin,ocorrencia:oc||(f.intervalo?.preAssinalado?'INTERVALO PRÉ-ASSINALADO ART. 71':''),cls,fonte:bs[0]?bs[0].fonte:'—',mov,nsr:bs.map(b=>b.nsr).join(' / ')});
   }
   const banco=calcBanco(pin,ini,fim);
@@ -1774,6 +1785,9 @@ function calcBanco(pin,ini,fim){
     let cred=0,deb=0,det=[];
     for(let d=de; d<=ate; d=addDias(d,1)){
       const bs=batidasDia(pin,d),prev=previstoDia(f,d),trab=trabalhadoDia(f,bs);
+      const movimento=movimentoBancoDia(pin,d,prev,trab);
+      if(movimento.abonado&&movimento.saldo===0) continue;
+      if(movimento.compensacao&&movimento.saldo<0){deb-=movimento.saldo;det.push(`Débito - Folga Compensatória dia ${brOf(d)} - ${toHHMM(-movimento.saldo)}`);continue;}
       if(bs.length){
         if(trab>prev){cred+=trab-prev;det.push(`Crédito - Hora Extra dia ${brOf(d)} - Previsto ${toHHMM(prev)} / Realizado ${toHHMM(trab)}`);}
         else if(trab<prev){deb+=prev-trab;det.push(`Débito - Carga incompleta dia ${brOf(d)}`);}
