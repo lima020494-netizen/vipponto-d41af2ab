@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Remover cards duplicados dos colaboradores, mantendo somente a tabela formatada.
+
 - [ ] Aplicar Cartão de Ponto Calculado com logo, identificação e jornada semanal, grade funcional zebrada, totais e quadros Banco/Observações na tela e PDF compartilhado, sem alterar apuração.
 - [ ] Conferir até 31 dias em uma A4, justificativas extensas, ZIP e telas menores; somente preview, sem publicar.
 
