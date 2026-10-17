@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Vincular jornada do anexo ao cadastro da empresa com sábado separado (08–12), dias úteis 08–12/14–18 e domingo DSR; gravação/edição em dados isolados, folha em desktop/celular, PDF de uma A4 e oito testes conferidos. Apuração e dados reais preservados; sincronização autenticada externa não verificada. Somente preview.
+
 - [x] Mini tabela DOM–SÁB de horário de trabalho conforme anexo, usando cadastro da empresa na tela e no PDF compartilhado; sete testes aprovados, 31 dias em uma A4 e tabela sem transbordamento em 390px, com dados isolados. Somente preview.
 
 - [x] Remover cards duplicados dos colaboradores, mantendo somente a tabela formatada; tabela única e Editar conferidos com dados isolados.
