@@ -561,7 +561,7 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 #gestor-body .sheet-a4 .sheet-schedule,.sheet-a4 .sheet-schedule{table-layout:fixed;min-width:0;width:100%;font-size:9px}.sheet-a4 .sheet-schedule th,.sheet-a4 .sheet-schedule td{padding:3px;text-align:center;font-size:9px;white-space:normal}.sheet-schedule small{display:block;font-size:8px;padding:3px}
 .sheet-daily{table-layout:fixed;min-width:820px}.sheet-a4 .sheet-daily th,.sheet-a4 .sheet-daily td,#gestor-body .sheet-daily th,#gestor-body .sheet-daily td{font-size:10px;padding:4px;text-align:center;line-height:1.2;white-space:normal}.sheet-a4 .sheet-daily th,#gestor-body .sheet-daily th{background:var(--sheet-heading);text-transform:none;letter-spacing:0;color:var(--sheet-navy)}.sheet-a4 .sheet-daily tbody tr:nth-child(even) td,#gestor-body .sheet-daily tbody tr:nth-child(even) td{background:var(--sheet-zebra)}
 .sheet-a4 .sheet-credit,#gestor-body .sheet-a4 .sheet-credit{color:var(--sheet-credit)!important}.sheet-a4 .sheet-debit,#gestor-body .sheet-a4 .sheet-debit{color:var(--sheet-debit)!important}.sheet-a4 .sheet-rest,#gestor-body .sheet-a4 .sheet-rest{color:var(--sheet-rest)!important}.sheet-daily tfoot td{font-weight:700;background:var(--sheet-heading)!important}.sheet-day-counts{font-size:10px;margin:6px 0;line-height:1.5}
-.sheet-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--sheet-rule);margin-top:8px}.sheet-summary>div{padding:5px 8px;border-right:1px solid var(--sheet-rule);border-bottom:1px solid var(--sheet-rule);font-size:10px;min-width:0;overflow-wrap:anywhere}.sheet-summary>div:nth-child(3n){border-right:0}.sheet-summary>div:nth-last-child(-n+3){border-bottom:0}.sheet-summary span,.sheet-summary strong{display:block}.sheet-summary strong{margin-top:2px}
+.sheet-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--sheet-rule);margin-top:8px}.sheet-summary>div{padding:5px 8px;border-right:1px solid var(--sheet-rule);border-bottom:1px solid var(--sheet-rule);font-size:10px;min-width:0;overflow-wrap:anywhere}.sheet-summary>div:nth-child(3n){border-right:0}.sheet-summary>div:nth-last-child(-n+3){border-bottom:0}.sheet-summary strong{font-weight:700}
 .sheet-bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:8px;margin-top:8px}.sheet-bank{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:7px;font-size:10px}.sheet-bank span,.sheet-bank strong{display:block}.sheet-notes{font-size:9px;line-height:1.3;padding:6px;overflow-wrap:anywhere}.sheet-notes p{margin:2px 0}.sheet-awareness,.sheet-place{font-size:9px;margin:8px 0}.sheet-a4 .assin{font-size:10px;gap:48px;margin-top:24px}.sheet-footer{border-top:1px solid var(--sheet-rule);padding-top:5px;margin-top:10px;font-size:8px;text-align:center}
 @media(max-width:600px){.sheet-a4{padding:8px}.sheet-top{gap:8px}.sheet-top img{width:70px;height:42px}.sheet-title,#gestor-body .sheet-a4 .sheet-title{font-size:17px}.sheet-identification,.sheet-bottom{grid-template-columns:1fr}.sheet-summary>div{padding:5px;font-size:9px}}
 /* Geometry only: receipt browser-print isolation remains unchanged. */
@@ -2434,9 +2434,9 @@ async function pacoteContador(){
   finally{btn.disabled=false;btn.removeAttribute('aria-busy');}
 }
 function cabecalhoFolhaHTML(f,ini,fim){
-  const e=get('empregador',{})||{},w=horarioSemanalFolha({f,ini,fim});
-  return `<header class="sheet-top"><img src="${esc(e.logo||logoApp())}" alt="Logo da empresa"><div><h3 class="sheet-title">Cartão de Ponto Calculado</h3><div class="sheet-issued">Emissão: ${esc(getHoraOficial().toLocaleString('pt-BR'))} · Período: ${brOf(ini)} a ${brOf(fim)}</div></div></header>
-  <div class="sheet-identification"><div class="sheet-people">${dadosCabecalhoFolha(f,ini,fim)[0].map(t=>`<div>${esc(t).replace(/\n/g,'<br>')}</div>`).join('')}</div><section class="sheet-box"><div class="sheet-box-title">Horário de Trabalho</div><table class="sheet-schedule"><thead><tr>${w.head.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${w.body.map(r=>`<tr>${r.map(c=>`<td class="${/DSR|FOLGA/.test(c)?'sheet-rest':''}">${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table><small class="sheet-issued">Semana de ${brOf(w.inicio)} · Alterações diárias conforme escala.</small></section></div>`;
+  const e=get('empregador',{})||{};
+  return `<header class="sheet-top"><img src="${esc(e.logo||logoApp())}" alt="Logo da empresa"><div><h3 class="sheet-title">Espelho de Ponto</h3><div class="sheet-issued">Emissão: ${esc(getHoraOficial().toLocaleString('pt-BR'))} · Período: ${brOf(ini)} a ${brOf(fim)}</div></div></header>
+  <div class="sheet-identification"><div class="sheet-people">${dadosCabecalhoFolha(f,ini,fim)[0].map(t=>`<div>${esc(t).replace(/\n/g,'<br>')}</div>`).join('')}</div></div>`;
 }
 function htmlFolha(pin,ini,fim){
   if(!pin||!ini||!fim)return '<div class="alert err">Selecione funcionário e período.</div>';
@@ -2445,7 +2445,7 @@ function htmlFolha(pin,ini,fim){
   return `<div class="folha sheet-a4" data-doc-completo="1">${cabecalhoFolhaHTML(d.f,ini,fim)}
     <div class="tbl-wrap"><table class="sheet-daily"><thead><tr>${m.head.map((x,i)=>`<th class="${corCelulaFolha(i,x)}">${esc(x)}</th>`).join('')}</tr></thead><tbody>${m.body.map(r=>`<tr>${cells(r)}</tr>`).join('')}</tbody><tfoot><tr>${cells(t.row)}</tr></tfoot></table></div>
     <p class="sheet-day-counts">Dias Trabalhados: <b>${t.dias}</b> · Dias de Falta: <b class="sheet-debit">${t.faltas}</b> · DSRs: <b class="sheet-rest">${t.dsrs}</b> · Folgas: <b class="sheet-rest">${t.folgas}</b></p>
-    <div class="sheet-summary" aria-label="Resumo mensal da folha">${m.resumo.flat().map(([t,v])=>`<div><span>${esc(t)}</span><strong>${esc(v)}</strong></div>`).join('')}</div>
+    <div class="sheet-summary" aria-label="Resumo mensal da folha">${m.resumo.flat().map(([t,v])=>`<div><span>${esc(t)}: <strong>${esc(v)}</strong></span></div>`).join('')}</div>
     <div class="sheet-bottom"><section class="sheet-box"><div class="sheet-box-title">Banco de Horas</div><div class="sheet-bank">${bancoCartaoFolha(d).map(([t,v,c])=>`<div><span>${t}</span><strong class="${c}">${v}</strong></div>`).join('')}</div></section><section class="sheet-box"><div class="sheet-box-title">Observações</div><div class="sheet-notes">${m.notas.map(t=>`<p>${esc(t)}</p>`).join('')}</div></section></div>
     <p class="sheet-awareness">${FOLHA_CIENCIA}</p><p class="sheet-place">Local: ${esc([e.cidade,e.uf].filter(Boolean).join('/')||'________________')} · Data: ____/____/________</p><div class="assin"><div>Colaborador</div><div>Empregador</div></div>
     <footer class="sheet-footer">${FOLHA_RODAPE}</footer></div>`;
@@ -2461,24 +2461,19 @@ async function gerarPDFComLogo(dados){
   const frame=(x,y,w,h,title)=>{doc.setDrawColor(...palette.rule);doc.setLineWidth(.18);doc.rect(x,y,w,h);doc.setFillColor(...palette.heading);doc.rect(x,y,w,5,'F');doc.setTextColor(...palette.navy);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text(title,x+2,y+3.5);};
   let first=true;
   for(const d of lista){
-    const m=modeloEspelho(d),t=totaisCartaoFolha(d),w=horarioSemanalFolha(d),chunks=[];for(let i=0;i<m.body.length;i+=31)chunks.push(m.body.slice(i,i+31));if(!chunks.length)chunks.push([]);
+    const m=modeloEspelho(d),t=totaisCartaoFolha(d),chunks=[];for(let i=0;i<m.body.length;i+=31)chunks.push(m.body.slice(i,i+31));if(!chunks.length)chunks.push([]);
     for(let idx=0;idx<chunks.length;idx++){
       if(!first)doc.addPage();first=false;
       if(image){const ratio=Math.min(25/image.width,13/image.height);try{doc.addImage(image,10,8,image.width*ratio,image.height*ratio);}catch(_){}}
-      doc.setTextColor(...palette.navy);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text('Cartão de Ponto Calculado',40,14);
+      doc.setTextColor(...palette.navy);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text('Espelho de Ponto',40,14);
       doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Emissão: ${getHoraOficial().toLocaleString('pt-BR')} · Período: ${brOf(d.ini)} a ${brOf(d.fim)}`,40,20);
       doc.setDrawColor(...palette.navy);doc.setLineWidth(.5);doc.line(10,24,200,24);
       const common={palette,compact:true,cellPadding:.7,fontSize:6.5};
-      pdfTabelaPadrao(doc,{...common,y:27,head:null,body:dadosCabecalhoFolha(d.f,d.ini,d.fim)[0].map(x=>[x]),widths:[108],tableWidth:108,left:10});
-      frame(121,27,79,5,'Horário de Trabalho');
-      pdfTabelaPadrao(doc,{...common,y:32,head:w.head,body:w.body,widths:[23,14,14,14,14],tableWidth:79,left:121,fontSize:6,cellPadding:.6,cellStyle:c=>/DSR|FOLGA/.test(String(c.cell.raw))?palette.rest:null});
-      doc.setFontSize(5.5);doc.setTextColor(...palette.ink);doc.text(`Semana de ${brOf(w.inicio)} · Alterações conforme escala.`,122,69);
-      let y=71;
+      let y=pdfTabelaPadrao(doc,{...common,y:27,head:null,body:dadosCabecalhoFolha(d.f,d.ini,d.fim)[0].map(x=>[x]),widths:[95,95],tableWidth:190,left:10})+3;
       y=pdfTabelaPadrao(doc,{...common,y,head:m.head,body:chunks[idx],foot:idx===chunks.length-1?[t.row]:[],widths:[12,13,13,13,13,16,17,15,25,15,38],fontSize:6.3,cellPadding:.43,cellStyle:c=>{const role=corCelulaFolha(c.column.index,String(c.cell.raw));return role==='sheet-credit'?palette.credit:role==='sheet-debit'?palette.debit:role==='sheet-rest'?palette.rest:null;}})+3;
       if(idx===chunks.length-1){
         doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Dias Trabalhados: ${t.dias} · Dias de Falta: ${t.faltas} · DSRs: ${t.dsrs} · Folgas: ${t.folgas}`,10,y);y+=3;
-        y=pdfTabelaPadrao(doc,{...common,y,head:null,body:m.resumo.map(r=>r.map(([t,v])=>`${t}
-${v}`)),widths:[63,64,63],fontSize:6.5})+3;
+        y=pdfTabelaPadrao(doc,{...common,y,head:null,body:m.resumo.map(r=>r.map(([t,v])=>`${t}: ${v}`)),widths:[63,64,63],fontSize:6.5})+3;
         doc.setFontSize(6);const lines=m.notas.flatMap(t=>doc.splitTextToSize(t,105)),capacity=Math.max(1,Math.floor((249-y-8)/2.7));
         const appendix=lines.length>capacity,visible=appendix?doc.splitTextToSize('* Marcações manuais/tratadas. Observações e justificativas completas no anexo. Extras sem enquadramento 50%/100%; banco 1:1.',105):lines;
         const h=Math.max(24,8+visible.length*2.7);frame(10,y,77,h,'Banco de Horas');frame(90,y,110,h,'Observações');
