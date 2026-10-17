@@ -513,10 +513,10 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 }
 
 /* Executive manager presentation; fiscal and kiosk styles stay unchanged. */
-:root{--manager-bg:#f8fafc;--manager-dark:#0f172a;--manager-dark-end:#1e293b;--manager-text:#f8fafc;--manager-muted:#b8c5d6;--manager-panel:rgba(255,255,255,.06);--manager-rule:rgba(255,255,255,.14);--manager-overlay:rgba(15,23,42,.6);--manager-gold-bg:rgba(201,153,43,.12);--manager-gradient:linear-gradient(125deg,var(--manager-dark),var(--manager-dark-end));--manager-shadow:0 16px 40px rgba(15,23,42,.12);--manager-accent:#7ee4b6}
+:root{--manager-bg:#e2e6ed;--manager-dark:var(--navy);--manager-dark-end:var(--navy2);--manager-text:#f8fafc;--manager-muted:#b8c5d6;--manager-panel:rgba(255,255,255,.06);--manager-rule:rgba(255,255,255,.14);--manager-overlay:rgba(15,23,42,.6);--manager-gold-bg:rgba(201,153,43,.12);--manager-gradient:linear-gradient(125deg,var(--manager-dark),var(--manager-dark-end));--manager-shadow:0 16px 40px rgba(15,23,42,.12);--manager-accent:#7ee4b6}
 #tela-gestor{padding:0;background:var(--manager-bg);overflow-x:hidden}
-#tela-gestor .inner{width:100%;max-width:none;min-height:100dvh;margin:0;border:0;border-radius:0;background:var(--manager-bg);color:var(--txt);box-shadow:none;transition:margin .24s ease,width .24s ease}
-#tela-gestor .inner>.gestor-head{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:16px;min-height:80px;padding:16px 24px;background:var(--card);border-color:var(--line);box-shadow:none}
+#tela-gestor .inner{width:100%;max-width:none;min-height:100dvh;overflow:visible;margin:0;border:0;border-radius:0;background:var(--manager-bg);color:var(--txt);box-shadow:none;transition:margin .24s ease,width .24s ease}
+#tela-gestor .inner>.gestor-head{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:16px;min-height:80px;padding:16px 24px;position:sticky;top:0;z-index:24;background:var(--card);border-color:var(--line);box-shadow:var(--manager-header-shadow);backdrop-filter:none}
 #tela-gestor .gestor-head .btn.ghost{background:var(--card);color:var(--navy);border-color:var(--line);border-radius:8px}
 #gestor-menu-toggle{padding:0;font-size:25px;width:44px}
 .gestor-head .license-badge{display:none}.gestor-head-actions{gap:8px;flex-wrap:nowrap;margin:0}.gestor-brand{min-width:0}.gestor-company{color:var(--txt);max-width:none}.gestor-user{color:var(--muted)}
@@ -531,10 +531,19 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 .drawer-avatar{display:grid;place-items:center;width:44px;height:44px;background:var(--manager-panel);color:var(--gold2);border:1px solid var(--manager-rule);border-radius:50%;font-weight:800}.drawer-profile strong{display:block;font-size:15px;overflow-wrap:anywhere}.drawer-profile small{display:block;color:var(--manager-muted);font-size:12px;margin-top:4px}.drawer-plan{display:inline-block;margin-top:8px;font-size:11px;color:var(--gold2)}
 .drawer-section-label{font-size:10px;text-transform:uppercase;color:var(--manager-muted);margin:0 12px 8px}.drawer-nav{display:grid;gap:4px}.drawer-nav .btn{width:100%;justify-content:flex-start;font-size:13px;font-weight:600;text-align:left;min-height:48px;border:0;padding:12px}.drawer-nav .btn[aria-current=page]{background:var(--manager-panel);color:var(--gold2);box-shadow:inset 3px 0 var(--gold2)}.drawer-nav .btn:hover{background:var(--manager-panel)}.drawer-nav span{width:24px;flex:none;text-align:center;font-size:18px}.drawer-footer{margin-top:auto;padding-top:16px;border-top:1px solid var(--manager-rule);display:grid;gap:8px}
 .manager-conformity{font-size:12px!important;min-height:44px;white-space:nowrap}
-:root{--manager-soft-shadow:0 3px 12px rgba(15,23,42,.04)}
+:root{--manager-soft-shadow:0 3px 12px rgba(15,23,42,.04);--manager-header-shadow:0 2px 10px rgba(12,34,70,.09);--sheet-paper:#fff;--sheet-ink:#182235;--sheet-rule:#cbd6e6}
+#gestor-body h3,#gestor-body h4,.manager-welcome h2,.gestor-company{color:var(--navy)}
+.folha,.folha .cab,.folha .doc-header,.folha .trat-box,.folha .tag,.folha .resumo-mensal{background:var(--sheet-paper);color:var(--sheet-ink)}
+.folha .cab,.folha .doc-header{border-top:1px solid var(--sheet-rule)}
+.folha table th,#gestor-body .folha th,.folha table td,#gestor-body .folha td{background:var(--sheet-paper);color:var(--sheet-ink);border-color:var(--sheet-rule)}
+.folha .tag{border:1px solid var(--sheet-rule)}
+.resumo-mensal{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--sheet-rule);margin:8px 0 12px;break-inside:avoid}
+.resumo-mensal>div{padding:8px 12px;display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--sheet-rule);font-size:11.5px}
+.resumo-mensal>div:nth-child(odd){border-right:1px solid var(--sheet-rule)}.resumo-mensal>div:nth-last-child(-n+2){border-bottom:0}.resumo-mensal strong{white-space:nowrap}
+@media(max-width:600px){.resumo-mensal{grid-template-columns:1fr}.resumo-mensal>div:nth-child(odd){border-right:0}.resumo-mensal>div:nth-last-child(2){border-bottom:1px solid var(--sheet-rule)}}
 .manager-executive{margin-bottom:24px;color:var(--txt)}
 .manager-welcome{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}.manager-welcome h2{font:600 24px 'Sora',sans-serif;margin:0;overflow-wrap:anywhere}.manager-welcome time{color:var(--muted);font-size:12px}
-.executive-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.executive-kpi{padding:24px;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--manager-soft-shadow);min-width:0}.executive-kpi strong{display:block;font:600 28px 'Sora',sans-serif;margin:12px 0 0;font-variant-numeric:tabular-nums}.executive-kpi span{color:var(--muted);font-size:13px}.executive-kpi .executive-total{font:inherit;color:inherit}.executive-kpi small{font-size:14px;color:var(--muted)}
+.executive-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.executive-kpi{padding:24px;background:var(--manager-dark);color:var(--manager-text);border:1px solid var(--manager-dark-end);border-radius:8px;box-shadow:var(--manager-soft-shadow);min-width:0}.executive-kpi strong{display:block;color:var(--gold2);font:600 28px 'Sora',sans-serif;margin:12px 0 0;font-variant-numeric:tabular-nums}.executive-kpi span{color:var(--manager-text);font-size:13px}.executive-kpi .executive-total{font:inherit;color:inherit}.executive-kpi small{font-size:14px;color:var(--manager-muted)}
 .executive-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.executive-actions .btn{font-size:13px;min-height:44px}.manager-icon{flex:none;vertical-align:middle}.drawer-nav .btn>span{display:grid;place-items:center}
 #gestor-hub-dashboard .ind{background:var(--card);border:1px solid var(--line);color:var(--txt);box-shadow:none}#gestor-hub-dashboard .ind-val,#gestor-hub-dashboard .ind-lbl{color:var(--txt)}#gestor-hub-dashboard .ind-sub{color:var(--muted)}#gestor-hub-dashboard th{background:var(--manager-bg);color:var(--muted)}
 .module-loading{padding:24px 0;color:var(--muted)}.module-loading h3{color:var(--txt)}.module-loading-bar{height:12px;max-width:480px;background:var(--line);border-radius:4px;margin-top:16px}
@@ -1458,8 +1467,8 @@ function pararRelogioGestor(){if(relogioGestor)clearInterval(relogioGestor);relo
 function mostrarCentralGestor(){
   pararRelogioGestor();fecharMenuGestor(false);ABA='dash';atualizarMenuGestor('dash');
   $('gestor-body').classList.add('hidden');$('gestor-hub').classList.remove('hidden');$('gestor-voltar').classList.remove('show');
-  $('gestor-hub').innerHTML=painelExecutivoHTML()+primeirosPassosHTML()+'<section id="gestor-hub-dashboard" aria-label="Dashboard de Frequência"></section>';
-  carregarTelaGestor('gestor-hub-dashboard','Dashboard de Frequência',()=>abaDash('gestor-hub-dashboard'));atualizarPainelExecutivo();relogioGestor=setInterval(atualizarPainelExecutivo,30000);$('tela-gestor').scrollTop=0;
+  $('gestor-hub').innerHTML=painelExecutivoHTML();
+  atualizarPainelExecutivo();relogioGestor=setInterval(atualizarPainelExecutivo,30000);$('tela-gestor').scrollTop=0;
 }
 function irAba(k){
   if(k==='dash')return mostrarCentralGestor();
@@ -1691,6 +1700,14 @@ function dadosFolha(pin,ini,fim){
   const banco=calcBanco(pin,ini,fim);
   return {f,ini,fim,linhas,tot,just,banco};
 }
+function resumoMensalFolha(d){return [
+  ['Horas Previstas no Mês',toHHMM(d.linhas.reduce((n,l)=>n+l.previsto,0))],
+  ['Horas Efetivamente Trabalhadas',toHHMM(d.tot.trabalhado)],
+  ['Total de Horas Extras',toHHMM(d.tot.extras)],
+  ['Total de Faltas / Horas Faltantes',`${d.tot.faltas} falta(s) / ${toHHMM(d.tot.faltantes)}`],
+  ['Adicional Noturno do Período',toHHMM(d.linhas.reduce((n,l)=>n+l.noturno,0))],
+  ['Saldo do Mês (Banco de Horas)',toSaldo(d.banco.creditos-d.banco.debitos)]
+];}
 const gerarFolhaMTE=(pin,ini,fim)=>dadosFolha(pin,ini,fim); // consulta buscaNaEscala() em cada dia
 function calcBanco(pin,ini,fim){
   const f=funcPorPin(pin)||{};
@@ -2271,12 +2288,12 @@ function pdfCabecalhoPadrao(doc,titulo,subtitulo=''){
   if(subtitulo){doc.setTextColor(82,98,122);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text(String(subtitulo).slice(0,135),105,42,{align:'center'});return 47;}return 43;
 }
 /* Shared A4 table layout: real cells, wrapped text and repeated headers. */
-function pdfTabelaPadrao(doc,{y,titulo,sub='',head,body,widths,fontSize=8,cellPadding=2}){
+function pdfTabelaPadrao(doc,{y,titulo,sub='',head,body,widths,fontSize=8,cellPadding=2,monochrome=false}){
   doc.autoTable({startY:y,head:head?[head]:[],body:body.length?body:[['Nenhum registro no período.']],
     theme:'grid',margin:{left:10,right:10,top:47,bottom:21},tableWidth:190,
     styles:{font:'helvetica',fontSize,cellPadding,lineWidth:.15,lineColor:[211,222,232],textColor:[35,50,75],overflow:'linebreak',valign:'middle'},
-    headStyles:{fillColor:[227,239,244],textColor:[18,58,83],fontStyle:'bold'},
-    alternateRowStyles:{fillColor:[247,250,252]},
+    headStyles:{fillColor:monochrome?[255,255,255]:[227,239,244],textColor:[18,58,83],fontStyle:'bold'},
+    alternateRowStyles:{fillColor:monochrome?[255,255,255]:[247,250,252]},
     columnStyles:Object.fromEntries((widths||[]).map((w,i)=>[i,{cellWidth:w}])),
     rowPageBreak:'avoid',showHead:'everyPage',
     willDrawPage:()=>{if(doc.getCurrentPageInfo().pageNumber>1)pdfCabecalhoPadrao(doc,titulo,sub);}
@@ -2381,11 +2398,10 @@ function htmlFolha(pin,ini,fim){
       <td>${l.fonte}</td></tr>`).join('')}
     </tbody></table></div>
     <div class="rodape">
-      <h4>Totais do período</h4>
-      <div>Total de Faltas: <b>${d.tot.faltas}</b> • Justificadas: <b>${d.tot.faltasJust}</b> • Injustificadas: <b>${d.tot.faltasInj}</b></div>
-      <div>Total de Folgas: <b>${d.tot.folgas}</b> • Total de Feriados: <b>${d.tot.feriados}</b></div>
-      <div>Total de Horas Extras: <b>${toHHMM(d.tot.extras)}</b> • Total de Horas Faltantes/Atrasos: <b>${toHHMM(d.tot.faltantes)}</b></div>
-      <div>Banco de Horas — Saldo Anterior: <b>${toSaldo(d.banco.anterior)}</b> • Créditos: <b>+${toHHMM(d.banco.creditos)}</b> • Débitos: <b>-${toHHMM(d.banco.debitos)}</b> • Saldo Atual: <b>${toSaldo(d.banco.atual)}</b></div>
+      <h4>Resumo mensal — ${brOf(ini)} a ${brOf(fim)}</h4>
+      <div class="resumo-mensal" aria-label="Resumo mensal da folha">${resumoMensalFolha(d).map(([rotulo,valor])=>`<div><span>${rotulo}</span><strong>${valor}</strong></div>`).join('')}</div>
+      <div>Faltas justificadas: <b>${d.tot.faltasJust}</b> • Injustificadas: <b>${d.tot.faltasInj}</b> • Folgas: <b>${d.tot.folgas}</b> • Feriados: <b>${d.tot.feriados}</b></div>
+      <div>Banco acumulado — Anterior: <b>${toSaldo(d.banco.anterior)}</b> • Créditos: <b>+${toHHMM(d.banco.creditos)}</b> • Débitos: <b>-${toHHMM(d.banco.debitos)}</b> • Atual: <b>${toSaldo(d.banco.atual)}</b></div>
       ${d.just.length?`<div class="trat-box"><b>Tratamentos e Justificativas</b><ul>${d.just.map(j=>`<li>${esc(j)}</li>`).join('')}</ul></div>`:''}
       ${preLegenda(f)?`<div style="margin-top:6px"><b>${esc(preLegenda(f))}</b></div>`:''}
       <div class="muted" style="margin-top:6px"><b>Legenda:</b> ${LEGENDA}</div>
@@ -2404,7 +2420,7 @@ async function gerarPDFComLogo(dados){
     if(!first)doc.addPage(); first=false;
     let y=pdfCabecalhoPadrao(doc,'Folha de Ponto — Portaria MTE 671/2021',`Período ${brOf(ini)} a ${brOf(fim)}`);
     const titulo='Folha de Ponto — Portaria MTE 671/2021',sub=`${f.nome} • Período ${brOf(ini)} a ${brOf(fim)}`;
-    const tabela=(head,body,widths,fontSize=8)=>{y=pdfTabelaPadrao(doc,{y,titulo,sub,head,body,widths,fontSize,cellPadding:1.3})+3;};
+    const tabela=(head,body,widths,fontSize=8)=>{y=pdfTabelaPadrao(doc,{y,titulo,sub,head,body,widths,fontSize,cellPadding:1.3,monochrome:true})+3;};
     const escLabel=(ESCALAS.find(x=>x[0]===f.escala)||['',f.escala||'—'])[1];
     tabela(null,[['Identificação do trabalhador',
       `Trabalhador: ${f.nome}\nCPF: ${f.cpf||'—'}\nFunção: ${f.funcao||'—'} • Departamento: ${f.departamento||'—'}\nAdmissão: ${brOf(f.admissao)}\nEmissão: ${brOf(isoOf(dt))} ${hhmm(dt)} • Período: ${brOf(ini)} a ${brOf(fim)}\nJornada contratual: ${e.hEntrada||''}-${e.hSaiInt||''} / ${e.hEntInt||''}-${e.hSaida||''} • Escala: ${escLabel}`]], [38,152]);
@@ -2412,12 +2428,12 @@ async function gerarPDFComLogo(dados){
       d.linhas.map(l=>[brOf(l.data).slice(0,5),l.dia,l.e1||'--:--',l.e2||'--:--',l.e3||'--:--',l.e4||'--:--',toHHMM(l.trabalhado)+(l.noturno?' *N':''),toSaldo(l.saldo),(l.ocorrencia||'—')+(l.mov?' _':''),l.fonte||'—']),
       [14,22,18,18,18,18,19,19,25,19],7);
     if(y+38>276){doc.addPage();y=pdfCabecalhoPadrao(doc,titulo,sub);}
-    tabela(['Totais do período','Resultado'],[
-      ['Faltas / Justificadas / Injustificadas',`${d.tot.faltas} / ${d.tot.faltasJust} / ${d.tot.faltasInj}`],
+    tabela(['Resumo mensal do período','Resultado'],resumoMensalFolha(d),[100,90],7.5);
+    tabela(null,[
+      ['Faltas justificadas / Injustificadas',`${d.tot.faltasJust} / ${d.tot.faltasInj}`],
       ['Folgas / Feriados',`${d.tot.folgas} / ${d.tot.feriados}`],
-      ['Horas Extras / Horas Faltantes e Atrasos',`${toHHMM(d.tot.extras)} / ${toHHMM(d.tot.faltantes)}`],
-      ['Banco de Horas',`Anterior: ${toSaldo(d.banco.anterior)} • Créditos: +${toHHMM(d.banco.creditos)}\nDébitos: -${toHHMM(d.banco.debitos)} • Saldo Atual: ${toSaldo(d.banco.atual)}`]
-    ],[80,110],7.5);
+      ['Banco acumulado',`Anterior: ${toSaldo(d.banco.anterior)} • Créditos: +${toHHMM(d.banco.creditos)}\nDébitos: -${toHHMM(d.banco.debitos)} • Atual: ${toSaldo(d.banco.atual)}`]
+    ],[80,110],7);
     if(d.just.length)tabela(['Tratamentos e Justificativas'],d.just.map(j=>[j]),[190],7);
     const texto=(t)=>{
       doc.setFont('helvetica','normal');doc.setFontSize(7);
