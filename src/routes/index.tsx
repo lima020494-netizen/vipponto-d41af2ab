@@ -26,7 +26,7 @@ function Index() {
   // O aplicativo completo é um único arquivo HTML/CSS/JS puro em /vip-ponto.html
   return (
     <iframe
-      src="/vip-ponto.html?v=20261016-gestor-claro"
+      src="/vip-ponto.html?v=20261017-gestor-resumo"
       title="Ponto Pro Gestão"
       style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: 0 }}
     />

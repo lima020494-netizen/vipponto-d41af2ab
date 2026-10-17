@@ -16,6 +16,7 @@
 
 - Accountant ZIP exports reuse the same employee PDF and AFD content generators as individual downloads, so fiscal outputs and calculations cannot diverge.
 - A4 PDF exports use the shared local jsPDF AutoTable renderer for tabular data, wrapping cells and repeating headers within reserved footer margins; sheet exports keep the same official generator in every delivery path.
+- Monthly sheet summary rows are derived once from existing daily and bank results and reused by the screen and official PDF; period bank movement stays distinct from accumulated balance to avoid divergent totals.
 - A4 documents are downloaded through jsPDF rather than browser printing; only kiosk receipts use the thermal browser-print path, preventing mixed document formats.
 - Commercial content lives only at /conheca with a scoped palette; the root route retains the operational HTML iframe to avoid kiosk regressions.
 - Both About entry points read app_config.dev_info with shared offline cache; profile and raster logo writes go through the existing license endpoint with server-verified master email, admin role and PIN to prevent client privilege escalation.
