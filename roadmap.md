@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Aplicar Cartão de Ponto Calculado com logo, identificação e jornada semanal, grade funcional zebrada, totais e quadros Banco/Observações na tela e PDF compartilhado, sem alterar apuração.
+- [ ] Conferir até 31 dias em uma A4, justificativas extensas, ZIP e telas menores; somente preview, sem publicar.
+
 - [x] Reformular espelho A4 com cabeçalho dividido, grade diária, asteriscos e resumo em três linhas, preservando apuração e justificativas; 50%/100% não classificados sem regra configurada, extras totais preservadas.
 - [x] Simplificar vigência opcional, Batidas sem sub-abas, Escalas, ajuda do Banco e pacote mensal direto; retorno limpo de 2s do Quiosque preservado e conferido.
 - [x] Downloads PDF/ZIP conferidos com dados isolados: 31 dias, resumo e assinaturas em uma A4; justificativa duplicada corrigida, notas extensas preservadas em anexo sem corte. Telas 390/768/1280 sem transbordamento, 22 testes aprovados e build OK. Sem publicação ou alteração de dados reais; acesso autenticado externo e dispositivos físicos não verificados.
