@@ -20,3 +20,12 @@ test('employee can be saved with empty optional bank start',()=>{
   runInNewContext(source+';salvarFunc(-1)',{$:(id:string)=>({value:values[id]||'',checked:false,innerHTML:''}),get:()=>[],set:(_k:string,v:unknown)=>{saved=v;},log:()=>{},fecharModal:()=>{},abaFunc:()=>{},statusTexto:()=>'',maxFuncAtual:()=>10});
   assert.equal(saved?.length,1);assert.equal(saved[0].inicioVigenciaBancoHoras,'');
 });
+test('work hours use company settings without inventing shorter Saturday hours',()=>{
+  const company={dsr:'Sim',hEntrada:'08:00',hSaiInt:'12:00',hEntInt:'14:00',hSaida:'18:00'};
+  const source=html.slice(html.indexOf('function horarioTrabalhoFolha('),html.indexOf('function totaisCartaoFolha('));
+  const rows=JSON.parse(JSON.stringify(runInNewContext(source+';horarioTrabalhoFolha()',{get:()=>company})));
+  assert.equal(rows.length,7);assert.equal(rows[0][1],'Descanso Semanal Remunerado');
+  assert.equal(rows[1][1],'08:00  12:00  14:00  18:00');assert.equal(rows[6][1],rows[1][1]);
+  const missing=JSON.parse(JSON.stringify(runInNewContext(source+';horarioTrabalhoFolha()',{get:()=>({})})));
+  assert.equal(missing[0][1],'Não informado');assert.equal(missing[6][1],'Não informado');
+});

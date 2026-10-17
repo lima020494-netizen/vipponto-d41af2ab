@@ -1746,6 +1746,10 @@ function dadosCabecalhoFolha(f,ini,fim){
   return [[`EMPREGADOR\nRazão Social: ${e.razao||e.fantasia||'Não informado'}\n${e.tipo||'CNPJ'}: ${e.doc||'—'}\nEndereço: ${end||'—'}\nCidade/UF: ${[e.cidade,e.uf].filter(Boolean).join('/')||'—'}`,
     `COLABORADOR\nNome: ${f.nome||'—'}\nCargo: ${f.cargo||f.funcao||'—'} · Setor: ${f.departamento||'—'}\nPIS: ${f.pis||f.pisPasep||'—'} · Matrícula/PIN: ${f.matricula||f.pin||'—'}\nAdmissão: ${brOf(f.admissao)||'—'} · Escala: ${f.escala||'—'}`]];
 }
+function horarioTrabalhoFolha(){
+  const e=get('empregador',{})||{},horas=[e.hEntrada,e.hSaiInt,e.hEntInt,e.hSaida].filter(Boolean).join('  ')||'Não informado';
+  return ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'].map((dia,i)=>[dia,i===0?(e.dsr==='Sim'?'Descanso Semanal Remunerado':e.dsr==='Não'?horas:'Não informado'):horas]);
+}
 function totaisCartaoFolha(d){
   return {dias:d.linhas.filter(l=>l.trabalhado>0).length,faltas:d.tot.faltas,dsrs:d.linhas.filter(l=>/DSR/.test(l.ocorrencia)).length,folgas:d.linhas.filter(l=>/FOLGA/.test(l.ocorrencia)&&!/DSR/.test(l.ocorrencia)).length,
     row:['Totais','—','—','—','—',toHHMM(d.linhas.reduce((n,l)=>n+l.previsto,0)),toHHMM(d.tot.trabalhado),toHHMM(d.tot.extras),`${toHHMM(d.tot.faltantes)} / ${toHHMM(d.linhas.reduce((n,l)=>n+(l.atrasoMin||0),0))}`,toHHMM(d.linhas.reduce((n,l)=>n+l.noturno,0)),'—']};
@@ -2427,7 +2431,7 @@ async function pacoteContador(){
 function cabecalhoFolhaHTML(f,ini,fim){
   const e=get('empregador',{})||{};
   return `<header class="sheet-top"><img src="${esc(e.logo||logoApp())}" alt="Logo da empresa"><div><h3 class="sheet-title">Espelho de Ponto</h3><div class="sheet-issued">Emissão: ${esc(getHoraOficial().toLocaleString('pt-BR'))} · Período: ${brOf(ini)} a ${brOf(fim)}</div></div></header>
-  <div class="sheet-identification"><div class="sheet-people">${dadosCabecalhoFolha(f,ini,fim)[0].map(t=>`<div>${esc(t).replace(/\n/g,'<br>')}</div>`).join('')}</div></div>`;
+  <div class="sheet-identification"><div class="sheet-people">${dadosCabecalhoFolha(f,ini,fim)[0].map(t=>`<div>${esc(t).replace(/\n/g,'<br>')}</div>`).join('')}</div><section class="sheet-box"><div class="sheet-box-title">Horário de Trabalho</div><table class="sheet-work-hours" aria-label="Horário de trabalho padrão da empresa"><tbody>${horarioTrabalhoFolha().map(([dia,horas])=>`<tr><th scope="row">${dia}</th><td>${esc(horas)}</td></tr>`).join('')}</tbody></table></section></div>`;
 }
 function htmlFolha(pin,ini,fim){
   if(!pin||!ini||!fim)return '<div class="alert err">Selecione funcionário e período.</div>';
@@ -2460,7 +2464,9 @@ async function gerarPDFComLogo(dados){
       doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Emissão: ${getHoraOficial().toLocaleString('pt-BR')} · Período: ${brOf(d.ini)} a ${brOf(d.fim)}`,40,20);
       doc.setDrawColor(...palette.navy);doc.setLineWidth(.5);doc.line(10,24,200,24);
       const common={palette,compact:true,cellPadding:.7,fontSize:6.5};
-      let y=pdfTabelaPadrao(doc,{...common,y:27,head:null,body:dadosCabecalhoFolha(d.f,d.ini,d.fim)[0].map(x=>[x]),widths:[95,95],tableWidth:190,left:10})+3;
+      const peopleEnd=pdfTabelaPadrao(doc,{...common,y:27,head:null,body:dadosCabecalhoFolha(d.f,d.ini,d.fim)[0].map(x=>[x]),widths:[99],tableWidth:99,left:10});
+      const hoursEnd=pdfTabelaPadrao(doc,{...common,y:27,left:113,tableWidth:87,head:[['Horário de Trabalho','']],body:horarioTrabalhoFolha(),widths:[13,74],fontSize:6.5,cellPadding:.7});
+      let y=Math.max(peopleEnd,hoursEnd)+3;
       y=pdfTabelaPadrao(doc,{...common,y,head:m.head,body:chunks[idx],foot:idx===chunks.length-1?[t.row]:[],widths:[12,13,13,13,13,16,17,15,25,15,38],fontSize:6.3,cellPadding:.43,cellStyle:c=>{const role=corCelulaFolha(c.column.index,String(c.cell.raw));return role==='sheet-credit'?palette.credit:role==='sheet-debit'?palette.debit:role==='sheet-rest'?palette.rest:null;}})+3;
       if(idx===chunks.length-1){
         doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Dias Trabalhados: ${t.dias} · Dias de Falta: ${t.faltas} · DSRs: ${t.dsrs} · Folgas: ${t.folgas}`,10,y);y+=3;
