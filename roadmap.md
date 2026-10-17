@@ -1,9 +1,9 @@
 # Roadmap
 
-- [ ] Remover cards duplicados dos colaboradores, mantendo somente a tabela formatada.
+- [x] Remover cards duplicados dos colaboradores, mantendo somente a tabela formatada; tabela única e Editar conferidos com dados isolados.
 
-- [ ] Aplicar Cartão de Ponto Calculado com logo, identificação e jornada semanal, grade funcional zebrada, totais e quadros Banco/Observações na tela e PDF compartilhado, sem alterar apuração.
-- [ ] Conferir até 31 dias em uma A4, justificativas extensas, ZIP e telas menores; somente preview, sem publicar.
+- [x] Aplicar Cartão de Ponto Calculado com logo, identificação e jornada semanal, grade funcional zebrada, totais e quadros Banco/Observações na tela e PDF compartilhado, sem alterar apuração; referência IMG_20261016_221807.jpg ausente, seguido texto enviado.
+- [x] Conferir 31 dias e assinaturas em uma A4, justificativas extensas em anexo sem corte e ZIP com PDF/AFD/CSV; 390/768/1280 sem transbordamento, 19 testes aprovados e build OK. Corrigidos jornada semanal cortada e espaço excessivo que provocava anexo desnecessário. Somente preview, sem publicar ou alterar dados reais; conta autenticada externa e impressora física não verificáveis.
 
 - [x] Reformular espelho A4 com cabeçalho dividido, grade diária, asteriscos e resumo em três linhas, preservando apuração e justificativas; 50%/100% não classificados sem regra configurada, extras totais preservadas.
 - [x] Simplificar vigência opcional, Batidas sem sub-abas, Escalas, ajuda do Banco e pacote mensal direto; retorno limpo de 2s do Quiosque preservado e conferido.
