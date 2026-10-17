@@ -1765,7 +1765,7 @@ function modeloEspelho(d){
 function dadosCabecalhoFolha(f,ini,fim){
   const e=get('empregador',{})||{},end=[e.logradouro,e.numero,e.complemento,e.bairro,e.cep].filter(Boolean).join(', ');
   return [[`EMPREGADOR\nRazão Social: ${e.razao||e.fantasia||'Não informado'}\n${e.tipo||'CNPJ'}: ${e.doc||'—'}\nEndereço: ${end||'—'}\nCidade/UF: ${[e.cidade,e.uf].filter(Boolean).join('/')||'—'}`,
-    `COLABORADOR\nNome: ${f.nome||'—'}\nCargo: ${f.cargo||f.funcao||'—'} · Setor: ${f.departamento||'—'}\nPIS: ${f.pis||f.pisPasep||'—'} · Matrícula/PIN: ${f.matricula||f.pin||'—'}\nAdmissão: ${brOf(f.admissao)||'—'} · Escala: ${f.escala||'—'}`]];
+    `COLABORADOR\nNome: ${f.nome||'—'}\nCargo: ${f.cargo||f.funcao||'—'} · Setor: ${f.departamento||'—'}\nCPF: ${f.cpf||'—'} · Matrícula/PIN: ${f.matricula||f.pin||'—'}\nAdmissão: ${brOf(f.admissao)||'—'} · Escala: ${f.escala||'—'}`]];
 }
 function horarioTrabalhoFolha(){
   const e=get('empregador',{})||{},horas=[e.hEntrada??'08:00',e.hSaiInt??'12:00',e.hEntInt??'14:00',e.hSaida??'18:00'].filter(Boolean).join('  ')||'Não informado';
