@@ -1,5 +1,9 @@
 # Roadmap
 
+- [ ] Fixar cabeçalho do Gestor e harmonizar fundo, gaveta e três indicadores com a logo; home sem blocos redundantes, Quiosque intacto.
+- [ ] Consolidar resumo do período na folha branca e PDF oficial compartilhado pelo ZIP, preservando cálculos.
+- [ ] Conferir rolagem, gaveta, folha e PDF em celular/tablet/computador, testes e prévia sem publicação.
+
 - [x] Clarear o Dashboard com saudação, três indicadores e ações compactas, preservando a gaveta.
 - [x] Conferir Lei 605/49 art. 9 e Súmula 146 TST; feriados precedem jornadas, descansos não geram falta/débito inferido, crédito integral 1:1 sem presumir adicional monetário ou dobrar banco. Escala específica de sábado/domingo preservada; marcações intactas.
 - [x] Fechar gaveta imediatamente e carregar Folha, Banco e Logs com casca visual e cache de sessão preservado.
