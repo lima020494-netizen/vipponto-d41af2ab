@@ -2471,7 +2471,7 @@ async function gerarPDFComLogo(dados){
       doc.setDrawColor(...palette.navy);doc.setLineWidth(.5);doc.line(10,24,200,24);
       const common={palette,compact:true,cellPadding:.7,fontSize:6.5};
       const peopleEnd=pdfTabelaPadrao(doc,{...common,y:27,head:null,body:dadosCabecalhoFolha(d.f,d.ini,d.fim)[0].map(x=>[x]),widths:[99],tableWidth:99,left:10});
-      const hoursEnd=pdfTabelaPadrao(doc,{...common,y:27,left:113,tableWidth:87,head:[['Horário de Trabalho','']],body:horarioTrabalhoFolha(),widths:[13,74],fontSize:6.5,cellPadding:.7});
+      const hoursEnd=pdfTabelaPadrao(doc,{...common,y:27,left:113,tableWidth:87,head:[{content:'Horário de Trabalho',colSpan:2}],body:horarioTrabalhoFolha(),widths:[13,74],fontSize:6.5,cellPadding:.7});
       let y=Math.max(peopleEnd,hoursEnd)+3;
       y=pdfTabelaPadrao(doc,{...common,y,head:m.head,body:chunks[idx],foot:idx===chunks.length-1?[t.row]:[],widths:[12,13,13,13,13,16,17,15,25,15,38],fontSize:6.3,cellPadding:.43,cellStyle:c=>{const role=corCelulaFolha(c.column.index,String(c.cell.raw));return role==='sheet-credit'?palette.credit:role==='sheet-debit'?palette.debit:role==='sheet-rest'?palette.rest:null;}})+3;
       if(idx===chunks.length-1){
