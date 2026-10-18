@@ -1340,7 +1340,7 @@ async function registrarPonto(){
   const bs=batidasJornada(f.pin,jornada);
   const tps=tiposDo(f);
   if(bs.length>=tps.length) return toast(`Limite de ${tps.length} marcações no dia atingido.`,4000);
-  const ultima=bs.slice().sort((a,b)=>String(a.criadoEm||`${a.data}T${a.hora}:00`).localeCompare(String(b.criadoEm||`${b.data}T${b.hora}:00`))).pop();
+  const ultima=bs.slice().sort(ordemJornada).pop();
   if(ultima){
     const instante=(ultima.criadoEm?Date.parse(ultima.criadoEm):instanteCivil(ultima.data,ultima.hora)),decorridos=getHoraOficial().getTime()-instante;
     if(Number.isFinite(decorridos)&&decorridos>=0&&decorridos<120000&&!(await confirmarMarcacaoRecente(ultima.hora))) return;
@@ -1350,12 +1350,12 @@ async function registrarPonto(){
     criadoEm:agora.toISOString(),metodo:capacidadesCamera().metodo,nsrPendente:true,fuso:FUSO_PONTO};
   b.eventoId=b.nsr.slice(2);
   const all=get('batidas',[]); all.push(b); set('batidas',all); // 1º salva no aparelho
-  await filaAdd(b);await sincronizarPendentes();
+  await filaAdd(b);
   const registrada=get('batidas',[]).find(x=>x.eventoId===b.eventoId)||b;
   confirmacaoRapida(f,registrada);                                        // overlay 2s e volta à tela limpa
   imprimirComprovante(registrada);                                        // imprime 58mm imediato
-  log(`Batida registrada NSR ${b.nsr} — ${f.nome} ${b.hora} (${b.tipo})`);
-  await Promise.all([Promise.resolve().then(atualizaStatus),new Promise(r=>setTimeout(r,600))]); // fila IndexedDB → nuvem; botão "Registrando..." visível durante o processamento
+  log(`Batida registrada ${registrada.nsrPendente?'em contingência':'NSR'} ${registrada.nsr} — ${f.nome} ${b.hora} (${b.tipo})`);
+  await Promise.all([sincronizarPendentes().then(atualizaStatus),new Promise(r=>setTimeout(r,600))]); // fila IndexedDB → nuvem; botão "Registrando..." visível durante o processamento
   }finally{
     if(btnBater){btnBater.disabled=false;btnBater.removeAttribute('aria-busy');btnBater.textContent=btnBater.dataset.rotulo||'Registrar';}
   }
@@ -1960,7 +1960,7 @@ function filtrarGestaoBatidas(){
   const pin=$('gb-pin')?.value||'',ini=$('gb-ini')?.value||'',fim=$('gb-fim')?.value||'';
   if(!pin||!ini||!fim)return;
   if(ini>fim){$('gb-conteudo').innerHTML='<div class="alert err">A data inicial deve ser anterior à data final.</div>';return;}
-  if((new Date(fim+'T12:00:00')-new Date(ini+'T12:00:00'))/864e5>366){$('gb-conteudo').innerHTML='<div class="alert err">Selecione um período de até 366 dias.</div>';return;}
+  if((dataCivil(fim)-dataCivil(ini))/864e5>366){$('gb-conteudo').innerHTML='<div class="alert err">Selecione um período de até 366 dias.</div>';return;}
   window.__batFilt={pin,ini,fim};renderGestaoBatidas();
 }
 function renderGestaoBatidas(){
