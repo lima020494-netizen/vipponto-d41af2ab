@@ -1278,7 +1278,12 @@ function confirmarMarcacaoRecente(hora){
   });
 }
 async function registrarPonto(){
+  const btnBater=$('btn-bater');
+  if(btnBater&&btnBater.disabled) return; // bloqueia clique duplo acidental
   if(PIN.length!==4) return toast('Digite o PIN de 4 dígitos.',3000);
+  if(navigator.vibrate) try{navigator.vibrate(50);}catch(e){}
+  if(btnBater){btnBater.disabled=true;btnBater.dataset.rotulo=btnBater.textContent;btnBater.textContent='Registrando...';btnBater.setAttribute('aria-busy','true');}
+  try{
   const f=funcPorPin(PIN); if(!f) return toast('PIN não encontrado.',3000);
   if(f.status==='Desligado') return toast('Funcionário desligado — registro bloqueado.',4000);
   if(!NTP_OK){ await sincronizarNTP();
