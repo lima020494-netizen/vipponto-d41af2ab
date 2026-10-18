@@ -1,5 +1,10 @@
 # Roadmap
 
+- [ ] Forçar America/Belem e validar jornada/noturno/folha sem alterar carimbos históricos.
+- [ ] Centralizar NSR atômico/idempotente por conta e preservar fila offline sem colisões; atualizar SQL legado inseguro.
+- [ ] Garantir PIN sem câmera/permissão e informação LGPD transparente.
+- [ ] Substituir avisos e confirmações nativos; conferir testes e prévia sem publicar.
+
 - [x] Separar débito de folga compensatória das faltas e neutralizar débitos de atestado/falta justificada ou abonada na apuração compartilhada; 28 testes aprovados, extrato e folha conferidos com dados isolados e build OK. Supabase/AFD e dados reais preservados; acesso autenticado externo não verificável. Somente preview.
 
 - [x] Vincular jornada do anexo ao cadastro da empresa com sábado separado (08–12), dias úteis 08–12/14–18 e domingo DSR; gravação/edição em dados isolados, folha em desktop/celular, PDF de uma A4 e oito testes conferidos. Apuração e dados reais preservados; sincronização autenticada externa não verificada. Somente preview.
@@ -84,3 +89,6 @@
 - [x] Mover batidas do REP; editar/excluir batidas manuais e ocorrências com auditoria.
 - [x] Folha/PDF com ocorrências enxutas e quadro de Tratamentos e Justificativas.
 - [x] Estética VIP: exportações sob demanda (PDF/Excel/ZIP), janela inicial de batidas do mês corrente com histórico sob demanda, vibração e botão "Registrando..." no quiosque, modais em gaveta inferior no celular, cards de colaboradores no celular.
+
+- [x] Auditoria: fuso Belém, PIN sem câmera/LGPD e avisos próprios; SQL NSR preparado sem aplicar.
+- [ ] Ativar e verificar concorrência do NSR central no Supabase externo — aguarda autorização; batidas da prévia ficam na fila de contingência.

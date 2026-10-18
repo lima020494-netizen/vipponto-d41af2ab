@@ -107,6 +107,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
   .modal .inner::before{content:"";display:block;width:44px;height:5px;border-radius:3px;background:#c3ccdb;margin:2px auto 10px}
   .modal:not(.hidden) .inner{animation:sheet-up .28s ease-out}
 }
+.premium-dialog{z-index:1100;align-items:center}.dialog-message{white-space:pre-line;line-height:1.5}.premium-dialog .row{justify-content:flex-end;margin-top:16px}
 .modal.small .inner{max-width:420px;background:#fff;padding:20px}
 .tabs{display:flex;gap:6px;overflow:auto;padding-bottom:6px}
 .tab{padding:10px 14px;border-radius:12px 12px 0 0;background:#e6ebf4;border:1px solid var(--line);border-bottom:0;font-weight:800;font-size:13.5px;cursor:pointer;white-space:nowrap}
@@ -690,6 +691,7 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
       <button class="key wide" type="button" onclick="pinLimpar()" aria-label="Limpar PIN digitado">LIMPAR</button><button class="key" type="button" onclick="pinAdd('0')" aria-label="Dígito 0">0</button><button class="key" type="button" onclick="pinBack()" aria-label="Apagar último dígito">⌫</button>
       </div></div>
       <div class="kiosk-register-wrap"><button class="btn big green" id="btn-bater" type="button" onclick="registrarPonto()" aria-label="Registrar ponto para o PIN digitado">Registrar</button>
+      <button class="btn sm ghost" type="button" onclick="privacidadePonto()">Privacidade e dados de ponto</button>
       <div class="muted" id="status-impressora" style="text-align:center;margin-top:10px"></div></div>
     </section>
   </div>
@@ -744,16 +746,44 @@ const $ = id => document.getElementById(id);
 const pad = (n,l=2) => String(n).padStart(l,'0');
 const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const hojeISO = () => isoOf(getHoraOficial());
-const isoOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const FUSO_PONTO='America/Belem';
+const formatoPonto=new Intl.DateTimeFormat('en-CA',{timeZone:FUSO_PONTO,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
+function partesPonto(d){return Object.fromEntries(formatoPonto.formatToParts(d).map(p=>[p.type,p.value]));}
+const isoOf = d => {const p=partesPonto(d);return `${p.year}-${p.month}-${p.day}`;};
+const horaPonto = d => Number(partesPonto(d).hour);
+const dataCivil = iso => new Date(iso.slice(0,10)+'T12:00:00Z');
+const instanteCivil = (data,hora) => Date.parse(`${data}T${hora}:00-03:00`);
+const dataExibida = d => d.toLocaleDateString('pt-BR',{timeZone:FUSO_PONTO,weekday:'long',day:'numeric',month:'long',year:'numeric'});
 const brOf = iso => iso ? iso.split('-').reverse().join('/') : '';
-const hhmm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const hhmm = d => {const p=partesPonto(d);return `${p.hour}:${p.minute}`;};
 const toMin = h => { if(!h) return 0; const [a,b]=h.split(':').map(Number); return a*60+(b||0); };
 const toHHMM = m => `${pad(Math.floor(Math.abs(m)/60))}:${pad(Math.abs(m)%60)}`;
 const toSaldo = m => (m<0?'-':'+')+toHHMM(m);
 const DIAS = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-const dow = iso => new Date(iso+'T12:00:00').getDay();
-const addDias = (iso,n)=>{const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return isoOf(d);};
-function toast(msg,ms=5000){const t=document.createElement('div');t.className='toast';t.innerHTML=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),ms);}
+const dow = iso => dataCivil(iso).getUTCDay();
+const addDias = (iso,n)=>{const d=dataCivil(iso);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);};
+function toast(msg,ms=5000){const t=document.createElement('div');t.className='toast';t.textContent=msg;t.setAttribute('role','status');t.setAttribute('aria-live','polite');document.body.appendChild(t);setTimeout(()=>t.remove(),ms);}
+let dialogoAtivo=false;
+function dialogoUI(mensagem,valor){
+  if(dialogoAtivo)return Promise.resolve(null);
+  dialogoAtivo=true;
+  return new Promise(resolve=>{
+    const anterior=document.activeElement,el=document.createElement('div');el.className='modal small premium-dialog';
+    el.innerHTML=`<div class="inner" role="alertdialog" aria-modal="true" aria-labelledby="ui-dialog-title"><h3 id="ui-dialog-title">${valor===undefined?'Confirmar ação':'Informar dados'}</h3><p class="dialog-message">${esc(mensagem)}</p>${valor===undefined?'':'<label for="ui-dialog-value">Resposta</label><input id="ui-dialog-value" />'}<div class="row"><button class="btn ghost" type="button" data-cancel>Cancelar</button><button class="btn gold" type="button" data-ok>${valor===undefined?'Confirmar':'Continuar'}</button></div></div>`;
+    document.body.appendChild(el);const entrada=el.querySelector('input');if(entrada)entrada.value=valor||'';
+    const fim=ok=>{el.remove();dialogoAtivo=false;anterior?.focus();resolve(ok?(entrada?entrada.value:true):null);};
+    el.querySelector('[data-cancel]').onclick=()=>fim(false);el.querySelector('[data-ok]').onclick=()=>fim(true);
+    el.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();fim(false);}if(e.key==='Enter'&&entrada){e.preventDefault();fim(true);}if(e.key==='Tab'){const f=[...el.querySelectorAll('input,button')],a=f[0],b=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();b.focus();}else if(!e.shiftKey&&document.activeElement===b){e.preventDefault();a.focus();}}});
+    (entrada||el.querySelector('[data-cancel]')).focus();
+  });
+}
+const confirmarUI = mensagem => dialogoUI(mensagem);
+const solicitarUI = (mensagem,valor='') => dialogoUI(mensagem,valor);
+function capacidadesCamera(){return {disponivel:!!navigator.mediaDevices?.getUserMedia,metodo:'PIN'};}
+function privacidadePonto(){
+  abrirModal(`<div class="row"><h3>Privacidade e dados de ponto</h3><button class="btn ghost right" onclick="fecharModal()" aria-label="Fechar">✕</button></div><p>O empregador é o controlador dos dados. Nome, CPF, PIN, horários, jornada e registros de auditoria são tratados para controle de ponto e cumprimento das obrigações trabalhistas. O Ponto Pro Gestão atua como operador; o armazenamento utiliza a infraestrutura Supabase e o cache protegido pela conta neste aparelho.</p><p>O registro por PIN não captura foto, vídeo nem biometria e funciona sem câmera ou autorização de câmera. Não solicitamos acesso à câmera.</p><p>A guarda e o acesso seguem as obrigações legais e as orientações do empregador. Solicite ao empregador informações sobre retenção, correção de cadastro e seus direitos LGPD. O tratamento obrigatório de ponto não depende de consentimento; o botão abaixo registra apenas ciência deste aviso, não autorização para biometria ou uso adicional dos dados.</p><button class="btn gold" onclick="cienciaPrivacidade()">Li e estou ciente</button>`);
+}
+function cienciaPrivacidade(){localStorage.setItem(K('privacidade_ciencia'),JSON.stringify({versao:'2026-10-18',data:getHoraOficial().toISOString(),metodo:'PIN'}));fecharModal();toast('Ciência registrada neste aparelho.');}
 function baixar(nome,conteudo,tipo){const b=new Blob([conteudo],{type:tipo||'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nome;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
 
 /* ---------- storage isolado por conta (RLS local) ---------- */
@@ -871,9 +901,16 @@ async function sincronizarPendentes(){
     if(lsN.length){const s=new Set(lsN);get('batidas',[]).filter(b=>s.has(b.nsr)).forEach(b=>mapa.set(b.nsr,b));}
     filaB.forEach(b=>mapa.set(b.nsr,b));
     if(!mapa.size) return 0;
-    const rows=[...mapa.values()].map(linhaPonto), enviados=[...mapa.keys()];
-    for(let i=0;i<rows.length;i+=500) chk(await sb.from('pontos').upsert(rows.slice(i,i+500),{onConflict:'email_dono,nsr'}));
-    await filaRemover(enviados); salvaPendentes(pendentesLS().filter(n=>!enviados.includes(n))); NUVEM_OK=true; return rows.length;
+    let enviados=0;
+    for(const [chave,b] of mapa){
+      let final=b;
+      if(b.nsrPendente||String(b.nsr).startsWith('P-')) final=await centralizarBatida(b);
+      else {const r=await sb.from('pontos').update(linhaPonto(b)).eq('email_dono',CONTA).eq('nsr',b.nsr).select('nsr');chk(r);if(!r.data?.length)throw new Error('Registro histórico não localizado; mantido na fila.');}
+      const all=get('batidas',[]),i=all.findIndex(x=>x.nsr===chave||b.eventoId&&x.eventoId===b.eventoId);
+      if(i>=0)all[i]=final;else all.push(final);set('batidas',all);
+      await filaRemover([chave]);salvaPendentes(pendentesLS().filter(n=>n!==chave));enviados++;
+    }
+    NUVEM_OK=true;return enviados;
   }catch(e){ NUVEM_OK=false; return 0; }
   finally{ SINC=false; if(typeof atualizaStatus==='function') atualizaStatus(); }
 }
@@ -898,7 +935,7 @@ async function migrarTudoSunmiParaSupabase(forcar){
     [...todos('batidas'),...todos('pontos'),...todos('pontos_pendentes')].filter(b=>b&&typeof b==='object'&&b.nsr)
       .forEach(b=>{const n=String(b.nsr).padStart(9,'0');mp.set(n,Object.assign({},b,{nsr:n}));});
     const rows=[...mp.values()].map(linhaPonto);
-    for(let i=0;i<rows.length;i+=500) chk(await sb.from('pontos').upsert(rows.slice(i,i+500),{onConflict:'email_dono,nsr'}));
+    for(let i=0;i<rows.length;i+=500) chk(await sb.from('pontos').upsert(rows.slice(i,i+500),{onConflict:'email_dono,nsr',ignoreDuplicates:true}));
     const ml=new Map();
     [...todos('logs'),...todos('historico'),...todos('historico_acoes')].filter(x=>x&&(x.acao||x.texto))
       .forEach(x=>{const o={email_dono:CONTA,quando:String(x.quando||x.data||new Date().toISOString()),por:x.por||x.gerenciador||'Sistema',acao:x.acao||x.texto};ml.set(o.quando+'|'+o.acao,o);});
@@ -1022,7 +1059,7 @@ async function iniciarApp(){
   telaHome();
 }
 function feriadosNacionais(){
-  const y=new Date().getFullYear();
+  const y=Number(hojeISO().slice(0,4));
   return [['01-01','Confraternização Universal'],['04-21','Tiradentes'],['05-01','Dia do Trabalho'],
   ['09-07','Independência do Brasil'],['10-12','Nossa Senhora Aparecida'],['11-02','Finados'],
   ['11-15','Proclamação da República'],['11-20','Consciência Negra'],['12-25','Natal']]
@@ -1037,7 +1074,7 @@ async function sincronizarNTP(){
   const urls=['https://worldtimeapi.org/api/timezone/America/Belem','https://timeapi.io/api/Time/current/zone?timeZone=Etc/UTC'];
   for(const u of urls){
     try{
-      const t0=Date.now(); const r=await fetch(u,{cache:'no-store'}); const j=await r.json();
+      const t0=Date.now(); const r=await fetch(u,{cache:'no-store',signal:AbortSignal.timeout(5000)}); const j=await r.json();
       // usa sempre um instante UTC absoluto (utc_datetime ou dateTime + Z)
       const iso=j.utc_datetime||j.datetime||(j.dateTime?j.dateTime.replace(/Z?$/,'Z'):null)||`${j.date}T${j.time}Z`;
       const sv=new Date(iso).getTime();
@@ -1050,12 +1087,12 @@ async function sincronizarNTP(){
 let RELOGIO_ON=false;
 function relogio(){if(RELOGIO_ON)return;RELOGIO_ON=true;tick();}
 function tick(){const d=getHoraOficial();
-  if($('home-hora'))$('home-hora').textContent=`${brOf(isoOf(d))} ${hhmm(d)}:${pad(d.getSeconds())}`;
-  if($('relogio-kiosk'))$('relogio-kiosk').textContent=`${hhmm(d)}:${pad(d.getSeconds())}`;
-  if($('data-kiosk'))$('data-kiosk').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  if($('home-hora'))$('home-hora').textContent=`${brOf(isoOf(d))} ${hhmm(d)}:${partesPonto(d).second}`;
+  if($('relogio-kiosk'))$('relogio-kiosk').textContent=`${hhmm(d)}:${partesPonto(d).second}`;
+  if($('data-kiosk'))$('data-kiosk').textContent=dataExibida(d);
   setTimeout(tick,1000);}
 function atualizaStatus(){const el=$('status-ntp');if(!el)return;const p=CONTA?pendentes().length:0;
-  el.innerHTML=`<span class="sync-dot ${NTP_OK&&NUVEM_OK?'ok':''}" aria-hidden="true"></span><span>${NTP_OK?'Hora oficial':'Hora local'} · ${NUVEM_OK?'Sincronizado':'Offline — dados no aparelho'}${p?` · ${p} na fila`:''}</span>`;}
+  el.innerHTML=`<span class="sync-dot ${NTP_OK&&NUVEM_OK?'ok':''}" aria-hidden="true"></span><span>${NTP_OK?'Hora oficial':'Hora do aparelho · Belém (UTC−3)'} · ${NUVEM_OK?'Sincronizado':'Offline — dados no aparelho'}${p?` · ${p} na fila`:''}</span>`;}
 
 /* ============================== MÓDULO 1 — EMPREGADOR ============================== */
 const UFS=['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
@@ -1143,18 +1180,18 @@ function addGerenciador(){
   gs.push({nome,funcao,pin}); set('gerenciadores',gs); log(`Gerenciador cadastrado: ${nome} - ${funcao}`);
   $('g-nome').value=$('g-funcao').value=$('g-pin').value='';$('g-msg').innerHTML='';renderGerenciadores();
 }
-function editarGer(i){
+async function editarGer(i){
   const gs=get('gerenciadores',[]),g=gs[i];
-  const nome=prompt('Nome:',g.nome); if(nome===null)return; const funcao=prompt('Função:',g.funcao); if(funcao===null)return;
-  const pin=prompt('PIN 4 dígitos:',g.pin); if(pin===null)return;
-  if(!/^\d{4}$/.test(pin))return alert('PIN inválido');
-  if(gs.some((x,j)=>j!==i&&x.pin===pin))return alert('PIN já usado');
+  const nome=await solicitarUI('Nome:',g.nome); if(nome===null)return; const funcao=await solicitarUI('Função:',g.funcao); if(funcao===null)return;
+  const pin=await solicitarUI('PIN 4 dígitos:',g.pin); if(pin===null)return;
+  if(!/^\d{4}$/.test(pin))return toast('PIN inválido');
+  if(gs.some((x,j)=>j!==i&&x.pin===pin))return toast('PIN já usado');
   gs[i]={nome:nome.trim(),funcao:funcao.trim(),pin};set('gerenciadores',gs);log(`Gerenciador editado: ${nome}`);renderGerenciadores();
 }
-function excluirGer(i){
+async function excluirGer(i){
   const gs=get('gerenciadores',[]);
-  if(gs.length<=1) return alert('É obrigatório manter no mínimo 1 gerenciador.');
-  if(!confirm('Excluir '+gs[i].nome+'?'))return;
+  if(gs.length<=1) return toast('É obrigatório manter no mínimo 1 gerenciador.');
+  if(!(await confirmarUI('Excluir '+gs[i].nome+'?')))return;
   log(`Gerenciador excluído: ${gs[i].nome}`); gs.splice(i,1); set('gerenciadores',gs); renderGerenciadores();
 }
 
@@ -1252,7 +1289,7 @@ const ordemJornada=(a,b)=>instanteBatida(a).key.localeCompare(instanteBatida(b).
 function batidasJornada(pin,iso){return get('batidas',[]).filter(b=>!b.excluida&&b.pin===pin&&jornadaDe(b)===iso).sort(ordemJornada);}
 function jornadaAtualISO(pin){
   const agora=getHoraOficial(), hoje=isoOf(agora), ontem=addDias(hoje,-1);
-  if(agora.getHours()<6){
+  if(horaPonto(agora)<6){
     const n=batidasJornada(pin,ontem).length, h=horarioEscala(pin,hoje);
     const f=funcPorPin(pin), max=tiposDo(f).length;
     if(n%2===1&&n<max&&!(h&&toMin(h)<360)) return ontem; // ciclo aberto ontem => esta marcação é a SAÍDA
@@ -1261,7 +1298,17 @@ function jornadaAtualISO(pin){
 }
 const TIPOS=['Entrada','Saída Intervalo','Entrada Intervalo','Saída']; // FIXO: máximo 4 marcações por dia
 const tiposDo=f=>f&&f.intervalo&&f.intervalo.preAssinalado?['Entrada','Saída']:TIPOS; // intervalo pré-assinalado (Art. 71) não bate
-function proximoNSR(){const n=(get('nsr',0)||0)+1;set('nsr',n);return pad(n,9);}
+function proximoNSR(){return 'P-'+crypto.randomUUID();} // identificador de contingência, nunca NSR fiscal
+async function centralizarBatida(b){
+  if(!sb||!CONTA)throw new Error('Sem conexão autenticada');
+  const r=await sb.rpc('registrar_ponto_sequencial',{p_evento:b.eventoId||b.nsr.slice(2),p_batida:b}).abortSignal(AbortSignal.timeout(5000));
+  chk(r);if(!r.data?.nsr)throw new Error('Numeração central indisponível');
+  return {...b,...r.data,nsrPendente:false};
+}
+function exigirNSROficial(ini,fim){
+  if(get('batidas',[]).some(b=>!b.excluida&&b.data>=ini&&b.data<=fim&&(b.nsrPendente||String(b.nsr).startsWith('P-'))))throw new Error('Há marcações em contingência sem NSR oficial. Sincronize a numeração antes de exportar o arquivo fiscal.');
+}
+
 function confirmarMarcacaoRecente(hora){
   return new Promise(resolve=>{
     let encerrado=false;
@@ -1287,25 +1334,28 @@ async function registrarPonto(){
   const f=funcPorPin(PIN); if(!f) return toast('PIN não encontrado.',3000);
   if(f.status==='Desligado') return toast('Funcionário desligado — registro bloqueado.',4000);
   if(!NTP_OK){ await sincronizarNTP();
-    if(!NTP_OK && !confirm('Sem servidor de hora oficial (NTP). Art. 82 — risco de invalidade do registro. Confirmar registro com hora LOCAL?')) return;
+    if(!NTP_OK && !(await confirmarUI('Não foi possível conferir a hora oficial. A marcação usará o relógio do aparelho, convertido para Belém (UTC−3), e ficará identificada como contingência. Deseja continuar?'))) return;
   }
   const jornada=jornadaAtualISO(f.pin), agora=getHoraOficial(), data=isoOf(agora);
   const bs=batidasJornada(f.pin,jornada);
   const tps=tiposDo(f);
   if(bs.length>=tps.length) return toast(`Limite de ${tps.length} marcações no dia atingido.`,4000);
-  const ultima=bs.slice().sort((a,b)=>String(a.criadoEm||`${a.data}T${a.hora}:00`).localeCompare(String(b.criadoEm||`${b.data}T${b.hora}:00`))).pop();
+  const ultima=bs.slice().sort(ordemJornada).pop();
   if(ultima){
-    const instante=Date.parse(ultima.criadoEm||`${ultima.data}T${ultima.hora}:00`),decorridos=Date.now()-instante;
+    const instante=(ultima.criadoEm?Date.parse(ultima.criadoEm):instanteCivil(ultima.data,ultima.hora)),decorridos=getHoraOficial().getTime()-instante;
     if(Number.isFinite(decorridos)&&decorridos>=0&&decorridos<120000&&!(await confirmarMarcacaoRecente(ultima.hora))) return;
   }
   const b={pin:f.pin,nome:f.nome,cpf:f.cpf,data,jornada,hora:hhmm(agora),tipo:tps[bs.length],nsr:proximoNSR(),
     fonte:NTP_OK?'SERVIDOR':'LOCAL',sync:NTP_OK,offset:get('ntpOffset',0),gerenciador:GERENCIADOR?GERENCIADOR.nome:'—',
-    criadoEm:new Date().toISOString()};
+    criadoEm:agora.toISOString(),metodo:capacidadesCamera().metodo,nsrPendente:true,fuso:FUSO_PONTO};
+  b.eventoId=b.nsr.slice(2);
   const all=get('batidas',[]); all.push(b); set('batidas',all); // 1º salva no aparelho
-  confirmacaoRapida(f,b);                                        // overlay 2s e volta à tela limpa
-  imprimirComprovante(b);                                        // imprime 58mm imediato
-  log(`Batida registrada NSR ${b.nsr} — ${f.nome} ${b.hora} (${b.tipo})`);
-  await Promise.all([filaAdd(b).then(()=>sincronizarPendentes()).then(atualizaStatus),new Promise(r=>setTimeout(r,600))]); // fila IndexedDB → nuvem; botão "Registrando..." visível durante o processamento
+  await filaAdd(b);
+  const registrada=get('batidas',[]).find(x=>x.eventoId===b.eventoId)||b;
+  confirmacaoRapida(f,registrada);                                        // overlay 2s e volta à tela limpa
+  imprimirComprovante(registrada);                                        // imprime 58mm imediato
+  log(`Batida registrada ${registrada.nsrPendente?'em contingência':'NSR'} ${registrada.nsr} — ${f.nome} ${b.hora} (${b.tipo})`);
+  await Promise.all([sincronizarPendentes().then(atualizaStatus),new Promise(r=>setTimeout(r,600))]); // fila IndexedDB → nuvem; botão "Registrando..." visível durante o processamento
   }finally{
     if(btnBater){btnBater.disabled=false;btnBater.removeAttribute('aria-busy');btnBater.textContent=btnBater.dataset.rotulo||'Registrar';}
   }
@@ -1315,7 +1365,7 @@ function confirmacaoRapida(f,b){
   if(!o){o=document.createElement('div');o.id='ok-ponto';o.setAttribute('role','alert');o.setAttribute('aria-live','assertive');document.body.appendChild(o);}
   const h=+b.hora.slice(0,2),saud=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite',nome=String(f.nome||'').split(' ')[0];
   o.innerHTML=`<div class="okp-ico" aria-hidden="true">✓</div><div class="okp-saud">${saud}, ${esc(nome)}!</div>
-    <div class="okp-hora">${esc(b.hora)}</div><div class="okp-tipo">${esc(b.tipo)} registrada · NSR ${esc(b.nsr)}</div>`;
+    <div class="okp-hora">${esc(b.hora)}</div><div class="okp-tipo">${esc(b.tipo)} registrada · ${b.nsrPendente?'Contingência — aguardando NSR':'NSR '+esc(b.nsr)}</div>`;
   o.classList.add('show'); clearTimeout(o._t);
   o._t=setTimeout(()=>{o.classList.remove('show');pinLimpar();},2000);
 }
@@ -1345,7 +1395,7 @@ async function comprovanteTexto(b){
   const hashCurto=hashAss.slice(0,32);
   return {hashAss,hashCurto,linhas:[
     (e.razao||'EMPREGADOR').toUpperCase(),e.fantasia||'',`${e.tipo||'CNPJ'}: ${e.doc||''}`,`Local: ${endereco||'Nao informado'}`,
-    '------------------------------------------','Comprovante de Registro de Ponto','Ponto Pro Gestao',`NSR: ${String(b.nsr||'').padStart(9,'0')}`,
+    '------------------------------------------','Comprovante de Registro de Ponto','Ponto Pro Gestao',b.nsrPendente?`CONTINGENCIA: ${b.eventoId||b.nsr}`:`NSR: ${String(b.nsr||'').padStart(9,'0')}`,
     `Colaborador: ${b.nome}`,`CPF: ${cpfProtegido}`,'DATA E HORA DA MARCACAO',`${brOf(b.data)}  ${b.hora}`,
     'SHA-256:',hashCurto.slice(0,16),hashCurto.slice(16),'Portaria MTE 671/2021'
   ].filter(Boolean)};
@@ -1522,7 +1572,7 @@ function indicadoresExecutivos(fs,hoje,agora){
   const ativos=fs.filter(f=>(f.status||'Ativo')!=='Desligado'&&(!f.admissao||f.admissao<=hoje));
   ativos.forEach(f=>{const atual=batidasDia(f.pin,hoje),anterior=batidasDia(f.pin,addDias(hoje,-1)),abertoHoje=atual.length%2===1,abertoOntem=anterior.length%2===1;
     const inicio=horarioEscala(f.pin,hoje),entradaMadrugada=inicio&&toMin(inicio)<360;
-    if(abertoHoje||(agora.getHours()<6&&abertoOntem&&!atual.length&&!entradaMadrugada))presentes++;
+    if(abertoHoje||(horaPonto(agora)<6&&abertoOntem&&!atual.length&&!entradaMadrugada))presentes++;
     if(abertoHoje||abertoOntem)atencao++;
     const escala=buscaNaEscala(f.pin,hoje);
     if(escala?escala.tipo!=='Trabalhado':previstoDia(f,hoje)===0&&(f.status||'Ativo')==='Ativo')folgas++;
@@ -1538,7 +1588,7 @@ function indicadoresDashboard(fs,hoje,agora){
   return {total:ativos.length,marcacoes:todas.filter(b=>instanteBatida(b).civil===hoje).length,ocorrencias:ocorrencias+outros.size};
 }
 function painelExecutivoHTML(){const e=get('empregador',{})||{},nome=GERENCIADOR?.nome||e.fantasia||e.razao||'Gestor';return `<section class="manager-executive" aria-label="Resumo de hoje"><header class="manager-welcome"><h2>Olá, ${esc(nome)}</h2><time id="gestor-data"></time></header><div class="executive-kpis"><div class="executive-kpi"><span>Colaboradores Ativos</span><strong><span id="exec-total" class="executive-total">0</span><small> / ${maxFuncAtual()}</small></strong></div><div class="executive-kpi"><span>Marcações Registradas Hoje</span><strong id="exec-marcacoes">0</strong></div><div class="executive-kpi"><span>Ocorrências / Pendências</span><strong id="exec-ocorrencias">0</strong></div></div><div class="executive-actions"><button class="btn ghost" onclick="navegarGestor('bat')">${iconeGestor('bat')} Ver Batidas de Hoje</button><button class="btn ghost" onclick="navegarGestor('folha')">${iconeGestor('folha')} Abrir Folha MTE</button></div></section>`;}
-function atualizarPainelExecutivo(){if(!$('gestor-data'))return;const agora=getHoraOficial(),hoje=isoOf(agora),k=indicadoresDashboard(get('funcionarios',[]),hoje,agora);$('gestor-data').textContent=agora.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});$('gestor-data').dateTime=hoje;['total','marcacoes','ocorrencias'].forEach(n=>$('exec-'+n).textContent=k[n]);}
+function atualizarPainelExecutivo(){if(!$('gestor-data'))return;const agora=getHoraOficial(),hoje=isoOf(agora),k=indicadoresDashboard(get('funcionarios',[]),hoje,agora);$('gestor-data').textContent=dataExibida(agora);$('gestor-data').dateTime=hoje;['total','marcacoes','ocorrencias'].forEach(n=>$('exec-'+n).textContent=k[n]);}
 function carregarTelaGestor(alvo,titulo,render){const id=++trocaGestor;$(alvo).innerHTML=`<section class="module-loading" role="status" aria-live="polite"><h3>${esc(titulo)}</h3><span>Carregando…</span><div class="module-loading-bar" aria-hidden="true"></div></section>`;requestAnimationFrame(()=>requestAnimationFrame(()=>{if(id!==trocaGestor||$('tela-gestor').classList.contains('hidden'))return;render();}));}
 function pararRelogioGestor(){if(relogioGestor)clearInterval(relogioGestor);relogioGestor=null;}
 function mostrarCentralGestor(){
@@ -1566,7 +1616,7 @@ async function abaLogs(){
 }
 function renderLogs(l){
   $('gestor-body').innerHTML=`<h3>Histórico de ações (auditoria — nuvem)</h3><div class="tbl-wrap"><table><tr><th>Quando</th><th>Por</th><th>Ação</th></tr>
-  ${l.map(x=>`<tr><td>${new Date(x.quando).toLocaleString('pt-BR')}</td><td>${esc(x.por)}</td><td>${esc(x.acao)}</td></tr>`).join('')||'<tr><td colspan=3 class="muted">Sem registros.</td></tr>'}</table></div>`;
+  ${l.map(x=>`<tr><td>${new Date(x.quando).toLocaleString('pt-BR',{timeZone:FUSO_PONTO})}</td><td>${esc(x.por)}</td><td>${esc(x.acao)}</td></tr>`).join('')||'<tr><td colspan=3 class="muted">Sem registros.</td></tr>'}</table></div>`;
 }
 
 /* ============================== MÓDULO 2 — EMPREGADOS ============================== */
@@ -1667,7 +1717,7 @@ function salvarFunc(i){
   if(i>=0) fs[i]=o; else { if(fs.length>=maxFuncAtual()) return $('f-msg').innerHTML=`<div class="alert err">Seu plano permite até ${maxFuncAtual()} colaboradores e esse limite já foi atingido. Para cadastrar mais pessoas, fale com o suporte e mude de plano.</div>`; fs.push(o); }
   set('funcionarios',fs); log(`${i>=0?'Editou':'Cadastrou'} empregado ${o.nome} (${statusTexto(o)})`); fecharModal(); abaFunc();
 }
-function delFunc(i){const fs=get('funcionarios',[]);const f=fs[i];if(!f)return;if(!confirm('Excluir o colaborador '+f.nome+'?\n\nA ficha, o PIN e a escala dele saem da lista. As batidas já registradas ficam guardadas no histórico.\n\nEsta ação não pode ser desfeita.'))return;log(`Excluiu empregado ${fs[i].nome}`);fs.splice(i,1);set('funcionarios',fs);abaFunc();}
+async function delFunc(i){const fs=get('funcionarios',[]);const f=fs[i];if(!f)return;if(!(await confirmarUI('Excluir o colaborador '+f.nome+'?\n\nA ficha, o PIN e a escala dele saem da lista. As batidas já registradas ficam guardadas no histórico.\n\nEsta ação não pode ser desfeita.')))return;log(`Excluiu empregado ${fs[i].nome}`);fs.splice(i,1);set('funcionarios',fs);abaFunc();}
 
 /* ============================== CÁLCULO — NÚCLEO ============================== */
 const feriadoDe = iso => get('feriados',[]).find(f=>f.data===iso);
@@ -1679,7 +1729,7 @@ function escalaDaSemana(iso,pin){
 }
 function inicioSemana(iso){
   const base=get('config',{inicioSemana:1}).inicioSemana??1;
-  const d=new Date(iso+'T12:00:00'); const diff=(d.getDay()-base+7)%7; d.setDate(d.getDate()-diff); return isoOf(d);
+  return addDias(iso,-((dow(iso)-base+7)%7));
 }
 function folgaEscala(pin,iso){
   const e=escalaDaSemana(iso,pin); if(!e) return null;
@@ -1882,10 +1932,10 @@ function subFeriados(){
 }
 function addFeriado(){
   const d=$('fr-data').value,n=$('fr-nome').value.trim(),t=$('fr-tipo').value;
-  if(!d||!n)return alert('Informe data e nome.');
+  if(!d||!n)return toast('Informe data e nome.');
   const fs=get('feriados',[]);fs.push({data:d,nome:n,tipo:t});set('feriados',fs);log(`Feriado cadastrado ${brOf(d)} - ${n} (${t})`);subFeriados();
 }
-function delFeriado(d,n){if(!confirm('Excluir o feriado '+n+' ('+brOf(d)+')?\n\nEle deixará de ser considerado como folga remunerada no calendário e nos cálculos.\n\nEsta ação não pode ser desfeita.'))return;const fs=get('feriados',[]).filter(f=>!(f.data===d&&f.nome===n));set('feriados',fs);log(`Feriado excluído ${brOf(d)} - ${n}`);subFeriados();}
+async function delFeriado(d,n){if(!(await confirmarUI('Excluir o feriado '+n+' ('+brOf(d)+')?\n\nEle deixará de ser considerado como folga remunerada no calendário e nos cálculos.\n\nEsta ação não pode ser desfeita.')))return;const fs=get('feriados',[]).filter(f=>!(f.data===d&&f.nome===n));set('feriados',fs);log(`Feriado excluído ${brOf(d)} - ${n}`);subFeriados();}
 /* B) Gestão diária de batidas — ajustes e ocorrências consolidados por dia */
 function statusGestaoDia(linha,ocorrencia){
   if(ocorrencia&&String(ocorrencia.tipo||'').toLowerCase().includes('atestado')) return ['Atestado','atestado'];
@@ -1910,7 +1960,7 @@ function filtrarGestaoBatidas(){
   const pin=$('gb-pin')?.value||'',ini=$('gb-ini')?.value||'',fim=$('gb-fim')?.value||'';
   if(!pin||!ini||!fim)return;
   if(ini>fim){$('gb-conteudo').innerHTML='<div class="alert err">A data inicial deve ser anterior à data final.</div>';return;}
-  if((new Date(fim+'T12:00:00')-new Date(ini+'T12:00:00'))/864e5>366){$('gb-conteudo').innerHTML='<div class="alert err">Selecione um período de até 366 dias.</div>';return;}
+  if((dataCivil(fim)-dataCivil(ini))/864e5>366){$('gb-conteudo').innerHTML='<div class="alert err">Selecione um período de até 366 dias.</div>';return;}
   window.__batFilt={pin,ini,fim};renderGestaoBatidas();
 }
 function renderGestaoBatidas(){
@@ -1956,7 +2006,7 @@ function acoesBatidaHTML(b){
   return `<div class="row" style="margin-top:6px;gap:6px"><span class="badge">Registro REP — imutável</span><label class="muted" style="margin:0">Classificação</label><select aria-label="Mover classificação da batida" onchange="moverTipo('${b.nsr}',this.value,this)">${TIPOS.map(t=>`<option ${t===b.tipo?'selected':''}>${t}</option>`).join('')}</select></div>`;
 }
 function editarBatidaManual(nsr){
-  const b=get('batidas',[]).find(x=>x.nsr===nsr);if(!b||b.fonte!=='MANUAL')return alert('Somente batidas manuais podem ser editadas.');
+  const b=get('batidas',[]).find(x=>x.nsr===nsr);if(!b||b.fonte!=='MANUAL')return toast('Somente batidas manuais podem ser editadas.');
   abrirModal(`<div class="row"><h3>Editar batida manual</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
   <div class="card grid g2"><div><label>Data</label><input value="${brOf(b.data)}" readonly/></div>
     <div><label>Hora</label><input type="time" id="eb-hora" value="${b.hora}"/></div>
@@ -1966,31 +2016,31 @@ function editarBatidaManual(nsr){
 }
 function salvarEdicaoBatida(nsr){
   const hora=$('eb-hora').value,tipo=$('eb-tipo').value,motivo=$('eb-motivo').value.trim();
-  if(!hora)return alert('Informe a hora.');if(motivo.length<5)return alert('Justificativa obrigatória (mín. 5 caracteres).');
+  if(!hora)return toast('Informe a hora.');if(motivo.length<5)return toast('Justificativa obrigatória (mín. 5 caracteres).');
   const all=get('batidas',[]),b=all.find(x=>x.nsr===nsr);if(!b||b.fonte!=='MANUAL')return;
   const antes=`${b.hora} ${b.tipo}`;b.hora=hora;b.tipo=tipo;
   b.movimento=`Manual editada (${antes} → ${hora} ${tipo}) - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`;b.editadoEm=new Date().toISOString();
   set('batidas',all);filaPonto(nsr);log(`Batida manual NSR ${nsr} editada de ${antes} para ${hora} ${tipo} - Motivo: ${motivo}`);
   fecharModal();window.__batFilt={pin:b.pin,ini:$('gb-ini')?.value||b.data,fim:$('gb-fim')?.value||b.data};subBatidas();
 }
-function excluirBatidaManual(nsr){
-  const all=get('batidas',[]),b=all.find(x=>x.nsr===nsr);if(!b||b.fonte!=='MANUAL')return alert('Batidas do REP não podem ser excluídas (Portaria 671).');
-  if(!confirm(`Excluir a batida manual de ${brOf(b.data)} às ${b.hora}?\n\nEla deixará de contar na folha e no banco de horas. O registro fica guardado na auditoria.`))return;
-  const motivo=(prompt('Justificativa obrigatória (mín. 5 caracteres):')||'').trim();if(motivo.length<5)return alert('Sem justificativa válida a exclusão não é feita.');
+async function excluirBatidaManual(nsr){
+  const all=get('batidas',[]),b=all.find(x=>x.nsr===nsr);if(!b||b.fonte!=='MANUAL')return toast('Batidas do REP não podem ser excluídas (Portaria 671).');
+  if(!(await confirmarUI(`Excluir a batida manual de ${brOf(b.data)} às ${b.hora}?\n\nEla deixará de contar na folha e no banco de horas. O registro fica guardado na auditoria.`)))return;
+  const motivo=((await solicitarUI('Justificativa obrigatória (mín. 5 caracteres):'))||'').trim();if(motivo.length<5)return toast('Sem justificativa válida a exclusão não é feita.');
   b.excluida=true;b.movimento=`Manual excluída - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`;b.excluidaEm=new Date().toISOString();
   set('batidas',all);filaPonto(nsr);log(`Batida manual NSR ${nsr} (${brOf(b.data)} ${b.hora}) excluída - Motivo: ${motivo}`);
   fecharModal();subBatidas();
 }
-function excluirOcorrencia(pin,data){
+async function excluirOcorrencia(pin,data){
   const l=get('ocorrencias',[]),o=l.find(x=>x.pin===pin&&x.data===data);if(!o)return;
-  if(!confirm(`Excluir a ocorrência "${o.tipo}" de ${brOf(data)}?\n\nO dia voltará a ser calculado normalmente.`))return;
+  if(!(await confirmarUI(`Excluir a ocorrência "${o.tipo}" de ${brOf(data)}?\n\nO dia voltará a ser calculado normalmente.`)))return;
   set('ocorrencias',l.filter(x=>x!==o));log(`Ocorrência ${o.tipo} de ${brOf(data)} excluída (${(funcPorPin(pin)||{}).nome||pin})`);fecharModal();subBatidas();
 }
-function moverTipo(nsr,novo,sel){
+async function moverTipo(nsr,novo,sel){
   const all=get('batidas',[]),b=all.find(x=>x.nsr===nsr),antigo=b.tipo;
   if(antigo===novo)return;
-  const motivo=(prompt('MOTIVO obrigatório (mín. 5 caracteres) para mover a marcação:')||'').trim();
-  if(motivo.length<5){alert('Sem motivo válido a alteração não é salva.');sel.value=antigo;return;}
+  const motivo=((await solicitarUI('MOTIVO obrigatório (mín. 5 caracteres) para mover a marcação:'))||'').trim();
+  if(motivo.length<5){toast('Sem motivo válido a alteração não é salva.');sel.value=antigo;return;}
   b.tipo=novo; b.movimento=`Movido de ${antigo} p/ ${novo} - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`;
   set('batidas',all); filaPonto(nsr); log(`Batida NSR ${nsr} movida de ${antigo} para ${novo} - Motivo: ${motivo}`); fecharModal(); subBatidas();
 }
@@ -2007,12 +2057,12 @@ function inserirBatidaManual(pinSelecionado='',dataSelecionada=''){
 }
 function salvarBatidaManual(){
   const pin=$('ib-pin').value,data=$('ib-data').value,hora=$('ib-hora').value,tipo=$('ib-tipo').value,motivo=$('ib-motivo').value.trim();
-  if(!data||!hora)return alert('Informe data e hora.');
-  if(motivo.length<5)return alert('Motivo obrigatório (mín. 5 caracteres).');
+  if(!data||!hora)return toast('Informe data e hora.');
+  if(motivo.length<5)return toast('Motivo obrigatório (mín. 5 caracteres).');
   const f=funcPorPin(pin), all=get('batidas',[]);
-  if(batidasJornada(pin,data).length>=4)return alert('Limite de 4 marcações no dia.');
+  if(batidasJornada(pin,data).length>=4)return toast('Limite de 4 marcações no dia.');
   const nsrM=proximoNSR();
-  all.push({pin,nome:f.nome,cpf:f.cpf,data,hora,tipo,nsr:nsrM,fonte:'MANUAL',sync:false,offset:get('ntpOffset',0),
+  all.push({pin,nome:f.nome,cpf:f.cpf,data,hora,tipo,nsr:nsrM,eventoId:nsrM.slice(2),nsrPendente:true,metodo:'PIN',fuso:FUSO_PONTO,fonte:'MANUAL',sync:false,offset:get('ntpOffset',0),
     gerenciador:GERENCIADOR.nome,movimento:`Inserida manualmente - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`,criadoEm:new Date().toISOString()});
   set('batidas',all); filaPonto(nsrM); log(`Batida manual inserida ${brOf(data)} ${hora} ${f.nome} - Motivo: ${motivo}`); fecharModal();window.__batFilt={pin,data,ini:$('gb-ini')?.value||data,fim:$('gb-fim')?.value||data};subBatidas();
 }
@@ -2028,7 +2078,7 @@ function lancarOcorrencia(pinSelecionado='',dataSelecionada=''){
 }
 function salvarOcorrencia(){
   const pin=$('oc-pin').value,data=$('oc-data').value,tipo=$('oc-tipo').value,motivo=$('oc-motivo').value.trim();
-  if(motivo.length<5)return alert('Motivo obrigatório (mín. 5 caracteres).');
+  if(motivo.length<5)return toast('Motivo obrigatório (mín. 5 caracteres).');
   const l=get('ocorrencias',[]),existente=l.find(o=>o.pin===pin&&o.data===data);
   if(existente){existente.tipo=tipo;existente.motivo=motivo;existente.por=GERENCIADOR.nome;}else l.push({pin,data,tipo,motivo,por:GERENCIADOR.nome});
   set('ocorrencias',l);log(`Ocorrência ${tipo} em ${brOf(data)} - Motivo: ${motivo}`);fecharModal();window.__batFilt={pin,ini:$('gb-ini')?.value||data,fim:$('gb-fim')?.value||data};subBatidas();
@@ -2087,7 +2137,7 @@ const TIPOS_ESC=['Trabalhado','DSR','Folga Domingo','Folga Compensada'];
 function setEscPeriodo(n){window.__escDias=Number(n);const i=$('escala-inicio').value||window.__escIni;window.__escIni=i;window.__escFim=addDias(i,Number(n)-1);subEscala();}
 function escIniChange(v){if(v)$('escala-fim').value=addDias(v,(window.__escDias||7)-1);}
 function filtrarEscala(){const i=$('escala-inicio').value,f=$('escala-fim').value;
-  if(!i||!f||f<i)return alert('Período inválido.');if((new Date(f)-new Date(i))/864e5>30)return alert('Máximo de 31 dias.');
+  if(!i||!f||f<i)return toast('Período inválido.');if((new Date(f)-new Date(i))/864e5>30)return toast('Máximo de 31 dias.');
   window.__escIni=i;window.__escFim=f;subEscala();}
 function navSemana(n){const nd=window.__escDias||7;window.__escIni=addDias(window.__escIni||inicioSemana(hojeISO()),n*nd);window.__escFim=addDias(window.__escIni,nd-1);subEscala();}
 function setInicioSemana(v){const c=get('config',{});c.inicioSemana=Number(v);set('config',c);window.__escIni=null;window.__escFim=null;subEscala();}
@@ -2106,7 +2156,7 @@ function setCelula(ini,pin,dia,tipo){
   if(tipo!=='Trabalhado'){
     const sem=inicioSemana(dia);
     const qtd=Object.values(all).flatMap(x=>x.folgas||[]).filter(x=>x.pin===pin&&x.tipo!=='Trabalhado'&&x.dia!==dia&&inicioSemana(x.dia)===sem);
-    if(new Set(qtd.map(x=>x.dia)).size>=3){alert('Máximo de 3 folgas por funcionário na mesma semana.');subEscala();return;}
+    if(new Set(qtd.map(x=>x.dia)).size>=3){toast('Máximo de 3 folgas por funcionário na mesma semana.');subEscala();return;}
   }
   const item={pin,dia,tipo,horarioEntrada:tipo==='Trabalhado'?(i>=0?e.folgas[i].horarioEntrada:''):''};
   if(i>=0) e.folgas[i]=item; else e.folgas.push(item);
@@ -2144,7 +2194,7 @@ async function importarEscala(inp){
   const file=inp.files[0]; if(!file) return; const rd=new FileReader();
   if(/\.xlsx?$/i.test(file.name)){
     await garantirLib('xlsx');
-    if(!window.XLSX) return alert('Leitor de planilhas indisponível (sem internet). Use CSV.');
+    if(!window.XLSX) return toast('Leitor de planilhas indisponível (sem internet). Use CSV.');
     rd.onload=()=>{const wb=XLSX.read(rd.result,{type:'array'});previewImport(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false}));};
     rd.readAsArrayBuffer(file);
   } else {
@@ -2470,7 +2520,7 @@ function abaContador(){
   $('gestor-body').innerHTML=`<h3>Pacote do Contador</h3><div class="row"><div><label>Mês de fechamento</label><input type="month" id="ct-mes" value="${mes}" onchange="periodoContador()"/></div><button id="fl-pacote" class="btn" onclick="pacoteContador()">📦 Baixar pacote mensal (ZIP)</button></div><input type="hidden" id="fl-ini"/><input type="hidden" id="fl-fim"/><div id="fl-export-status" class="muted" role="status" aria-live="polite"></div>`;
   periodoContador();
 }
-function periodoContador(){const mes=$('ct-mes')?.value;if(!/^\d{4}-\d{2}$/.test(mes||''))return;const [ano,m]=mes.split('-').map(Number);$('fl-ini').value=mes+'-01';$('fl-fim').value=isoOf(new Date(ano,m,0,12));}
+function periodoContador(){const mes=$('ct-mes')?.value;if(!/^\d{4}-\d{2}$/.test(mes||''))return;const [ano,m]=mes.split('-').map(Number);$('fl-ini').value=mes+'-01';$('fl-fim').value=new Date(Date.UTC(ano,m,0,12)).toISOString().slice(0,10);}
 function periodoFolhaValido(){
   const ini=$('fl-ini')?.value,fim=$('fl-fim')?.value;
   if(!ini||!fim||ini>fim){toast('Informe um período válido: início até a data final.',4000);return null;}
@@ -2514,7 +2564,7 @@ async function pacoteContador(){
 }
 function cabecalhoFolhaHTML(f,ini,fim){
   const e=get('empregador',{})||{};
-  return `<header class="sheet-top"><img src="${esc(e.logo||logoApp())}" alt="Logo da empresa"><div><h3 class="sheet-title">Espelho de Ponto</h3><div class="sheet-issued">Emissão: ${esc(getHoraOficial().toLocaleString('pt-BR'))} · Período: ${brOf(ini)} a ${brOf(fim)}</div></div></header>
+  return `<header class="sheet-top"><img src="${esc(e.logo||logoApp())}" alt="Logo da empresa"><div><h3 class="sheet-title">Espelho de Ponto</h3><div class="sheet-issued">Emissão: ${esc(getHoraOficial().toLocaleString('pt-BR',{timeZone:FUSO_PONTO}))} · Período: ${brOf(ini)} a ${brOf(fim)}</div></div></header>
   <div class="sheet-identification"><div class="sheet-people">${dadosCabecalhoFolha(f,ini,fim)[0].map(t=>`<div>${esc(t).replace(/\n/g,'<br>')}</div>`).join('')}</div><section class="sheet-box"><div class="sheet-box-title">Horário de Trabalho</div><table class="sheet-work-hours" aria-label="Horário de trabalho padrão da empresa"><tbody>${horarioTrabalhoFolha().map(([dia,horas])=>`<tr><th scope="row">${dia}</th><td>${esc(horas)}</td></tr>`).join('')}</tbody></table></section></div>`;
 }
 function htmlFolha(pin,ini,fim){
@@ -2546,7 +2596,7 @@ async function gerarPDFComLogo(dados){
       if(!first)doc.addPage();first=false;
       if(image){const ratio=Math.min(25/image.width,13/image.height);try{doc.addImage(image,10,8,image.width*ratio,image.height*ratio);}catch(_){}}
       doc.setTextColor(...palette.navy);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text('Espelho de Ponto',40,14);
-      doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Emissão: ${getHoraOficial().toLocaleString('pt-BR')} · Período: ${brOf(d.ini)} a ${brOf(d.fim)}`,40,20);
+      doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Emissão: ${getHoraOficial().toLocaleString('pt-BR',{timeZone:FUSO_PONTO})} · Período: ${brOf(d.ini)} a ${brOf(d.fim)}`,40,20);
       doc.setDrawColor(...palette.navy);doc.setLineWidth(.5);doc.line(10,24,200,24);
       const common={palette,compact:true,cellPadding:.7,fontSize:6.5};
       const peopleEnd=pdfTabelaPadrao(doc,{...common,y:27,head:null,body:dadosCabecalhoFolha(d.f,d.ini,d.fim)[0].map(x=>[x]),widths:[99],tableWidth:99,left:10});
@@ -2632,7 +2682,7 @@ function telaLote(){
 }
 function lotSelAll(v){document.querySelectorAll('.lt-cb').forEach(c=>c.checked=v);}
 const lotePins=()=>[...document.querySelectorAll('.lt-cb:checked')].map(c=>c.value);
-function loteValida(){const p=lotePins();if(!$('lt-ini').value||!$('lt-fim').value){alert('Período obrigatório.');return null;}if(!p.length){alert('Selecione ao menos 1 funcionário.');return null;}return p;}
+function loteValida(){const p=lotePins();if(!$('lt-ini').value||!$('lt-fim').value){toast('Período obrigatório.');return null;}if(!p.length){toast('Selecione ao menos 1 funcionário.');return null;}return p;}
 function loteVisualizar(){const p=loteValida();if(!p)return;$('lt-out').innerHTML=p.map(x=>htmlFolha(x,$('lt-ini').value,$('lt-fim').value)).join('');}
 async function lotePDF(){const p=loteValida();if(!p)return;const ini=$('lt-ini').value;
   try{await garantirHistorico(ini);}catch(e){}
@@ -2723,19 +2773,19 @@ function renderSobre(){
   <div class="card"><h4>Desenvolvedor / Fabricante</h4><div class="grid g3">
   ${f('nome','Nome do desenvolvedor')}${f('empresa','Empresa')}${f('tipoDoc','Tipo (CPF/CNPJ)')}${f('doc','CPF/CNPJ')}${f('email','E-mail de suporte')}${f('telefone','Telefone/WhatsApp')}${f('cidade','Cidade/UF')}${f('versao','Versão')}${f('registroINPI','Nº registro INPI do programa')}
   </div>${ed?'<button class="btn" style="margin-top:10px" onclick="salvarDev()">Salvar dados do desenvolvedor</button>':''}</div>
-  <div class="muted">© ${new Date().getFullYear()} ${esc(d.nome)} — Todos os direitos reservados.</div>`);
+  <div class="muted">© ${Number(hojeISO().slice(0,4))} ${esc(d.nome)} — Todos os direitos reservados.</div>`);
 }
 let LOGO_APP_TMP=null;
 function podeEditarDev(){return !!(CONTA==='lima020494@gmail.com'&&typeof LIC!=='undefined'&&LIC&&LIC.isDev&&ehMestre());}
-function lerLogoApp(inp){if(!podeEditarDev())return;const f=inp.files[0];if(!f)return;if(!['image/png','image/jpeg','image/webp'].includes(f.type)||f.size>1000000)return alert('Use PNG, JPG ou WebP de até 1 MB.');const r=new FileReader();r.onload=()=>{LOGO_APP_TMP=r.result;$('dv-logo-prev').src=r.result;};r.readAsDataURL(f);}
+function lerLogoApp(inp){if(!podeEditarDev())return;const f=inp.files[0];if(!f)return;if(!['image/png','image/jpeg','image/webp'].includes(f.type)||f.size>1000000)return toast('Use PNG, JPG ou WebP de até 1 MB.');const r=new FileReader();r.onload=()=>{LOGO_APP_TMP=r.result;$('dv-logo-prev').src=r.result;};r.readAsDataURL(f);}
 async function salvarDev(){
-  if(!podeEditarDev()) return alert('Apenas desenvolvedor');
+  if(!podeEditarDev()) return toast('Apenas desenvolvedor');
   const o={};['nome','empresa','tipoDoc','doc','email','telefone','cidade','versao','registroINPI'].forEach(k=>o[k]=$('dv-'+k).value.trim());
   if(LOGO_APP_TMP)o.logo=LOGO_APP_TMP;
   try{const j=await apiLic('POST',{acao:'dev_info',pin:GERENCIADOR.pin,info:o});
     aplicarDevGlobal(j.info);LOGO_APP_TMP=null;SOBRE_ABERTO=false;
     log('Atualizou dados globais do desenvolvedor / logotipo do app');fecharModal();toast('Informações globais atualizadas.');
-  }catch(e){alert('Não foi possível salvar: '+e.message);}
+  }catch(e){toast('Não foi possível salvar: '+e.message);}
 }
 
 /* ===================== UTILITÁRIOS AFD ===================== */
@@ -2748,7 +2798,8 @@ async function sha256(t){const b=await crypto.subtle.digest('SHA-256',new TextEn
 
 /* ===================== AFD — Anexo V Portaria 671 (REP-P, leiaute 003) ===================== */
 async function gerarAFD(ini,fim){
-  if(!ini||!fim)return alert('Selecione o período.');
+  if(!ini||!fim)return toast('Selecione o período.');
+  exigirNSROficial(ini,fim);
   const e=get('empregador',{})||{},d=devCfg(),agora=getHoraOficial();
   const tpE=e.tipo==='CPF'?'2':'1';
   const regs=[];
@@ -2772,7 +2823,8 @@ async function gerarAFD(ini,fim){
 
 /* ===================== AEJ — Anexo VI Portaria 671 (leiaute 001) ===================== */
 function gerarAEJ(ini,fim){
-  if(!ini||!fim)return alert('Selecione o período.');
+  if(!ini||!fim)return toast('Selecione o período.');
+  exigirNSROficial(ini,fim);
   const e=get('empregador',{})||{},d=devCfg(),fs=get('funcionarios',[]);
   const L=[],cnt={};const add=(t,arr)=>{L.push([t,...arr].join('|'));cnt[t]=(cnt[t]||0)+1;};
   add('01',[e.tipo==='CPF'?'2':'1',soNum(e.doc),'',soNum(e.cei),e.razao||'',ini,fim,'001']);
@@ -2937,7 +2989,7 @@ async function abrirFolhaPorLink(token){
   ['tela-login','tela-empregador','tela-home','tela-gestor'].forEach(id=>$(id)?.classList.add('hidden'));
   $('tela-folha-link').classList.remove('hidden');
   try{
-    const response=await fetch(`/api/public/folha-link?token=${encodeURIComponent(token)}`,{cache:'no-store'}),data=await response.json();
+    const response=await fetch(`/api/public/folha-link?token=${encodeURIComponent(token)}`,{cache:'no-store',signal:AbortSignal.timeout(5000)}),data=await response.json();
     if(!response.ok) throw new Error(data.error||'Acesso indisponível.');
     CONTA='folha-compartilhada';SHARE_DATA={funcionarios:[data.employee],batidas:data.points,empregador:data.employer,escalas:data.schedules,feriados:data.holidays,...(data.misc||{})};
     window.__folhaLink={pin:'self',ini:data.start,fim:data.end,nome:data.employee.nome};
@@ -2979,6 +3031,7 @@ function manualFolha(){
 
 /* AFD — Tipo 1 cabeçalho | Tipo 3 marcação | Tipo 9 trailer */
 function conteudoAFDOficial(ini,fim){
+  exigirNSROficial(ini,fim);
   const e=get('empregador',{})||{},dmy=iso=>iso.slice(8,10)+iso.slice(5,7)+iso.slice(0,4),ag=getHoraOficial();
   const bs=get('batidas',[]).filter(b=>!b.excluida&&b.data>=ini&&b.data<=fim).sort((a,b)=>a.nsr.localeCompare(b.nsr));
   const cnpj=padL(soNum(e.doc),14);
@@ -2988,9 +3041,9 @@ function conteudoAFDOficial(ini,fim){
   return L.join('\r\n')+'\r\n';
 }
 function gerarAFDOficial(ini,fim){
-  if(!ini||!fim||ini>fim)return alert('Selecione um período válido.');
+  if(!ini||!fim||ini>fim)return toast('Selecione um período válido.');
   const e=get('empregador',{})||{};
-  baixar(`AFD_${soNum(e.doc)}_${ini}_${fim}.txt`,conteudoAFDOficial(ini,fim));
+  try{baixar(`AFD_${soNum(e.doc)}_${ini}_${fim}.txt`,conteudoAFDOficial(ini,fim));}catch(e){return toast(e.message);}
   log(`Gerou AFD oficial ${brOf(ini)}–${brOf(fim)}`);
 }
 
@@ -3037,7 +3090,7 @@ async function executarExclusao(){
   Object.keys(localStorage).filter(k=>k.startsWith(`vip:${CONTA}:`)||k.startsWith(`${CONTA}_`)).forEach(k=>localStorage.removeItem(k));
   salvaContas(contas().filter(c=>c.email!==CONTA));
   try{await sb.auth.signOut();}catch(e){}
-  alert('Conta excluída. Todos os dados da empresa foram apagados.'); location.reload();
+  toast('Conta excluída. Todos os dados da empresa foram apagados.');setTimeout(()=>location.reload(),2500);
 }
 
 </script>
@@ -3067,7 +3120,7 @@ async function verificarLicenca(){
   if(LIC.licenca.estado==='bloqueado'){telaBloqueio();return false;}
   return true;
 }
-const brD=iso=>iso?new Date(iso).toLocaleDateString('pt-BR'):'—';
+const brD=iso=>iso?(/^\d{4}-\d{2}-\d{2}$/.test(String(iso))?brOf(iso):new Date(iso).toLocaleDateString('pt-BR',{timeZone:FUSO_PONTO})):'—';
 const moeda=v=>v==null||v===''?'a definir':Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const ROT_EST={trial:'Teste grátis',ativo:'Ativo',tolerancia:'Tolerância',bloqueado:'Bloqueado',cortesia:'Cortesia Especial'};
 function blocoPix(){
@@ -3080,10 +3133,10 @@ function blocoPix(){
   <div class="alert" style="margin-top:10px">Após o pagamento, envie o comprovante para o suporte/WhatsApp para ativação imediata.</div>
   ${wa?`<a class="btn green" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent('Olá! Segue o comprovante do Ponto Pro Gestão da conta '+CONTA)}">💬 Enviar comprovante no WhatsApp</a>`:''}`;
 }
-function copiarPix(){const v=LIC?.config?.pix||'';(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>alert('Chave PIX copiada!')).catch(()=>{$('pix-chave').select();document.execCommand('copy');});}
+function copiarPix(){const v=LIC?.config?.pix||'';(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>toast('Chave PIX copiada!')).catch(()=>{$('pix-chave').select();document.execCommand('copy');});}
 function abrirPagamentoPix(plano){
   const c=LIC?.config||{},l=LIC?.licenca||{},p=Number(plano)||l.plano||1,wa=String(c.whatsapp||'').replace(/\D/g,''),pix=String(c.pix||''),valor=c.precos?.[p];
-  if(!pix)return alert('A chave PIX ainda não foi cadastrada pelo suporte.');
+  if(!pix)return toast('A chave PIX ainda não foi cadastrada pelo suporte.');
   const qr=qrDataUrl(pix),msg=encodeURIComponent(`Olá! Realizei o pagamento do Plano ${p} do Ponto Pro Gestão para a conta ${CONTA}. Segue o comprovante.`);
   abrirModal(`<div class="card pix-modal-card"><div class="pix-modal-head"><div><h3>Pagamento via PIX</h3><div class="muted">Plano ${p} · ${moeda(valor)} por mês</div></div><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar pagamento">✕</button></div>
   <div class="pix-modal-grid"><img class="pix-qr" src="${qr}" alt="QR Code da chave PIX"/><div><div class="pix-summary"><b>Pagamento seguro e rápido</b><div class="muted" style="margin-top:5px">Abra o aplicativo do seu banco, escaneie o código ou copie a chave abaixo.</div></div>
@@ -3135,7 +3188,7 @@ function abaAssinatura(){
   <ul class="plan-benefits"><li>${p} empresa${p>1?'s':''} no mesmo dispositivo</li><li>Até ${limitePlano(p)} colaboradores por empresa</li><li>Folha MTE, AFD e banco de horas</li><li>Operação offline com sincronização</li><li>Comprovante térmico e PDF oficial</li></ul>
   <div class="plan-actions"><button class="btn ${p===2?'gold':''}" onclick="abrirPagamentoPix(${p})">${p===atual?'Pagar ou renovar':'Escolher Plano '+p}</button></div></article>`).join('')}</div>
   <div class="payment-note">Pagamento via PIX com confirmação pelo suporte</div>
-  <div class="card" style="margin-top:18px"><div class="row"><div><b>Resumo da assinatura</b><div class="muted">Vencimento: ${l.estado==='cortesia'?'Cortesia sem cobrança':brD(l.data_vencimento)}</div></div>${l.aceite_termos?`<span class="muted right">Termos aceitos em ${new Date(l.aceite_termos.aceito_em).toLocaleString('pt-BR')}</span>`:''}</div></div>`;
+  <div class="card" style="margin-top:18px"><div class="row"><div><b>Resumo da assinatura</b><div class="muted">Vencimento: ${l.estado==='cortesia'?'Cortesia sem cobrança':brD(l.data_vencimento)}</div></div>${l.aceite_termos?`<span class="muted right">Termos aceitos em ${new Date(l.aceite_termos.aceito_em).toLocaleString('pt-BR',{timeZone:FUSO_PONTO})}</span>`:''}</div></div>`;
 }
 /* ---------- Painel do desenvolvedor (login do desenvolvedor + PIN mestre 1000; validado no servidor) ---------- */
 async function devApi(b){if(!podeEditarDev())throw new Error('Acesso restrito à conta master.');return apiLic('POST',Object.assign({pin:GERENCIADOR?.pin},b));}
@@ -3178,21 +3231,21 @@ async function devSalvarConheca(){
   if(!podeEditarDev())return toast('Acesso restrito à conta master.');
   const v=id=>$(id).value.trim();
   const wa=v('ck-wa').replace(/\D/g,'');
-  if(!/^\d{10,15}$/.test(wa))return alert('WhatsApp inválido: use DDI + DDD + número (ex.: 5591999999999).');
+  if(!/^\d{10,15}$/.test(wa))return toast('WhatsApp inválido: use DDI + DDD + número (ex.: 5591999999999).');
   const plans=[0,1,2].map(i=>({name:v('ck-n'+i),price:v('ck-p'+i)||null,caption:v('ck-c'+i),benefits:$('ck-b'+i).value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,8)}));
-  if(plans.some(p=>!p.name))return alert('Informe o nome dos 3 planos.');
-  if(!v('ck-h'))return alert('Informe o título principal.');
+  if(plans.some(p=>!p.name))return toast('Informe o nome dos 3 planos.');
+  if(!v('ck-h'))return toast('Informe o título principal.');
   try{await devApi({acao:'conheca',conteudo:{whatsapp:wa,tagline:v('ck-tag'),headline:v('ck-h'),subtitle:v('ck-s'),plans}});
-    alert('Página comercial salva.');log('Desenvolvedor atualizou a página comercial');}catch(e){alert(e.message);}
+    toast('Página comercial salva.');log('Desenvolvedor atualizou a página comercial');}catch(e){toast(e.message);}
 }
 async function devSalvarCfg(){
   const n=id=>{const v=$(id).value;return v===''?null:Number(v);};
   try{await devApi({acao:'config',pix:$('dv-pix').value.trim(),whatsapp:$('dv-wa').value.trim(),precos:{1:n('dv-pm1'),2:n('dv-pm2'),3:n('dv-pm3')},precosAnuais:{1:n('dv-pa1'),2:n('dv-pa2'),3:n('dv-pa3')}});
-    alert('Cobrança salva.');log('Desenvolvedor atualizou PIX/WhatsApp/preços');}catch(e){alert(e.message);}
+    toast('Cobrança salva.');log('Desenvolvedor atualizou PIX/WhatsApp/preços');}catch(e){toast(e.message);}
 }
 async function devAcao(acao,email,extra){
-  if(acao==='bloquear'&&!confirm('Bloquear o acesso de '+email+'? Os dados não serão apagados.'))return;
-  try{await devApi(Object.assign({acao,email},extra||{}));log(`Desenvolvedor: ${acao} em ${email}`);abaDesenvolvedor();}catch(e){alert(e.message);}
+  if(acao==='bloquear'&&!(await confirmarUI('Bloquear o acesso de '+email+'? Os dados não serão apagados.')))return;
+  try{await devApi(Object.assign({acao,email},extra||{}));log(`Desenvolvedor: ${acao} em ${email}`);abaDesenvolvedor();}catch(e){toast(e.message);}
 }
 </script>
 

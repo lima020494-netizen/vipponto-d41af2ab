@@ -10,9 +10,9 @@ function jornada(rows: [string, string, string, string][], dia: string) {
   const start = source.indexOf("function instanteBatida");
   const end = source.indexOf("\n", source.indexOf("function batidasJornada"));
   const batidas = rows.map(([data, hora, nsr, criadoEm]) => ({ pin: "1", data, hora, nsr, criadoEm }));
-  const helpers = `const pad=n=>String(n).padStart(2,'0');const isoOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
-const hhmm=d=>pad(d.getHours())+':'+pad(d.getMinutes());const toMin=h=>{if(!h)return 0;const [a,b]=h.split(':').map(Number);return a*60+(b||0);};
-const addDias=(iso,n)=>{const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return isoOf(d);};const horarioEscala=()=>null;const get=()=>batidas;`;
+  const timezone = source.slice(source.indexOf("const FUSO_PONTO="),source.indexOf("const toMin ="));
+  const helpers = `const pad=n=>String(n).padStart(2,'0');${timezone}const toMin=h=>{if(!h)return 0;const [a,b]=h.split(':').map(Number);return a*60+(b||0);};
+const addDias=(iso,n)=>{const d=new Date(iso+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);};const horarioEscala=()=>null;const get=()=>batidas;`;
   return runInNewContext(`${helpers}${source.slice(start, end)}; batidasJornada('1', '${dia}').map(b=>b.hora)`, { batidas }) as string[];
 }
 
