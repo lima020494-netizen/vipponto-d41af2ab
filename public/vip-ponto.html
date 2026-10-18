@@ -1306,6 +1306,9 @@ async function registrarPonto(){
   imprimirComprovante(b);                                        // imprime 58mm imediato
   log(`Batida registrada NSR ${b.nsr} — ${f.nome} ${b.hora} (${b.tipo})`);
   filaAdd(b).then(()=>sincronizarPendentes()).then(atualizaStatus); // fila IndexedDB → nuvem (offline = fica na fila)
+  }finally{
+    if(btnBater){btnBater.disabled=false;btnBater.removeAttribute('aria-busy');btnBater.textContent=btnBater.dataset.rotulo||'Registrar';}
+  }
 }
 function confirmacaoRapida(f,b){
   let o=$('ok-ponto');
