@@ -83,3 +83,4 @@
 - [x] Resumo geral do Banco de Horas com filtros, impressão e CSV.
 - [x] Mover batidas do REP; editar/excluir batidas manuais e ocorrências com auditoria.
 - [x] Folha/PDF com ocorrências enxutas e quadro de Tratamentos e Justificativas.
+- [x] Estética VIP: exportações sob demanda (PDF/Excel/ZIP), janela inicial de batidas do mês corrente com histórico sob demanda, vibração e botão "Registrando..." no quiosque, modais em gaveta inferior no celular, cards de colaboradores no celular.

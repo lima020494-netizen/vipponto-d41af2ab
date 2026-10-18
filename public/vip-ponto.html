@@ -10,10 +10,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Sora:wght@600;700;800&amp;display=swap" />
-<script src="/jspdf-2.5.1.umd.min.js"></script>
-<script src="/jspdf.plugin.autotable.min.js"></script>
-<script src="/jszip-3.10.1.min.js"></script>
-<script src="/xlsx-0.18.5.full.min.js"></script>
+<script>
+/* Bibliotecas de exportação (PDF/Excel/ZIP) carregadas sob demanda, fora do carregamento inicial. */
+const __LIB_SRCS={pdf:[['/jspdf-2.5.1.umd.min.js',()=>!!(window.jspdf&&window.jspdf.jsPDF)],['/jspdf.plugin.autotable.min.js',()=>!!(window.jspdf&&window.jspdf.jsPDF&&window.jspdf.jsPDF.API&&window.jspdf.jsPDF.API.autoTable)]],zip:[['/jszip-3.10.1.min.js',()=>typeof JSZip!=='undefined']],xlsx:[['/xlsx-0.18.5.full.min.js',()=>typeof XLSX!=='undefined']]};
+const __LIB_PROM={};
+function garantirLib(grupo){
+  if(!__LIB_PROM[grupo])__LIB_PROM[grupo]=(async()=>{
+    for(const [src,ok] of __LIB_SRCS[grupo]){
+      if(ok())continue;
+      await new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('Falha ao carregar '+src));document.head.appendChild(s);});
+    }
+  })().catch(e=>{delete __LIB_PROM[grupo];throw e;});
+  return __LIB_PROM[grupo];
+}
+</script>
 <script src="/qrcode-generator.min.js"></script>
 <meta name="theme-color" content="#0f172a" />
 <script src="/supabase-2.117.3.min.js"></script>
@@ -88,8 +98,15 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .status-ntp{text-align:center;font-weight:800;font-size:13px;margin:6px 0}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--navy);color:#fff;padding:14px 18px;border-radius:14px;z-index:999;font-weight:700;max-width:92vw;box-shadow:var(--shadow)}
 /* ===================== MODAL ===================== */
-.modal{position:fixed;inset:0;background:rgba(8,18,36,.6);z-index:100;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:12px}
-.modal .inner{background:var(--bg);width:100%;max-width:1280px;border-radius:16px;padding:12px;margin:10px 0}
+.modal{position:fixed;inset:0;background:rgba(8,18,36,.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:100;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:12px}
+.modal .inner{background:var(--bg);width:100%;max-width:1280px;border-radius:16px;padding:12px;margin:10px 0;box-shadow:0 18px 48px rgba(8,18,36,.22)}
+@keyframes sheet-up{from{transform:translateY(48px);opacity:.5}to{transform:none;opacity:1}}
+@media(max-width:640px){
+  .modal{align-items:flex-end;padding:0}
+  .modal .inner{border-radius:20px 20px 0 0;margin:0;max-width:100%;max-height:88vh;overflow:auto;padding:8px 14px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -14px 36px rgba(8,18,36,.3)}
+  .modal .inner::before{content:"";display:block;width:44px;height:5px;border-radius:3px;background:#c3ccdb;margin:2px auto 10px}
+  .modal:not(.hidden) .inner{animation:sheet-up .28s ease-out}
+}
 .modal.small .inner{max-width:420px;background:#fff;padding:20px}
 .tabs{display:flex;gap:6px;overflow:auto;padding-bottom:6px}
 .tab{padding:10px 14px;border-radius:12px 12px 0 0;background:#e6ebf4;border:1px solid var(--line);border-bottom:0;font-weight:800;font-size:13.5px;cursor:pointer;white-space:nowrap}
@@ -454,6 +471,21 @@ input:not([type=checkbox]):not([type=radio]),select{min-height:44px}
 .grid>*,.row>*,.punch-toolbar>*,.hub-welcome>*{min-width:0}
 .tbl-wrap{max-width:100%;overscroll-behavior-x:contain;scroll-behavior:smooth;touch-action:pan-x pan-y}
 #gestor-body .tbl-wrap table,#gestor-hub-dashboard .tbl-wrap table,#pins-tbl table{min-width:680px}
+@media(max-width:640px){
+  /* Colaboradores: tabela vira cards empilhados no celular */
+  #gestor-body .emp-table{border:0;background:transparent;box-shadow:none;max-height:none;overflow:visible}
+  #gestor-body .emp-table table{min-width:0;width:100%}
+  #gestor-body .emp-table table,#gestor-body .emp-table tr,#gestor-body .emp-table td{display:block;width:100%}
+  #gestor-body .emp-table tr:has(th){display:none}
+  #gestor-body .emp-table tr{background:#fff;border:1px solid #d8e7eb;border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:0 6px 18px rgba(30,91,111,.08)}
+  #gestor-body .emp-table td{border:0;padding:2px 0;font-size:14px}
+  #gestor-body .emp-table td:nth-child(1),#gestor-body .emp-table td:nth-child(3),#gestor-body .emp-table td:nth-child(5),#gestor-body .emp-table td:nth-child(6),#gestor-body .emp-table td:nth-child(7),#gestor-body .emp-table td:nth-child(9){display:none}
+  #gestor-body .emp-table td:nth-child(2){font-size:16px;font-weight:800;color:var(--navy)}
+  #gestor-body .emp-table td:nth-child(4){color:var(--muted);font-size:13px}
+  #gestor-body .emp-table td:nth-child(8){display:inline-block;width:auto;margin:6px 0;padding:3px 12px;border-radius:999px;background:#e7f0fa;color:var(--navy);font-size:12px;font-weight:700}
+  #gestor-body .emp-table td.row{display:flex;gap:8px;margin-top:6px}
+  #gestor-body .emp-table .btn{min-height:44px;flex:1}
+}
 #gestor-body .folha{overflow-x:auto;-webkit-overflow-scrolling:touch}
 #gestor-body .folha table{min-width:760px}
 #gestor-body .grid,#gestor-hub-dashboard .grid,.punch-toolbar{gap:var(--space-section);align-items:end;margin-bottom:var(--space-section)}
@@ -761,15 +793,26 @@ const linhaFunc=f=>{const d=Object.assign({},f);delete d.jornada;return {email_d
   inicio_vigencia_banco_horas:(f.inicioVigenciaBancoHoras||f.bancoInicio)||null,intervalo:f.intervalo||null,dados:d};};
 const linhaPonto=b=>({email_dono:CONTA,nsr:b.nsr,pin:b.pin,data:b.data,hora:b.hora,tipo:b.tipo,timestamp:b.criadoEm||new Date().toISOString(),origem:b.fonte||'LOCAL',dados:b});
 
+let NUVEM_DESDE='';
+function janelaNuvemDesde(){return addDias(hojeISO().slice(0,8)+'01',-1);} // mês corrente + véspera (virada noturna)
+async function garantirHistorico(dataIni){ // busca sob demanda batidas anteriores à janela inicial
+  if(!sb||!CONTA||!dataIni||!NUVEM_DESDE||dataIni>=NUVEM_DESDE) return;
+  const {data,error}=await sb.from('pontos').select('nsr,dados').eq('email_dono',CONTA).gte('dados->>data',dataIni).lt('dados->>data',NUVEM_DESDE);
+  if(error) throw error;
+  const mapa=new Map(get('batidas',[]).map(b=>[b.nsr,b]));
+  (data||[]).forEach(r=>r.dados&&mapa.set(r.nsr,r.dados));
+  set('batidas',[...mapa.values()]);
+}
 async function carregarNuvem(){
   if(!sb||!CONTA) return;
   CARREGANDO=true;
   try{
+    NUVEM_DESDE=janelaNuvemDesde();
     await sincronizarPendentes();
     const rs=await Promise.all([
       sb.from('empregador').select('dados').eq('email_dono',CONTA).maybeSingle(),
       sb.from('funcionarios').select('pin,dados').eq('email_dono',CONTA),
-      sb.from('pontos').select('nsr,dados').eq('email_dono',CONTA).limit(20000),
+      sb.from('pontos').select('nsr,dados').eq('email_dono',CONTA).gte('dados->>data',NUVEM_DESDE).limit(20000),
       sb.from('feriados').select('dados,data,nome,tipo').eq('conta',CONTA),
       sb.from('dados').select('chave,valor').eq('conta',CONTA),
       sb.from('logs').select('quando,por,acao').eq('email_dono',CONTA).order('quando',{ascending:false}).limit(3000),
@@ -1235,7 +1278,12 @@ function confirmarMarcacaoRecente(hora){
   });
 }
 async function registrarPonto(){
+  const btnBater=$('btn-bater');
+  if(btnBater&&btnBater.disabled) return; // bloqueia clique duplo acidental
   if(PIN.length!==4) return toast('Digite o PIN de 4 dígitos.',3000);
+  if(navigator.vibrate) try{navigator.vibrate(50);}catch(e){}
+  if(btnBater){btnBater.disabled=true;btnBater.dataset.rotulo=btnBater.textContent;btnBater.textContent='Registrando...';btnBater.setAttribute('aria-busy','true');}
+  try{
   const f=funcPorPin(PIN); if(!f) return toast('PIN não encontrado.',3000);
   if(f.status==='Desligado') return toast('Funcionário desligado — registro bloqueado.',4000);
   if(!NTP_OK){ await sincronizarNTP();
@@ -1257,7 +1305,10 @@ async function registrarPonto(){
   confirmacaoRapida(f,b);                                        // overlay 2s e volta à tela limpa
   imprimirComprovante(b);                                        // imprime 58mm imediato
   log(`Batida registrada NSR ${b.nsr} — ${f.nome} ${b.hora} (${b.tipo})`);
-  filaAdd(b).then(()=>sincronizarPendentes()).then(atualizaStatus); // fila IndexedDB → nuvem (offline = fica na fila)
+  await Promise.all([filaAdd(b).then(()=>sincronizarPendentes()).then(atualizaStatus),new Promise(r=>setTimeout(r,600))]); // fila IndexedDB → nuvem; botão "Registrando..." visível durante o processamento
+  }finally{
+    if(btnBater){btnBater.disabled=false;btnBater.removeAttribute('aria-busy');btnBater.textContent=btnBater.dataset.rotulo||'Registrar';}
+  }
 }
 function confirmacaoRapida(f,b){
   let o=$('ok-ponto');
@@ -1347,6 +1398,7 @@ function imprimirRawBT(linhas){
 }
 function reimprimir(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);if(b)imprimirComprovante(b);}
 async function comprovantePDF(b){
+  await garantirLib('pdf');
   const {jsPDF}=window.jspdf,{linhas}=await comprovanteTexto(b),medida=new jsPDF({unit:'mm',format:[58,100]});
   const rows=linhas.map((l,i)=>{const destaque=l==='DATA E HORA DA MARCACAO'||/^\d{2}\/\d{2}\/\d{4}/.test(l),size=destaque?9:7;medida.setFont('courier',i<2||destaque?'bold':'normal');medida.setFontSize(size);return {text:medida.splitTextToSize(String(l),54),size,bold:i<2||destaque,step:destaque?3.8:2.8};});
   const altura=Math.max(64,rows.reduce((n,r)=>n+r.text.length*r.step,9)),doc=new jsPDF({unit:'mm',format:[58,altura]});
@@ -2079,7 +2131,8 @@ function gradeEscala(ini,fim){
   const dias=diasPeriodo(ini,fim||addDias(ini,6)), fs=get('funcionarios',[]).filter(f=>f.status!=='Desligado');
   return [['ID (PIN)','Nome',...dias.map(d=>brOf(d))],...fs.map(f=>[f.pin,f.nome,...dias.map(d=>celulaEscala(buscaNaEscala(f.pin,d)))])];
 }
-function planilhaEscala(ini,fim,fmt){
+async function planilhaEscala(ini,fim,fmt){
+  if(fmt==='xlsx') await garantirLib('xlsx');
   const g=gradeEscala(ini,fim), nome=`Escala_${ini}_${fim}`;
   if(fmt==='xlsx'&&window.XLSX){const ws=XLSX.utils.aoa_to_sheet(g);ws['!cols']=[{wch:10},{wch:28},...g[0].slice(2).map(()=>({wch:13}))];
     const leg=XLSX.utils.aoa_to_sheet([['Como preencher'],['Horário de trabalho: 08:00-17:00 (ou só a entrada, 08:00)'],['DSR = descanso semanal remunerado'],['FOLGA = folga compensada'],['FOLGA DOMINGO = folga de domingo'],['Célula vazia = trabalhado no horário padrão'],['Não altere a coluna ID (PIN) nem a linha de datas.']]);
@@ -2087,9 +2140,10 @@ function planilhaEscala(ini,fim,fmt){
   baixar(nome+'.csv','\uFEFF'+g.map(r=>r.join(';')).join('\n'),'text/csv;charset=utf-8');
 }
 const csvEscala=(i,f)=>planilhaEscala(i,f,'csv'), modeloCSVEscala=csvEscala;
-function importarEscala(inp){
+async function importarEscala(inp){
   const file=inp.files[0]; if(!file) return; const rd=new FileReader();
   if(/\.xlsx?$/i.test(file.name)){
+    await garantirLib('xlsx');
     if(!window.XLSX) return alert('Leitor de planilhas indisponível (sem internet). Use CSV.');
     rd.onload=()=>{const wb=XLSX.read(rd.result,{type:'array'});previewImport(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false}));};
     rd.readAsArrayBuffer(file);
@@ -2184,13 +2238,16 @@ function tabelaResumoBanco(r){
   ${r.linhas.map(({f,b})=>`<tr><td><b>${esc(f.nome)}</b><div class="muted">${esc(f.funcao||'—')}</div></td><td>${esc(f.status||'Ativo')}</td><td>${toSaldo(b.anterior)}</td><td>+${toHHMM(b.creditos)}</td><td>-${toHHMM(b.debitos)}</td><td><b>${toSaldo(b.atual)}</b></td></tr>`).join('')||'<tr><td colspan="6" class="muted">Nenhum colaborador para o filtro.</td></tr>'}
   </tbody>${r.linhas.length?`<tfoot><tr><th>Total (${r.linhas.length})</th><th></th><th>${toSaldo(t.ant)}</th><th>+${toHHMM(t.cr)}</th><th>-${toHHMM(t.db)}</th><th>${toSaldo(t.at)}</th></tr></tfoot>`:''}</table></div>`;
 }
-function renderResumoBanco(){
+async function renderResumoBanco(){
   const r=dadosResumoBanco();
+  try{await garantirHistorico(r.ini);}catch(e){}
   if(r.ini>r.fim){$('bhr-out').innerHTML='<div class="alert err">A data inicial deve ser anterior à data final.</div>';return;}
   $('bhr-out').innerHTML=tabelaResumoBanco(r);
 }
-function pdfResumoBanco(){
+async function pdfResumoBanco(){
   const r=dadosResumoBanco();if(!r.ini||!r.fim||r.ini>r.fim)return toast('Informe um período válido.');
+  try{await garantirHistorico(r.ini);}catch(e){}
+  await garantirLib('pdf');
   const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),titulo='Fechamento do Banco de Horas',sub=`Período ${brOf(r.ini)} a ${brOf(r.fim)} • Status: ${r.st}`;
   const totais=r.linhas.reduce((a,{b})=>({anterior:a.anterior+b.anterior,creditos:a.creditos+b.creditos,debitos:a.debitos+b.debitos,atual:a.atual+b.atual}),{anterior:0,creditos:0,debitos:0,atual:0});
   const body=r.linhas.map(({f,b})=>[`${f.nome}\n${f.funcao||'—'}`,f.status||'Ativo',toSaldo(b.anterior),'+'+toHHMM(b.creditos),'-'+toHHMM(b.debitos),toSaldo(b.atual)]);
@@ -2318,7 +2375,8 @@ function desenharFaltas(res){
     x.fillStyle=gr;x.fillRect(110,y,w,h);
     x.fillStyle='#5b1a12';x.font='700 11px Segoe UI, sans-serif';x.textAlign='left';x.fillText(r.faltas+' ('+pct+'%)',114+w,y+h-4);});
 }
-function pdfDash(){
+async function pdfDash(){
+  await garantirLib('pdf');
   const {jsPDF}=window.jspdf,[ini,fim]=periodoDash(),doc=new jsPDF({unit:'mm',format:'a4'});
   const filtro=$('d-func').value,usuario=filtro?(funcPorPin(filtro)||{}).nome:'Todos os colaboradores';
   const titulo='Dashboard de Frequência',sub=`Período ${brOf(ini)} a ${brOf(fim)} • Filtro: ${usuario}`;
@@ -2419,8 +2477,8 @@ function periodoFolhaValido(){
   if((Date.parse(fim)-Date.parse(ini))/86400000>=366){toast('Selecione um período de até 366 dias.',4000);return null;}
   return {ini,fim};
 }
-function gerarFolha(){if(periodoFolhaValido())$('fl-out').innerHTML=htmlFolha($('fl-pin').value,$('fl-ini').value,$('fl-fim').value);}
-async function baixarPDFFolha(){const p=periodoFolhaValido();if(!p||!$('fl-pin').value)return;if(typeof window.jspdf?.jsPDF!=='function')return toast('PDF indisponível. Verifique a conexão e tente novamente.',5000);try{await pdfFolhas([$('fl-pin').value],p.ini,p.fim);}catch(e){toast('Não foi possível gerar o PDF. Tente novamente.',5000);}}
+async function gerarFolha(){const p=periodoFolhaValido();if(!p)return;try{await garantirHistorico(p.ini);}catch(e){}$('fl-out').innerHTML=htmlFolha($('fl-pin').value,p.ini,p.fim);}
+async function baixarPDFFolha(){const p=periodoFolhaValido();if(!p||!$('fl-pin').value)return;try{await garantirHistorico(p.ini);}catch(e){}try{await garantirLib('pdf');}catch(e){return toast('PDF indisponível. Verifique a conexão e tente novamente.',5000);}try{await pdfFolhas([$('fl-pin').value],p.ini,p.fim);}catch(e){toast('Não foi possível gerar o PDF. Tente novamente.',5000);}}
 function acaoFiscalFolha(acao){
   const menu=document.querySelector('.fiscal-menu');if(menu)menu.open=false;
   if(acao==='atestado')return atestadoTecnico();
@@ -2429,6 +2487,7 @@ function acaoFiscalFolha(acao){
 }
 async function pacoteContador(){
   const p=periodoFolhaValido(),fs=get('funcionarios',[]);if(!p)return;
+  try{await garantirHistorico(p.ini);await garantirLib('pdf');await garantirLib('zip');}catch(e){return toast('Exportação indisponível. Verifique a conexão e tente novamente.',5000);}
   if(!fs.length)return toast('Nenhum colaborador cadastrado para exportar.',4000);
   if(typeof JSZip==='undefined'||typeof window.jspdf?.jsPDF!=='function')return toast('Exportação indisponível. Verifique a conexão e tente novamente.',5000);
   const btn=$('fl-pacote'),status=$('fl-export-status');if(!btn||btn.disabled)return;
@@ -2472,6 +2531,7 @@ function htmlFolha(pin,ini,fim){
 }
 /* Official sheet renderer shared by individual, batch, portal, link and ZIP. */
 async function gerarPDFComLogo(dados){
+  await garantirLib('pdf');
   const lista=dados.folhas||(dados.pins||[dados.pin]).map(p=>dadosFolha(p,dados.ini,dados.fim));
   const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),e=get('empregador',{})||{};
   const rgb=token=>{const ctx=document.createElement('canvas').getContext('2d');if(!ctx)return [35,50,75];ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue(token).trim();ctx.fillRect(0,0,1,1);return Array.from(ctx.getImageData(0,0,1,1).data).slice(0,3);};
@@ -2574,11 +2634,14 @@ function lotSelAll(v){document.querySelectorAll('.lt-cb').forEach(c=>c.checked=v
 const lotePins=()=>[...document.querySelectorAll('.lt-cb:checked')].map(c=>c.value);
 function loteValida(){const p=lotePins();if(!$('lt-ini').value||!$('lt-fim').value){alert('Período obrigatório.');return null;}if(!p.length){alert('Selecione ao menos 1 funcionário.');return null;}return p;}
 function loteVisualizar(){const p=loteValida();if(!p)return;$('lt-out').innerHTML=p.map(x=>htmlFolha(x,$('lt-ini').value,$('lt-fim').value)).join('');}
-function lotePDF(){const p=loteValida();if(!p)return;const ini=$('lt-ini').value;
+async function lotePDF(){const p=loteValida();if(!p)return;const ini=$('lt-ini').value;
+  try{await garantirHistorico(ini);}catch(e){}
   const mes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][Number(ini.slice(5,7))-1];
   pdfFolhas(p,ini,$('lt-fim').value,`Folhas_MTE_${mes}_${ini.slice(0,4)}.pdf`);}
 async function lotePDFZip(){
-  const p=loteValida();if(!p)return;const zip=new JSZip(),ini=$('lt-ini').value,fim=$('lt-fim').value;
+  const p=loteValida();if(!p)return;const ini=$('lt-ini').value,fim=$('lt-fim').value;
+  try{await garantirHistorico(ini);await garantirLib('pdf');await garantirLib('zip');}catch(e){return toast('Exportação indisponível. Verifique a conexão e tente novamente.',5000);}
+  const zip=new JSZip();
   for(const pin of p){
     const f=funcPorPin(pin), pdf=await gerarPDFComLogo({pins:[pin],ini,fim}); // mesmo PDF oficial com logo
     zip.file(`${(f.nome||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z]+/g,'_')}.pdf`,pdf.blob);
@@ -2588,7 +2651,9 @@ async function lotePDFZip(){
   log(`Exportou ZIP de PDFs em lote (${p.length})`);
 }
 async function loteXML(){
-  const p=loteValida();if(!p)return;const zip=new JSZip(),ini=$('lt-ini').value,fim=$('lt-fim').value;
+  const p=loteValida();if(!p)return;const ini=$('lt-ini').value,fim=$('lt-fim').value;
+  try{await garantirHistorico(ini);await garantirLib('zip');}catch(e){return toast('Exportação indisponível. Verifique a conexão e tente novamente.',5000);}
+  const zip=new JSZip();
   p.forEach(pin=>zip.file(nomeXML(funcPorPin(pin),ini),xmlConteudo(pin,ini,fim)));
   const b=await zip.generateAsync({type:'blob'});
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`XML_Folhas_${ini}_${fim}.zip`;a.click();
@@ -2743,7 +2808,8 @@ function atestadoTecnico(){
   abrirModal(`<div class="row"><h3>Atestado Técnico</h3><button class="btn sm right" onclick="pdfAtestadoTecnico()">📄 Baixar PDF</button><button class="btn sm ghost" onclick="fecharModal()">✕</button></div><div id="at-body">${html}</div>`);
   log('Emitiu Atestado Técnico e Termo de Responsabilidade');
 }
-function pdfAtestadoTecnico(){
+async function pdfAtestadoTecnico(){
+  await garantirLib('pdf');
   const out=$('at-body');if(!out)return;
   const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),titulo='Atestado Técnico',sub='Termo de Responsabilidade • Portaria MTP nº 671/2021 • Art. 89 a 91';
   let y=pdfCabecalhoPadrao(doc,titulo,sub);
@@ -2778,7 +2844,8 @@ function abrirManual(){
   <div class="muted" style="text-align:center">Desenvolvido por ${esc(d.nome)}${d.email?' • '+esc(d.email):''}${d.telefone?' • '+esc(d.telefone):''}</div>`;
   abrirModal(`<div class="row"><h3>Manual</h3><button class="btn sm right" onclick="manualPDF()">⬇ Baixar PDF</button><button class="btn sm ghost" onclick="fecharModal()">✕</button></div><div id="man-body">${html}</div>`);
 }
-function manualPDF(){
+async function manualPDF(){
+  await garantirLib('pdf');
   const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),d=devCfg(),titulo='Manual do Usuário',sub='Registro Eletrônico de Ponto • versão '+d.versao;
   const y=pdfCabecalhoPadrao(doc,titulo,sub);
   pdfTabelaPadrao(doc,{y,titulo,sub,head:['Seção','Orientações'],body:MANUAL,widths:[47,143],fontSize:9});
@@ -2891,7 +2958,8 @@ function relatorioPins(){
   ${ls.map(r=>`<tr>${r.map((c,i)=>`<td>${i===4?'<b>'+esc(c)+'</b>':esc(c)}</td>`).join('')}</tr>`).join('')||'<tr><td colspan=6 class="muted">Nenhum empregado.</td></tr>'}</table></div>`;
   log('Consultou relatório confidencial de PINs');
 }
-function pdfPins(){
+async function pdfPins(){
+  await garantirLib('pdf');
   const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),titulo='Relatório de PINs',sub='DOCUMENTO CONFIDENCIAL • Uso interno do RH';
   const y=pdfCabecalhoPadrao(doc,titulo,sub);
   pdfTabelaPadrao(doc,{y,titulo,sub,head:['Nome','CPF','Cargo','Departamento','PIN','Status'],body:linhasPins(),widths:[44,29,32,32,16,37],fontSize:8});
@@ -2950,6 +3018,7 @@ async function excluirEtapa2(){
 }
 const csvDe=(lista,cols)=>'\uFEFF'+cols.join(';')+'\n'+lista.map(o=>cols.map(c=>String(o[c]??'').replace(/[;\r\n]/g,' ')).join(';')).join('\n');
 async function enviarBackupPorEmail(para){
+  await garantirLib('zip');
   const zip=new JSZip();
   zip.file('funcionarios.csv',csvDe(get('funcionarios',[]),['nome','cpf','cargo','funcao','departamento','admissao','escala','status','inicioVigenciaBancoHoras','email']));
   zip.file('pontos.csv',csvDe(get('batidas',[]),['nsr','nome','cpf','data','hora','tipo','fonte','movimento']));
