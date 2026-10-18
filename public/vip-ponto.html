@@ -1191,7 +1191,7 @@ async function editarGer(i){
 async function excluirGer(i){
   const gs=get('gerenciadores',[]);
   if(gs.length<=1) return toast('É obrigatório manter no mínimo 1 gerenciador.');
-  if(!(await confirmarUI('Excluir '+gs[i].nome+'?'))))return;
+  if(!(await confirmarUI('Excluir '+gs[i].nome+'?')))return;
   log(`Gerenciador excluído: ${gs[i].nome}`); gs.splice(i,1); set('gerenciadores',gs); renderGerenciadores();
 }
 
@@ -1717,7 +1717,7 @@ function salvarFunc(i){
   if(i>=0) fs[i]=o; else { if(fs.length>=maxFuncAtual()) return $('f-msg').innerHTML=`<div class="alert err">Seu plano permite até ${maxFuncAtual()} colaboradores e esse limite já foi atingido. Para cadastrar mais pessoas, fale com o suporte e mude de plano.</div>`; fs.push(o); }
   set('funcionarios',fs); log(`${i>=0?'Editou':'Cadastrou'} empregado ${o.nome} (${statusTexto(o)})`); fecharModal(); abaFunc();
 }
-async function delFunc(i){const fs=get('funcionarios',[]);const f=fs[i];if(!f)return;if(!(await confirmarUI('Excluir o colaborador '+f.nome+'?\n\nA ficha, o PIN e a escala dele saem da lista. As batidas já registradas ficam guardadas no histórico.\n\nEsta ação não pode ser desfeita.'))))return;log(`Excluiu empregado ${fs[i].nome}`);fs.splice(i,1);set('funcionarios',fs);abaFunc();}
+async function delFunc(i){const fs=get('funcionarios',[]);const f=fs[i];if(!f)return;if(!(await confirmarUI('Excluir o colaborador '+f.nome+'?\n\nA ficha, o PIN e a escala dele saem da lista. As batidas já registradas ficam guardadas no histórico.\n\nEsta ação não pode ser desfeita.')))return;log(`Excluiu empregado ${fs[i].nome}`);fs.splice(i,1);set('funcionarios',fs);abaFunc();}
 
 /* ============================== CÁLCULO — NÚCLEO ============================== */
 const feriadoDe = iso => get('feriados',[]).find(f=>f.data===iso);
@@ -1935,7 +1935,7 @@ function addFeriado(){
   if(!d||!n)return toast('Informe data e nome.');
   const fs=get('feriados',[]);fs.push({data:d,nome:n,tipo:t});set('feriados',fs);log(`Feriado cadastrado ${brOf(d)} - ${n} (${t})`);subFeriados();
 }
-async function delFeriado(d,n){if(!(await confirmarUI('Excluir o feriado '+n+' ('+brOf(d)+')?\n\nEle deixará de ser considerado como folga remunerada no calendário e nos cálculos.\n\nEsta ação não pode ser desfeita.'))))return;const fs=get('feriados',[]).filter(f=>!(f.data===d&&f.nome===n));set('feriados',fs);log(`Feriado excluído ${brOf(d)} - ${n}`);subFeriados();}
+async function delFeriado(d,n){if(!(await confirmarUI('Excluir o feriado '+n+' ('+brOf(d)+')?\n\nEle deixará de ser considerado como folga remunerada no calendário e nos cálculos.\n\nEsta ação não pode ser desfeita.')))return;const fs=get('feriados',[]).filter(f=>!(f.data===d&&f.nome===n));set('feriados',fs);log(`Feriado excluído ${brOf(d)} - ${n}`);subFeriados();}
 /* B) Gestão diária de batidas — ajustes e ocorrências consolidados por dia */
 function statusGestaoDia(linha,ocorrencia){
   if(ocorrencia&&String(ocorrencia.tipo||'').toLowerCase().includes('atestado')) return ['Atestado','atestado'];
@@ -2025,7 +2025,7 @@ function salvarEdicaoBatida(nsr){
 }
 async function excluirBatidaManual(nsr){
   const all=get('batidas',[]),b=all.find(x=>x.nsr===nsr);if(!b||b.fonte!=='MANUAL')return toast('Batidas do REP não podem ser excluídas (Portaria 671).');
-  if(!(await confirmarUI(`Excluir a batida manual de ${brOf(b.data)} às ${b.hora}?\n\nEla deixará de contar na folha e no banco de horas. O registro fica guardado na auditoria.`))))return;
+  if(!(await confirmarUI(`Excluir a batida manual de ${brOf(b.data)} às ${b.hora}?\n\nEla deixará de contar na folha e no banco de horas. O registro fica guardado na auditoria.`)))return;
   const motivo=((await solicitarUI('Justificativa obrigatória (mín. 5 caracteres):'))||'').trim();if(motivo.length<5)return toast('Sem justificativa válida a exclusão não é feita.');
   b.excluida=true;b.movimento=`Manual excluída - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`;b.excluidaEm=new Date().toISOString();
   set('batidas',all);filaPonto(nsr);log(`Batida manual NSR ${nsr} (${brOf(b.data)} ${b.hora}) excluída - Motivo: ${motivo}`);
@@ -2033,7 +2033,7 @@ async function excluirBatidaManual(nsr){
 }
 async function excluirOcorrencia(pin,data){
   const l=get('ocorrencias',[]),o=l.find(x=>x.pin===pin&&x.data===data);if(!o)return;
-  if(!(await confirmarUI(`Excluir a ocorrência "${o.tipo}" de ${brOf(data)}?\n\nO dia voltará a ser calculado normalmente.`))))return;
+  if(!(await confirmarUI(`Excluir a ocorrência "${o.tipo}" de ${brOf(data)}?\n\nO dia voltará a ser calculado normalmente.`)))return;
   set('ocorrencias',l.filter(x=>x!==o));log(`Ocorrência ${o.tipo} de ${brOf(data)} excluída (${(funcPorPin(pin)||{}).nome||pin})`);fecharModal();subBatidas();
 }
 async function moverTipo(nsr,novo,sel){
@@ -3244,7 +3244,7 @@ async function devSalvarCfg(){
     toast('Cobrança salva.');log('Desenvolvedor atualizou PIX/WhatsApp/preços');}catch(e){toast(e.message);}
 }
 async function devAcao(acao,email,extra){
-  if(acao==='bloquear'&&!(await confirmarUI('Bloquear o acesso de '+email+'? Os dados não serão apagados.'))))return;
+  if(acao==='bloquear'&&!(await confirmarUI('Bloquear o acesso de '+email+'? Os dados não serão apagados.')))return;
   try{await devApi(Object.assign({acao,email},extra||{}));log(`Desenvolvedor: ${acao} em ${email}`);abaDesenvolvedor();}catch(e){toast(e.message);}
 }
 </script>
