@@ -10,10 +10,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Sora:wght@600;700;800&amp;display=swap" />
-<script src="/jspdf-2.5.1.umd.min.js"></script>
-<script src="/jspdf.plugin.autotable.min.js"></script>
-<script src="/jszip-3.10.1.min.js"></script>
-<script src="/xlsx-0.18.5.full.min.js"></script>
+<script>
+/* Bibliotecas de exportação (PDF/Excel/ZIP) carregadas sob demanda, fora do carregamento inicial. */
+const __LIB_SRCS={pdf:[['/jspdf-2.5.1.umd.min.js',()=>!!(window.jspdf&&window.jspdf.jsPDF)],['/jspdf.plugin.autotable.min.js',()=>!!(window.jspdf&&window.jspdf.jsPDF&&window.jspdf.jsPDF.API&&window.jspdf.jsPDF.API.autoTable)]],zip:[['/jszip-3.10.1.min.js',()=>typeof JSZip!=='undefined']],xlsx:[['/xlsx-0.18.5.full.min.js',()=>typeof XLSX!=='undefined']]};
+const __LIB_PROM={};
+function garantirLib(grupo){
+  if(!__LIB_PROM[grupo])__LIB_PROM[grupo]=(async()=>{
+    for(const [src,ok] of __LIB_SRCS[grupo]){
+      if(ok())continue;
+      await new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('Falha ao carregar '+src));document.head.appendChild(s);});
+    }
+  })().catch(e=>{delete __LIB_PROM[grupo];throw e;});
+  return __LIB_PROM[grupo];
+}
+</script>
 <script src="/qrcode-generator.min.js"></script>
 <meta name="theme-color" content="#0f172a" />
 <script src="/supabase-2.117.3.min.js"></script>
@@ -88,8 +98,15 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .status-ntp{text-align:center;font-weight:800;font-size:13px;margin:6px 0}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--navy);color:#fff;padding:14px 18px;border-radius:14px;z-index:999;font-weight:700;max-width:92vw;box-shadow:var(--shadow)}
 /* ===================== MODAL ===================== */
-.modal{position:fixed;inset:0;background:rgba(8,18,36,.6);z-index:100;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:12px}
-.modal .inner{background:var(--bg);width:100%;max-width:1280px;border-radius:16px;padding:12px;margin:10px 0}
+.modal{position:fixed;inset:0;background:rgba(8,18,36,.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:100;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:12px}
+.modal .inner{background:var(--bg);width:100%;max-width:1280px;border-radius:16px;padding:12px;margin:10px 0;box-shadow:0 18px 48px rgba(8,18,36,.22)}
+@keyframes sheet-up{from{transform:translateY(48px);opacity:.5}to{transform:none;opacity:1}}
+@media(max-width:640px){
+  .modal{align-items:flex-end;padding:0}
+  .modal .inner{border-radius:20px 20px 0 0;margin:0;max-width:100%;max-height:88vh;overflow:auto;padding:8px 14px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -14px 36px rgba(8,18,36,.3)}
+  .modal .inner::before{content:"";display:block;width:44px;height:5px;border-radius:3px;background:#c3ccdb;margin:2px auto 10px}
+  .modal:not(.hidden) .inner{animation:sheet-up .28s ease-out}
+}
 .modal.small .inner{max-width:420px;background:#fff;padding:20px}
 .tabs{display:flex;gap:6px;overflow:auto;padding-bottom:6px}
 .tab{padding:10px 14px;border-radius:12px 12px 0 0;background:#e6ebf4;border:1px solid var(--line);border-bottom:0;font-weight:800;font-size:13.5px;cursor:pointer;white-space:nowrap}
@@ -454,6 +471,21 @@ input:not([type=checkbox]):not([type=radio]),select{min-height:44px}
 .grid>*,.row>*,.punch-toolbar>*,.hub-welcome>*{min-width:0}
 .tbl-wrap{max-width:100%;overscroll-behavior-x:contain;scroll-behavior:smooth;touch-action:pan-x pan-y}
 #gestor-body .tbl-wrap table,#gestor-hub-dashboard .tbl-wrap table,#pins-tbl table{min-width:680px}
+@media(max-width:640px){
+  /* Colaboradores: tabela vira cards empilhados no celular */
+  #gestor-body .emp-table{border:0;background:transparent;box-shadow:none;max-height:none;overflow:visible}
+  #gestor-body .emp-table table{min-width:0;width:100%}
+  #gestor-body .emp-table table,#gestor-body .emp-table tr,#gestor-body .emp-table td{display:block;width:100%}
+  #gestor-body .emp-table tr:has(th){display:none}
+  #gestor-body .emp-table tr{background:#fff;border:1px solid #d8e7eb;border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:0 6px 18px rgba(30,91,111,.08)}
+  #gestor-body .emp-table td{border:0;padding:2px 0;font-size:14px}
+  #gestor-body .emp-table td:nth-child(1),#gestor-body .emp-table td:nth-child(3),#gestor-body .emp-table td:nth-child(5),#gestor-body .emp-table td:nth-child(6),#gestor-body .emp-table td:nth-child(7),#gestor-body .emp-table td:nth-child(9){display:none}
+  #gestor-body .emp-table td:nth-child(2){font-size:16px;font-weight:800;color:var(--navy)}
+  #gestor-body .emp-table td:nth-child(4){color:var(--muted);font-size:13px}
+  #gestor-body .emp-table td:nth-child(8){display:inline-block;width:auto;margin:6px 0;padding:3px 12px;border-radius:999px;background:#e7f0fa;color:var(--navy);font-size:12px;font-weight:700}
+  #gestor-body .emp-table td.row{display:flex;gap:8px;margin-top:6px}
+  #gestor-body .emp-table .btn{min-height:44px;flex:1}
+}
 #gestor-body .folha{overflow-x:auto;-webkit-overflow-scrolling:touch}
 #gestor-body .folha table{min-width:760px}
 #gestor-body .grid,#gestor-hub-dashboard .grid,.punch-toolbar{gap:var(--space-section);align-items:end;margin-bottom:var(--space-section)}
@@ -761,15 +793,26 @@ const linhaFunc=f=>{const d=Object.assign({},f);delete d.jornada;return {email_d
   inicio_vigencia_banco_horas:(f.inicioVigenciaBancoHoras||f.bancoInicio)||null,intervalo:f.intervalo||null,dados:d};};
 const linhaPonto=b=>({email_dono:CONTA,nsr:b.nsr,pin:b.pin,data:b.data,hora:b.hora,tipo:b.tipo,timestamp:b.criadoEm||new Date().toISOString(),origem:b.fonte||'LOCAL',dados:b});
 
+let NUVEM_DESDE='';
+function janelaNuvemDesde(){return addDias(hojeISO().slice(0,8)+'01',-1);} // mês corrente + véspera (virada noturna)
+async function garantirHistorico(dataIni){ // busca sob demanda batidas anteriores à janela inicial
+  if(!sb||!CONTA||!dataIni||!NUVEM_DESDE||dataIni>=NUVEM_DESDE) return;
+  const {data,error}=await sb.from('pontos').select('nsr,dados').eq('email_dono',CONTA).gte('dados->>data',dataIni).lt('dados->>data',NUVEM_DESDE);
+  if(error) throw error;
+  const mapa=new Map(get('batidas',[]).map(b=>[b.nsr,b]));
+  (data||[]).forEach(r=>r.dados&&mapa.set(r.nsr,r.dados));
+  set('batidas',[...mapa.values()]);
+}
 async function carregarNuvem(){
   if(!sb||!CONTA) return;
   CARREGANDO=true;
   try{
+    NUVEM_DESDE=janelaNuvemDesde();
     await sincronizarPendentes();
     const rs=await Promise.all([
       sb.from('empregador').select('dados').eq('email_dono',CONTA).maybeSingle(),
       sb.from('funcionarios').select('pin,dados').eq('email_dono',CONTA),
-      sb.from('pontos').select('nsr,dados').eq('email_dono',CONTA).limit(20000),
+      sb.from('pontos').select('nsr,dados').eq('email_dono',CONTA).gte('dados->>data',NUVEM_DESDE).limit(20000),
       sb.from('feriados').select('dados,data,nome,tipo').eq('conta',CONTA),
       sb.from('dados').select('chave,valor').eq('conta',CONTA),
       sb.from('logs').select('quando,por,acao').eq('email_dono',CONTA).order('quando',{ascending:false}).limit(3000),
