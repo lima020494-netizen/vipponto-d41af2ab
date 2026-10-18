@@ -1305,7 +1305,7 @@ async function registrarPonto(){
   confirmacaoRapida(f,b);                                        // overlay 2s e volta à tela limpa
   imprimirComprovante(b);                                        // imprime 58mm imediato
   log(`Batida registrada NSR ${b.nsr} — ${f.nome} ${b.hora} (${b.tipo})`);
-  filaAdd(b).then(()=>sincronizarPendentes()).then(atualizaStatus); // fila IndexedDB → nuvem (offline = fica na fila)
+  await Promise.all([filaAdd(b).then(()=>sincronizarPendentes()).then(atualizaStatus),new Promise(r=>setTimeout(r,600))]); // fila IndexedDB → nuvem; botão "Registrando..." visível durante o processamento
   }finally{
     if(btnBater){btnBater.disabled=false;btnBater.removeAttribute('aria-busy');btnBater.textContent=btnBater.dataset.rotulo||'Registrar';}
   }
