@@ -8,8 +8,7 @@ const source = html.slice(html.indexOf("function indicadoresExecutivos("), html.
 function indicators(hour: number, shifts: Record<string, number>, schedule: Record<string, string> = {}) {
   return JSON.parse(JSON.stringify(runInNewContext(`${source};indicadoresExecutivos(fs,'2026-10-15',agora)`, {
     fs: [{ pin: "1", status: "Ativo" }, { pin: "2", status: "Ativo" }, { pin: "3", status: "Desligado" }],
-    agora: {},
-    horaPonto: () => hour,
+    agora: { getHours: () => hour },
     addDias: () => "2026-10-14",
     batidasDia: (pin: string, day: string) => Array(shifts[`${pin}|${day}`] || 0).fill({}),
     buscaNaEscala: (pin: string) => schedule[pin] ? { tipo: schedule[pin] } : null,

@@ -16,7 +16,7 @@ test('manual punch is marked and its reason retained without modifying original 
 });
 test('employee can be saved with empty optional bank start',()=>{
   const values:Record<string,string>={'f-nome':'Teste','f-cpf':'123','f-funcao':'Equipe','f-dep':'Operação','f-adm':'2026-10-01','f-pin':'1234','f-status':'Ativo','inicio-vigencia-banco':''};let saved:any;
-  const source=html.slice(html.indexOf('function salvarFunc('),html.indexOf('async function delFunc('));
+  const source=html.slice(html.indexOf('function salvarFunc('),html.indexOf('function delFunc('));
   runInNewContext(source+';salvarFunc(-1)',{$:(id:string)=>({value:values[id]||'',checked:false,innerHTML:''}),get:()=>[],set:(_k:string,v:unknown)=>{saved=v;},log:()=>{},fecharModal:()=>{},abaFunc:()=>{},statusTexto:()=>'',maxFuncAtual:()=>10});
   assert.equal(saved?.length,1);assert.equal(saved[0].inicioVigenciaBancoHoras,'');
 });

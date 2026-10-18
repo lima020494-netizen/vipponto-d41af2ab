@@ -25,12 +25,10 @@
 - Dismissed manager onboarding is stored in an account-scoped legacy namespace key so one company's choice cannot hide another company's onboarding.
 - Hardware bridge identifiers remain unchanged while presentation text is neutralized; regulatory wording in legacy commercial content is normalized at read time without overwriting stored configuration.
 - Kiosk browser libraries are version-pinned public scripts, cached with the operational HTML by a static-only service worker; API/auth/company responses are excluded so offline assets never become a second data source.
+- Bank and technical-certificate PDF exports use the shared A4 table renderer and footer, preserving the same calculations and declaration text as their on-screen documents.
 - Manager drawer shortcuts close immediately and defer existing module/subtab renderers through animation frames; dashboard indicators are read-only and session caches never replace Supabase synchronization.
 - Manager home renders the executive summary in gestor-hub and the existing frequency dashboard in gestor-body through the shared deferred renderer, so entry and drawer navigation share one complete dashboard without duplicate filter IDs.
 - Holiday and explicit rest-day calculations use zero planned time before standard shifts; bank credits represent worked minutes, not monetary premiums, and generic rest days never create inferred compensation debits.
 - Daily occurrence bank decisions are shared by sheet and bank calculations, so explicit compensation debits stay distinct from missing hours and excused occurrences cannot generate bank debt across delivery paths.
 - Export libraries (jspdf/autotable/jszip/xlsx) load on demand via garantirLib(), never in the initial head; every export entry point awaits it first.
-- Cloud punches load a current-month window; garantirHistorico backfills exports and older periods to keep memory bounded.
-- Civil time uses shared America/Belem helpers; date-only calendar arithmetic uses UTC getters to avoid device-zone drift.
-- New punches retain UUID contingency IDs until an authenticated atomic RPC assigns NSR; retries preserve originals and fiscal exports reject pending IDs. SQL activation requires separate authorization.
-- Awaited focus-trapped dialogs replace native dialogs; PIN never requests camera access, preventing hardware/permission lockups.
+- Initial cloud punch load is windowed to the current month (NUVEM_DESDE); garantirHistorico(dataIni) back-fills older punches on demand for sheet, bank, batch and accountant exports.
