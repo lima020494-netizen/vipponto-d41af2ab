@@ -1301,7 +1301,7 @@ const tiposDo=f=>f&&f.intervalo&&f.intervalo.preAssinalado?['Entrada','Saída']:
 function proximoNSR(){return 'P-'+crypto.randomUUID();} // identificador de contingência, nunca NSR fiscal
 async function centralizarBatida(b){
   if(!sb||!CONTA)throw new Error('Sem conexão autenticada');
-  const r=await sb.rpc('registrar_ponto_sequencial',{p_evento:b.eventoId||b.nsr.slice(2),p_batida:b});
+  const r=await sb.rpc('registrar_ponto_sequencial',{p_evento:b.eventoId||b.nsr.slice(2),p_batida:b}).abortSignal(AbortSignal.timeout(5000));
   chk(r);if(!r.data?.nsr)throw new Error('Numeração central indisponível');
   return {...b,...r.data,nsrPendente:false};
 }
