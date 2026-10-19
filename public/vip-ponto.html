@@ -416,7 +416,7 @@ th{background:#eef2f9;font-size:11.5px;text-transform:uppercase;letter-spacing:.
 .mod-folha{background:linear-gradient(135deg,#6550a7,#8973c5)}.mod-emp{background:linear-gradient(135deg,#cf5b3a,#eb865f)}
 .mod-logs{background:linear-gradient(135deg,#526575,#778b99)}.mod-dev{background:linear-gradient(135deg,#2d4358,#4d6478)}
 #gestor-hub-dashboard{padding-top:4px}
-#gestor-hub-dashboard>.row:first-child{padding-top:2px;border-top:1px solid #d9e8ec;padding-top:20px}
+#gestor-hub-dashboard>.row:first-child{border-top:1px solid #d9e8ec;padding-top:20px}
 
 /* Quiosque amplo: acessos | informações | registro */
 #tela-home{overflow:hidden}
@@ -552,6 +552,8 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 :root{--manager-bg:#e2e6ed;--manager-dark:var(--navy);--manager-dark-end:var(--navy2);--manager-text:#f8fafc;--manager-muted:#b8c5d6;--manager-panel:rgba(255,255,255,.06);--manager-rule:rgba(255,255,255,.14);--manager-overlay:rgba(15,23,42,.6);--manager-gold-bg:rgba(201,153,43,.12);--manager-gradient:linear-gradient(125deg,var(--manager-dark),var(--manager-dark-end));--manager-shadow:0 16px 40px rgba(15,23,42,.12);--manager-accent:#7ee4b6}
 #tela-gestor{padding:0;background:var(--manager-bg);overflow-x:hidden}
 #tela-gestor .inner{width:100%;max-width:none;min-height:100dvh;overflow:visible;margin:0;border:0;border-radius:0;background:var(--manager-bg);color:var(--txt);box-shadow:none;transition:margin .24s ease,width .24s ease}
+#tela-gestor.modal:not(.hidden)>.inner{animation:none}
+#tela-gestor>.inner::before{display:none}
 #tela-gestor .inner>.gestor-head{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:16px;min-height:80px;padding:16px 24px;position:sticky;top:0;z-index:24;background:var(--card);border-color:var(--line);box-shadow:var(--manager-header-shadow);backdrop-filter:none}
 #tela-gestor .gestor-head .btn.ghost{background:var(--card);color:var(--navy);border-color:var(--line);border-radius:8px}
 #gestor-menu-toggle{padding:0;font-size:25px;width:44px}
@@ -1520,18 +1522,6 @@ function navegarGestor(k){
   else if(k==='contador')irAba('contador');
   else irAba(k);
   atualizarMenuGestor(k);
-}
-function indicadoresExecutivos(fs,hoje,agora){
-  let presentes=0,atencao=0,folgas=0;
-  const ativos=fs.filter(f=>(f.status||'Ativo')!=='Desligado'&&(!f.admissao||f.admissao<=hoje));
-  ativos.forEach(f=>{const atual=batidasDia(f.pin,hoje),anterior=batidasDia(f.pin,addDias(hoje,-1)),abertoHoje=atual.length%2===1,abertoOntem=anterior.length%2===1;
-    const inicio=horarioEscala(f.pin,hoje),entradaMadrugada=inicio&&toMin(inicio)<360;
-    if(abertoHoje||(agora.getHours()<6&&abertoOntem&&!atual.length&&!entradaMadrugada))presentes++;
-    if(abertoHoje||abertoOntem)atencao++;
-    const escala=buscaNaEscala(f.pin,hoje);
-    if(escala?escala.tipo!=='Trabalhado':previstoDia(f,hoje)===0&&(f.status||'Ativo')==='Ativo')folgas++;
-  });
-  return {presentes,atencao,folgas,total:ativos.length};
 }
 function indicadoresDashboard(fs,hoje,agora){
   const ativos=fs.filter(f=>(f.status||'Ativo')!=='Desligado'&&(!f.admissao||f.admissao<=hoje));
