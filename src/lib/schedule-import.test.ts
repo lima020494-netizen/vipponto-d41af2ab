@@ -28,10 +28,10 @@ for (const [input, expected] of [
   test(`grade e formato antigo aceitam ${input}`, () => {
     ctx.input = input;
     vm.runInContext("previewImport([['ID (PIN)','Nome','2026-10-19'],['1234','Teste',input]])", ctx);
-    assert.deepEqual(result.errors, []);
+    assert.equal(result.errors.length, 0);
     assert.equal(result.items[0]?.tipo, expected);
     vm.runInContext("previewImport([['depto','nome','pin','data','dia','tipo','horario'],['RH','Teste','1234','2026-10-19','SEG',input,'']])", ctx);
-    assert.deepEqual(result.errors, []);
+    assert.equal(result.errors.length, 0);
     assert.equal(result.items[0]?.tipo, expected);
   });
 }
