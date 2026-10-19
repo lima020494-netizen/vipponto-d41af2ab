@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Revisar redundâncias e inconsistências estéticas operacionais, corrigir apenas apresentação segura e conferir computador/celular, preservando folha A4, quiosque e cálculos; somente preview.
+
 - [x] Corrigir importação de escala em grade e formato antigo para aceitar opções do menu e variações de folga compensada; CSV confirmado com dados isolados, 27 testes aprovados e build OK. Sem publicar ou alterar dados reais; sincronização autenticada externa não verificada.
 
 - [x] Separar débito de folga compensatória das faltas e neutralizar débitos de atestado/falta justificada ou abonada na apuração compartilhada; 28 testes aprovados, extrato e folha conferidos com dados isolados e build OK. Supabase/AFD e dados reais preservados; acesso autenticado externo não verificável. Somente preview.
