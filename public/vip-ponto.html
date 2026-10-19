@@ -468,9 +468,9 @@ input:not([type=checkbox]):not([type=radio]),select{min-height:44px}
 #gestor-body .tbl-wrap table,#gestor-hub-dashboard .tbl-wrap table,#pins-tbl table{min-width:680px}
 @media(max-width:640px){
   /* Colaboradores: tabela vira cards empilhados no celular */
-  #gestor-body .emp-table{border:0;background:transparent;box-shadow:none;max-height:none;overflow:visible}
+  #gestor-body .emp-table{border:0;background:transparent;box-shadow:none;max-height:none!important;overflow:visible}
   #gestor-body .emp-table table{min-width:0;width:100%}
-  #gestor-body .emp-table table,#gestor-body .emp-table tr,#gestor-body .emp-table td{display:block;width:100%}
+  #gestor-body .emp-table table,#gestor-body .emp-table tbody,#gestor-body .emp-table tr,#gestor-body .emp-table td{display:block;width:100%}
   #gestor-body .emp-table tr:has(th){display:none}
   #gestor-body .emp-table tr{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:var(--space-2);margin-bottom:var(--space-2);box-shadow:var(--manager-soft-shadow)}
   #gestor-body .emp-table td{border:0;padding:2px 0;font-size:14px}

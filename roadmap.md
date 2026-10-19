@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Revisar redundâncias e inconsistências estéticas operacionais, corrigir apenas apresentação segura e conferir computador/celular, preservando folha A4, quiosque e cálculos; somente preview.
+- [x] Revisar redundâncias estéticas: retirar estilos sobrescritos e indicador sem uso, harmonizar abas/tabela/cards com tokens da marca, corrigir largura dos cards e remover alça/animação indevidas no Gestor; modais centralizados no desktop e inferiores no celular. 42 testes aprovados e prévia sem erros; dados isolados, folha A4/quiosque/cálculos preservados e sem publicação. Não constitui auditoria legal ou teste em conta real.
 
 - [x] Corrigir importação de escala em grade e formato antigo para aceitar opções do menu e variações de folga compensada; CSV confirmado com dados isolados, 27 testes aprovados e build OK. Sem publicar ou alterar dados reais; sincronização autenticada externa não verificada.
 
