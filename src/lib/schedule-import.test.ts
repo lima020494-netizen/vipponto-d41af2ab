@@ -26,7 +26,7 @@ for (const [input, expected] of [
   ['FOLGA', 'Folga Compensada'], ['FOLGA DOMINGO', 'Folga Domingo'],
 ]) {
   test(`grade e formato antigo aceitam ${input}`, () => {
-    ctx.input = input;
+    ctx['input'] = input;
     vm.runInContext("previewImport([['ID (PIN)','Nome','2026-10-19'],['1234','Teste',input]])", ctx);
     assert.equal(result.errors.length, 0);
     assert.equal(result.items[0]?.tipo, expected);
