@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Corrigir importação de escala em grade e formato antigo para aceitar opções do menu e variações de folga compensada; validar sem publicar ou alterar dados reais.
+
 - [x] Separar débito de folga compensatória das faltas e neutralizar débitos de atestado/falta justificada ou abonada na apuração compartilhada; 28 testes aprovados, extrato e folha conferidos com dados isolados e build OK. Supabase/AFD e dados reais preservados; acesso autenticado externo não verificável. Somente preview.
 
 - [x] Vincular jornada do anexo ao cadastro da empresa com sábado separado (08–12), dias úteis 08–12/14–18 e domingo DSR; gravação/edição em dados isolados, folha em desktop/celular, PDF de uma A4 e oito testes conferidos. Apuração e dados reais preservados; sincronização autenticada externa não verificada. Somente preview.
