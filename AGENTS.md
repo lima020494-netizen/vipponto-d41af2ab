@@ -32,3 +32,4 @@
 - Daily occurrence bank decisions are shared by sheet and bank calculations, so explicit compensation debits stay distinct from missing hours and excused occurrences cannot generate bank debt across delivery paths.
 - Export libraries (jspdf/autotable/jszip/xlsx) load on demand via garantirLib(), never in the initial head; every export entry point awaits it first.
 - Initial cloud punch load is windowed to the current month (NUVEM_DESDE); garantirHistorico(dataIni) back-fills older punches on demand for sheet, bank, batch and accountant exports.
+- Schedule grid and legacy imports share lerCelulaEscala and canonical TIPOS_ESC values, so menu options and accepted rest-day aliases retain existing calculation semantics.

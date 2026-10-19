@@ -2154,11 +2154,11 @@ async function importarEscala(inp){
   inp.value='';
 }
 function normData(v){v=String(v||'').trim();let m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(m)return `${m[3]}-${pad(m[2])}-${pad(m[1])}`;m=v.match(/^\d{4}-\d{2}-\d{2}/);return m?m[0]:'';}
-function lerCelulaEscala(v){v=String(v||'').trim().toUpperCase();
+function lerCelulaEscala(v){v=String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toUpperCase();
   if(!v||v==='TRABALHADO')return {tipo:'Trabalhado',horarioEntrada:''};
   const m=v.match(/^(\d{1,2}):(\d{2})(?:\s*[-–às]+\s*(\d{1,2}):(\d{2}))?$/);
   if(m)return {tipo:'Trabalhado',horarioEntrada:pad(m[1])+':'+m[2],horarioSaida:m[3]?pad(m[3])+':'+m[4]:''};
-  const t={DSR:'DSR',FOLGA:'Folga Compensada','FOLGA COMPENSADA':'Folga Compensada','FOLGA DOMINGO':'Folga Domingo'}[v];
+  const t=TIPOS_ESC.find(tipo=>tipo.toUpperCase()===v)||{FOLGA:'Folga Compensada','FOLGA COMPENSANDA':'Folga Compensada','FOLGA COMPENSATORIA':'Folga Compensada','FOLGA DE DOMINGO':'Folga Domingo'}[v];
   return t?{tipo:t,horarioEntrada:''}:null;}
 function previewImport(rows){
   const hdr=(rows[0]||[]).map(x=>String(x??'').trim());
@@ -2179,7 +2179,7 @@ function previewImport(rows){
     const [,nome,pin,data,,tipo,hor]=r.map(x=>String(x??'').trim()); const d=normData(data);
     const f=fs.find(x=>x.pin===pin)||fs.find(x=>(x.nome||'').toLowerCase()===String(nome).toLowerCase());
     const hr=/^\d{1,2}:\d{2}$/;
-    const tp=TIPOS_ESC.find(t=>t.toLowerCase()===String(tipo).toLowerCase())||(hr.test(tipo)?'Trabalhado':'');
+    const celula=lerCelulaEscala(tipo), tp=celula?.tipo;
     if(!f||!d||!tp){erros.push(`Linha ${i+start+1}: ${!f?'funcionário não encontrado':!d?'data inválida':'tipo inválido'}`);return;}
     const h=hr.test(hor)?hor:(hr.test(tipo)?tipo:'');
     itens.push({pin:f.pin,nome:f.nome,dia:d,tipo:tp,horarioEntrada:tp==='Trabalhado'?h.padStart(5,'0').replace(/^(\d):/,'0$1:'):''});
