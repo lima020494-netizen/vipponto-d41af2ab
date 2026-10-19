@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Revisar redundâncias estéticas: retirar estilos sobrescritos e indicador sem uso, harmonizar abas/tabela/cards com tokens da marca, corrigir largura dos cards e remover alça/animação indevidas no Gestor; modais centralizados no desktop e inferiores no celular. 42 testes aprovados e prévia sem erros; dados isolados, folha A4/quiosque/cálculos preservados e sem publicação. Não constitui auditoria legal ou teste em conta real.
+
 - [x] Corrigir importação de escala em grade e formato antigo para aceitar opções do menu e variações de folga compensada; CSV confirmado com dados isolados, 27 testes aprovados e build OK. Sem publicar ou alterar dados reais; sincronização autenticada externa não verificada.
 
 - [x] Separar débito de folga compensatória das faltas e neutralizar débitos de atestado/falta justificada ou abonada na apuração compartilhada; 28 testes aprovados, extrato e folha conferidos com dados isolados e build OK. Supabase/AFD e dados reais preservados; acesso autenticado externo não verificável. Somente preview.
