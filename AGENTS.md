@@ -33,3 +33,4 @@
 - Export libraries (jspdf/autotable/jszip/xlsx) load on demand via garantirLib(), never in the initial head; every export entry point awaits it first.
 - Initial cloud punch load is windowed to the current month (NUVEM_DESDE); garantirHistorico(dataIni) back-fills older punches on demand for sheet, bank, batch and accountant exports.
 - Schedule grid and legacy imports share lerCelulaEscala and canonical TIPOS_ESC values, so menu options and accepted rest-day aliases retain existing calculation semantics.
+- Kiosk presentation uses a scoped reference layout with existing control IDs and handlers; styling must not change PIN masking, punch persistence, receipt printing or fiscal logic.
