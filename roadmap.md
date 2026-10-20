@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Aproximar quiosque da referência com relógio central, teclado circular e identificação discreta; preservar histórico, acessos, PIN, confirmação e impressão. Conferir computador, tablet e celular somente em preview.
+- [x] Aproximar quiosque da referência com relógio central, teclado circular e identificação discreta; preservar histórico e acessos. PIN, registro local, confirmação, limpeza e histórico conferidos com dados isolados em computador, tablet e celular; 42 testes aprovados. Sem publicar; sincronização autenticada e impressora física não verificadas.
 
 - [x] Revisar redundâncias estéticas: retirar estilos sobrescritos e indicador sem uso, harmonizar abas/tabela/cards com tokens da marca, corrigir largura dos cards e remover alça/animação indevidas no Gestor; modais centralizados no desktop e inferiores no celular. 42 testes aprovados e prévia sem erros; dados isolados, folha A4/quiosque/cálculos preservados e sem publicação. Não constitui auditoria legal ou teste em conta real.
 
