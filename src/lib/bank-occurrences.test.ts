@@ -21,11 +21,11 @@ function calculate(tipo:string,hours?:[string,string],previous=false,rest=false)
   assert.equal(JSON.stringify(punches),original,'timestamps, NSR and original punches stay intact');
   return JSON.parse(JSON.stringify(result));
 }
-test('compensatory leave debits the planned eight hours, never an absence or missing hours',()=>{
+test('compensatory leave debits seven hours twenty, never an absence or missing hours',()=>{
   const d=calculate('Folga compensatória');
-  assert.equal(d.banco.debitos,480);assert.equal(d.banco.atual,-480);
-  assert.equal(d.linhas[0].saldo,-480);assert.equal(d.tot.faltas,0);assert.equal(d.tot.faltantes,0);
-  assert.match(d.banco.detalhes[0],/^Débito - Folga Compensatória.*08:00$/);
+  assert.equal(d.banco.debitos,440);assert.equal(d.banco.atual,-440);
+  assert.equal(d.linhas[0].saldo,-440);assert.equal(d.tot.faltas,0);assert.equal(d.tot.faltantes,0);
+  assert.match(d.banco.detalhes[0],/^Débito - Folga Compensatória.*07:20$/);
   assert.equal(d.banco.detalhes.length,1);
 });
 for(const tipo of ['Atestado médico','Falta Justificada','Falta Abonada','Falta Justificada/Abonada']){
@@ -37,12 +37,12 @@ for(const tipo of ['Atestado médico','Falta Justificada','Falta Abonada','Falta
   });
 }
 test('opening balance uses the same compensated and excused occurrence rules',()=>{
-  assert.equal(calculate('Folga compensatória',undefined,true).banco.anterior,-480);
+  assert.equal(calculate('Folga compensatória',undefined,true).banco.anterior,-440);
   assert.equal(calculate('Atestado médico',undefined,true).banco.anterior,0);
   assert.equal(calculate('Falta Justificada',undefined,true).banco.anterior,0);
 });
-test('compensation on a day with zero planned time does not infer a debit',()=>{
-  const d=calculate('Folga compensatória',undefined,false,true);assert.equal(d.banco.debitos,0);assert.equal(d.tot.faltas,0);
+test('explicit compensation debits seven hours twenty even on a rest day, without absence',()=>{
+  const d=calculate('Folga compensatória',undefined,false,true);assert.equal(d.banco.debitos,440);assert.equal(d.tot.faltas,0);
 });
 test('ordinary absence and partial work keep scheduled debits and excess work keeps its credit',()=>{
   assert.equal(calculate('Falta').banco.debitos,480);
