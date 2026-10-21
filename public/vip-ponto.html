@@ -1783,7 +1783,7 @@ function dadosFolha(pin,ini,fim){
     else if(folga){oc=folga.tipo.toUpperCase();cls='t-folga';tot.folgas++;}
     else if(fer){oc='FERIADO';cls='t-feriado';tot.feriados++;just.push(`${brOf(d)} - FERIADO - ${fer.nome}`);}
     const ocorr=ocorrenciaDia(pin,d);
-    if(ocorr){ oc=movimento.etiqueta;if(ocorr.motivo)just.push(`${brOf(d)} - ${ocorr.tipo.toUpperCase()} - ${ocorr.motivo}`); cls=movimento.afastado?'t-afast':ocorr.tipo==='Falta'||movimento.suspensao?'t-falta':'t-folga';
+    if(ocorr){ oc=movimento.etiqueta;if(ocorr.motivo){const periodo=ocorr.periodoId?`${brOf(ocorr.inicio)} a ${brOf(ocorr.fim)}`:brOf(d),nota=`${periodo} - ${ocorr.tipo.toUpperCase()} - ${ocorr.motivo}${ocorr.autorizadoPor?' - Autorizado por: '+ocorr.autorizadoPor:''}`;if(!just.includes(nota))just.push(nota);} cls=movimento.afastado?'t-afast':ocorr.tipo==='Falta'||movimento.suspensao?'t-falta':'t-folga';
       if(ocorr.tipo==='Falta'||movimento.suspensao){tot.faltas++;tot.faltasInj++;}
       else tot.folgas++;
     }
@@ -1917,6 +1917,7 @@ function statusGestaoDia(linha,ocorrencia){
   return ['Incompleto','incompleto'];
 }
 function subBatidas(){
+  if(!$('sub-body')){if(ABA==='folha')gerarFolha();return;}
   const fs=get('funcionarios',[]).filter(f=>f.status!=='Desligado');
   const salvo=window.__batFilt||{},fim=salvo.fim||hojeISO(),ini=salvo.ini||fim.slice(0,8)+'01';
   const pin=salvo.pin&&fs.some(f=>f.pin===salvo.pin)?salvo.pin:(fs[0]||{}).pin||'';
@@ -2585,12 +2586,13 @@ async function gerarPDFComLogo(dados){
       const peopleEnd=pdfTabelaPadrao(doc,{...common,y:27,head:null,body:dadosCabecalhoFolha(d.f,d.ini,d.fim)[0].map(x=>[x]),widths:[99],tableWidth:99,left:10});
       const hoursEnd=pdfTabelaPadrao(doc,{...common,y:27,left:113,tableWidth:87,head:[{content:'Horário de Trabalho',colSpan:2}],body:horarioTrabalhoFolha(),widths:[13,74],fontSize:6.5,cellPadding:.7});
       let y=Math.max(peopleEnd,hoursEnd)+3;
-      y=pdfTabelaPadrao(doc,{...common,y,head:m.head,body:chunks[idx],foot:idx===chunks.length-1?[t.row]:[],widths:[12,13,13,13,13,16,17,15,25,15,38],fontSize:6.3,cellPadding:.43,cellStyle:c=>{const role=corCelulaFolha(c.column.index,String(c.cell.raw));return role==='sheet-away'?palette.away:role==='sheet-credit'?palette.credit:role==='sheet-debit'?palette.debit:role==='sheet-rest'?palette.rest:null;}})+3;
+      const longStatuses=chunks[idx].filter(r=>String(r[10]).length>25).length;
+      y=pdfTabelaPadrao(doc,{...common,y,head:m.head,body:chunks[idx],foot:idx===chunks.length-1?[t.row]:[],widths:[12,13,13,13,13,16,17,15,25,15,38],fontSize:longStatuses>10?5.5:6.3,cellPadding:longStatuses>10?.3:.43,cellStyle:c=>{const role=corCelulaFolha(c.column.index,String(c.cell.raw));return role==='sheet-away'?palette.away:role==='sheet-credit'?palette.credit:role==='sheet-debit'?palette.debit:role==='sheet-rest'?palette.rest:null;}})+3;
       if(idx===chunks.length-1){
         doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Dias Trabalhados: ${t.dias} · Dias de Falta: ${t.faltas} · DSRs: ${t.dsrs} · Folgas: ${t.folgas}`,10,y);y+=3;
         y=pdfTabelaPadrao(doc,{...common,y,head:null,body:m.resumo.map(r=>r.map(([t,v])=>`${t}: ${v}`)),widths:[63,64,63],fontSize:6.5})+3;
         doc.setFontSize(6);const lines=m.notas.flatMap(t=>doc.splitTextToSize(t,105)),capacity=Math.max(1,Math.floor((249-y-8)/2.7));
-        const appendix=lines.length>capacity,visible=appendix?doc.splitTextToSize('* Marcações manuais/tratadas. Observações e justificativas completas no anexo. Banco 1:1.',105):lines;
+        const appendix=lines.length>capacity,visible=appendix?doc.splitTextToSize('* Marcações manuais/tratadas. Justificativas completas no anexo. Banco conforme fator da empresa.',105):lines;
         const h=Math.max(24,8+visible.length*2.7);frame(10,y,77,h,'Banco de Horas');frame(90,y,110,h,'Observações');
         bancoCartaoFolha(d).forEach(([title,v,c],i)=>{const x=12+(i%2)*37,yy=y+9+Math.floor(i/2)*8;doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(...palette.ink);doc.text(title,x,yy);doc.setFont('helvetica','bold');doc.setTextColor(...(c==='sheet-debit'?palette.debit:palette.credit));doc.text(v,x,yy+3);});
         doc.setTextColor(...palette.ink);doc.setFont('helvetica','normal');doc.setFontSize(6);visible.forEach((l,i)=>doc.text(l,92,y+8+i*2.7));
