@@ -1807,6 +1807,7 @@ function dadosFolha(pin,ini,fim){
       descontoDia:movimento.suspensao?prev:0,descontoDsr:descontoDsrDia(pin,d,prev),
       atrasoMin,ocorrencia:oc||(f.intervalo?.preAssinalado?'INTERVALO PRÉ-ASSINALADO ART. 71':''),cls,fonte:bs[0]?bs[0].fonte:'—',mov,nsr:bs.map(b=>b.nsr).join(' / ')});
   }
+  linhas.filter(l=>l.descontoDia||l.descontoDsr).forEach(l=>just.push(`${brOf(l.data)} - Suspensão: desconto dia ${toHHMM(l.descontoDia)}, DSR ${toHHMM(l.descontoDsr)} (minutos para fechamento; não cálculo salarial).`));
   const banco=calcBanco(pin,ini,fim);
   return {f,ini,fim,linhas,tot,just,banco};
 }
@@ -1833,9 +1834,9 @@ function modeloEspelho(d){
     const bs=batidasDia(d.f.pin,l.data),marca=tipo=>{const b=bs.find(x=>x.tipo===tipo);if(!b)return '--:--';const tratada=!!(b.manual||b.movimento||b.fonte==='MANUAL');
       if(tratada){const motivo=b.movimento||b.motivo||'Marcação manual; justificativa não informada no registro.',nota=`${brOf(l.data)} ${b.hora} * ${motivo}`,original=`${brOf(l.data)} ${b.hora} - ${motivo}`,i=just.indexOf(original);if(i>=0)just[i]=nota;else if(!just.includes(nota))just.push(nota);}
       return b.hora+(tratada?'*':'');};
-    return [brOf(l.data).slice(0,5),marca('Entrada'),marca('Saída Intervalo'),marca('Entrada Intervalo'),marca('Saída'),toHHMM(l.previsto),toHHMM(l.trabalhado),toHHMM(Math.max(0,l.saldo)),`${toHHMM(Math.max(0,-l.saldo))} / ${toHHMM(l.atrasoMin||0)}`,toHHMM(l.noturno),l.ocorrencia||(bs.length%2?'INCOMPLETO':bs.length?'TRABALHADO':'—')];
+    return [brOf(l.data).slice(0,5),marca('Entrada'),marca('Saída Intervalo'),marca('Entrada Intervalo'),marca('Saída'),toHHMM(l.previsto),toHHMM(l.trabalhado),toHHMM(Math.max(0,l.trabalhado-l.previsto)),`${toHHMM(Math.max(0,-l.saldo))} / ${toHHMM(l.atrasoMin||0)}`,toHHMM(l.noturno),l.ocorrencia||(bs.length%2?'INCOMPLETO':bs.length?'TRABALHADO':'—')];
   });
-  const notas=[`* Marcação manual/tratada. E1/S1/E2/S2: entrada, saída intervalo, retorno, saída. Extras 50%: além do previsto em dia útil; 100%: trabalho em folga/feriado (enquadramento padrão — conferir a regra aplicável à empresa). Banco em minutos, sem multiplicação de adicional. Faltantes e atrasos não são somados em duplicidade.`,...new Set(just)];
+  const notas=[`* Marcação manual/tratada. E1/S1/E2/S2: entrada, saída intervalo, retorno, saída. Extras 50%: além do previsto em dia útil; 100%: trabalho em folga/feriado (conferir enquadramento aplicável). Banco usa o fator configurado para domingo/feriado, distinto de remuneração e de horas extras realizadas. Faltantes e atrasos não são somados em duplicidade.`,...new Set(just)];
   if(preLegenda(d.f))notas.push(preLegenda(d.f));
   return {head,body,resumo:miniResumoFolha(d),notas};
 }
