@@ -9,7 +9,7 @@ const employee = { pin: '1', nome: 'Teste', status: 'Ativo', escala: '5x2', admi
 function calculate(day: string, options: { holiday?: boolean; rest?: string; hours?: [string, string]; shift?: string } = {}) {
   const punches = options.hours?.map((hora, i) => ({ pin: '1', data: day, hora, tipo: i ? 'Saída' : 'Entrada', nsr: String(i + 1), criadoEm: `${day}T${hora}:00` })) || [];
   const original = JSON.stringify(punches);
-  const data: Record<string, unknown> = { feriados: options.holiday ? [{ data: day, nome: 'Feriado' }] : [], escalas: { teste: { semanaInicio: day, semanaFim: day, folgas: options.rest || options.shift ? [{ pin: '1', dia: day, tipo: options.rest || 'Trabalhado', horarioEntrada: '08:00' }] : [] } }, ocorrencias: [], empregador: {} };
+  const data: Record<string, unknown> = { feriados: options.holiday ? [{ data: day, nome: 'Feriado' }] : [], escalas: { teste: { semanaInicio: day, semanaFim: day, folgas: options.rest || options.shift ? [{ pin: '1', dia: day, tipo: options.rest || 'Trabalhado', horarioEntrada: '08:00' }] : [] } }, ocorrencias: [], empregador: { fatorBancoDomFeriado: 1 } };
   const f = { ...employee, bancoInicio: day, escala: options.shift || employee.escala };
   const addDias = (iso: string, n: number) => { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
   const result = runInNewContext(`${source};dadosFolha('1',day,day)`, {
@@ -69,7 +69,7 @@ test('multiple explicit rest days do not imply compensatory debit', () => {
   const result = runInNewContext(`${html.slice(start, end)};calcBanco('1','2026-10-13','2026-10-19')`, {
     funcPorPin: () => ({ ...employee, bancoInicio: '2026-10-13' }),
     batidasDia: () => [], previstoDia: () => 0, trabalhadoDia: () => 0,
-    movimentoBancoDia: () => ({ saldo: 0, abonado: false, compensacao: false }),
+    movimentoBancoDia: () => ({ saldo: 0, abonado: false, compensacao: false }),trabalhoApuradoDia:()=>0,
     folgaEscala: () => ({ tipo: 'DSR' }), cargaEscala: () => 480,
     addDias: (d: string, n: number) => new Date(Date.parse(d) + n * 86400000).toISOString().slice(0, 10),
   });

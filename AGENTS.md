@@ -17,7 +17,7 @@
 - Accountant ZIP exports reuse the same employee PDF and AFD content generators as individual downloads, so fiscal outputs and calculations cannot diverge.
 - A4 PDF exports use the shared local jsPDF AutoTable renderer for tabular data, wrapping cells and repeating headers within reserved footer margins; sheet exports keep the same official generator in every delivery path.
 - Monthly sheet summary rows are derived once from existing daily and bank results and reused by the screen and official PDF; period bank movement stays distinct from accumulated balance to avoid divergent totals.
-- Employee sheets share presentation helpers and computed CSS palette with the compact AutoTable renderer for institutional identification, company work-hours rows (separate Saturday fields stored in the existing employer payload), daily rows, totals and framed bank/notes; monthly A4 signatures stay on the main sheet and overflowing notes are preserved in an appendix rather than clipped.
+- Sheets share presentation, company weekday/Saturday hours and palette with AutoTable; A4 signatures remain on the main sheet and overflowing notes go into an appendix.
 - A4 documents are downloaded through jsPDF rather than browser printing; only kiosk receipts use the thermal browser-print path, preventing mixed document formats.
 - Commercial content lives only at /conheca with a scoped palette; the root route retains the operational HTML iframe to avoid kiosk regressions.
 - Both About entry points read app_config.dev_info with shared offline cache; profile and raster logo writes go through the existing license endpoint with server-verified master email, admin role and PIN to prevent client privilege escalation.
@@ -28,8 +28,9 @@
 - Bank and technical-certificate PDF exports use the shared A4 table renderer and footer, preserving the same calculations and declaration text as their on-screen documents.
 - Manager drawer shortcuts close immediately and defer existing module/subtab renderers through animation frames; dashboard indicators are read-only and session caches never replace Supabase synchronization.
 - Manager home renders the executive summary in gestor-hub and the existing frequency dashboard in gestor-body through the shared deferred renderer, so entry and drawer navigation share one complete dashboard without duplicate filter IDs.
-- Holiday and explicit rest-day calculations use zero planned time before standard shifts; bank credits represent worked minutes, not monetary premiums, and generic rest days never create inferred compensation debits.
-- Daily occurrence bank decisions are shared by sheet and bank calculations, so explicit compensation debits stay distinct from missing hours and excused occurrences cannot generate bank debt across delivery paths.
+- Holidays/rest use zero planned time; Sunday/holiday bank uses employer factor, never salary premiums. Generic rest never infers debt.
+- Shared occurrence rules drive sheet/bank/XLS. Periods expand into dated synced records and edit/delete as a unit; external work never synthesizes fiscal punches. Vacation is neutral, explicit compensation distinct from absence.
 - Export libraries (jspdf/autotable/jszip/xlsx) load on demand via garantirLib(), never in the initial head; every export entry point awaits it first.
 - Initial cloud punch load is windowed to the current month (NUVEM_DESDE); garantirHistorico(dataIni) back-fills older punches on demand for sheet, bank, batch and accountant exports.
 - Schedule grid and legacy imports share lerCelulaEscala and canonical TIPOS_ESC values, so menu options and accepted rest-day aliases retain existing calculation semantics.
+- Monthly ZIP is an action inside the sheet and adds a BIFF8 analytical workbook; reporting codes and deduction minutes are not eSocial transmission or wage calculation.

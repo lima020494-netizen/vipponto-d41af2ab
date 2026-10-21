@@ -591,14 +591,14 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 @media(prefers-reduced-motion:reduce){.manager-drawer,.manager-scrim,#tela-gestor .inner{transition:none}}
 
 /* Functional sheet palette, shared by screen and PDF via computed tokens. */
-:root{--sheet-navy:oklch(.29 .08 258);--sheet-credit:oklch(.45 .14 252);--sheet-debit:oklch(.47 .18 26);--sheet-rest:oklch(.43 .10 151);--sheet-zebra:oklch(.975 .005 250);--sheet-heading:oklch(.94 .018 250)}
+:root{--sheet-away:oklch(.43 .09 193);--sheet-navy:oklch(.29 .08 258);--sheet-credit:oklch(.45 .14 252);--sheet-debit:oklch(.47 .18 26);--sheet-rest:oklch(.43 .10 151);--sheet-zebra:oklch(.975 .005 250);--sheet-heading:oklch(.94 .018 250)}
 .sheet-a4{border-radius:0;padding:16px;max-width:1040px;margin-inline:auto;background:var(--sheet-paper);color:var(--sheet-ink);font-family:Arial,sans-serif}
 .sheet-top{display:flex;align-items:center;gap:16px;border-bottom:2px solid var(--sheet-navy);padding-bottom:8px;margin-bottom:8px}.sheet-top img{width:104px;height:48px;object-fit:contain}.sheet-top>div{min-width:0}
 #gestor-body .sheet-a4 .sheet-title,.sheet-title{font:700 20px Arial,sans-serif;text-align:left;margin:0 0 5px;letter-spacing:0;color:var(--sheet-navy);text-transform:none}.sheet-issued{font-size:10px;color:var(--muted);line-height:1.5}
 .sheet-identification{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:8px;font-size:10px;line-height:1.45;margin-bottom:8px}.sheet-people{border:1px solid var(--sheet-rule);padding:8px;overflow-wrap:anywhere}.sheet-people>div+div{border-top:1px solid var(--sheet-rule);padding-top:5px;margin-top:5px}.sheet-box{border:1px solid var(--sheet-rule);min-width:0;overflow-wrap:anywhere}.sheet-box-title{background:var(--sheet-heading);color:var(--sheet-navy);font-size:10px;font-weight:700;padding:5px 7px;border-bottom:1px solid var(--sheet-rule)}
 #gestor-body .sheet-a4 .sheet-schedule,.sheet-a4 .sheet-schedule{table-layout:fixed;min-width:0;width:100%;font-size:9px}.sheet-a4 .sheet-schedule th,.sheet-a4 .sheet-schedule td{padding:3px;text-align:center;font-size:9px;white-space:normal}.sheet-schedule small{display:block;font-size:8px;padding:3px}
 .sheet-daily{table-layout:fixed;min-width:820px}.sheet-a4 .sheet-daily th,.sheet-a4 .sheet-daily td,#gestor-body .sheet-daily th,#gestor-body .sheet-daily td{font-size:10px;padding:4px;text-align:center;line-height:1.2;white-space:normal}.sheet-a4 .sheet-daily th,#gestor-body .sheet-daily th{background:var(--sheet-heading);text-transform:none;letter-spacing:0;color:var(--sheet-navy)}.sheet-a4 .sheet-daily tbody tr:nth-child(even) td,#gestor-body .sheet-daily tbody tr:nth-child(even) td{background:var(--sheet-zebra)}
-.sheet-a4 .sheet-credit,#gestor-body .sheet-a4 .sheet-credit{color:var(--sheet-credit)!important}.sheet-a4 .sheet-debit,#gestor-body .sheet-a4 .sheet-debit{color:var(--sheet-debit)!important}.sheet-a4 .sheet-rest,#gestor-body .sheet-a4 .sheet-rest{color:var(--sheet-rest)!important}.sheet-daily tfoot td{font-weight:700;background:var(--sheet-heading)!important}.sheet-day-counts{font-size:10px;margin:6px 0;line-height:1.5}
+.sheet-a4 .sheet-credit,#gestor-body .sheet-a4 .sheet-credit{color:var(--sheet-credit)!important}.sheet-a4 .sheet-debit,#gestor-body .sheet-a4 .sheet-debit{color:var(--sheet-debit)!important}.sheet-a4 .sheet-rest,#gestor-body .sheet-a4 .sheet-rest{color:var(--sheet-rest)!important}.sheet-daily tfoot td{font-weight:700;background:var(--sheet-heading)!important}.sheet-a4 .sheet-away,#gestor-body .sheet-a4 .sheet-away{color:var(--sheet-away)!important;background:var(--sheet-heading)!important;font-weight:700}.folha-month-controls{margin-bottom:12px;align-items:end}.folha-month-controls .btn{white-space:normal}.sheet-day-counts{font-size:10px;margin:6px 0;line-height:1.5}
 .sheet-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--sheet-rule);margin-top:8px}.sheet-summary>div{padding:5px 8px;border-right:1px solid var(--sheet-rule);border-bottom:1px solid var(--sheet-rule);font-size:10px;min-width:0;overflow-wrap:anywhere}.sheet-summary>div:nth-child(3n){border-right:0}.sheet-summary>div:nth-last-child(-n+3){border-bottom:0}.sheet-summary strong{font-weight:700}
 .sheet-bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:8px;margin-top:8px}.sheet-bank{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:7px;font-size:10px}.sheet-bank span,.sheet-bank strong{display:block}.sheet-notes{font-size:9px;line-height:1.3;padding:6px;overflow-wrap:anywhere}.sheet-notes p{margin:2px 0}.sheet-awareness,.sheet-place{font-size:9px;margin:8px 0}.sheet-a4 .assin{font-size:10px;gap:48px;margin-top:24px}.sheet-footer{border-top:1px solid var(--sheet-rule);padding-top:5px;margin-top:10px;font-size:8px;text-align:center}
 @media(max-width:600px){.sheet-a4{padding:8px}.sheet-top{gap:8px}.sheet-top img{width:70px;height:42px}.sheet-title,#gestor-body .sheet-a4 .sheet-title{font-size:17px}.sheet-identification,.sheet-bottom{grid-template-columns:1fr}.sheet-summary>div{padding:5px;font-size:9px}}
@@ -609,7 +609,7 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 .sheet-work-hours td{font-variant-numeric:tabular-nums}.sheet-work-hours tr:last-child th,.sheet-work-hours tr:last-child td{border-bottom:0}
 @media print{.sheet-a4 .sheet-work-hours th,.sheet-a4 .sheet-work-hours td{font-size:6.5pt!important;padding:.6mm 1mm!important}.sheet-a4 .sheet-work-hours th{width:10mm}}
 /* Geometry only: receipt browser-print isolation remains unchanged. */
-@media print{.sheet-a4{width:190mm;max-width:190mm;padding:0;border:0;break-after:page;print-color-adjust:exact}.sheet-top{margin-bottom:2mm;padding-bottom:2mm}.sheet-top img{width:24mm;height:12mm}.sheet-title,#gestor-body .sheet-a4 .sheet-title{font-size:13pt}.sheet-issued{font-size:6pt}.sheet-identification{grid-template-columns:1.35fr 1fr;font-size:6.5pt;gap:2mm}.sheet-people{padding:1.5mm}.sheet-box-title{font-size:7pt;padding:1mm}.sheet-a4 .sheet-schedule td,.sheet-a4 .sheet-schedule th{font-size:6pt;padding:.5mm}.sheet-a4 .tbl-wrap{overflow:visible}.sheet-daily{min-width:0!important;width:100%}.sheet-a4 .sheet-daily th,.sheet-a4 .sheet-daily td{font-size:6.3pt!important;padding:.65mm!important;white-space:normal!important}.sheet-summary>div{font-size:6.5pt;padding:1mm}.sheet-bottom{grid-template-columns:1fr 1.35fr;gap:2mm}.sheet-bank,.sheet-notes,.sheet-awareness,.sheet-place,.sheet-day-counts{font-size:6pt}.sheet-footer{font-size:6pt}.sheet-a4 .assin{font-size:7pt;margin-top:6mm;break-inside:avoid}}
+@media print{.sheet-a4{width:190mm;max-width:190mm;padding:0;border:0;break-after:page;print-color-adjust:exact}.sheet-top{margin-bottom:2mm;padding-bottom:2mm}.sheet-top img{width:24mm;height:12mm}.sheet-title,#gestor-body .sheet-a4 .sheet-title{font-size:13pt}.sheet-issued{font-size:6pt}.sheet-identification{grid-template-columns:1.35fr 1fr;font-size:6.5pt;gap:2mm}.sheet-people{padding:1.5mm}.sheet-box-title{font-size:7pt;padding:1mm}.sheet-a4 .sheet-schedule td,.sheet-a4 .sheet-schedule th{font-size:6pt;padding:.5mm}.sheet-a4 .tbl-wrap{overflow:visible}.sheet-daily{min-width:0!important;width:100%}.sheet-a4 .sheet-daily th,.sheet-a4 .sheet-daily td{font-size:6.3pt!important;padding:.65mm!important;white-space:normal!important}.sheet-summary>div{font-size:6.5pt;padding:1mm}.sheet-bottom{grid-template-columns:1fr 1.35fr;gap:2mm}.sheet-bank,.sheet-notes,.sheet-awareness,.sheet-place,.sheet-a4 .sheet-away,#gestor-body .sheet-a4 .sheet-away{color:var(--sheet-away)!important;background:var(--sheet-heading)!important;font-weight:700}.folha-month-controls{margin-bottom:12px;align-items:end}.folha-month-controls .btn{white-space:normal}.sheet-day-counts{font-size:6pt}.sheet-footer{font-size:6pt}.sheet-a4 .assin{font-size:7pt;margin-top:6mm;break-inside:avoid}}
 
 </style>
 </head>
@@ -1098,6 +1098,7 @@ function telaEmpregador(alvo){
       <div><label>Entrada sábado</label><input id="e-sab-entrada" type="time" value="${e.hSabEntrada??'08:00'}"/></div>
       <div><label>Saída sábado</label><input id="e-sab-saida" type="time" value="${e.hSabSaida??'12:00'}"/></div>
     </div>
+    <h4>Regras de Ponto</h4><div class="grid g2"><div><label for="e-fator-banco">Fator Multiplicação Domingos/Feriados no Banco</label><select id="e-fator-banco" title="Lei 605/1949, art. 9: feriado trabalhado exige descanso compensatório ou remuneração em dobro. O fator do banco depende do acordo aplicável e não substitui pagamento salarial."><option value="2" ${Number(e.fatorBancoDomFeriado)!==1?'selected':''}>2.0 Dobro Legal — validar acordo</option><option value="1" ${Number(e.fatorBancoDomFeriado)===1?'selected':''}>1.0 Crédito Simples</option></select></div><div><label for="e-cidada">Empresa Cidadã</label><select id="e-cidada"><option value="nao" ${!e.empresaCidada?'selected':''}>Não</option><option value="sim" ${e.empresaCidada?'selected':''}>Sim</option></select></div></div>
     <label>Logo da empresa (salva em base64)</label><input type="file" accept="image/*" id="e-logo-file" onchange="lerLogo(this)"/>
     <img id="e-logo-prev" src="${e.logo||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg'}" style="height:60px;margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px"/>
     <div id="e-msg"></div>
@@ -1122,6 +1123,7 @@ function salvarEmpregador(){
   const o={tipo:v('e-tipo'),doc:v('e-doc'),cei:v('e-cei'),razao:v('e-razao'),fantasia:v('e-fantasia'),email:v('e-mail'),
     logradouro:v('e-log'),numero:v('e-num'),bairro:v('e-bairro'),cidade:v('e-cidade'),uf:v('e-uf'),cep:v('e-cep'),
     complemento:v('e-compl'),atividade:v('e-ativ'),dsr:v('e-dsr'),hEntrada:v('e-h1'),hSaiInt:v('e-h2'),hEntInt:v('e-h3'),hSaida:v('e-h4'),hSabEntrada:v('e-sab-entrada'),hSabSaida:v('e-sab-saida'),
+    fatorBancoDomFeriado:Number(v('e-fator-banco'))===1?1:2,empresaCidada:v('e-cidada')==='sim',
     logo:LOGO_TMP||(get('empregador',{})||{}).logo||''};
   const falta=['doc','razao','fantasia','email','logradouro','numero','bairro','cidade','uf','cep'].filter(k=>!o[k]);
   if(falta.length) return $('e-msg').innerHTML='<div class="alert err">Preencha todos os campos obrigatórios (*).</div>';
@@ -1496,7 +1498,7 @@ function primeirosPassosHTML(){
   if(!primeirosPassosVisiveis())return '';
   return `<section id="primeiros-passos" class="onboarding" aria-label="Primeiros passos"><div class="onboarding-head"><h3>Primeiros passos</h3><button class="btn sm ghost" onclick="dispensarPrimeirosPassos()" aria-label="Ocultar primeiros passos" title="Ocultar primeiros passos">✕</button></div><div class="onboarding-steps"><button class="btn ghost" onclick="irAba('emp')">1. Configurar Empresa →</button><button class="btn ghost" onclick="irAba('func')">2. Cadastrar Equipe →</button><button class="btn ghost" onclick="fecharGestor()">3. Abrir Quiosque →</button></div></section>`;
 }
-const MENU_GESTOR=[['dash','🏠','Início'],['bat','⏱️','Batidas do Dia'],['folha','📄','Folha MTE'],['func','👥','Colaboradores'],['esc','📅','Escalas & Jornadas'],['ban','⏳','Banco de Horas'],['contador','💼','Pacote do Contador'],['kiosk','🖥️','Terminal Quiosque'],['emp','⚙️','Empresa']];
+const MENU_GESTOR=[['dash','🏠','Início'],['bat','⏱️','Batidas do Dia'],['folha','📄','Folha MTE'],['func','👥','Colaboradores'],['esc','📅','Escalas & Jornadas'],['ban','⏳','Banco de Horas'],['kiosk','🖥️','Terminal Quiosque'],['emp','⚙️','Empresa']];
 let MENU_ATUAL='dash',relogioGestor=null,trocaGestor=0;
 const LOGS_SESSAO=new Set(),LOGS_CARGAS=new Map();
 function iconeGestor(k){
@@ -1519,7 +1521,6 @@ function navegarGestor(k){
   if(k==='kiosk')return fecharGestor();
   if(k==='dev'&&!podeEditarDev())return;
   if(['bat','esc','ban'].includes(k)){SUB=k;irAba('ponto');}
-  else if(k==='contador')irAba('contador');
   else irAba(k);
   atualizarMenuGestor(k);
 }
@@ -1547,7 +1548,7 @@ function irAba(k){
   if(k==='dev'&&!podeEditarDev())return;
   fecharMenuGestor(false);pararRelogioGestor();atualizarMenuGestor(k);
   ABA=k;$('gestor-hub').classList.add('hidden');$('gestor-body').classList.remove('hidden');$('gestor-voltar').classList.add('show');
-  carregarTelaGestor('gestor-body',MODULOS_GESTOR[k]?.nome||'Carregando',()=>{({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,contador:abaContador,emp:abaEmp,logs:abaLogs,assin:abaAssinatura,dev:abaDesenvolvedor})[k]?.();});$('tela-gestor').scrollTop=0;
+  carregarTelaGestor('gestor-body',MODULOS_GESTOR[k]?.nome||'Carregando',()=>{({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs,assin:abaAssinatura,dev:abaDesenvolvedor})[k]?.();});$('tela-gestor').scrollTop=0;
 }
 /* Empregador/Gerenciadores dentro do gestor (reutiliza o mesmo formulário) */
 function abaEmp(){ $('empregador-form').innerHTML=''; telaEmpregador('gestor-body'); }
@@ -1725,14 +1726,44 @@ function calculaNoturna(bs,horaFim){
 }
 const trabalhadoDia=(f,bs)=>minutosTrabalhados(bs,f)+calculaNoturna(bs).adicional;
 const buscaNaEscala=(pin,data)=>{const e=escalaDaSemana(data,pin);return e?((e.folgas||[]).find(x=>x.pin===pin&&x.dia===data)||null):null;};
-/* Ocorrências abonadas não debitam; compensação explícita não é falta. */
+/* Shared occurrence rules: no synthetic fiscal punches, wages or eSocial transmission. */
+const GRUPOS_OCORRENCIAS=[
+ {nome:'1 — Abonam o dia',itens:[['Atestado médico','Atestado Médico (1 a 15 dias)',15],['Licença Gala','Licença Gala (Casamento) — 3 dias',3],['Licença Nojo','Licença Nojo (Falecimento) — 2 dias',2],['Licença Paternidade','Nascimento Filho / Paternidade — 5 ou 20 dias',5],['Doação de Sangue','Doação de Sangue — 1 dia/ano',1],['Alistamento Eleitoral','Alistamento Eleitoral — 2 dias',2],['Falta Justificada','Falta Justificada pela Empresa',15]]},
+ {nome:'2 — Afastamentos INSS',itens:[['Afastamento INSS','Afastamento INSS — Incapacidade Temporária (>15 dias)'],['Licença Maternidade','Licença Maternidade — 120 ou 180 dias']]},
+ {nome:'3 — Compensam o dia',itens:[['Folga compensatória','Folga Compensatória (Banco de Horas)'],['Férias','Férias — sem débito automático'],['Folga de Feriado/DSR Trabalhado','Folga de Feriado/DSR Trabalhado']]},
+ {nome:'4 — Ajustes operacionais',itens:[['Trabalho Externo / Viagem','Trabalho Externo / Viagem'],['Esquecimento de Marcação','Esquecimento de Marcação'],['Suspensão Disciplinar','Suspensão Disciplinar'],['Falta','Falta não justificada']]}
+];
+function regraOcorrencia(tipo){
+ const t=String(tipo||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+ const afastado=t==='afastamento inss'||t==='licenca maternidade';
+ const abonado=afastado||t==='ferias'||t.startsWith('atestado medico')||/^falta (justificada|abonada)(?:\s*\/\s*(?:justificada|abonada))?$/.test(t)||['licenca gala','licenca nojo','licenca paternidade','doacao de sangue','alistamento eleitoral'].includes(t);
+ const compensacao=['folga compensatoria','compensacao de banco','folga de feriado/dsr trabalhado'].includes(t);
+ return {abonado,afastado,compensacao,externo:t==='trabalho externo / viagem',suspensao:t==='suspensao disciplinar',manual:t==='esquecimento de marcacao',codigo:t==='afastamento inss'?'03':'',etiqueta:t==='afastamento inss'?'AFASTADO INSS - AUXÍLIO DOENÇA':t==='licenca maternidade'?'LICENÇA MATERNIDADE':String(tipo||'').toUpperCase(),pagador:t==='afastamento inss'?'Empresa: primeiros 15 dias; INSS: a partir do 16º, sujeito à concessão':t==='licenca maternidade'?'Empresa / compensação previdenciária conforme enquadramento':abonado?'Empresa / sem desconto':''};
+}
+function ocorrenciaDia(pin,data){return (get('ocorrencias',[])||[]).find(o=>o.pin===pin&&o.data===data);}
+function validarPeriodoOcorrencia(tipo,ini,fim,pin,periodoId){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(ini||'')||!/^\d{4}-\d{2}-\d{2}$/.test(fim||'')||!Number.isFinite(Date.parse(ini))||!Number.isFinite(Date.parse(fim))||ini>fim)return 'Informe início e fim válidos.';
+ const dias=Math.round((Date.parse(fim)-Date.parse(ini))/86400000)+1,cidada=!!get('empregador',{}).empresaCidada;
+ if(dias>366)return 'O período deve ter até 366 dias.';
+ if(tipo==='Afastamento INSS'&&dias<=15)return 'Auxílio INSS exige período superior a 15 dias.';
+ if(tipo==='Licença Maternidade'&&dias!==(cidada?180:120))return 'Licença maternidade exige '+(cidada?180:120)+' dias nesta empresa.';
+ const item=GRUPOS_OCORRENCIAS.flatMap(g=>g.itens).find(x=>x[0]===tipo),limite=tipo==='Licença Paternidade'&&cidada?20:item?.[2];
+ if(limite&&dias>limite)return 'Limite deste motivo: '+limite+' dia(s).';
+ if(tipo==='Doação de Sangue'&&(get('ocorrencias',[])||[]).some(o=>o.pin===pin&&o.tipo===tipo&&o.data.slice(0,4)===ini.slice(0,4)&&o.periodoId!==periodoId))return 'Já existe doação de sangue registrada neste ano.';
+ return '';
+}
+function trabalhoApuradoDia(f,data,bs){return regraOcorrencia(ocorrenciaDia(f.pin,data)?.tipo).externo?Math.max(440,trabalhadoDia(f,bs)):trabalhadoDia(f,bs);}
+function descontoDsrDia(pin,data,prev){
+ if(prev!==0)return 0;
+ const f=funcPorPin(pin)||{},diaEscala=buscaNaEscala(pin,data),e=get('empregador',{})||{},dsr=diaEscala?/DSR|DOMINGO/i.test(diaEscala.tipo):dow(data)===0&&(e.dsr==='Sim'||f.escala==='6x1');
+ if(!dsr)return 0;
+ const ini=addDias(data,-6);return (get('ocorrencias',[])||[]).some(o=>o.pin===pin&&o.data>=ini&&o.data<=data&&regraOcorrencia(o.tipo).suspensao)?cargaEscala(f.escala):0;
+}
 function movimentoBancoDia(pin,data,prev,trab){
-  const ocorr=(get('ocorrencias',[])||[]).find(o=>o.pin===pin&&o.data===data);
-  const tipo=String(ocorr?.tipo||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
-  const compensacao=tipo==='folga compensatoria'||tipo==='compensacao de banco';
-  const abonado=tipo==='atestado medico'||/^falta (justificada|abonada)(?:\s*\/\s*(?:justificada|abonada))?$/.test(tipo);
-  const saldo=abonado?Math.max(0,trab-prev):trab-prev;
-  return {saldo,compensacao,abonado,faltantes:compensacao||abonado?0:Math.max(0,prev-trab)};
+ const regra=regraOcorrencia(ocorrenciaDia(pin,data)?.tipo),e=get('empregador',{})||{};
+ const fator=Number(e.fatorBancoDomFeriado)===1?1:2,multiplica=trab>0&&(!!feriadoDe(data)||dow(data)===0);
+ const saldo=regra.abonado?Math.max(0,trab-prev):regra.compensacao?-440:regra.externo?0:(multiplica?Math.round(trab*fator):trab)-prev;
+ return {...regra,saldo,faltantes:regra.compensacao||regra.abonado||regra.externo?0:Math.max(0,prev-trab)};
 }
 /* Linhas da folha + totais + banco de horas */
 function dadosFolha(pin,ini,fim){
@@ -1740,7 +1771,7 @@ function dadosFolha(pin,ini,fim){
   let tot={faltas:0,faltasJust:0,faltasInj:0,folgas:0,feriados:0,extras:0,extras50:0,extras100:0,faltantes:0,trabalhado:0,atrasos:0};
   const just=[];
   for(let d=ini; d<=fim; d=addDias(d,1)){
-    const bs=batidasDia(pin,d), prev=previstoDia(f,d), trab=trabalhadoDia(f,bs), noct=calculaNoturna(bs);
+    const bs=batidasDia(pin,d), prev=previstoDia(f,d), trab=trabalhoApuradoDia(f,d,bs), noct=calculaNoturna(bs);
     const movimento=movimentoBancoDia(pin,d,prev,trab);
     const fer=feriadoDe(d), folga=folgaEscala(pin,d);
     let oc='', cls='';
@@ -1751,10 +1782,9 @@ function dadosFolha(pin,ini,fim){
     else if(f.status==='Afastamento'&&d>=f.afastDe&&d<=f.afastAte){oc='AFASTAMENTO';cls='t-afast';just.push(`${brOf(d)} - AFASTAMENTO - ${(f.motivoAfast||'').toUpperCase()}`);}
     else if(folga){oc=folga.tipo.toUpperCase();cls='t-folga';tot.folgas++;}
     else if(fer){oc='FERIADO';cls='t-feriado';tot.feriados++;just.push(`${brOf(d)} - FERIADO - ${fer.nome}`);}
-    const ocorr=get('ocorrencias',[]).find(o=>o.pin===pin&&o.data===d);
-    if(ocorr){ oc=ocorr.tipo.toUpperCase();if(ocorr.motivo)just.push(`${brOf(d)} - ${ocorr.tipo.toUpperCase()} - ${ocorr.motivo}`); cls=ocorr.tipo==='Falta'?'t-falta':'t-folga';
-      if(ocorr.tipo==='Falta Justificada'){tot.faltas++;tot.faltasJust++;}
-      else if(ocorr.tipo==='Falta'){tot.faltas++;tot.faltasInj++;}
+    const ocorr=ocorrenciaDia(pin,d);
+    if(ocorr){ oc=movimento.etiqueta;if(ocorr.motivo){const periodo=ocorr.periodoId?`${brOf(ocorr.inicio)} a ${brOf(ocorr.fim)}`:brOf(d),nota=`${periodo} - ${ocorr.tipo.toUpperCase()} - ${ocorr.motivo}${ocorr.autorizadoPor?' - Autorizado por: '+ocorr.autorizadoPor:''}`;if(!just.includes(nota))just.push(nota);} cls=movimento.afastado?'t-afast':ocorr.tipo==='Falta'||movimento.suspensao?'t-falta':'t-folga';
+      if(ocorr.tipo==='Falta'||movimento.suspensao){tot.faltas++;tot.faltasInj++;}
       else tot.folgas++;
     }
     if(!bs.length&&prev>0&&(!oc||oc==='FERIADO')){oc='FALTA';cls='t-falta';tot.faltas++;tot.faltasInj++;}
@@ -1763,7 +1793,7 @@ function dadosFolha(pin,ini,fim){
     const prevEntrada=horarioEscala(pin,d)||(get('empregador',{})||{}).hEntrada||'08:00';
     let atrasoMin=0;
     if(prev>0&&bs.length&&g('Entrada')){let at=toMin(g('Entrada').hora)-toMin(prevEntrada);if(at<-720)at+=1440;else if(at>720)at-=1440;if(at>10){atrasoMin=at;tot.atrasos++;}}
-    if(bs.length){
+    if(bs.length||movimento.externo){
       tot.trabalhado+=trab;
       if(prev>0){ if(trab>prev){tot.extras+=trab-prev;tot.extras50+=trab-prev;} }
       else {tot.extras+=trab;tot.extras100+=trab;} // trabalho em folga/feriado credita
@@ -1774,8 +1804,10 @@ function dadosFolha(pin,ini,fim){
     bs.filter(b=>b.movimento).forEach(b=>just.push(`${brOf(d)} ${b.hora} - ${b.movimento}`));
     linhas.push({data:d,dia:DIAS[dow(d)],e1:por(g('Entrada')),e2:por(g('Saída Intervalo')),e3:por(g('Entrada Intervalo')),e4:por(g('Saída')),
       noturno:noct.min,trabalhado:trab,previsto:prev,saldo:movimento.saldo,
+      descontoDia:movimento.suspensao?prev:0,descontoDsr:descontoDsrDia(pin,d,prev),
       atrasoMin,ocorrencia:oc||(f.intervalo?.preAssinalado?'INTERVALO PRÉ-ASSINALADO ART. 71':''),cls,fonte:bs[0]?bs[0].fonte:'—',mov,nsr:bs.map(b=>b.nsr).join(' / ')});
   }
+  linhas.filter(l=>l.descontoDia||l.descontoDsr).forEach(l=>just.push(`${brOf(l.data)} - Suspensão: desconto dia ${toHHMM(l.descontoDia)}, DSR ${toHHMM(l.descontoDsr)} (minutos para fechamento; não cálculo salarial).`));
   const banco=calcBanco(pin,ini,fim);
   return {f,ini,fim,linhas,tot,just,banco};
 }
@@ -1802,9 +1834,9 @@ function modeloEspelho(d){
     const bs=batidasDia(d.f.pin,l.data),marca=tipo=>{const b=bs.find(x=>x.tipo===tipo);if(!b)return '--:--';const tratada=!!(b.manual||b.movimento||b.fonte==='MANUAL');
       if(tratada){const motivo=b.movimento||b.motivo||'Marcação manual; justificativa não informada no registro.',nota=`${brOf(l.data)} ${b.hora} * ${motivo}`,original=`${brOf(l.data)} ${b.hora} - ${motivo}`,i=just.indexOf(original);if(i>=0)just[i]=nota;else if(!just.includes(nota))just.push(nota);}
       return b.hora+(tratada?'*':'');};
-    return [brOf(l.data).slice(0,5),marca('Entrada'),marca('Saída Intervalo'),marca('Entrada Intervalo'),marca('Saída'),toHHMM(l.previsto),toHHMM(l.trabalhado),toHHMM(Math.max(0,l.saldo)),`${toHHMM(Math.max(0,-l.saldo))} / ${toHHMM(l.atrasoMin||0)}`,toHHMM(l.noturno),l.ocorrencia||(bs.length%2?'INCOMPLETO':bs.length?'TRABALHADO':'—')];
+    return [brOf(l.data).slice(0,5),marca('Entrada'),marca('Saída Intervalo'),marca('Entrada Intervalo'),marca('Saída'),toHHMM(l.previsto),toHHMM(l.trabalhado),toHHMM(Math.max(0,l.trabalhado-l.previsto)),`${toHHMM(Math.max(0,-l.saldo))} / ${toHHMM(l.atrasoMin||0)}`,toHHMM(l.noturno),l.ocorrencia||(bs.length%2?'INCOMPLETO':bs.length?'TRABALHADO':'—')];
   });
-  const notas=[`* Marcação manual/tratada. E1/S1/E2/S2: entrada, saída intervalo, retorno, saída. Extras 50%: além do previsto em dia útil; 100%: trabalho em folga/feriado (enquadramento padrão — conferir a regra aplicável à empresa). Banco em minutos, sem multiplicação de adicional. Faltantes e atrasos não são somados em duplicidade.`,...new Set(just)];
+  const notas=[`* Marcação manual/tratada. E1/S1/E2/S2: entrada, saída intervalo, retorno, saída. Extras 50%: além do previsto em dia útil; 100%: trabalho em folga/feriado (conferir enquadramento aplicável). Banco usa o fator configurado para domingo/feriado, distinto de remuneração e de horas extras realizadas. Faltantes e atrasos não são somados em duplicidade.`,...new Set(just)];
   if(preLegenda(d.f))notas.push(preLegenda(d.f));
   return {head,body,resumo:miniResumoFolha(d),notas};
 }
@@ -1822,7 +1854,7 @@ function totaisCartaoFolha(d){
   return {dias:d.linhas.filter(l=>l.trabalhado>0).length,faltas:d.tot.faltas,dsrs:d.linhas.filter(l=>/DSR/.test(l.ocorrencia)).length,folgas:d.linhas.filter(l=>/FOLGA/.test(l.ocorrencia)&&!/DSR/.test(l.ocorrencia)).length,
     row:['Totais','—','—','—','—',toHHMM(d.linhas.reduce((n,l)=>n+l.previsto,0)),toHHMM(d.tot.trabalhado),toHHMM(d.tot.extras),`${toHHMM(d.tot.faltantes)} / ${toHHMM(d.linhas.reduce((n,l)=>n+(l.atrasoMin||0),0))}`,toHHMM(d.linhas.reduce((n,l)=>n+l.noturno,0)),'—']};
 }
-function corCelulaFolha(col,value){if(col===7)return 'sheet-credit';if(col===8)return 'sheet-debit';if(col===10){if(/FALTA/.test(value))return 'sheet-debit';if(/DSR|FOLGA/.test(value))return 'sheet-rest';if(/ATESTADO|AFASTAMENTO/.test(value))return 'sheet-credit';}return '';}
+function corCelulaFolha(col,value){if(col===7)return 'sheet-credit';if(col===8)return 'sheet-debit';if(col===10){if(/AFASTADO|AFASTAMENTO|MATERNIDADE/.test(value))return 'sheet-away';if(/FALTA/.test(value)&&!/JUSTIFICADA|ABONADA/.test(value)||/SUSPENSÃO/.test(value))return 'sheet-debit';if(/DSR|FOLGA/.test(value))return 'sheet-rest';if(/ATESTADO|AFASTAMENTO/.test(value))return 'sheet-credit';}return '';}
 function bancoCartaoFolha(d){return [['Crédito',toHHMM(d.banco.creditos),'sheet-credit'],['Débito',toHHMM(d.banco.debitos),'sheet-debit'],['Saldo do Mês',toSaldo(d.banco.creditos-d.banco.debitos),d.banco.creditos-d.banco.debitos<0?'sheet-debit':'sheet-credit'],['Saldo Acumulado',toSaldo(d.banco.atual),d.banco.atual<0?'sheet-debit':'sheet-credit']];}
 const gerarFolhaMTE=(pin,ini,fim)=>dadosFolha(pin,ini,fim); // consulta buscaNaEscala() em cada dia
 function calcBanco(pin,ini,fim){
@@ -1830,17 +1862,13 @@ function calcBanco(pin,ini,fim){
   const soma=(de,ate)=>{
     let cred=0,deb=0,det=[];
     for(let d=de; d<=ate; d=addDias(d,1)){
-      const bs=batidasDia(pin,d),prev=previstoDia(f,d),trab=trabalhadoDia(f,bs);
+      const bs=batidasDia(pin,d),prev=previstoDia(f,d),trab=trabalhoApuradoDia(f,d,bs);
       const movimento=movimentoBancoDia(pin,d,prev,trab);
-      if(movimento.abonado&&movimento.saldo===0) continue;
-      if(movimento.compensacao&&movimento.saldo<0){deb-=movimento.saldo;det.push(`Débito - Folga Compensatória dia ${brOf(d)} - ${toHHMM(-movimento.saldo)}`);continue;}
-      if(bs.length){
-        if(trab>prev){cred+=trab-prev;det.push(`Crédito - Hora Extra dia ${brOf(d)} - Previsto ${toHHMM(prev)} / Realizado ${toHHMM(trab)}`);}
-        else if(trab<prev){deb+=prev-trab;det.push(`Débito - Carga incompleta dia ${brOf(d)}`);}
-      } else if(prev>0){deb+=prev;det.push(`Débito - Falta dia ${brOf(d)}`);}
+      if(movimento.saldo>0){cred+=movimento.saldo;det.push(`Crédito - Hora Extra dia ${brOf(d)} - Previsto ${toHHMM(prev)} / Realizado ${toHHMM(trab)} / Banco ${toHHMM(movimento.saldo)}`);}
+      else if(movimento.saldo<0){deb-=movimento.saldo;det.push(`${movimento.compensacao?'Débito - Folga Compensatória':bs.length?'Débito - Carga incompleta':'Débito - Falta'} dia ${brOf(d)} - ${toHHMM(-movimento.saldo)}`);}
     }
     // Descanso cadastrado não prova compensação: nunca inferir débito por quantidade de folgas.
-    // Créditos são minutos trabalhados (1:1), não pagamento: adicional monetário depende da regra aplicável.
+    // Créditos usam o fator configurado; banco não representa remuneração salarial.
     return {cred,deb,det};
   };
   const vig=f.inicioVigenciaBancoHoras||f.bancoInicio||f.admissao||ini; // só conta a partir da vigência
@@ -1882,12 +1910,14 @@ function addFeriado(){
 function delFeriado(d,n){if(!confirm('Excluir o feriado '+n+' ('+brOf(d)+')?\n\nEle deixará de ser considerado como folga remunerada no calendário e nos cálculos.\n\nEsta ação não pode ser desfeita.'))return;const fs=get('feriados',[]).filter(f=>!(f.data===d&&f.nome===n));set('feriados',fs);log(`Feriado excluído ${brOf(d)} - ${n}`);subFeriados();}
 /* B) Gestão diária de batidas — ajustes e ocorrências consolidados por dia */
 function statusGestaoDia(linha,ocorrencia){
+  if(ocorrencia&&regraOcorrencia(ocorrencia.tipo).afastado)return ['Afastado','atestado'];
   if(ocorrencia&&String(ocorrencia.tipo||'').toLowerCase().includes('atestado')) return ['Atestado','atestado'];
   if(linha.previsto===0) return ['DSR/Folga','folga'];
   if(linha.trabalhado>=linha.previsto&&linha.previsto>0) return ['Trabalhado','trabalhado'];
   return ['Incompleto','incompleto'];
 }
 function subBatidas(){
+  if(!$('sub-body')){if(ABA==='folha')gerarFolha();return;}
   const fs=get('funcionarios',[]).filter(f=>f.status!=='Desligado');
   const salvo=window.__batFilt||{},fim=salvo.fim||hojeISO(),ini=salvo.ini||fim.slice(0,8)+'01';
   const pin=salvo.pin&&fs.some(f=>f.pin===salvo.pin)?salvo.pin:(fs[0]||{}).pin||'';
@@ -1977,8 +2007,8 @@ function excluirBatidaManual(nsr){
 }
 function excluirOcorrencia(pin,data){
   const l=get('ocorrencias',[]),o=l.find(x=>x.pin===pin&&x.data===data);if(!o)return;
-  if(!confirm(`Excluir a ocorrência "${o.tipo}" de ${brOf(data)}?\n\nO dia voltará a ser calculado normalmente.`))return;
-  set('ocorrencias',l.filter(x=>x!==o));log(`Ocorrência ${o.tipo} de ${brOf(data)} excluída (${(funcPorPin(pin)||{}).nome||pin})`);fecharModal();subBatidas();
+  if(!confirm(`Excluir a ocorrência "${o.tipo}" de ${brOf(o.inicio||data)} a ${brOf(o.fim||data)}?\n\nTodo o intervalo voltará a ser calculado normalmente.`))return;
+  set('ocorrencias',l.filter(x=>o.periodoId?x.periodoId!==o.periodoId:x!==o));log(`Ocorrência ${o.tipo} de ${brOf(data)} excluída (${(funcPorPin(pin)||{}).nome||pin})`);fecharModal();subBatidas();
 }
 function moverTipo(nsr,novo,sel){
   const all=get('batidas',[]),b=all.find(x=>x.nsr===nsr),antigo=b.tipo;
@@ -1996,6 +2026,7 @@ function inserirBatidaManual(pinSelecionado='',dataSelecionada=''){
     <div><label>Data</label><input type="date" id="ib-data" value="${dataSelecionada||hojeISO()}" ${dataSelecionada?'readonly':''}/></div>
     <div><label>Hora</label><input type="time" id="ib-hora"/></div>
     <div><label>Tipo</label><select id="ib-tipo">${TIPOS.map(t=>`<option>${t}</option>`).join('')}</select></div>
+    <div><label for="ib-autorizou">Quem autorizou *</label><input id="ib-autorizou" required/></div>
     <div style="grid-column:1/-1"><label>Motivo (obrigatório, mín. 5 caracteres)</label><textarea id="ib-motivo" rows="2"></textarea></div>
   </div><button class="btn gold" onclick="salvarBatidaManual()">Salvar batida manual</button>`);
 }
@@ -2003,29 +2034,37 @@ function salvarBatidaManual(){
   const pin=$('ib-pin').value,data=$('ib-data').value,hora=$('ib-hora').value,tipo=$('ib-tipo').value,motivo=$('ib-motivo').value.trim();
   if(!data||!hora)return alert('Informe data e hora.');
   if(motivo.length<5)return alert('Motivo obrigatório (mín. 5 caracteres).');
-  const f=funcPorPin(pin), all=get('batidas',[]);
+  const autorizadoPor=$('ib-autorizou').value.trim();if(!autorizadoPor)return toast('Informe quem autorizou a marcação.',4000);
+  const f=funcPorPin(pin), all=get('batidas',[]);if(!f)return;
   if(batidasJornada(pin,data).length>=4)return alert('Limite de 4 marcações no dia.');
   const nsrM=proximoNSR();
   all.push({pin,nome:f.nome,cpf:f.cpf,data,hora,tipo,nsr:nsrM,fonte:'MANUAL',sync:false,offset:get('ntpOffset',0),
-    gerenciador:GERENCIADOR.nome,movimento:`Inserida manualmente - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`,criadoEm:new Date().toISOString()});
-  set('batidas',all); filaPonto(nsrM); log(`Batida manual inserida ${brOf(data)} ${hora} ${f.nome} - Motivo: ${motivo}`); fecharModal();window.__batFilt={pin,data,ini:$('gb-ini')?.value||data,fim:$('gb-fim')?.value||data};subBatidas();
+    autorizadoPor,gerenciador:GERENCIADOR.nome,movimento:`Inserida manualmente - Autorizado por: ${autorizadoPor} - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`,criadoEm:new Date().toISOString()});
+  set('batidas',all); filaPonto(nsrM); log(`Batida manual inserida ${brOf(data)} ${hora} ${f.nome} - Autorizado por: ${autorizadoPor} - Motivo: ${motivo}`); fecharModal();window.__batFilt={pin,data,ini:$('gb-ini')?.value||data,fim:$('gb-fim')?.value||data};subBatidas();
 }
 function lancarOcorrencia(pinSelecionado='',dataSelecionada=''){
-  const fs=get('funcionarios',[]),ex=get('ocorrencias',[]).find(o=>o.pin===pinSelecionado&&o.data===dataSelecionada)||{};
-  abrirModal(`<div class="row"><h3>${ex.tipo?'Editar':'Lançar'} Ocorrência / Abono</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
-  <div class="card grid g2">
-    <div><label>Funcionário</label><select id="oc-pin" ${pinSelecionado?'disabled':''}>${fs.map(f=>`<option value="${f.pin}" ${f.pin===pinSelecionado?'selected':''}>${esc(f.nome)}</option>`).join('')}</select></div>
-    <div><label>Data</label><input type="date" id="oc-data" value="${dataSelecionada||hojeISO()}" ${dataSelecionada?'readonly':''}/></div>
-    <div><label>Motivo do abono</label><select id="oc-tipo">${['Atestado médico','Falta Justificada','Folga compensatória','Férias','Falta'].map(t=>`<option ${t===ex.tipo?'selected':''}>${t}</option>`).join('')}</select></div>
-    <div><label>Motivo (obrigatório, mín. 5 caracteres)</label><input id="oc-motivo" value="${esc(ex.motivo||'')}"/></div>
-  </div><button class="btn gold" onclick="salvarOcorrencia()">Salvar ocorrência</button>`);
+ const fs=get('funcionarios',[]),ex=ocorrenciaDia(pinSelecionado,dataSelecionada)||{};window.__ocEdit=ex;
+ abrirModal(`<div class="row"><h3>${ex.tipo?'Editar':'Lançar'} Ocorrência / Abono</h3><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar">✕</button></div><div class="grid g2">
+ <div><label>Funcionário</label><select id="oc-pin" ${pinSelecionado?'disabled':''}>${fs.map(f=>`<option value="${f.pin}" ${f.pin===pinSelecionado?'selected':''}>${esc(f.nome)}</option>`).join('')}</select></div>
+ <div><label>Motivo do abono</label><select id="oc-tipo" onchange="camposOcorrencia()">${GRUPOS_OCORRENCIAS.map(g=>`<optgroup label="${g.nome}">${g.itens.map(([v,t])=>`<option value="${esc(v)}" ${v===ex.tipo?'selected':''}>${esc(t)}</option>`).join('')}</optgroup>`).join('')}</select></div>
+ <div><label for="oc-data">Data Início *</label><input type="date" id="oc-data" value="${ex.inicio||dataSelecionada||hojeISO()}"/></div>
+ <div><label for="oc-fim">Data Fim *</label><input type="date" id="oc-fim" value="${ex.fim||dataSelecionada||hojeISO()}"/></div>
+ <div><label for="oc-motivo">Justificativa *</label><input id="oc-motivo" value="${esc(ex.motivo||'')}"/></div>
+ <div id="oc-autorizacao" class="hidden"><label for="oc-autorizou">Quem autorizou *</label><input id="oc-autorizou" value="${esc(ex.autorizadoPor||'')}"/></div></div>
+ <div id="oc-erro" role="alert" class="muted"></div><button class="btn gold" onclick="salvarOcorrencia()">Salvar ocorrência</button>`);camposOcorrencia();
 }
+function camposOcorrencia(){const r=regraOcorrencia($('oc-tipo').value);$('oc-autorizacao').classList.toggle('hidden',!r.manual);$('oc-erro').textContent=r.afastado?r.pagador:'';}
 function salvarOcorrencia(){
-  const pin=$('oc-pin').value,data=$('oc-data').value,tipo=$('oc-tipo').value,motivo=$('oc-motivo').value.trim();
-  if(motivo.length<5)return alert('Motivo obrigatório (mín. 5 caracteres).');
-  const l=get('ocorrencias',[]),existente=l.find(o=>o.pin===pin&&o.data===data);
-  if(existente){existente.tipo=tipo;existente.motivo=motivo;existente.por=GERENCIADOR.nome;}else l.push({pin,data,tipo,motivo,por:GERENCIADOR.nome});
-  set('ocorrencias',l);log(`Ocorrência ${tipo} em ${brOf(data)} - Motivo: ${motivo}`);fecharModal();window.__batFilt={pin,ini:$('gb-ini')?.value||data,fim:$('gb-fim')?.value||data};subBatidas();
+ const pin=$('oc-pin').value,ini=$('oc-data').value,fim=$('oc-fim').value,tipo=$('oc-tipo').value,motivo=$('oc-motivo').value.trim(),autorizadoPor=$('oc-autorizou').value.trim(),r=regraOcorrencia(tipo),ex=window.__ocEdit||{};
+ const erro=validarPeriodoOcorrencia(tipo,ini,fim,pin,ex.periodoId);if(erro){$('oc-erro').textContent=erro;return;}
+ if(motivo.length<5){$('oc-erro').textContent='Justificativa obrigatória (mín. 5 caracteres).';return;}
+ if(r.manual){if(!autorizadoPor){$('oc-erro').textContent='Informe quem autorizou.';return;}if(ini!==fim){$('oc-erro').textContent='Esquecimento de marcação deve ser tratado um dia por vez.';return;}}
+ const todos=get('ocorrencias',[]),mesma=o=>ex.periodoId?o.periodoId===ex.periodoId:o.pin===pin&&o.data===ex.data;
+ if(todos.some(o=>o.pin===pin&&o.data>=ini&&o.data<=fim&&!mesma(o))){$('oc-erro').textContent='Há outra ocorrência neste intervalo. Revise antes de substituir.';return;}
+ const l=todos.filter(o=>!mesma(o)),periodoId=ex.periodoId||crypto.randomUUID();
+ for(let data=ini;data<=fim;data=addDias(data,1))l.push({pin,data,tipo,motivo,por:GERENCIADOR.nome,autorizadoPor,periodoId,inicio:ini,fim,codigoContador:r.codigo});
+ set('ocorrencias',l);log(`Ocorrência ${tipo} de ${brOf(ini)} a ${brOf(fim)} - Motivo: ${motivo}${autorizadoPor?' - Autorizado por: '+autorizadoPor:''}`);fecharModal();window.__batFilt={pin,ini:$('gb-ini')?.value||ini,fim:$('gb-fim')?.value||fim};subBatidas();
+ if(r.manual){inserirBatidaManual(pin,ini);$('ib-autorizou').value=autorizadoPor;$('ib-motivo').value=motivo;}
 }
 /* Escala — período flexível (7, 15 ou 30 dias) */
 function subEscala(){
@@ -2439,6 +2478,7 @@ function pdfRodapesPadrao(doc,usuario){
 function abaFolha(){
   const fs=get('funcionarios',[]),hoje=hojeISO();
   $('gestor-body').innerHTML=`<h3>Folha de Ponto — Portaria MTE 671/2021</h3>
+  <div class="row folha-month-controls"><div><label>Mês / Ano</label><input type="month" id="fl-mes" value="${hoje.slice(0,7)}" onchange="periodoMesFolha()"/></div><button id="fl-pacote" class="btn gold right" onclick="pacoteContador()"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg>Baixar Pacote do Contador (.ZIP)</button></div>
   <div class="grid g4">
     <div><label>Funcionário (inclui desligados)</label><select id="fl-pin">${fs.map(f=>`<option value="${f.pin}">${esc(f.nome)}${f.status==='Desligado'?' (desligado)':''}</option>`).join('')}</select></div>
     <div><label>Período — início</label><input type="date" id="fl-ini" value="${hoje.slice(0,8)}01"/></div>
@@ -2447,7 +2487,6 @@ function abaFolha(){
   </div>
   <div class="folha-actions" role="group" aria-label="Exportar folha de ponto">
     <button class="btn sm" onclick="baixarPDFFolha()"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6v20h12V6zM14 2v5h5M8 12h8M8 16h8"/></svg>Baixar PDF</button>
-    <button id="fl-pacote" class="btn sm gold" onclick="pacoteContador()">📦 Pacote do Contador (ZIP)</button>
     <details class="fiscal-menu"><summary class="btn sm ghost">⚖️ Fiscal MTE <span aria-hidden="true">▾</span></summary>
       <div class="fiscal-options">
         <button class="btn sm ghost" onclick="acaoFiscalFolha('afd')">Exportar AFD Oficial (MTE 671)</button>
@@ -2459,12 +2498,7 @@ function abaFolha(){
   <div id="fl-out" style="margin-top:12px"></div>`;
   if(fs.length)gerarFolha();
 }
-function abaContador(){
-  const mes=hojeISO().slice(0,7);
-  $('gestor-body').innerHTML=`<h3>Pacote do Contador</h3><div class="row"><div><label>Mês de fechamento</label><input type="month" id="ct-mes" value="${mes}" onchange="periodoContador()"/></div><button id="fl-pacote" class="btn" onclick="pacoteContador()">📦 Baixar pacote mensal (ZIP)</button></div><input type="hidden" id="fl-ini"/><input type="hidden" id="fl-fim"/><div id="fl-export-status" class="muted" role="status" aria-live="polite"></div>`;
-  periodoContador();
-}
-function periodoContador(){const mes=$('ct-mes')?.value;if(!/^\d{4}-\d{2}$/.test(mes||''))return;const [ano,m]=mes.split('-').map(Number);$('fl-ini').value=mes+'-01';$('fl-fim').value=isoOf(new Date(ano,m,0,12));}
+function periodoMesFolha(){const mes=$('fl-mes').value;if(!/^\d{4}-\d{2}$/.test(mes))return;const [ano,m]=mes.split('-').map(Number);$('fl-ini').value=mes+'-01';$('fl-fim').value=mes+'-'+String(new Date(Date.UTC(ano,m,0)).getUTCDate()).padStart(2,'0');gerarFolha();}
 function periodoFolhaValido(){
   const ini=$('fl-ini')?.value,fim=$('fl-fim')?.value;
   if(!ini||!fim||ini>fim){toast('Informe um período válido: início até a data final.',4000);return null;}
@@ -2480,8 +2514,9 @@ function acaoFiscalFolha(acao){
   if(acao==='afd')gerarAFDOficial(p.ini,p.fim);else if(acao==='aej')gerarAEJ(p.ini,p.fim);
 }
 async function pacoteContador(){
-  const p=periodoFolhaValido(),fs=get('funcionarios',[]);if(!p)return;
-  try{await garantirHistorico(p.ini);await garantirLib('pdf');await garantirLib('zip');}catch(e){return toast('Exportação indisponível. Verifique a conexão e tente novamente.',5000);}
+  const mes=$('fl-mes')?.value;if(!/^\d{4}-\d{2}$/.test(mes||''))return toast('Selecione o mês do pacote.',4000);
+  const [ano,m]=mes.split('-').map(Number),p={ini:mes+'-01',fim:mes+'-'+String(new Date(Date.UTC(ano,m,0)).getUTCDate()).padStart(2,'0')},fs=get('funcionarios',[]);
+  try{await garantirHistorico(p.ini);await garantirLib('pdf');await garantirLib('zip');await garantirLib('xlsx');}catch(e){return toast('Exportação indisponível. Verifique a conexão e tente novamente.',5000);}
   if(!fs.length)return toast('Nenhum colaborador cadastrado para exportar.',4000);
   if(typeof JSZip==='undefined'||typeof window.jspdf?.jsPDF!=='function')return toast('Exportação indisponível. Verifique a conexão e tente novamente.',5000);
   const btn=$('fl-pacote'),status=$('fl-export-status');if(!btn||btn.disabled)return;
@@ -2499,9 +2534,14 @@ async function pacoteContador(){
     const cab=['Colaborador','Cargo','Data inicial','Data final','Horas trabalhadas (HH:MM)','Horas extras (HH:MM)','Faltas (dias)','Horas faltantes (HH:MM)','Saldo anterior (HH:MM)','Créditos (HH:MM)','Débitos (HH:MM)','Saldo atual (HH:MM)'];
     const linhas=folhas.map(d=>[d.f.nome,d.f.funcao||d.f.cargo||'',p.ini,p.fim,toHHMM(d.tot.trabalhado),toHHMM(d.tot.extras),d.tot.faltas,toHHMM(d.tot.faltantes),toSaldo(d.banco.anterior),toHHMM(d.banco.creditos),toHHMM(d.banco.debitos),toSaldo(d.banco.atual)]);
     zip.file('resumo_fechamento.csv','\ufeff'+[cab,...linhas].map(r=>r.map(cel).join(';')).join('\r\n')+'\r\n');
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([cab,...linhas]),'Resumo mensal');
+    const analitico=[['Colaborador','CPF','Data','Ocorrência','Código solicitado (não transmissão eSocial)','Previstas min','Trabalhadas min','Saldo banco min','Desconto dia min','Desconto DSR min','Responsável','Quem autorizou','Pagador / tratamento']];
+    folhas.forEach(d=>d.linhas.forEach(l=>{const o=ocorrenciaDia(d.f.pin,l.data)||{},r=regraOcorrencia(o.tipo);analitico.push([d.f.nome,d.f.cpf,l.data,l.ocorrencia,r.codigo||'',l.previsto,l.trabalhado,l.saldo,l.descontoDia||0,l.descontoDsr||0,o.por||'',o.autorizadoPor||'',r.pagador||'']);}));
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(analitico),'Analítico diário');
+    zip.file('analitico_fechamento.xls',XLSX.write(wb,{bookType:'biff8',type:'array'}));
     status.textContent='Compactando pacote…';const blob=await zip.generateAsync({type:'blob'});
     baixar(`Pacote_Contador_${p.ini}_${p.fim}.zip`,blob,'application/zip');
-    status.textContent=`Pacote concluído: ${fs.length} folha(s), AFD e resumo do fechamento.`;
+    status.textContent=`Pacote concluído: ${fs.length} folha(s), AFD, XLS analítico e resumo do fechamento.`;
     log(`Exportou Pacote do Contador (${fs.length} colaboradores) ${brOf(p.ini)}–${brOf(p.fim)}`);
   }catch(e){status.textContent='Não foi possível gerar o pacote. Tente novamente.';}
   finally{btn.disabled=false;btn.removeAttribute('aria-busy');}
@@ -2529,7 +2569,7 @@ async function gerarPDFComLogo(dados){
   const lista=dados.folhas||(dados.pins||[dados.pin]).map(p=>dadosFolha(p,dados.ini,dados.fim));
   const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),e=get('empregador',{})||{};
   const rgb=token=>{const ctx=document.createElement('canvas').getContext('2d');if(!ctx)return [35,50,75];ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue(token).trim();ctx.fillRect(0,0,1,1);return Array.from(ctx.getImageData(0,0,1,1).data).slice(0,3);};
-  const palette={ink:rgb('--sheet-ink'),navy:rgb('--sheet-navy'),rule:rgb('--sheet-rule'),paper:rgb('--sheet-paper'),heading:rgb('--sheet-heading'),zebra:rgb('--sheet-zebra'),credit:rgb('--sheet-credit'),debit:rgb('--sheet-debit'),rest:rgb('--sheet-rest')};
+  const palette={ink:rgb('--sheet-ink'),navy:rgb('--sheet-navy'),rule:rgb('--sheet-rule'),paper:rgb('--sheet-paper'),heading:rgb('--sheet-heading'),zebra:rgb('--sheet-zebra'),credit:rgb('--sheet-credit'),debit:rgb('--sheet-debit'),rest:rgb('--sheet-rest'),away:rgb('--sheet-away')};
   let image=null;try{image=await new Promise(resolve=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>resolve(im);im.onerror=()=>resolve(null);im.src=e.logo||logoApp();});}catch(_){}
   const footer=()=>{doc.setFont('helvetica','normal');doc.setFontSize(5.8);doc.setTextColor(...palette.ink);doc.setDrawColor(...palette.rule);doc.line(10,281,200,281);doc.text(FOLHA_RODAPE,105,285,{align:'center'});};
   const frame=(x,y,w,h,title)=>{doc.setDrawColor(...palette.rule);doc.setLineWidth(.18);doc.rect(x,y,w,h);doc.setFillColor(...palette.heading);doc.rect(x,y,w,5,'F');doc.setTextColor(...palette.navy);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text(title,x+2,y+3.5);};
@@ -2546,12 +2586,13 @@ async function gerarPDFComLogo(dados){
       const peopleEnd=pdfTabelaPadrao(doc,{...common,y:27,head:null,body:dadosCabecalhoFolha(d.f,d.ini,d.fim)[0].map(x=>[x]),widths:[99],tableWidth:99,left:10});
       const hoursEnd=pdfTabelaPadrao(doc,{...common,y:27,left:113,tableWidth:87,head:[{content:'Horário de Trabalho',colSpan:2}],body:horarioTrabalhoFolha(),widths:[13,74],fontSize:6.5,cellPadding:.7});
       let y=Math.max(peopleEnd,hoursEnd)+3;
-      y=pdfTabelaPadrao(doc,{...common,y,head:m.head,body:chunks[idx],foot:idx===chunks.length-1?[t.row]:[],widths:[12,13,13,13,13,16,17,15,25,15,38],fontSize:6.3,cellPadding:.43,cellStyle:c=>{const role=corCelulaFolha(c.column.index,String(c.cell.raw));return role==='sheet-credit'?palette.credit:role==='sheet-debit'?palette.debit:role==='sheet-rest'?palette.rest:null;}})+3;
+      const longStatuses=chunks[idx].filter(r=>String(r[10]).length>25).length;
+      y=pdfTabelaPadrao(doc,{...common,y,head:m.head,body:chunks[idx],foot:idx===chunks.length-1?[t.row]:[],widths:[12,13,13,13,13,16,17,15,25,15,38],fontSize:longStatuses>10?5.5:6.3,cellPadding:longStatuses>10?.3:.43,cellStyle:c=>{const role=corCelulaFolha(c.column.index,String(c.cell.raw));return role==='sheet-away'?palette.away:role==='sheet-credit'?palette.credit:role==='sheet-debit'?palette.debit:role==='sheet-rest'?palette.rest:null;}})+3;
       if(idx===chunks.length-1){
         doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...palette.ink);doc.text(`Dias Trabalhados: ${t.dias} · Dias de Falta: ${t.faltas} · DSRs: ${t.dsrs} · Folgas: ${t.folgas}`,10,y);y+=3;
         y=pdfTabelaPadrao(doc,{...common,y,head:null,body:m.resumo.map(r=>r.map(([t,v])=>`${t}: ${v}`)),widths:[63,64,63],fontSize:6.5})+3;
         doc.setFontSize(6);const lines=m.notas.flatMap(t=>doc.splitTextToSize(t,105)),capacity=Math.max(1,Math.floor((249-y-8)/2.7));
-        const appendix=lines.length>capacity,visible=appendix?doc.splitTextToSize('* Marcações manuais/tratadas. Observações e justificativas completas no anexo. Banco 1:1.',105):lines;
+        const appendix=lines.length>capacity,visible=appendix?doc.splitTextToSize('* Marcações manuais/tratadas. Justificativas completas no anexo. Banco conforme fator da empresa.',105):lines;
         const h=Math.max(24,8+visible.length*2.7);frame(10,y,77,h,'Banco de Horas');frame(90,y,110,h,'Observações');
         bancoCartaoFolha(d).forEach(([title,v,c],i)=>{const x=12+(i%2)*37,yy=y+9+Math.floor(i/2)*8;doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(...palette.ink);doc.text(title,x,yy);doc.setFont('helvetica','bold');doc.setTextColor(...(c==='sheet-debit'?palette.debit:palette.credit));doc.text(v,x,yy+3);});
         doc.setTextColor(...palette.ink);doc.setFont('helvetica','normal');doc.setFontSize(6);visible.forEach((l,i)=>doc.text(l,92,y+8+i*2.7));
@@ -2634,7 +2675,7 @@ async function lotePDF(){const p=loteValida();if(!p)return;const ini=$('lt-ini')
   pdfFolhas(p,ini,$('lt-fim').value,`Folhas_MTE_${mes}_${ini.slice(0,4)}.pdf`);}
 async function lotePDFZip(){
   const p=loteValida();if(!p)return;const ini=$('lt-ini').value,fim=$('lt-fim').value;
-  try{await garantirHistorico(ini);await garantirLib('pdf');await garantirLib('zip');}catch(e){return toast('Exportação indisponível. Verifique a conexão e tente novamente.',5000);}
+  try{await garantirHistorico(ini);await garantirLib('pdf');await garantirLib('zip');await garantirLib('xlsx');}catch(e){return toast('Exportação indisponível. Verifique a conexão e tente novamente.',5000);}
   const zip=new JSZip();
   for(const pin of p){
     const f=funcPorPin(pin), pdf=await gerarPDFComLogo({pins:[pin],ini,fim}); // mesmo PDF oficial com logo
