@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] V3 operacional: centralizar ZIP na folha com XLS analítico; agrupar justificativas e afastamentos por período; autorização manual; fator configurável do banco e apresentação compartilhada. Validar prévia e testes sem publicação.
+- [x] V3 operacional: ZIP somente na folha com PDFs/AFD/XLS analítico e CSV; quatro grupos de justificativas, períodos editáveis INSS/maternidade, autorização manual e fator da empresa. Prévia com dados isolados: gravação/edição/recarga, ZIP/XLS e PDF com 31 dias em uma A4 conferidos, sem sobreposição ou erros; férias neutralizadas (não debitadas), descontos em minutos não equivalem a folha salarial/eSocial. Acesso autenticado externo e impressora física não verificáveis; sem publicação ou alteração de dados reais.
 
 - [x] Revisar redundâncias estéticas: retirar estilos sobrescritos e indicador sem uso, harmonizar abas/tabela/cards com tokens da marca, corrigir largura dos cards e remover alça/animação indevidas no Gestor; modais centralizados no desktop e inferiores no celular. 42 testes aprovados e prévia sem erros; dados isolados, folha A4/quiosque/cálculos preservados e sem publicação. Não constitui auditoria legal ou teste em conta real.
 

@@ -24,3 +24,16 @@ for(const [cidada,length,end] of [[false,120,'2027-01-28'],[true,180,'2027-03-29
 for(const [tipo,limit] of [['Licença Gala',3],['Licença Nojo',2],['Licença Paternidade',5],['Doação de Sangue',1],['Alistamento Eleitoral',2],['Atestado médico',15]] as const)test(`${tipo} enforces ${limit} day limit`,()=>{assert.match(runInNewContext(source+`;validarPeriodoOcorrencia('${tipo}','2026-10-01','2026-10-${String(limit+1).padStart(2,'0')}','1')`,env()),/Limite/);});
 test('Empresa Cidada paternity accepts twenty days',()=>{assert.equal(runInNewContext(source+`;validarPeriodoOcorrencia('Licença Paternidade','2026-10-01','2026-10-20','1')`,env('',{empresaCidada:true})),'');});
 test('suspension records day and weekly DSR payroll adjustment separately',()=>{const e=env('Suspensão Disciplinar');e.data['escalas']={a:{semanaInicio:'2026-10-18',semanaFim:'2026-10-18',folgas:[{pin:'1',dia:'2026-10-18',tipo:'DSR'}]}};const d=runInNewContext(source+`;dadosFolha('1','2026-10-13','2026-10-18')`,e);assert.equal(d.linhas[0].descontoDia,440);assert.equal(d.linhas[5].descontoDsr,440);});
+test('manual punch cannot be saved without authorizer',()=>{
+ const values:Record<string,string>={'ib-pin':'1','ib-data':'2026-10-13','ib-hora':'08:00','ib-tipo':'Entrada','ib-motivo':'Esquecimento','ib-autorizou':''};let saves=0;
+ const fn=html.slice(html.indexOf('function salvarBatidaManual('),html.indexOf('function lancarOcorrencia('));
+ runInNewContext(fn+';salvarBatidaManual()',{$:(k:string)=>({value:values[k]||''}),toast:()=>{},alert:()=>{},set:()=>{saves++}});assert.equal(saves,0);
+});
+test('INSS save expands all sixteen days without changing punches; period edit replaces old interval',()=>{
+ const e=env(),values:Record<string,string>={'oc-pin':'1','oc-data':'2026-10-01','oc-fim':'2026-10-16','oc-tipo':'Afastamento INSS','oc-motivo':'Documento apresentado','oc-autorizou':''};
+ const fn=html.slice(html.indexOf('function salvarOcorrencia('),html.indexOf('/* Escala —'));
+ const context={...e,$:(k:string)=>({value:values[k]||'',textContent:''}),window:{__ocEdit:{}},crypto:{randomUUID:()=> 'periodo-teste'},GERENCIADOR:{nome:'Gestor'},set:(k:string,v:unknown)=>{e.data[k]=v},log:()=>{},fecharModal:()=>{},subBatidas:()=>{}};
+ const original=JSON.stringify(e.punches);runInNewContext(source+fn+';salvarOcorrencia()',context);
+ const rows=e.data['ocorrencias'] as {data:string;inicio:string;fim:string;periodoId:string}[];assert.equal(rows.length,16);assert.equal(rows[0]?.data,'2026-10-01');assert.equal(rows[15]?.data,'2026-10-16');assert.equal(JSON.stringify(e.punches),original);
+ values['oc-fim']='2026-10-17';runInNewContext(source+fn+';salvarOcorrencia()',{...context,window:{__ocEdit:rows[7]}});assert.equal((e.data['ocorrencias'] as unknown[]).length,17);
+});

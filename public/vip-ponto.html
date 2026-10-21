@@ -1755,7 +1755,7 @@ function validarPeriodoOcorrencia(tipo,ini,fim,pin,periodoId){
 function trabalhoApuradoDia(f,data,bs){return regraOcorrencia(ocorrenciaDia(f.pin,data)?.tipo).externo?Math.max(440,trabalhadoDia(f,bs)):trabalhadoDia(f,bs);}
 function descontoDsrDia(pin,data,prev){
  if(prev!==0)return 0;
- const f=funcPorPin(pin)||{},folga=folgaEscala(pin,data),dsr=folga?/DSR|DOMINGO/i.test(folga.tipo):dow(data)===0&&f.escala==='6x1';
+ const f=funcPorPin(pin)||{},diaEscala=buscaNaEscala(pin,data),e=get('empregador',{})||{},dsr=diaEscala?/DSR|DOMINGO/i.test(diaEscala.tipo):dow(data)===0&&(e.dsr==='Sim'||f.escala==='6x1');
  if(!dsr)return 0;
  const ini=addDias(data,-6);return (get('ocorrencias',[])||[]).some(o=>o.pin===pin&&o.data>=ini&&o.data<=data&&regraOcorrencia(o.tipo).suspensao)?cargaEscala(f.escala):0;
 }
