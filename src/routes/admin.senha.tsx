@@ -32,7 +32,7 @@ function DefinirSenha() {
     nav({ to: "/admin", replace: true });
   }
   return (
-    <main className="admin-shell grid min-h-screen place-items-center p-4">
+    <main className="grid min-h-screen place-items-center p-4">
       <form onSubmit={salvar} className="admin-card w-full max-w-sm space-y-3">
         <h1 className="text-xl font-semibold">Definir senha</h1>
         <input className="admin-input" type="password" placeholder="Nova senha" value={senha} onChange={(e) => setSenha(e.target.value)} />

@@ -172,3 +172,10 @@
 @media(max-width:767px) { .commercial { --commercial-overlay: linear-gradient(90deg, #0f172aee, #0f172abf); } }
 @media(prefers-reduced-motion:no-preference) { .commercial-enter { animation:commercial-enter .7s ease-out both; } }
 @keyframes commercial-enter { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+/* Super Admin (/admin) — paleta própria marinho/dourado */
+.admin-shell { --adm-bg: #0c2246; --adm-card: #132f5c; --adm-gold: #c9992b; --adm-text: #f4f6fa; background: var(--adm-bg); color: var(--adm-text); }
+.admin-card { background: var(--adm-card); border: 1px solid rgb(201 153 43 / 0.35); border-radius: 14px; padding: 20px; }
+.admin-input { display: block; width: 100%; margin-top: 4px; min-height: 40px; border-radius: 8px; padding: 6px 10px; background: var(--adm-bg); color: var(--adm-text); border: 1px solid rgb(255 255 255 / 0.2); }
+.admin-btn { min-height: 40px; padding: 6px 14px; border-radius: 8px; background: var(--adm-gold); color: var(--adm-bg); font-weight: 600; }
+.admin-btn-ghost { min-height: 40px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--adm-gold); color: var(--adm-text); }

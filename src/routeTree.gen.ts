@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConhecaRouteImport } from './routes/conheca'
+import { Route as AdminSenhaRouteImport } from './routes/admin.senha'
+import { Route as ApiPublicAdminAcessoRouteImport } from './routes/api/public/admin-acesso'
 import { Route as ApiPublicFolhaLinkRouteImport } from './routes/api/public/folha-link'
 import { Route as ApiPublicLicencaRouteImport } from './routes/api/public/licenca'
 
@@ -22,6 +24,16 @@ const IndexRoute = IndexRouteImport.update({
 const ConhecaRoute = ConhecaRouteImport.update({
   id: '/conheca',
   path: '/conheca',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSenhaRoute = AdminSenhaRouteImport.update({
+  id: '/admin/senha',
+  path: '/admin/senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAdminAcessoRoute = ApiPublicAdminAcessoRouteImport.update({
+  id: '/api/public/admin-acesso',
+  path: '/api/public/admin-acesso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicFolhaLinkRoute = ApiPublicFolhaLinkRouteImport.update({
@@ -38,12 +50,16 @@ const ApiPublicLicencaRoute = ApiPublicLicencaRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/conheca': typeof ConhecaRoute
+  '/admin/senha': typeof AdminSenhaRoute
+  '/api/public/admin-acesso': typeof ApiPublicAdminAcessoRoute
   '/api/public/folha-link': typeof ApiPublicFolhaLinkRoute
   '/api/public/licenca': typeof ApiPublicLicencaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/conheca': typeof ConhecaRoute
+  '/admin/senha': typeof AdminSenhaRoute
+  '/api/public/admin-acesso': typeof ApiPublicAdminAcessoRoute
   '/api/public/folha-link': typeof ApiPublicFolhaLinkRoute
   '/api/public/licenca': typeof ApiPublicLicencaRoute
 }
@@ -51,18 +67,34 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/conheca': typeof ConhecaRoute
+  '/admin/senha': typeof AdminSenhaRoute
+  '/api/public/admin-acesso': typeof ApiPublicAdminAcessoRoute
   '/api/public/folha-link': typeof ApiPublicFolhaLinkRoute
   '/api/public/licenca': typeof ApiPublicLicencaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/conheca' | '/api/public/folha-link' | '/api/public/licenca'
+  fullPaths:
+    | '/'
+    | '/conheca'
+    | '/admin/senha'
+    | '/api/public/admin-acesso'
+    | '/api/public/folha-link'
+    | '/api/public/licenca'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/conheca' | '/api/public/folha-link' | '/api/public/licenca'
+  to:
+    | '/'
+    | '/conheca'
+    | '/admin/senha'
+    | '/api/public/admin-acesso'
+    | '/api/public/folha-link'
+    | '/api/public/licenca'
   id:
     | '__root__'
     | '/'
     | '/conheca'
+    | '/admin/senha'
+    | '/api/public/admin-acesso'
     | '/api/public/folha-link'
     | '/api/public/licenca'
   fileRoutesById: FileRoutesById
@@ -70,6 +102,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConhecaRoute: typeof ConhecaRoute
+  AdminSenhaRoute: typeof AdminSenhaRoute
+  ApiPublicAdminAcessoRoute: typeof ApiPublicAdminAcessoRoute
   ApiPublicFolhaLinkRoute: typeof ApiPublicFolhaLinkRoute
   ApiPublicLicencaRoute: typeof ApiPublicLicencaRoute
 }
@@ -88,6 +122,20 @@ declare module '@tanstack/react-router' {
       path: '/conheca'
       fullPath: '/conheca'
       preLoaderRoute: typeof ConhecaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/senha': {
+      id: '/admin/senha'
+      path: '/admin/senha'
+      fullPath: '/admin/senha'
+      preLoaderRoute: typeof AdminSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/admin-acesso': {
+      id: '/api/public/admin-acesso'
+      path: '/api/public/admin-acesso'
+      fullPath: '/api/public/admin-acesso'
+      preLoaderRoute: typeof ApiPublicAdminAcessoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/folha-link': {
@@ -110,6 +158,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConhecaRoute: ConhecaRoute,
+  AdminSenhaRoute: AdminSenhaRoute,
+  ApiPublicAdminAcessoRoute: ApiPublicAdminAcessoRoute,
   ApiPublicFolhaLinkRoute: ApiPublicFolhaLinkRoute,
   ApiPublicLicencaRoute: ApiPublicLicencaRoute,
 }
