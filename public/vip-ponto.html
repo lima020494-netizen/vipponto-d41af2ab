@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>Ponto Pro Gestão — Registro Eletrônico de Ponto (Portaria MTE 671/2021)</title>
-<link rel="icon" href="/favicon.png" />
-<link rel="apple-touch-icon" href="/pwa-icon-192.png" />
-<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="icon" href="/favicon-v20261022.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-v20261022.png" />
+<link rel="manifest" href="/manifest.webmanifest?v=20261022" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Sora:wght@600;700;800&amp;display=swap" />
@@ -1335,7 +1335,7 @@ function detectarImpressora(tent=0){
   el.onclick=null;el.removeAttribute('role');el.removeAttribute('tabindex');el.setAttribute('aria-live','polite');
   if(window.woyouService||window.sunmiPrinterService){SUNMI=window.woyouService||window.sunmiPrinterService;el.innerHTML='🖨️ Impressora térmica nativa detectada (58mm)';return;}
   if(tent<5) return setTimeout(()=>detectarImpressora(tent+1),1200);
-  el.innerHTML=rawbtAtivo()?(localStorage.getItem('vip_rawbt_falhou')==='1'?'🖨️ RawBT sem resposta — usando navegador':'🖨️ Impressão automática: RawBT (fallback navegador)'):'🖨️ Impressão automática: navegador';
+  el.innerHTML=rawbtAtivo()?(localStorage.getItem('vip_rawbt_falhou')==='1'?'🖨️ RawBT sem resposta — usando navegador':'🖨️ Impressão: RawBT (com opção do navegador)'):'🖨️ Impressão automática: navegador';
 }
 async function sha256Hex(text){
   const bytes=new TextEncoder().encode(text),hash=await crypto.subtle.digest('SHA-256',bytes);
@@ -1359,6 +1359,7 @@ async function comprovanteTexto(b){
   ].filter(Boolean)};
 }
 async function imprimirComprovante(b){
+  ULTIMO_COMPROVANTE=b;
   const {linhas}=await comprovanteTexto(b);
   $('comprovante').innerHTML=`<div class="cp">
     ${linhas.map((l,i)=>`<div class="c ${i<2?'b':''} ${l==='DATA E HORA DA MARCACAO'||/^\d{2}\/\d{2}\/\d{4}/.test(l)?'cp-mark':''}">${esc(l)}</div>`).join('')}<div class="cp-feed" aria-hidden="true"></div></div>`;
@@ -1376,11 +1377,25 @@ async function imprimirComprovante(b){
 function imprimirNavegador(){
   setTimeout(()=>{try{window.print();}catch(e){console.warn('print',e);}},120);
 }
-/* RawBT: impressão térmica silenciosa (ESC/POS) via rawbt: e intent Android */
-// Automático: Android usa RawBT; se não responder, cai para o navegador. ?rawbt=0 força navegador.
-const rawbtAtivo=()=>localStorage.getItem('vip_rawbt')!=='0'&&/Android/i.test(navigator.userAgent);
+/* Opções explícitas exibidas quando a impressão não é garantida (RawBT ausente ou sem resposta). */
+function opcoesImpressao(msg){
+  let bar=$('print-opcoes');
+  if(!bar){bar=document.createElement('div');bar.id='print-opcoes';bar.setAttribute('role','dialog');bar.setAttribute('aria-label','Opções de impressão');
+    bar.style.cssText='position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999;background:#0c2246;color:#fff;border:1px solid #c9992b;border-radius:14px;padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:94vw;box-shadow:0 10px 30px rgba(0,0,0,.4)';
+    document.body.appendChild(bar);}
+  bar.innerHTML=`<span style="flex:1 1 100%;font-size:14px">${esc(msg)}</span>
+    <button type="button" style="min-height:44px" onclick="$('print-opcoes').remove();imprimirNavegador()">🖨️ Imprimir pelo navegador</button>
+    ${/Android/i.test(navigator.userAgent)?`<button type="button" style="min-height:44px" onclick="$('print-opcoes').remove();localStorage.setItem('vip_rawbt','1');reimprimirUltimo()">Tentar RawBT</button>`:''}
+    <button type="button" style="min-height:44px" onclick="$('print-opcoes').remove()">Fechar</button>`;
+  clearTimeout(bar._t);bar._t=setTimeout(()=>bar.isConnected&&bar.remove(),20000);
+}
+let ULTIMO_COMPROVANTE=null;
+function reimprimirUltimo(){if(ULTIMO_COMPROVANTE)imprimirComprovante(ULTIMO_COMPROVANTE);}
+/* RawBT: somente quando ativado explicitamente no aparelho (?rawbt=1 ou botão).
+   Sem RawBT instalado o intent abre a Google Play — isso nunca conta como impressão. */
+const rawbtAtivo=()=>localStorage.getItem('vip_rawbt')==='1'&&/Android/i.test(navigator.userAgent);
 (()=>{const q=new URLSearchParams(location.search).get('rawbt');if(q==='1'||q==='0')localStorage.setItem('vip_rawbt',q);})();
-function alternarRawBT(){localStorage.setItem('vip_rawbt',rawbtAtivo()?'0':'1');detectarImpressora(9);
+function alternarRawBT(){localStorage.setItem('vip_rawbt',rawbtAtivo()?'0':'1');localStorage.removeItem('vip_rawbt_falhou');detectarImpressora(9);
   toast(rawbtAtivo()?'Impressão silenciosa RawBT ativada neste aparelho.':'RawBT desativado — impressão pelo navegador.',3500);}
 function escposComprovante(linhas){
   const B=[],txt=s=>{for(const c of String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,''))B.push(c.charCodeAt(0)<128?c.charCodeAt(0):63);};
@@ -1392,16 +1407,15 @@ function escposComprovante(linhas){
 function imprimirRawBT(linhas){
   try{
     const b64=escposComprovante(linhas), alvo=(()=>{try{return window.top.location;}catch(e){return window.location;}})();
-    const android=/Android/i.test(navigator.userAgent);
-    alvo.href=android?`intent:base64,${b64}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`:`rawbt:base64,${b64}`;
-    let saiu=false;const marca=()=>{saiu=true;};
-    window.addEventListener('blur',marca,{once:true});document.addEventListener('visibilitychange',marca,{once:true});
-    try{window.top.addEventListener('blur',marca,{once:true});}catch(e){}
-    setTimeout(()=>{window.removeEventListener('blur',marca);document.removeEventListener('visibilitychange',marca);
-      if(saiu){localStorage.removeItem('vip_rawbt_falhou');}
-      else{localStorage.setItem('vip_rawbt_falhou','1');toast('RawBT não respondeu — imprimindo pelo navegador.',2500);imprimirNavegador();}
+    // Sem browser_fallback_url para a Play Store: se o app não existir, o Chrome permanece na página.
+    alvo.href=`intent:base64,${b64}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;S.browser_fallback_url=${encodeURIComponent('about:blank#rawbt-ausente')};end;`;
+    let saiu=false;const marca=()=>{if(document.visibilityState==='hidden')saiu=true;};
+    document.addEventListener('visibilitychange',marca);
+    setTimeout(()=>{document.removeEventListener('visibilitychange',marca);
+      if(!saiu){localStorage.setItem('vip_rawbt_falhou','1');toast('RawBT não respondeu — imprimindo pelo navegador.',2500);imprimirNavegador();}
+      else opcoesImpressao('Comprovante enviado ao RawBT. Se não saiu impresso (app ausente ou loja aberta), imprima pelo navegador.');
       detectarImpressora(9);},1800);
-    toast('Comprovante enviado ao RawBT.',2500); return true;
+    return true;
   }catch(err){console.warn('RawBT falhou, usando navegador',err);return false;}
 }
 function reimprimir(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);if(b)imprimirComprovante(b);}
