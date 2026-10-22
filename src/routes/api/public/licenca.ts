@@ -6,7 +6,7 @@ import { conhecaSchema, resolveConheca } from "@/lib/conheca-content";
 const DAY = 86400000;
 const TOLERANCIA_DIAS = 7;
 const TERMOS_VERSAO = "1.0";
-const DEV_EMAIL = "lima020494@gmail.com";
+const DEV_EMAIL = "pontoprogestao@gmail.com";
 
 function json(data: unknown, status = 200) {
   return Response.json(data, { status, headers: { "cache-control": "no-store, private" } });

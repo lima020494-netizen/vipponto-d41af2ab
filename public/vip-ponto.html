@@ -974,7 +974,7 @@ async function fazerLogin(){
   if(error) return m.innerHTML=`<div class="alert err">${/confirm/i.test(error.message)?'Confirme seu e-mail pelo link recebido.':'E-mail ou senha inválidos.'}</div>`;
   const cs=contas(), jaNoAparelho=cs.some(c=>c.email===email);
   // 2) Conta nova neste aparelho: decide pelo plano REAL no banco (desenvolvedor e cortesia sempre entram)
-  if(!jaNoAparelho&&email!=='lima020494@gmail.com'){
+  if(!jaNoAparelho&&email!=='pontoprogestao@gmail.com'){
     let j=null; try{ j=await apiLic('GET'); localStorage.setItem('vip:lic:'+email,JSON.stringify(j)); }catch(e){}
     if(j&&!j.isDev){ // cortesia também respeita o nível de plano atribuído
       const limite=Math.min(3,Math.max(1,j.licenca?.plano||1));
@@ -1017,7 +1017,12 @@ async function iniciarApp(){
   await carregarNuvem(); // Supabase é a fonte principal; localStorage fica como cache offline
   if(!(await verificarLicenca())) return; // licença: trial/tolerância/bloqueio seguro
   // garante gerenciador inicial exigido
-  if(!get('gerenciadores',[]).length) set('gerenciadores',[{nome:'Carlos Lima',funcao:'Gerente RH',pin:'1000'}]);
+  { // PIN 1000: fallback interno legado — oculto de listagens e fora dos limites
+    const gs=get('gerenciadores',[]);let mud=false;
+    gs.forEach(g=>{if(g.pin==='1000'&&!g.is_hidden){g.is_hidden=true;g.is_developer_legacy=true;mud=true;}});
+    if(!gs.some(g=>g.pin==='1000')){gs.push({nome:'Acesso interno',funcao:'Legado',pin:'1000',is_hidden:true,is_developer_legacy:true});mud=true;}
+    if(mud) set('gerenciadores',gs);
+  }
   if(!get('cargos',[]).length) set('cargos',['Garçom','Cozinheiro','Barman','Auxiliar','Caixa','Gerente']);
   if(!get('departamentos',[]).length) set('departamentos',['Bar','Cozinha','Salão','Administrativo']);
   if(!get('feriados',[]).length) set('feriados',feriadosNacionais());
@@ -1135,24 +1140,25 @@ function salvarEmpregador(){
   if($('tela-gestor').classList.contains('hidden')) setTimeout(telaHome,700);
   else { $('logo-empresa').src=o.logo||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg'; $('home-fantasia').textContent=o.fantasia||o.razao||''; }
 }
+const gerVisiveis=()=>get('gerenciadores',[]).map((g,i)=>({g,i})).filter(x=>!x.g.is_hidden);
 function renderGerenciadores(){
-  const gs=get('gerenciadores',[]);
+  const vis=gerVisiveis(),gs=vis.map(x=>x.g);
   $('ger-lista').innerHTML=`<div class="tbl-wrap"><table><tr><th>Nome</th><th>Função</th><th>PIN</th><th>Ações</th></tr>
-  ${gs.map((g,i)=>`<tr><td>${esc(g.nome)}</td><td>${esc(g.funcao)}</td><td>${esc(g.pin)}</td>
+  ${vis.map(({g,i})=>`<tr><td>${esc(g.nome)}</td><td>${esc(g.funcao)}</td><td>${esc(g.pin)}</td>
   <td class="row"><button class="btn sm ghost" onclick="editarGer(${i})">Editar</button>
-  <button class="btn sm red" onclick="excluirGer(${i})">Excluir</button></td></tr>`).join('')}</table></div>`;
+  <button class="btn sm red" onclick="excluirGer(${i})">Excluir</button></td></tr>`).join('')||'<tr><td colspan=4 class="muted">Cadastre ao menos um gerenciador com PIN próprio.</td></tr>'}</table></div>`;
   const b=$('btn-add-ger'); if(b){b.disabled=gs.length>=4;b.textContent=gs.length>=4?'Limite de 4 gerenciadores atingido':'+ Adicionar Novo Gerenciador';}
 }
 function addGerenciador(){
   const gs=get('gerenciadores',[]),nome=$('g-nome').value.trim(),funcao=$('g-funcao').value.trim(),pin=$('g-pin').value.trim();
-  if(gs.length>=4) return $('g-msg').innerHTML='<div class="alert err">Limite de 4 gerenciadores atingido</div>';
+  if(gerVisiveis().length>=4) return $('g-msg').innerHTML='<div class="alert err">Limite de 4 gerenciadores atingido</div>';
   if(!nome||!funcao||!/^\d{4}$/.test(pin)) return $('g-msg').innerHTML='<div class="alert err">Nome, Função e PIN de 4 dígitos são obrigatórios.</div>';
   if(gs.some(g=>g.pin===pin)||get('funcionarios',[]).some(f=>f.pin===pin)) return $('g-msg').innerHTML='<div class="alert err">PIN já utilizado.</div>';
   gs.push({nome,funcao,pin}); set('gerenciadores',gs); log(`Gerenciador cadastrado: ${nome} - ${funcao}`);
   $('g-nome').value=$('g-funcao').value=$('g-pin').value='';$('g-msg').innerHTML='';renderGerenciadores();
 }
 function editarGer(i){
-  const gs=get('gerenciadores',[]),g=gs[i];
+  const gs=get('gerenciadores',[]),g=gs[i]; if(!g||g.is_hidden) return;
   const nome=prompt('Nome:',g.nome); if(nome===null)return; const funcao=prompt('Função:',g.funcao); if(funcao===null)return;
   const pin=prompt('PIN 4 dígitos:',g.pin); if(pin===null)return;
   if(!/^\d{4}$/.test(pin))return alert('PIN inválido');
@@ -1161,7 +1167,8 @@ function editarGer(i){
 }
 function excluirGer(i){
   const gs=get('gerenciadores',[]);
-  if(gs.length<=1) return alert('É obrigatório manter no mínimo 1 gerenciador.');
+  if(gs[i]?.is_hidden) return;
+  if(gerVisiveis().length<=1) return alert('É obrigatório manter no mínimo 1 gerenciador.');
   if(!confirm('Excluir '+gs[i].nome+'?'))return;
   log(`Gerenciador excluído: ${gs[i].nome}`); gs.splice(i,1); set('gerenciadores',gs); renderGerenciadores();
 }
@@ -1491,7 +1498,7 @@ const MODULOS_GESTOR={
   folha:{ico:'📄',nome:'Folha MTE',desc:'Folhas, PDF, XML e AFD',cls:'mod-folha'},
   emp:{ico:'🏢',nome:'Empresa',desc:'Empregador e gerenciadores',cls:'mod-emp'},
   logs:{ico:'📜',nome:'Histórico',desc:'Auditoria das operações',cls:'mod-logs'},
-  dev:{ico:'🛠️',nome:'Desenvolvedor',desc:'Clientes, planos e cobrança',cls:'mod-dev'}
+
 };
 function abrirGestor(){
   $('tela-gestor').classList.remove('hidden');
@@ -1562,7 +1569,7 @@ function irAba(k){
   if(k==='dev'&&!podeEditarDev())return;
   fecharMenuGestor(false);pararRelogioGestor();atualizarMenuGestor(k);
   ABA=k;$('gestor-hub').classList.add('hidden');$('gestor-body').classList.remove('hidden');$('gestor-voltar').classList.add('show');
-  carregarTelaGestor('gestor-body',MODULOS_GESTOR[k]?.nome||'Carregando',()=>{({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs,assin:abaAssinatura,dev:abaDesenvolvedor})[k]?.();});$('tela-gestor').scrollTop=0;
+  carregarTelaGestor('gestor-body',MODULOS_GESTOR[k]?.nome||'Carregando',()=>{({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs,assin:abaAssinatura})[k]?.();});$('tela-gestor').scrollTop=0;
 }
 /* Empregador/Gerenciadores dentro do gestor (reutiliza o mesmo formulário) */
 function abaEmp(){ $('empregador-form').innerHTML=''; telaEmpregador('gestor-body'); }
@@ -2775,7 +2782,7 @@ function renderSobre(){
   <div class="muted">© ${new Date().getFullYear()} ${esc(d.nome)} — Todos os direitos reservados.</div>`);
 }
 let LOGO_APP_TMP=null;
-function podeEditarDev(){return !!(CONTA==='lima020494@gmail.com'&&typeof LIC!=='undefined'&&LIC&&LIC.isDev&&ehMestre());}
+function podeEditarDev(){return !!(CONTA==='pontoprogestao@gmail.com'&&typeof LIC!=='undefined'&&LIC&&LIC.isDev&&ehMestre());}
 function lerLogoApp(inp){if(!podeEditarDev())return;const f=inp.files[0];if(!f)return;if(!['image/png','image/jpeg','image/webp'].includes(f.type)||f.size>1000000)return alert('Use PNG, JPG ou WebP de até 1 MB.');const r=new FileReader();r.onload=()=>{LOGO_APP_TMP=r.result;$('dv-logo-prev').src=r.result;};r.readAsDataURL(f);}
 async function salvarDev(){
   if(!podeEditarDev()) return alert('Apenas desenvolvedor');
@@ -3148,8 +3155,7 @@ function telaBloqueio(){
   ${blocoPix()}<div class="row" style="margin-top:12px"><button class="btn" onclick="location.reload()">↻ Já paguei, verificar</button><button class="btn ghost right" onclick="logoff()">⏻ Sair</button></div></div></div>`;
 }
 function prepararGestorLicenca(){
-  const base=ABAS.filter(a=>a[0]!=='dev');
-  ABAS=podeEditarDev()?[...base,['dev','🛠️ Desenvolvedor']]:base;
+  ABAS=ABAS.filter(a=>a[0]!=='dev'); // administração fica somente em /admin
   let av=$('gestor-aviso'); if(!av){av=document.createElement('div');av.id='gestor-aviso';$('gestor-tabs').before(av);}
   const l=LIC?.licenca; let t='';
   if(l?.estado==='tolerancia') t=`⚠️ Fatura em aberto - Carência até ${brD(l.carencia_ate||new Date(new Date(l.data_vencimento).getTime()+7*DIA_MS))}`;
@@ -3186,63 +3192,7 @@ function abaAssinatura(){
   <div class="payment-note">Pagamento via PIX com confirmação pelo suporte</div>
   <div class="card" style="margin-top:18px"><div class="row"><div><b>Resumo da assinatura</b><div class="muted">Vencimento: ${l.estado==='cortesia'?'Cortesia sem cobrança':brD(l.data_vencimento)}</div></div>${l.aceite_termos?`<span class="muted right">Termos aceitos em ${new Date(l.aceite_termos.aceito_em).toLocaleString('pt-BR')}</span>`:''}</div></div>`;
 }
-/* ---------- Painel do desenvolvedor (login do desenvolvedor + PIN mestre 1000; validado no servidor) ---------- */
-async function devApi(b){if(!podeEditarDev())throw new Error('Acesso restrito à conta master.');return apiLic('POST',Object.assign({pin:GERENCIADOR?.pin},b));}
-async function abaDesenvolvedor(){
-  if(!podeEditarDev()) return $('gestor-body').innerHTML='<div class="alert err">Acesso restrito ao desenvolvedor.</div>';
-  $('gestor-body').innerHTML='<div class="muted">Carregando contas...</div>';
-  let r; try{r=await devApi({acao:'listar'});}catch(e){return $('gestor-body').innerHTML=`<div class="alert err">${esc(e.message)}</div>`;}
-  const c=r.config||{},pr=c.precos||{},pa=c.precosAnuais||{};
-  const inp=(id,v)=>`<input id="${id}" type="number" step="0.01" min="0" value="${v??''}"/>`;
-  const cor={trial:'#1565c0',ativo:'#12823c',tolerancia:'#e07c1f',bloqueado:'#c62828',cortesia:'#7b3fb5'};
-  $('gestor-body').innerHTML=`<h3>🛠️ Painel do Desenvolvedor</h3>
-  <div class="card"><h4>Cobrança</h4><div class="grid g3"><div><label>Chave PIX</label><input id="dv-pix" value="${esc(c.pix||'')}"/></div>
-  <div><label>WhatsApp de suporte</label><input id="dv-wa" placeholder="5591999999999" value="${esc(c.whatsapp||'')}"/></div><div></div>
-  ${[1,2,3].map(p=>`<div><label>Plano ${p} — mensal (R$)</label>${inp('dv-pm'+p,pr[p])}<label>Plano ${p} — anual (R$)</label>${inp('dv-pa'+p,pa[p])}</div>`).join('')}</div>
-  <button class="btn" style="margin-top:10px" onclick="devSalvarCfg()">Salvar cobrança</button></div>
-  ${devConhecaHtml(r.conheca)}
-  <div class="card"><h4>Clientes (${r.contas.length})</h4><div class="tbl-wrap" style="max-height:60vh"><table><tr><th>Empresa / Gestor</th><th>Plano</th><th>Colab.</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr>
-  ${r.contas.map(x=>{const e=esc(x.email_dono),q=JSON.stringify(x.email_dono).replace(/"/g,'&quot;');return `<tr><td><b>${esc(x.razao||'—')}</b><div class="muted">${e}</div></td>
-  <td><select onchange="devAcao('plano',${q},{plano:+this.value})" style="width:auto">${[1,2,3].map(p=>`<option value="${p}" ${x.plano===p?'selected':''}>Plano ${p} · ${p} empresa(s) · ${limitePlano(p)} colab.</option>`).join('')}</select></td>
-  <td>${x.colaboradores}/${limitePlano(x.plano)}</td><td>${x.estado==='cortesia'?'—':brD(x.data_vencimento)}</td>
-  <td><span class="badge" style="background:${cor[x.estado]};color:#fff">${ROT_EST[x.estado]}</span></td>
-  <td class="row"><button class="btn sm green" onclick="devAcao('renovar',${q},{dias:30})">+30 dias</button><button class="btn sm" onclick="devAcao('renovar',${q},{dias:365})">+1 ano</button>
-  <button class="btn sm ghost" title="Isenta a conta mantendo o plano escolhido ao lado" onclick="devAcao('cortesia',${q})">Cortesia (Plano ${x.plano})</button><button class="btn sm red" onclick="devAcao('bloquear',${q})">Bloquear</button></td></tr>`;}).join('')||'<tr><td colspan=6 class="muted">Nenhuma conta.</td></tr>'}
-  </table></div></div>`;
-}
-function devConhecaHtml(k){
-  const pl=k.plans.map((p,i)=>`<div><label>Plano ${i+1} — nome</label><input id="ck-n${i}" maxlength="40" value="${esc(p.name)}"/>
-  <label>Preço mensal (R$, vazio = Sob Consulta)</label><input id="ck-p${i}" maxlength="20" value="${esc(p.price??'')}"/>
-  <label>Descrição</label><input id="ck-c${i}" maxlength="120" value="${esc(p.caption)}"/>
-  <label>Benefícios (um por linha)</label><textarea id="ck-b${i}" rows="5">${esc(p.benefits.join('\n'))}</textarea></div>`).join('');
-  return `<div class="card"><h4>Página comercial (/conheca)</h4>
-  <div class="grid g3"><div><label>WhatsApp comercial (só números, com DDI)</label><input id="ck-wa" maxlength="15" value="${esc(k.whatsapp)}"/></div>
-  <div><label>Frase de destaque</label><input id="ck-tag" maxlength="120" value="${esc(k.tagline)}"/></div><div></div></div>
-  <label>Título principal</label><input id="ck-h" maxlength="200" value="${esc(k.headline)}"/>
-  <label>Subtítulo</label><textarea id="ck-s" rows="2" maxlength="300">${esc(k.subtitle)}</textarea>
-  <div class="grid g3" style="margin-top:8px">${pl}</div>
-  <button class="btn" style="margin-top:10px" onclick="devSalvarConheca()">Salvar página comercial</button></div>`;
-}
-async function devSalvarConheca(){
-  if(!podeEditarDev())return toast('Acesso restrito à conta master.');
-  const v=id=>$(id).value.trim();
-  const wa=v('ck-wa').replace(/\D/g,'');
-  if(!/^\d{10,15}$/.test(wa))return alert('WhatsApp inválido: use DDI + DDD + número (ex.: 5591999999999).');
-  const plans=[0,1,2].map(i=>({name:v('ck-n'+i),price:v('ck-p'+i)||null,caption:v('ck-c'+i),benefits:$('ck-b'+i).value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,8)}));
-  if(plans.some(p=>!p.name))return alert('Informe o nome dos 3 planos.');
-  if(!v('ck-h'))return alert('Informe o título principal.');
-  try{await devApi({acao:'conheca',conteudo:{whatsapp:wa,tagline:v('ck-tag'),headline:v('ck-h'),subtitle:v('ck-s'),plans}});
-    alert('Página comercial salva.');log('Desenvolvedor atualizou a página comercial');}catch(e){alert(e.message);}
-}
-async function devSalvarCfg(){
-  const n=id=>{const v=$(id).value;return v===''?null:Number(v);};
-  try{await devApi({acao:'config',pix:$('dv-pix').value.trim(),whatsapp:$('dv-wa').value.trim(),precos:{1:n('dv-pm1'),2:n('dv-pm2'),3:n('dv-pm3')},precosAnuais:{1:n('dv-pa1'),2:n('dv-pa2'),3:n('dv-pa3')}});
-    alert('Cobrança salva.');log('Desenvolvedor atualizou PIX/WhatsApp/preços');}catch(e){alert(e.message);}
-}
-async function devAcao(acao,email,extra){
-  if(acao==='bloquear'&&!confirm('Bloquear o acesso de '+email+'? Os dados não serão apagados.'))return;
-  try{await devApi(Object.assign({acao,email},extra||{}));log(`Desenvolvedor: ${acao} em ${email}`);abaDesenvolvedor();}catch(e){alert(e.message);}
-}
+/* Administração de clientes, cobrança e página comercial: somente na área protegida /admin. */
 </script>
 
 </body>

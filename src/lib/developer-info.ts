@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const MASTER_EMAIL = "lima020494@gmail.com";
+export const MASTER_EMAIL = "pontoprogestao@gmail.com";
 export const developerInfoSchema = z.object({
   nome: z.string().trim().max(120), empresa: z.string().trim().max(120),
   tipoDoc: z.string().trim().max(20), doc: z.string().trim().max(30),
