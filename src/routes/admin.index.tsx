@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MASTER_EMAIL } from "@/lib/developer-info";
 
+const SUPA_REF = new URL(import.meta.env["VITE_SUPABASE_URL"] ?? "https://kvbidsfnisegtqjagsld.supabase.co").hostname.split(".")[0];
+
 export const Route = createFileRoute("/admin/")({
   head: () => ({
     meta: [
@@ -18,7 +20,7 @@ export const Route = createFileRoute("/admin/")({
   component: AdminPage,
 });
 
-type Conta = { email_dono: string; razao: string; plano: number; colaboradores: number; data_vencimento: string; estado: string };
+type Conta = { email_dono: string; razao: string; cnpj: string; created_at?: string; plano: number; colaboradores: number; data_vencimento: string; estado: string };
 type Plano = { name: string; price: string | null; caption: string; benefits: string[] };
 type Conheca = { whatsapp: string; tagline: string; headline: string; subtitle: string; plans: Plano[] };
 type Lista = { contas: Conta[]; config: { pix?: string; whatsapp?: string; precos?: Record<string, number | null>; precosAnuais?: Record<string, number | null> }; conheca: Conheca };
@@ -72,6 +74,7 @@ function Painel() {
   const [pin, setPin] = useState("");
   const [dados, setDados] = useState<Lista | null>(null);
   const [erro, setErro] = useState("");
+  const [busca, setBusca] = useState("");
   const api = useCallback(async (body: Record<string, unknown>) => {
     const { data } = await supabase.auth.getSession();
     const r = await fetch("/api/public/licenca", {
@@ -91,6 +94,20 @@ function Painel() {
     if (acao === "bloquear" && !confirm(`Bloquear ${email}? Os dados não serão apagados.`)) return;
     try { await api({ acao, email, ...extra }); carregar(); } catch (e) { alert((e as Error).message); }
   };
+
+  async function suporte(c: Conta) {
+    const motivo = prompt(`Motivo do acesso de suporte a ${c.razao || c.email_dono}:`)?.trim();
+    if (!motivo || motivo.length < 3) return;
+    try {
+      await api({ acao: "suporte_iniciar", email: c.email_dono, motivo });
+      // Compartilha a sessão do admin com o app do cliente (mesma origem, chave padrão do Supabase).
+      const { data } = await supabase.auth.getSession();
+      if (data.session) localStorage.setItem(`sb-${SUPA_REF}-auth-token`, JSON.stringify(data.session));
+      window.location.href = `/vip-ponto.html?suporte=1&v=${Date.now()}`;
+    } catch (e) { alert((e as Error).message); }
+  }
+  const q = busca.trim().toLowerCase(), qd = q.replace(/\D/g, "");
+  const contas = (dados?.contas ?? []).filter((c) => !q || c.razao.toLowerCase().includes(q) || c.email_dono.includes(q) || (qd && (c.cnpj || "").replace(/\D/g, "").includes(qd)));
 
   if (!dados)
     return (
@@ -114,20 +131,26 @@ function Painel() {
       <Cobranca dados={dados} api={api} />
       <ConhecaEditor inicial={dados.conheca} api={api} />
       <section className="admin-card">
-        <h2 className="mb-3 text-lg font-semibold">Clientes ({dados.contas.length})</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold">Empresas ({contas.length}/{dados.contas.length})</h2>
+          <input className="admin-input max-w-xs" placeholder="Buscar por nome ou CNPJ" value={busca} onChange={(e) => setBusca(e.target.value)} />
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="text-left"><th>Empresa</th><th>Plano</th><th>Colab.</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead><tr className="text-left"><th>Empresa</th><th>CNPJ</th><th>Criada em</th><th>Plano</th><th>Colab.</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody>
-              {dados.contas.map((c) => (
+              {contas.map((c) => (
                 <tr key={c.email_dono} className="border-t border-white/10 align-top">
                   <td className="py-2"><b>{c.razao || "—"}</b><div className="opacity-70">{c.email_dono}</div></td>
+                  <td>{c.cnpj || "—"}</td>
+                  <td>{c.created_at ? new Date(c.created_at).toLocaleDateString("pt-BR") : "—"}</td>
                   <td><select className="admin-input" value={c.plano} onChange={(e) => acao("plano", c.email_dono, { plano: +e.target.value })}>
                     {[1, 2, 3].map((p) => <option key={p} value={p}>Plano {p} · {LIMITE[p]} colab.</option>)}</select></td>
                   <td>{c.colaboradores}/{LIMITE[c.plano]}</td>
                   <td>{c.estado === "cortesia" ? "—" : new Date(c.data_vencimento).toLocaleDateString("pt-BR")}</td>
                   <td>{ROT[c.estado] ?? c.estado}</td>
                   <td className="flex flex-wrap gap-1">
+                    <button className="admin-btn" onClick={() => suporte(c)}>Acessar como esta empresa</button>
                     <button className="admin-btn" onClick={() => acao("renovar", c.email_dono, { dias: 30 })}>+30 dias</button>
                     <button className="admin-btn" onClick={() => acao("renovar", c.email_dono, { dias: 365 })}>+1 ano</button>
                     <button className="admin-btn-ghost" onClick={() => acao("cortesia", c.email_dono)}>Cortesia</button>

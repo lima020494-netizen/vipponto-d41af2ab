@@ -50,6 +50,7 @@ const adminSchema = z.discriminatedUnion("acao", [
   z.object({ acao: z.literal("cortesia"), pin: z.string(), email: z.string().email() }),
   z.object({ acao: z.literal("bloquear"), pin: z.string(), email: z.string().email() }),
   z.object({ acao: z.literal("plano"), pin: z.string(), email: z.string().email(), plano: z.number().int().min(1).max(3) }),
+  z.object({ acao: z.literal("suporte_iniciar"), pin: z.string(), email: z.string().email(), motivo: z.string().trim().min(3).max(300) }),
   z.object({ acao: z.literal("config"), pin: z.string(), pix: z.string().max(140), whatsapp: z.string().max(40),
     precos: z.record(z.string(), z.number().nonnegative().nullable()), precosAnuais: z.record(z.string(), z.number().nonnegative().nullable()) }),
 ]);
@@ -82,10 +83,43 @@ export const Route = createFileRoute("/api/public/licenca")({
           return error ? json({ error: "Falha ao registrar o aceite." }, 500) : json({ ok: true, aceite });
         }
         if (!a.isDev) return json({ error: "Acesso restrito ao desenvolvedor." }, 403);
+        const ip = request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || "";
+        const audit = (empresa: string, acao: string, detalhes: Record<string, unknown>) =>
+          a.db.from("audit_logs" as never).insert({ empresa_id: empresa, usuario_id: a.user.id, acao, detalhes, ip, is_support_action: true } as never);
+        // Sessão de suporte ativa (lida pelo app do cliente em modo suporte) — sem PIN, mas exige master + admin.
+        if (body?.["acao"] === "suporte_status" || body?.["acao"] === "suporte_encerrar") {
+          const { data: s, error } = await a.db.from("support_sessions" as never).select("*").eq("super_admin_id", a.user.id)
+            .is("encerrado_em", null).gt("iniciado_em", new Date(Date.now() - 2 * 3600000).toISOString())
+            .order("iniciado_em", { ascending: false }).limit(1).maybeSingle();
+          if (error) return json({ error: "Tabelas de suporte ainda não criadas no banco." }, 500);
+          const sess = s as { id: string; empresa_id: string; empresa_nome: string | null } | null;
+          if (body["acao"] === "suporte_encerrar") {
+            if (sess) {
+              await a.db.from("support_sessions" as never).update({ encerrado_em: new Date().toISOString() } as never).eq("id", sess.id);
+              await audit(sess.empresa_id, "suporte_encerrado", { sessao: sess.id });
+            }
+            return json({ ok: true });
+          }
+          if (!sess) return json({ error: "Nenhuma sessão de suporte ativa." }, 404);
+          const { data: lic } = await a.db.from("licencas" as never).select("*").eq("email_dono", sess.empresa_id).maybeSingle();
+          const cfg = await getConfig(a.db);
+          return json({ suporte: sess, licenca: lic ? view(lic as unknown as Lic) : null, config: { pix: cfg["pix"] || "", whatsapp: cfg["whatsapp"] || "", precos: cfg["precos"] || {}, precosAnuais: cfg["precosAnuais"] || {} }, isDev: false, termosVersao: TERMOS_VERSAO });
+        }
         const p = adminSchema.safeParse(body);
         if (!p.success) return json({ error: "Dados inválidos." }, 400);
         if (p.data.pin !== "1000") return json({ error: "PIN mestre inválido." }, 403);
         const d = p.data;
+        if (d.acao === "suporte_iniciar") {
+          const { data: emp } = await a.db.from("empregador").select("email_dono,dados").eq("email_dono", d.email).maybeSingle();
+          const dd = (emp?.dados || {}) as Record<string, string>;
+          const nome = dd["razao"] || dd["fantasia"] || d.email;
+          await a.db.from("support_sessions" as never).update({ encerrado_em: new Date().toISOString() } as never).eq("super_admin_id", a.user.id).is("encerrado_em", null);
+          const { data: s, error } = await a.db.from("support_sessions" as never)
+            .insert({ super_admin_id: a.user.id, empresa_id: d.email.toLowerCase(), empresa_nome: nome, motivo: d.motivo, ip } as never).select("id").single();
+          if (error) return json({ error: "Não foi possível iniciar o suporte (tabelas de suporte criadas no banco?)." }, 500);
+          await audit(d.email.toLowerCase(), "suporte_iniciado", { sessao: (s as { id: string }).id, motivo: d.motivo });
+          return json({ ok: true, id: (s as { id: string }).id });
+        }
         if (d.acao === "dev_info") {
           if (!canSaveDeveloperInfo(a.email, a.isDev, d.pin)) return json({ error: "Apenas a conta master pode alterar o Sobre." }, 403);
           const { data: previous, error: readError } = await a.db.from("app_config" as never).select("valor").eq("chave", "dev_info").maybeSingle();
@@ -109,11 +143,11 @@ export const Route = createFileRoute("/api/public/licenca")({
             a.db.from("app_config").select("valor").eq("chave", "conheca").maybeSingle(),
           ]);
           if (commercial.error) return json({ error: "Não foi possível carregar a página comercial. Tente novamente." }, 500);
-          const nomes = new Map((e.data || []).map((x) => [x.email_dono.toLowerCase(), (x.dados as Record<string, string>)?.["razao"] || (x.dados as Record<string, string>)?.["fantasia"] || ""]));
+          const emp = new Map((e.data || []).map((x) => [x.email_dono.toLowerCase(), (x.dados || {}) as Record<string, string>]));
           const qtd = new Map<string, number>();
           (f.data || []).forEach((x) => { const k = String(x.email_dono).toLowerCase(); qtd.set(k, (qtd.get(k) || 0) + 1); });
           const cfg = await getConfig(a.db);
-          return json({ config: cfg, conheca: resolveConheca(commercial.data?.valor), contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: nomes.get(x.email_dono) || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
+          return json({ config: cfg, conheca: resolveConheca(commercial.data?.valor), contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: emp.get(x.email_dono)?.["razao"] || emp.get(x.email_dono)?.["fantasia"] || "", cnpj: emp.get(x.email_dono)?.["cnpj"] || emp.get(x.email_dono)?.["doc"] || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
         }
         if (d.acao === "config") {
           const { error } = await a.db.from("app_config" as never).upsert({ chave: "cobranca", valor: { pix: d.pix, whatsapp: d.whatsapp, precos: d.precos, precosAnuais: d.precosAnuais } } as never);
