@@ -2721,10 +2721,40 @@ async function loteXML(){
 }
 
 /* ============================== SESSÃO ============================== */
+function linkRecuperacaoAdmin(){
+  try{const tk=new URLSearchParams(location.hash.slice(1)).get('access_token');
+    if(!tk) return /admin/.test(location.hash+location.search);
+    const p=JSON.parse(atob(tk.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    return String(p.email||'').toLowerCase()==='pontoprogestao@gmail.com';}catch(e){return false;}
+}
+let SUPORTE=null;
+async function iniciarSuporte(){
+  try{
+    const r=await apiLic('POST',{acao:'suporte_status'});
+    SUPORTE=r.suporte; LIC=r.licenca?r:null; CONTA=String(SUPORTE.empresa_id).toLowerCase();
+    const bar=document.createElement('div');bar.id='suporte-banner';bar.setAttribute('role','alert');
+    bar.style.cssText='position:fixed;top:0;left:0;right:0;z-index:100000;background:#b91c1c;color:#fff;font-weight:700;padding:8px 12px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:14px';
+    bar.innerHTML=`<span>MODO SUPORTE ATIVO - Acessando como: ${esc(SUPORTE.empresa_nome||CONTA)}</span><button type="button" style="min-height:36px;background:#fff;color:#b91c1c;border:0;border-radius:8px;padding:4px 12px;font-weight:700;cursor:pointer" onclick="sairSuporte()">Sair do Modo Suporte</button>`;
+    document.body.prepend(bar);document.body.style.paddingTop='48px';
+    await iniciarApp();return true;
+  }catch(e){alert('Sessão de suporte inválida ou expirada: '+e.message);location.replace('/admin');return true;}
+}
+async function sairSuporte(){
+  try{await apiLic('POST',{acao:'suporte_encerrar'});}catch(e){console.warn(e);}
+  // Limpa o cache local da empresa acessada para não deixar dados dela no aparelho do suporte
+  Object.keys(localStorage).filter(k=>k.startsWith('vip:'+CONTA+':')||k==='vip:lic:'+CONTA).forEach(k=>localStorage.removeItem(k));
+  location.replace('/admin');
+}
 (async function boot(){
   localStorage.removeItem('vip:sessao');
   const folhaToken=new URLSearchParams(location.search).get('folha_token');
   if(folhaToken){relogio();window.addEventListener('load',()=>abrirFolhaPorLink(folhaToken),{once:true});return;}
+  // Link de recuperação do Super Admin: abre a tela dedicada /admin/senha preservando os tokens
+  if(/type=recovery/.test(location.hash+location.search)&&linkRecuperacaoAdmin()){
+    (window.top||window).location.replace('/admin/senha'+location.search+location.hash);return;
+  }
+  // Modo suporte (impersonate) aberto pelo Super Admin
+  if(new URLSearchParams(location.search).get('suporte')==='1'){ if(await iniciarSuporte()) return; }
   // Link de recuperação de senha: abre a tela de nova senha
   if(/type=recovery/.test(location.hash)){
     mostrarView('esq');relogio();$('e-reset').classList.remove('hidden');
@@ -3121,6 +3151,7 @@ async function apiLic(method,body){
   const j=await r.json().catch(()=>({})); if(!r.ok) throw Object.assign(new Error(j.error||'Falha'),{status:r.status}); return j;
 }
 async function verificarLicenca(){
+  if(SUPORTE){ if(LIC&&LIC.licenca) LIC.licenca.estado=estadoLocal(LIC.licenca); return true; } // suporte nunca é bloqueado pela licença da empresa
   try{ LIC=await apiLic('GET'); localStorage.setItem('vip:lic:'+CONTA,JSON.stringify(LIC)); }
   catch(e){ LIC=licCache(CONTA); if(!LIC) return true; } // sem conexão e sem cache: nunca bloqueia indevidamente
   LIC.licenca.estado=estadoLocal(LIC.licenca);
