@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { MASTER_EMAIL } from "@/lib/developer-info";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,11 +24,30 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const APP_SRC = "/vip-ponto.html?v=20261023-suporte";
+
+/** E-mail do token de um link de recuperação (para separar Super Admin de clientes). */
+function emailDoLink(hash: string) {
+  try {
+    const tk = new URLSearchParams(hash.replace(/^#/, "")).get("access_token");
+    if (!tk) return "";
+    const b = tk.split(".")[1]!.replace(/-/g, "+").replace(/_/g, "/");
+    return String(JSON.parse(atob(b)).email || "").toLowerCase();
+  } catch { return ""; }
+}
+
 function Index() {
   // O aplicativo completo é um único arquivo HTML/CSS/JS puro em /vip-ponto.html
+  const [src, setSrc] = useState(APP_SRC);
+  useEffect(() => {
+    const { hash, search } = window.location;
+    if (!/type=recovery/.test(hash + search)) return;
+    if (emailDoLink(hash) === MASTER_EMAIL) { window.location.replace(`/admin/senha${search}${hash}`); return; }
+    setSrc(`${APP_SRC}${hash}`); // clientes: repassa os tokens para a tela de nova senha do app
+  }, []);
   return (
     <iframe
-      src="/vip-ponto.html?v=20261022-icone-impressao"
+      src={src}
       title="Ponto Pro Gestão"
       style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: 0 }}
     />
