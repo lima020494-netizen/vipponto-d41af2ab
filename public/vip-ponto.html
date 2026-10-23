@@ -2754,7 +2754,7 @@ async function sairSuporte(){
     (window.top||window).location.replace('/admin/senha'+location.search+location.hash);return;
   }
   // Modo suporte (impersonate) aberto pelo Super Admin
-  if(new URLSearchParams(location.search).get('suporte')==='1'){ if(await iniciarSuporte()) return; }
+  if(new URLSearchParams(location.search).get('suporte')==='1'){ if(document.readyState!=='complete') await new Promise(r=>window.addEventListener('load',r,{once:true})); if(await iniciarSuporte()) return; }
   // Link de recuperação de senha: abre a tela de nova senha
   if(/type=recovery/.test(location.hash)){
     mostrarView('esq');relogio();$('e-reset').classList.remove('hidden');
