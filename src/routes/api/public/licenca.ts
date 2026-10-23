@@ -143,11 +143,11 @@ export const Route = createFileRoute("/api/public/licenca")({
             a.db.from("app_config").select("valor").eq("chave", "conheca").maybeSingle(),
           ]);
           if (commercial.error) return json({ error: "Não foi possível carregar a página comercial. Tente novamente." }, 500);
-          const nomes = new Map((e.data || []).map((x) => [x.email_dono.toLowerCase(), (x.dados as Record<string, string>)?.["razao"] || (x.dados as Record<string, string>)?.["fantasia"] || ""]));
+          const emp = new Map((e.data || []).map((x) => [x.email_dono.toLowerCase(), (x.dados || {}) as Record<string, string>]));
           const qtd = new Map<string, number>();
           (f.data || []).forEach((x) => { const k = String(x.email_dono).toLowerCase(); qtd.set(k, (qtd.get(k) || 0) + 1); });
           const cfg = await getConfig(a.db);
-          return json({ config: cfg, conheca: resolveConheca(commercial.data?.valor), contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: nomes.get(x.email_dono) || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
+          return json({ config: cfg, conheca: resolveConheca(commercial.data?.valor), contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: emp.get(x.email_dono)?.["razao"] || emp.get(x.email_dono)?.["fantasia"] || "", cnpj: emp.get(x.email_dono)?.["cnpj"] || emp.get(x.email_dono)?.["doc"] || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
         }
         if (d.acao === "config") {
           const { error } = await a.db.from("app_config" as never).upsert({ chave: "cobranca", valor: { pix: d.pix, whatsapp: d.whatsapp, precos: d.precos, precosAnuais: d.precosAnuais } } as never);
