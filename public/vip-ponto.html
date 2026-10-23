@@ -1418,9 +1418,13 @@ function imprimirRawBT(linhas){
     alvo.href=`intent:base64,${b64}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;S.browser_fallback_url=${encodeURIComponent('about:blank#rawbt-ausente')};end;`;
     let saiu=false;const marca=()=>{if(document.visibilityState==='hidden')saiu=true;};
     document.addEventListener('visibilitychange',marca);
+    // Intent disparado = impressão entregue ao RawBT. O RawBT costuma imprimir em segundo plano
+    // sem tirar a página de foco, então nunca abrimos o navegador automaticamente aqui:
+    // apenas oferecemos a opção explícita caso o cupom não tenha saído.
     setTimeout(()=>{document.removeEventListener('visibilitychange',marca);
-      if(!saiu){localStorage.setItem('vip_rawbt_falhou','1');toast('RawBT não respondeu — imprimindo pelo navegador.',2500);imprimirNavegador();}
-      else opcoesImpressao('Comprovante enviado ao RawBT. Se não saiu impresso (app ausente ou loja aberta), imprima pelo navegador.');
+      localStorage.removeItem('vip_rawbt_falhou');
+      if(!saiu) toast('Comprovante enviado ao RawBT.',2500);
+      opcoesImpressao('Comprovante enviado ao RawBT. Se não saiu impresso, toque em imprimir pelo navegador.');
       detectarImpressora(9);},1800);
     return true;
   }catch(err){console.warn('RawBT falhou, usando navegador',err);return false;}
