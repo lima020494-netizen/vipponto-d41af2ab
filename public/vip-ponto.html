@@ -1859,21 +1859,21 @@ function resumoMensalFolha(d){return [
 function miniResumoFolha(d){
   const r=resumoMensalFolha(d);
   return [[['Horas Previstas',r[0][1]],['Horas Realizadas',r[1][1]],['Adicional Noturno',r[4][1]]],
-    [['Horas Extras 50%',toHHMM(d.tot.extras50||0)],['Horas Extras 100%',toHHMM(d.tot.extras100||0)],['Faltas e Atrasos',`${r[3][1]} / ${toHHMM(d.linhas.reduce((n,l)=>n+(l.atrasoMin||0),0))} atraso`]],
+    [['Horas Extras 50%',toHHMM(d.tot.extras50||0)],['Horas Extras 100%',toHHMM(d.tot.extras100||0)],['Faltas',r[3][1]]],
     [['Saldo Anterior',toSaldo(d.banco.anterior)],['Saldo do Mês',r[5][1]],['Saldo Acumulado',toSaldo(d.banco.atual)]]];
 }
 const FOLHA_RODAPE='Ponto Pro Gestão v1.0 · Sistema de Tratamento de Ponto · Emissão conforme Portaria MTE nº 671/2021';
 const FOLHA_CIENCIA='Declaro ciência das marcações e dos tratamentos apresentados neste espelho de ponto.';
 function modeloEspelho(d){
-  const head=['Dia','Entrada 1','Saída 1','Entrada 2','Saída 2','Prevista','Trabalhadas','Extras','Débito / Atraso','Noturno','Status'];
+  const head=['Dia','Entrada 1','Saída 1','Entrada 2','Saída 2','Prevista','Trabalhadas','Extras','Débito','Noturno','Status'];
   const just=[...d.just];
   const body=d.linhas.map(l=>{
     const bs=batidasDia(d.f.pin,l.data),marca=tipo=>{const b=bs.find(x=>x.tipo===tipo);if(!b)return '--:--';const tratada=!!(b.manual||b.movimento||b.fonte==='MANUAL');
       if(tratada){const motivo=b.movimento||b.motivo||'Marcação manual; justificativa não informada no registro.',nota=`${brOf(l.data)} ${b.hora} * ${motivo}`,original=`${brOf(l.data)} ${b.hora} - ${motivo}`,i=just.indexOf(original);if(i>=0)just[i]=nota;else if(!just.includes(nota))just.push(nota);}
       return b.hora+(tratada?'*':'');};
-    return [brOf(l.data).slice(0,5),marca('Entrada'),marca('Saída Intervalo'),marca('Entrada Intervalo'),marca('Saída'),toHHMM(l.previsto),toHHMM(l.trabalhado),toHHMM(Math.max(0,l.trabalhado-l.previsto)),`${toHHMM(Math.max(0,-l.saldo))} / ${toHHMM(l.atrasoMin||0)}`,toHHMM(l.noturno),l.ocorrencia||(bs.length%2?'INCOMPLETO':bs.length?'TRABALHADO':'—')];
+    return [brOf(l.data).slice(0,5),marca('Entrada'),marca('Saída Intervalo'),marca('Entrada Intervalo'),marca('Saída'),toHHMM(l.previsto),toHHMM(l.trabalhado),toHHMM(Math.max(0,l.trabalhado-l.previsto)),toHHMM(Math.max(0,-l.saldo)),toHHMM(l.noturno),l.ocorrencia||(bs.length%2?'INCOMPLETO':bs.length?'TRABALHADO':'—')];
   });
-  const notas=[`* Marcação manual/tratada. E1/S1/E2/S2: entrada, saída intervalo, retorno, saída. Extras 50%: além do previsto em dia útil; 100%: trabalho em folga/feriado (conferir enquadramento aplicável). Banco usa o fator configurado para domingo/feriado, distinto de remuneração e de horas extras realizadas. Faltantes e atrasos não são somados em duplicidade.`,...new Set(just)];
+  const notas=[`* Marcação manual/tratada. E1/S1/E2/S2: entrada, saída intervalo, retorno, saída. Extras 50%: além do previsto em dia útil; 100%: trabalho em folga/feriado (conferir enquadramento aplicável). Banco usa o fator configurado para domingo/feriado, distinto de remuneração e de horas extras realizadas. Atrasos de entrada não geram débito: são métrica gerencial exclusiva do Dashboard.`,...new Set(just)];
   if(preLegenda(d.f))notas.push(preLegenda(d.f));
   return {head,body,resumo:miniResumoFolha(d),notas};
 }
@@ -1889,7 +1889,7 @@ function horarioTrabalhoFolha(){
 }
 function totaisCartaoFolha(d){
   return {dias:d.linhas.filter(l=>l.trabalhado>0).length,faltas:d.tot.faltas,dsrs:d.linhas.filter(l=>/DSR/.test(l.ocorrencia)).length,folgas:d.linhas.filter(l=>/FOLGA/.test(l.ocorrencia)&&!/DSR/.test(l.ocorrencia)).length,
-    row:['Totais','—','—','—','—',toHHMM(d.linhas.reduce((n,l)=>n+l.previsto,0)),toHHMM(d.tot.trabalhado),toHHMM(d.tot.extras),`${toHHMM(d.tot.faltantes)} / ${toHHMM(d.linhas.reduce((n,l)=>n+(l.atrasoMin||0),0))}`,toHHMM(d.linhas.reduce((n,l)=>n+l.noturno,0)),'—']};
+    row:['Totais','—','—','—','—',toHHMM(d.linhas.reduce((n,l)=>n+l.previsto,0)),toHHMM(d.tot.trabalhado),toHHMM(d.tot.extras),toHHMM(d.tot.faltantes),toHHMM(d.linhas.reduce((n,l)=>n+l.noturno,0)),'—']};
 }
 function corCelulaFolha(col,value){if(col===7)return 'sheet-credit';if(col===8)return 'sheet-debit';if(col===10){if(/AFASTADO|AFASTAMENTO|MATERNIDADE/.test(value))return 'sheet-away';if(/FALTA/.test(value)&&!/JUSTIFICADA|ABONADA/.test(value)||/SUSPENSÃO/.test(value))return 'sheet-debit';if(/DSR|FOLGA/.test(value))return 'sheet-rest';if(/ATESTADO|AFASTAMENTO/.test(value))return 'sheet-credit';}return '';}
 function bancoCartaoFolha(d){return [['Crédito',toHHMM(d.banco.creditos),'sheet-credit'],['Débito',toHHMM(d.banco.debitos),'sheet-debit'],['Saldo do Mês',toSaldo(d.banco.creditos-d.banco.debitos),d.banco.creditos-d.banco.debitos<0?'sheet-debit':'sheet-credit'],['Saldo Acumulado',toSaldo(d.banco.atual),d.banco.atual<0?'sheet-debit':'sheet-credit']];}
@@ -1900,9 +1900,9 @@ function calcBanco(pin,ini,fim){
     let cred=0,deb=0,det=[];
     for(let d=de; d<=ate; d=addDias(d,1)){
       const bs=batidasDia(pin,d),prev=previstoDia(f,d),trab=trabalhoApuradoDia(f,d,bs);
-      const movimento=movimentoBancoDia(pin,d,prev,trab);
+      const movimento=movimentoBancoDia(pin,d,prev,trab,atrasoDia(pin,d,bs,prev));
       if(movimento.saldo>0){cred+=movimento.saldo;det.push(`Crédito - Hora Extra dia ${brOf(d)} - Previsto ${toHHMM(prev)} / Realizado ${toHHMM(trab)} / Banco ${toHHMM(movimento.saldo)}`);}
-      else if(movimento.saldo<0){deb-=movimento.saldo;det.push(`${movimento.compensacao?'Débito - Folga Compensatória':bs.length?'Débito - Carga incompleta':'Débito - Falta'} dia ${brOf(d)} - ${toHHMM(-movimento.saldo)}`);}
+      else if(movimento.saldo<0){deb-=movimento.saldo;det.push(`${movimento.compensacao?'Débito - Folga Compensatória':'Débito - Carga incompleta'} dia ${brOf(d)} - ${toHHMM(-movimento.saldo)}`);}
     }
     // Descanso cadastrado não prova compensação: nunca inferir débito por quantidade de folgas.
     // Créditos usam o fator configurado; banco não representa remuneração salarial.
