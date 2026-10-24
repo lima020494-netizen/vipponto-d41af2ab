@@ -204,6 +204,7 @@ function PlanosEditor({ inicial, api }: { inicial: Record<string, PlanoCfg>; api
       <div className="grid gap-3 md:grid-cols-3">
         {Object.keys(planos).sort().map((id) => {
           const p = planos[id];
+          if (!p) return null;
           return (
             <div key={id} className="space-y-1">
               <label className="flex items-center gap-2"><input type="checkbox" checked={p.ativo} onChange={(e) => setP(id, { ativo: e.target.checked })} /> Plano {id} ativo</label>
