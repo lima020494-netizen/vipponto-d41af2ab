@@ -59,10 +59,11 @@ for (const day of ['2026-10-17', '2026-10-18']) {
     assert.equal(d.banco.creditos, 0);
   });
 }
-test('ordinary missing work still generates its actual scheduled debt', () => {
+test('ordinary missing work is a wage deduction, never a bank debit', () => {
   const d = calculate('2026-10-13', { shift: '5x2' });
   assert.equal(d.tot.faltas, 1);
-  assert.equal(d.banco.debitos, 480);
+  assert.equal(d.banco.debitos, 0);
+  assert.equal(d.tot.faltantes, 480); // horas da falta para desconto salarial, fora do banco
 });
 test('multiple explicit rest days do not imply compensatory debit', () => {
   const start = html.indexOf('function calcBanco('), end = html.indexOf('/* ============================== MÓDULO 3');

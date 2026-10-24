@@ -54,7 +54,7 @@ test('unjustified absence never debits the bank: wage deduction only, neutral ba
 test('late arrival never debits the bank; only early departure does',()=>{
   const late=calculate('',['09:00','17:00']); // 1h de atraso, jornada completa de 8h
   assert.equal(late.banco.debitos,0);assert.equal(late.linhas[0].saldo,0);assert.equal(late.linhas[0].atrasoMin,60);
-  const lateShort=calculate('',['09:00','16:00']); // atraso 1h + saída 1h antes
+  const lateShort=calculate('',['09:00','15:00']); // atraso 1h + saída 1h antes: só a saída antecipada debita
   assert.equal(lateShort.banco.debitos,60);assert.equal(lateShort.linhas[0].saldo,-60);
   const early=calculate('',['08:00','15:00']); // sem atraso, saída 1h antes
   assert.equal(early.banco.debitos,60);assert.equal(early.linhas[0].atrasoMin,0);

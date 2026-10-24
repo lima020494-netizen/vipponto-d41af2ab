@@ -1796,7 +1796,7 @@ function movimentoBancoDia(pin,data,prev,trab,atraso=0){
  const oc=ocorrenciaDia(pin,data),regra=regraOcorrencia(oc?.tipo),e=get('empregador',{})||{};
  const fator=Number(e.fatorBancoDomFeriado)===1?1:2,multiplica=trab>0&&(!!feriadoDe(data)||dow(data)===0);
  // Falta injustificada (lançada ou dia previsto sem batida): desconto salarial na folha/holerite, saldo neutro no banco.
- const falta=regra.falta||(trab===0&&prev>0&&!oc);
+ const falta=regra.falta||(trab===0&&prev>0&&!oc?.tipo);
  const credito=(multiplica?Math.round(trab*fator):trab)-prev;
  // O banco só debita saída antecipada/expediente parcial não abonado — nunca atraso de entrada.
  const deficit=Math.max(0,prev-trab-Math.min(atraso,Math.max(0,prev-trab)));
