@@ -2745,9 +2745,9 @@ async function iniciarSuporte(){
     const r=await apiLic('POST',{acao:'suporte_status'});
     SUPORTE=r.suporte; LIC=r.licenca?r:null; CONTA=String(SUPORTE.empresa_id).toLowerCase();
     const bar=document.createElement('div');bar.id='suporte-banner';bar.setAttribute('role','alert');
-    bar.style.cssText='position:fixed;top:0;left:0;right:0;z-index:100000;background:#b91c1c;color:#fff;font-weight:700;padding:8px 12px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:14px';
-    bar.innerHTML=`<span>MODO SUPORTE ATIVO - Acessando como: ${esc(SUPORTE.empresa_nome||CONTA)}</span><button type="button" style="min-height:36px;background:#fff;color:#b91c1c;border:0;border-radius:8px;padding:4px 12px;font-weight:700;cursor:pointer" onclick="sairSuporte()">Sair do Modo Suporte</button>`;
-    document.body.prepend(bar);document.body.style.paddingTop='48px';
+    bar.style.cssText='position:fixed;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:100000;background:#b91c1c;color:#fff;font-weight:700;padding:7px 14px;display:flex;gap:10px;align-items:center;font-size:13px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.35);max-width:calc(100vw - 24px);white-space:nowrap';
+    bar.innerHTML=`<span style="overflow:hidden;text-overflow:ellipsis">🛡️ Suporte: ${esc(SUPORTE.empresa_nome||CONTA)}</span><button type="button" aria-label="Sair do modo suporte" style="min-height:32px;background:#fff;color:#b91c1c;border:0;border-radius:999px;padding:3px 12px;font-weight:700;cursor:pointer" onclick="sairSuporte()">Sair ✕</button>`;
+    document.body.prepend(bar);
     await iniciarApp();return true;
   }catch(e){alert('Sessão de suporte inválida ou expirada: '+e.message);location.replace('/admin');return true;}
 }
