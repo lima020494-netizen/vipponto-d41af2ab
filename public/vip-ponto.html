@@ -1811,7 +1811,8 @@ function dadosFolha(pin,ini,fim){
   const just=[];
   for(let d=ini; d<=fim; d=addDias(d,1)){
     const bs=batidasDia(pin,d), prev=previstoDia(f,d), trab=trabalhoApuradoDia(f,d,bs), noct=calculaNoturna(bs);
-    const movimento=movimentoBancoDia(pin,d,prev,trab);
+    const atrasoMin=atrasoDia(pin,d,bs,prev); // só Dashboard; folha e banco não exibem nem debitam atraso
+    const movimento=movimentoBancoDia(pin,d,prev,trab,atrasoMin);
     const fer=feriadoDe(d), folga=folgaEscala(pin,d);
     let oc='', cls='';
     const por=b=>b?(b.hora):'';
@@ -1828,10 +1829,7 @@ function dadosFolha(pin,ini,fim){
     }
     if(!bs.length&&prev>0&&(!oc||oc==='FERIADO')){oc='FALTA';cls='t-falta';tot.faltas++;tot.faltasInj++;}
     if(!oc&&!bs.length&&prev===0){oc='FOLGA';cls='t-folga';tot.folgas++;}
-    // atraso com tolerância 10min
-    const prevEntrada=horarioEscala(pin,d)||(get('empregador',{})||{}).hEntrada||'08:00';
-    let atrasoMin=0;
-    if(prev>0&&bs.length&&g('Entrada')){let at=toMin(g('Entrada').hora)-toMin(prevEntrada);if(at<-720)at+=1440;else if(at>720)at-=1440;if(at>10){atrasoMin=at;tot.atrasos++;}}
+    if(atrasoMin>0)tot.atrasos++;
     if(bs.length||movimento.externo){
       tot.trabalhado+=trab;
       if(prev>0){ if(trab>prev){tot.extras+=trab-prev;tot.extras50+=trab-prev;} }
