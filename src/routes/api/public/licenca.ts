@@ -155,7 +155,7 @@ export const Route = createFileRoute("/api/public/licenca")({
           const qtd = new Map<string, number>();
           (f.data || []).forEach((x) => { const k = String(x.email_dono).toLowerCase(); qtd.set(k, (qtd.get(k) || 0) + 1); });
           const cfg = await getConfig(a.db);
-          return json({ config: cfg, conheca: resolveConheca(commercial.data?.valor), contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: emp.get(x.email_dono)?.["razao"] || emp.get(x.email_dono)?.["fantasia"] || "", cnpj: emp.get(x.email_dono)?.["cnpj"] || emp.get(x.email_dono)?.["doc"] || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
+          return json({ config: cfg, planos: await getPlanos(a.db), conheca: resolveConheca(commercial.data?.valor), contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: emp.get(x.email_dono)?.["razao"] || emp.get(x.email_dono)?.["fantasia"] || "", cnpj: emp.get(x.email_dono)?.["cnpj"] || emp.get(x.email_dono)?.["doc"] || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
         }
         if (d.acao === "config") {
           const cfg = await getConfig(a.db);
