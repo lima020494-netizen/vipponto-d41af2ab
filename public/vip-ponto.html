@@ -3175,10 +3175,11 @@ const brD=iso=>iso?new Date(iso).toLocaleDateString('pt-BR'):'—';
 const moeda=v=>v==null||v===''?'a definir':Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const ROT_EST={trial:'Teste grátis',ativo:'Ativo',tolerancia:'Tolerância',bloqueado:'Bloqueado',cortesia:'Cortesia Especial'};
 function blocoPix(){
-  const c=LIC?.config||{},l=LIC?.licenca||{},p=l.plano||1, wa=String(c.whatsapp||'').replace(/\D/g,'');
-  return `<div class="grid g3"><div><label>Plano atual</label><b>${l.estado==='cortesia'?'Licença Cortesia Especial (Isento) · ':''}Plano ${p} — ${p} empresa(s), até ${limitePlano(p)} colaboradores cada</b></div>
+  const c=LIC?.config||{},l=LIC?.licenca||{},p=l.plano||1, wa=String(c.whatsapp||'').replace(/\D/g,''),pc=planosCfg()[p]||{};
+  const anual=pc.anual??c.precosAnuais?.[p];
+  return `<div class="grid g3"><div><label>Plano atual</label><b>${l.estado==='cortesia'?'Licença Cortesia Especial (Isento) · ':''}${pc.nome||'Plano '+p} — ${pc.empresas??p} empresa(s), até ${limitePlano(p)} colaboradores cada</b></div>
   <div><label>Vencimento</label><b>${l.estado==='cortesia'?'Isento':brD(l.data_vencimento)}</b></div>
-  <div><label>Mensalidade</label><b>${l.estado==='cortesia'?'Isento':moeda(l.valor_mensal??c.precos?.[p])}</b>${c.precosAnuais?.[p]!=null?`<div class="muted">Anual: ${moeda(c.precosAnuais[p])}</div>`:''}</div></div>
+  <div><label>Mensalidade</label><b>${l.estado==='cortesia'?'Isento':moeda(l.valor_mensal??pc.mensal??c.precos?.[p])}</b>${anual!=null?`<div class="muted">Anual: ${moeda(anual)}</div>`:''}</div></div>
   <div class="hr"></div><label>Chave PIX</label>
   ${c.pix?`<div class="row"><input id="pix-chave" value="${esc(c.pix)}" readonly style="max-width:420px"/><button class="btn gold" onclick="copiarPix()">📋 Copiar Chave PIX</button></div>`:'<div class="muted">Chave PIX ainda não cadastrada pelo suporte.</div>'}
   <div class="alert" style="margin-top:10px">Após o pagamento, envie o comprovante para o suporte/WhatsApp para ativação imediata.</div>
@@ -3186,10 +3187,10 @@ function blocoPix(){
 }
 function copiarPix(){const v=LIC?.config?.pix||'';(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>alert('Chave PIX copiada!')).catch(()=>{$('pix-chave').select();document.execCommand('copy');});}
 function abrirPagamentoPix(plano){
-  const c=LIC?.config||{},l=LIC?.licenca||{},p=Number(plano)||l.plano||1,wa=String(c.whatsapp||'').replace(/\D/g,''),pix=String(c.pix||''),valor=c.precos?.[p];
+  const c=LIC?.config||{},l=LIC?.licenca||{},p=Number(plano)||l.plano||1,wa=String(c.whatsapp||'').replace(/\D/g,''),pix=String(c.pix||''),pc=planosCfg()[p]||{},valor=pc.mensal??c.precos?.[p];
   if(!pix)return alert('A chave PIX ainda não foi cadastrada pelo suporte.');
-  const qr=qrDataUrl(pix),msg=encodeURIComponent(`Olá! Realizei o pagamento do Plano ${p} do Ponto Pro Gestão para a conta ${CONTA}. Segue o comprovante.`);
-  abrirModal(`<div class="card pix-modal-card"><div class="pix-modal-head"><div><h3>Pagamento via PIX</h3><div class="muted">Plano ${p} · ${moeda(valor)} por mês</div></div><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar pagamento">✕</button></div>
+  const qr=qrDataUrl(pix),msg=encodeURIComponent(`Olá! Realizei o pagamento do plano ${pc.nome||p} do Ponto Pro Gestão para a conta ${CONTA}. Segue o comprovante.`);
+  abrirModal(`<div class="card pix-modal-card"><div class="pix-modal-head"><div><h3>Pagamento via PIX</h3><div class="muted">${pc.nome||'Plano '+p} · ${moeda(valor)} por mês</div></div><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar pagamento">✕</button></div>
   <div class="pix-modal-grid"><img class="pix-qr" src="${qr}" alt="QR Code da chave PIX"/><div><div class="pix-summary"><b>Pagamento seguro e rápido</b><div class="muted" style="margin-top:5px">Abra o aplicativo do seu banco, escaneie o código ou copie a chave abaixo.</div></div>
   <label>PIX Copia e Cola</label><div class="pix-copy"><input id="pix-modal-chave" value="${esc(pix)}" readonly/><button class="btn gold" onclick="copiarPixModal()">📋 Copiar</button></div>
   <div class="alert">Após pagar, envie o comprovante para ativação imediata.</div>
