@@ -174,11 +174,8 @@ function Cobranca({ dados, api }: { dados: Lista; api: Api }) {
   const c = dados.config;
   const [pix, setPix] = useState(c.pix ?? "");
   const [wa, setWa] = useState(c.whatsapp ?? "");
-  const [pm, setPm] = useState<Record<string, string>>(Object.fromEntries([1, 2, 3].map((p) => [p, String(c.precos?.[p] ?? "")])));
-  const [pa, setPa] = useState<Record<string, string>>(Object.fromEntries([1, 2, 3].map((p) => [p, String(c.precosAnuais?.[p] ?? "")])));
-  const num = (o: Record<string, string>) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, v === "" ? null : Number(v)]));
   async function salvar() {
-    try { await api({ acao: "config", pix: pix.trim(), whatsapp: wa.trim(), precos: num(pm), precosAnuais: num(pa) }); alert("Cobrança salva."); } catch (e) { alert((e as Error).message); }
+    try { await api({ acao: "config", pix: pix.trim(), whatsapp: wa.trim() }); alert("Cobrança salva."); } catch (e) { alert((e as Error).message); }
   }
   return (
     <section className="admin-card space-y-3">
@@ -187,15 +184,40 @@ function Cobranca({ dados, api }: { dados: Lista; api: Api }) {
         <label>Chave PIX<input className="admin-input" value={pix} onChange={(e) => setPix(e.target.value)} /></label>
         <label>WhatsApp de suporte<input className="admin-input" value={wa} onChange={(e) => setWa(e.target.value)} /></label>
       </div>
-      <div className="grid gap-3 md:grid-cols-3">
-        {[1, 2, 3].map((p) => (
-          <div key={p}>
-            <label>Plano {p} mensal (R$)<input className="admin-input" type="number" value={pm[p]} onChange={(e) => setPm({ ...pm, [p]: e.target.value })} /></label>
-            <label>Plano {p} anual (R$)<input className="admin-input" type="number" value={pa[p]} onChange={(e) => setPa({ ...pa, [p]: e.target.value })} /></label>
-          </div>
-        ))}
-      </div>
+      <p className="text-sm opacity-70">Os preços agora são definidos por plano na seção "Planos e Limites" abaixo.</p>
       <button className="admin-btn" onClick={salvar}>Salvar cobrança</button>
+    </section>
+  );
+}
+
+function PlanosEditor({ inicial, api }: { inicial: Record<string, PlanoCfg>; api: Api }) {
+  const [planos, setPlanos] = useState<Record<string, PlanoCfg>>(inicial);
+  const setP = (id: string, p: Partial<PlanoCfg>) => setPlanos({ ...planos, [id]: { ...planos[id], ...p } });
+  const num = (v: string) => (v === "" ? null : Number(v));
+  async function salvar() {
+    try { await api({ acao: "planos", planos }); alert("Planos salvos. O app dos clientes já lê estes limites e preços."); } catch (e) { alert((e as Error).message); }
+  }
+  return (
+    <section className="admin-card space-y-3">
+      <h2 className="text-lg font-semibold">Planos e Limites</h2>
+      <p className="text-sm opacity-70">Nome, preços, limites e status lidos dinamicamente pelo app do cliente. Planos inativos deixam de ser oferecidos.</p>
+      <div className="grid gap-3 md:grid-cols-3">
+        {Object.keys(planos).sort().map((id) => {
+          const p = planos[id];
+          return (
+            <div key={id} className="space-y-1">
+              <label className="flex items-center gap-2"><input type="checkbox" checked={p.ativo} onChange={(e) => setP(id, { ativo: e.target.checked })} /> Plano {id} ativo</label>
+              <label>Nome<input className="admin-input" value={p.nome} onChange={(e) => setP(id, { nome: e.target.value })} /></label>
+              <label>Empresas no aparelho<input className="admin-input" type="number" min={1} value={p.empresas} onChange={(e) => setP(id, { empresas: Math.max(1, +e.target.value || 1) })} /></label>
+              <label>Limite de colaboradores<input className="admin-input" type="number" min={1} value={p.colaboradores} onChange={(e) => setP(id, { colaboradores: Math.max(1, +e.target.value || 1) })} /></label>
+              <label>Mensal (R$, vazio = sob consulta)<input className="admin-input" type="number" value={p.mensal ?? ""} onChange={(e) => setP(id, { mensal: num(e.target.value) })} /></label>
+              <label>Anual (R$, vazio = sob consulta)<input className="admin-input" type="number" value={p.anual ?? ""} onChange={(e) => setP(id, { anual: num(e.target.value) })} /></label>
+              <label>Recursos (um por linha)<textarea rows={4} className="admin-input" value={p.recursos.join("\n")} onChange={(e) => setP(id, { recursos: e.target.value.split("\n").filter(Boolean).slice(0, 8) })} /></label>
+            </div>
+          );
+        })}
+      </div>
+      <button className="admin-btn" onClick={salvar}>Salvar planos</button>
     </section>
   );
 }
