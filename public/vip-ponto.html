@@ -1763,7 +1763,7 @@ function regraOcorrencia(tipo){
  const afastado=t==='afastamento inss'||t==='licenca maternidade';
  const abonado=afastado||t==='ferias'||t.startsWith('atestado medico')||/^falta (justificada|abonada)(?:\s*\/\s*(?:justificada|abonada))?$/.test(t)||['licenca gala','licenca nojo','licenca paternidade','doacao de sangue','alistamento eleitoral'].includes(t);
  const compensacao=['folga compensatoria','compensacao de banco','folga de feriado/dsr trabalhado'].includes(t);
- return {abonado,afastado,compensacao,externo:t==='trabalho externo / viagem',suspensao:t==='suspensao disciplinar',manual:t==='esquecimento de marcacao',codigo:t==='afastamento inss'?'03':'',etiqueta:t==='afastamento inss'?'AFASTADO INSS - AUXÍLIO DOENÇA':t==='licenca maternidade'?'LICENÇA MATERNIDADE':String(tipo||'').toUpperCase(),pagador:t==='afastamento inss'?'Empresa: primeiros 15 dias; INSS: a partir do 16º, sujeito à concessão':t==='licenca maternidade'?'Empresa / compensação previdenciária conforme enquadramento':abonado?'Empresa / sem desconto':''};
+ return {abonado,afastado,compensacao,falta:t==='falta',externo:t==='trabalho externo / viagem',suspensao:t==='suspensao disciplinar',manual:t==='esquecimento de marcacao',codigo:t==='afastamento inss'?'03':'',etiqueta:t==='afastamento inss'?'AFASTADO INSS - AUXÍLIO DOENÇA':t==='licenca maternidade'?'LICENÇA MATERNIDADE':String(tipo||'').toUpperCase(),pagador:t==='afastamento inss'?'Empresa: primeiros 15 dias; INSS: a partir do 16º, sujeito à concessão':t==='licenca maternidade'?'Empresa / compensação previdenciária conforme enquadramento':abonado?'Empresa / sem desconto':''};
 }
 function ocorrenciaDia(pin,data){return (get('ocorrencias',[])||[]).find(o=>o.pin===pin&&o.data===data);}
 function validarPeriodoOcorrencia(tipo,ini,fim,pin,periodoId){
@@ -1784,11 +1784,25 @@ function descontoDsrDia(pin,data,prev){
  if(!dsr)return 0;
  const ini=addDias(data,-6);return (get('ocorrencias',[])||[]).some(o=>o.pin===pin&&o.data>=ini&&o.data<=data&&regraOcorrencia(o.tipo).suspensao)?cargaEscala(f.escala):0;
 }
-function movimentoBancoDia(pin,data,prev,trab){
- const regra=regraOcorrencia(ocorrenciaDia(pin,data)?.tipo),e=get('empregador',{})||{};
+/* Atraso de entrada: métrica operacional exclusiva do Dashboard. Nunca debita banco nem aparece na folha. */
+function atrasoDia(pin,data,bs,prev){
+ if(!(prev>0)||!bs.length)return 0;
+ const ent=bs.filter(b=>b.tipo==='Entrada')[0];if(!ent)return 0;
+ const inicio=horarioEscala(pin,data)||(get('empregador',{})||{}).hEntrada||'08:00';
+ let at=toMin(ent.hora)-toMin(inicio);if(at<-720)at+=1440;else if(at>720)at-=1440;
+ return at>10?at:0;
+}
+function movimentoBancoDia(pin,data,prev,trab,atraso=0){
+ const oc=ocorrenciaDia(pin,data),regra=regraOcorrencia(oc?.tipo),e=get('empregador',{})||{};
  const fator=Number(e.fatorBancoDomFeriado)===1?1:2,multiplica=trab>0&&(!!feriadoDe(data)||dow(data)===0);
- const saldo=regra.abonado?Math.max(0,trab-prev):regra.compensacao?-440:regra.externo?0:(multiplica?Math.round(trab*fator):trab)-prev;
- return {...regra,saldo,faltantes:regra.compensacao||regra.abonado||regra.externo?0:Math.max(0,prev-trab)};
+ // Falta injustificada (lançada ou dia previsto sem batida): desconto salarial na folha/holerite, saldo neutro no banco.
+ const falta=regra.falta||(trab===0&&prev>0&&!oc);
+ const credito=(multiplica?Math.round(trab*fator):trab)-prev;
+ // O banco só debita saída antecipada/expediente parcial não abonado — nunca atraso de entrada.
+ const deficit=Math.max(0,prev-trab-Math.min(atraso,Math.max(0,prev-trab)));
+ const saldo=regra.abonado?Math.max(0,credito):regra.compensacao?-440:regra.externo?0:falta?0:(credito>0?credito:-deficit);
+ const faltantes=regra.compensacao||regra.abonado||regra.externo?0:falta?prev:deficit;
+ return {...regra,saldo,faltantes};
 }
 /* Linhas da folha + totais + banco de horas */
 function dadosFolha(pin,ini,fim){
