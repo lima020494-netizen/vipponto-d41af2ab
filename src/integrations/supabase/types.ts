@@ -32,6 +32,39 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          acao: string
+          criado_em: string
+          detalhes: Json
+          empresa_id: string
+          id: string
+          ip: string | null
+          is_support_action: boolean
+          usuario_id: string | null
+        }
+        Insert: {
+          acao: string
+          criado_em?: string
+          detalhes?: Json
+          empresa_id: string
+          id?: string
+          ip?: string | null
+          is_support_action?: boolean
+          usuario_id?: string | null
+        }
+        Update: {
+          acao?: string
+          criado_em?: string
+          detalhes?: Json
+          empresa_id?: string
+          id?: string
+          ip?: string | null
+          is_support_action?: boolean
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
       banco_horas: {
         Row: {
           id: string
@@ -520,6 +553,39 @@ export type Database = {
         }
         Relationships: []
       }
+      support_sessions: {
+        Row: {
+          empresa_id: string
+          empresa_nome: string | null
+          encerrado_em: string | null
+          id: string
+          iniciado_em: string
+          ip: string | null
+          motivo: string
+          super_admin_id: string
+        }
+        Insert: {
+          empresa_id: string
+          empresa_nome?: string | null
+          encerrado_em?: string | null
+          id?: string
+          iniciado_em?: string
+          ip?: string | null
+          motivo?: string
+          super_admin_id: string
+        }
+        Update: {
+          empresa_id?: string
+          empresa_nome?: string | null
+          encerrado_em?: string | null
+          id?: string
+          iniciado_em?: string
+          ip?: string | null
+          motivo?: string
+          super_admin_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -554,6 +620,7 @@ export type Database = {
         Args: { p_empresa_id: string; p_pin: string; p_tipo: string }
         Returns: Json
       }
+      suporte_conta: { Args: never; Returns: string }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
