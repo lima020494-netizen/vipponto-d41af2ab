@@ -977,7 +977,7 @@ async function fazerLogin(){
   if(!jaNoAparelho&&email!=='pontoprogestao@gmail.com'){
     let j=null; try{ j=await apiLic('GET'); localStorage.setItem('vip:lic:'+email,JSON.stringify(j)); }catch(e){}
     if(j&&!j.isDev){ // cortesia também respeita o nível de plano atribuído
-      const limite=Math.min(3,Math.max(1,j.licenca?.plano||1));
+      const pj=j.licenca?.plano||1, limite=j.config?.planos?.[pj]?.empresas??Math.min(3,Math.max(1,pj));
       const outras=cs.filter(c=>c.email!==email).length;
       if(outras>=limite){ try{await sb.auth.signOut();}catch(e){}
         return m.innerHTML=`<div class="alert err">O plano desta conta permite ${limite} empresa(s) neste aparelho e já há ${outras} salva(s). Faça upgrade com o suporte.</div>`; }
@@ -3145,12 +3145,13 @@ async function executarExclusao(){
 </script>
 <script>
 /* ===================== LICENÇA, ASSINATURA E PAINEL DO DESENVOLVEDOR ===================== */
-const PLANO_LIMITES={1:10,2:25,3:50}, DIA_MS=86400000;
-const limitePlano=p=>PLANO_LIMITES[Math.min(3,Math.max(1,Number(p)||1))];
-function maxFuncAtual(){const l=LIC||licCache(CONTA);return limitePlano(l?.licenca?.plano);}
+const PLANO_LIMITES={1:10,2:25,3:50}, DIA_MS=86400000; // fallback quando a configuração dinâmica ainda não chegou
+const planosCfg=lic=>((lic||LIC||licCache(CONTA))?.config?.planos)||{};
+const limitePlano=(p,lic)=>{const c=planosCfg(lic)[p];return c?.colaboradores??PLANO_LIMITES[Math.min(3,Math.max(1,Number(p)||1))];};
+function maxFuncAtual(){const l=LIC||licCache(CONTA);return limitePlano(l?.licenca?.plano,l);}
 let LIC=null;
 const licCache=e=>{try{return JSON.parse(localStorage.getItem('vip:lic:'+e)||'null');}catch(x){return null;}};
-function limiteEmpresas(){const ps=contas().map(c=>licCache(c.email)?.licenca?.plano||0);return Math.min(3,Math.max(1,...ps));}
+function limiteEmpresas(){const ps=contas().map(c=>{const l=licCache(c.email),p=l?.licenca?.plano||0;return l?.config?.planos?.[p]?.empresas??p;});return Math.min(20,Math.max(1,...ps));}
 function estadoLocal(l){ // recalcula no aparelho (cache offline continua válido com o passar dos dias)
   if(l.status==='cortesia')return'cortesia'; if(l.status==='bloqueado')return'bloqueado';
   const v=new Date(l.data_vencimento).getTime(),n=Date.now();
