@@ -11,23 +11,16 @@
 - Ponto Pro Gestão data: Supabase is the source of truth (tables empregador, funcionarios, pontos, logs, escala isolated by email_dono; dados/feriados by conta); localStorage is only an offline cache and punches go through a pending queue — so kiosk devices and phones share the same data and never lose offline punches.
 - Monthly employee sheet links use opaque, expiring, server-validated tokens; never expose owner email or employee PIN in URLs.
 - Licensing state (licencas/app_config) is written only by the /api/public/licenca server route; the dev panel requires the admin role (user_roles) plus master PIN, checked server-side — client code can't grant itself access.
-
 - Keep legacy storage namespaces and the HTML entry URL stable during rebranding to preserve offline punches, sessions, and existing sheet links; app logo defaults use the versioned CDN pointer asset.
-
-- Accountant ZIP exports reuse the same employee PDF and AFD content generators as individual downloads, so fiscal outputs and calculations cannot diverge.
-- A4 PDF exports use the shared local jsPDF AutoTable renderer for tabular data, wrapping cells and repeating headers within reserved footer margins; sheet exports keep the same official generator in every delivery path.
+- All A4 PDFs (sheet, bank, certificate, accountant ZIP) use the shared local jsPDF AutoTable renderer and the same generators as on-screen documents, so outputs and calculations never diverge; only kiosk receipts use the thermal browser-print path.
 - Monthly sheet summary rows are derived once from existing daily and bank results and reused by the screen and official PDF; period bank movement stays distinct from accumulated balance to avoid divergent totals.
 - Sheets share presentation, company weekday/Saturday hours and palette with AutoTable; A4 signatures remain on the main sheet and overflowing notes go into an appendix.
-- A4 documents are downloaded through jsPDF rather than browser printing; only kiosk receipts use the thermal browser-print path, preventing mixed document formats.
-- Commercial content lives only at /conheca with a scoped palette; the root route retains the operational HTML iframe to avoid kiosk regressions.
+- Commercial content lives only at /conheca with a scoped palette; the root route retains the operational HTML iframe to avoid kiosk regressions. Reads include validated defaults; writes (conheca/dev_info) go through the protected license endpoint, never browser database writes.
 - Both About entry points read app_config.dev_info with shared offline cache; profile and raster logo writes go through the existing license endpoint with server-verified master email, admin role and PIN to prevent client privilege escalation.
-- The master listing response always includes validated commercial content with defaults for absent configuration; commercial writes reuse the protected license endpoint, never browser database writes.
 - Dismissed manager onboarding is stored in an account-scoped legacy namespace key so one company's choice cannot hide another company's onboarding.
 - Hardware bridge identifiers remain unchanged while presentation text is neutralized; regulatory wording in legacy commercial content is normalized at read time without overwriting stored configuration.
 - Kiosk browser libraries are version-pinned public scripts, cached with the operational HTML by a static-only service worker; API/auth/company responses are excluded so offline assets never become a second data source.
-- Bank and technical-certificate PDF exports use the shared A4 table renderer and footer, preserving the same calculations and declaration text as their on-screen documents.
-- Manager drawer shortcuts close immediately and defer existing module/subtab renderers through animation frames; dashboard indicators are read-only and session caches never replace Supabase synchronization.
-- Manager home renders the executive summary in gestor-hub and the existing frequency dashboard in gestor-body through the shared deferred renderer, so entry and drawer navigation share one complete dashboard without duplicate filter IDs.
+- Manager drawer shortcuts close immediately and defer module renderers through animation frames; manager home renders the executive summary in gestor-hub and the frequency dashboard in gestor-body through the shared deferred renderer, without duplicate filter IDs; dashboard indicators are read-only and session caches never replace Supabase synchronization.
 - Holidays/rest use zero planned time; Sunday/holiday bank uses employer factor, never salary premiums. Generic rest never infers debt.
 - Shared occurrence rules drive sheet/bank/XLS. Periods expand into dated synced records and edit/delete as a unit; external work never synthesizes fiscal punches. Vacation is neutral, explicit compensation distinct from absence.
 - Export libraries (jspdf/autotable/jszip/xlsx) load on demand via garantirLib(), never in the initial head; every export entry point awaits it first.
@@ -36,6 +29,5 @@
 - Monthly ZIP is an action inside the sheet and adds a BIFF8 analytical workbook; reporting codes and deduction minutes are not eSocial transmission or wage calculation.
 - Super Admin lives only at /admin (own layout, master email + admin role + reserve PIN checked by the license endpoint); the client HTML app has no developer screens. Install icons use versioned filenames so installed shortcuts refresh.
 - Plan definitions live in app_config key 'planos' (src/lib/plans.ts schema + PLANOS_PADRAO fallback 10/25/50); the license route serves them to the client app and only master+PIN writes them. No app_plans table: app_config is the established shared-config store.
-- Unjustified absence (explicit or implicit) is wage-deduction only: bank balance stays neutral (movimentoBancoDia falta branch); bank debits come only from Folga Compensatória or incomplete shift (early departure).
-- Late arrival (atrasoDia, 10-min tolerance) is a Dashboard-only operational metric: never a bank debit, never a sheet column; the sheet's Débito column shows only compensable absence/incomplete shift.
+- Bank debits come only from Folga Compensatória or incomplete shift (early departure): unjustified absence is wage-deduction only with neutral bank balance, and late arrival (atrasoDia, 10-min tolerance) is a Dashboard-only metric, never a bank debit or sheet column.
 - Support mode UI is a compact fixed bottom pill, never a top banner, so the manager header, drawer and kiosk stay fully usable.
