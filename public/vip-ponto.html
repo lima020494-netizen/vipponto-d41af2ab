@@ -3232,12 +3232,13 @@ async function aceitarTermos(){
 function abaAssinatura(){
   const l=LIC?.licenca;
   if(!l)return $('gestor-body').innerHTML='<div class="muted">Sem conexão para carregar a assinatura.</div>';
-  const c=LIC?.config||{}, atual=l.plano||1;
-  $('gestor-body').innerHTML=`<div class="plans-intro"><div><h3>Planos e Pagamento</h3><p>Escolha a capacidade ideal para sua operação. Plano 1 inclui até 10, Plano 2 até 25 e Plano 3 até 50 colaboradores, suporte ao quiosque e todos os relatórios legais.</p></div><span class="license-badge" data-state="${esc(l.estado)}">${ROT_EST[l.estado]||l.estado}</span></div>
-  <div class="plans-grid">${[1,2,3].map(p=>`<article class="plan-card ${p===2?'recommended':''} ${p===atual?'current':''}">${p===2?'<span class="plan-reco">Mais escolhido</span>':''}<div class="plan-kicker">PLANO ${p}</div><h4>${p===1?'Essencial':p===2?'Profissional':'Multiempresa'}</h4>
-  <div class="plan-price">${moeda(c.precos?.[p])}<small> / mês</small></div><div class="plan-annual">${c.precosAnuais?.[p]!=null?`${moeda(c.precosAnuais[p])} por ano`:'Plano anual a definir'}</div>
-  <ul class="plan-benefits"><li>${p} empresa${p>1?'s':''} no mesmo dispositivo</li><li>Até ${limitePlano(p)} colaboradores por empresa</li><li>Folha MTE, AFD e banco de horas</li><li>Operação offline com sincronização</li><li>Comprovante térmico e PDF oficial</li></ul>
-  <div class="plan-actions"><button class="btn ${p===2?'gold':''}" onclick="abrirPagamentoPix(${p})">${p===atual?'Pagar ou renovar':'Escolher Plano '+p}</button></div></article>`).join('')}</div>
+  const c=LIC?.config||{}, atual=l.plano||1, pcs=planosCfg();
+  const ids=(Object.keys(pcs).length?Object.keys(pcs):['1','2','3']).map(Number).sort((a,b)=>a-b).filter(p=>pcs[p]?.ativo!==false);
+  $('gestor-body').innerHTML=`<div class="plans-intro"><div><h3>Planos e Pagamento</h3><p>Escolha a capacidade ideal para sua operação. Todos os planos incluem suporte ao quiosque e todos os relatórios legais.</p></div><span class="license-badge" data-state="${esc(l.estado)}">${ROT_EST[l.estado]||l.estado}</span></div>
+  <div class="plans-grid">${ids.map(p=>{const pc=pcs[p]||{},mensal=pc.mensal??c.precos?.[p],anual=pc.anual??c.precosAnuais?.[p];return `<article class="plan-card ${p===2?'recommended':''} ${p===atual?'current':''}">${p===2?'<span class="plan-reco">Mais escolhido</span>':''}<div class="plan-kicker">PLANO ${p}</div><h4>${esc(pc.nome||'Plano '+p)}</h4>
+  <div class="plan-price">${moeda(mensal)}<small> / mês</small></div><div class="plan-annual">${anual!=null?`${moeda(anual)} por ano`:'Plano anual a definir'}</div>
+  <ul class="plan-benefits"><li>${pc.empresas??p} empresa${(pc.empresas??p)>1?'s':''} no mesmo dispositivo</li><li>Até ${limitePlano(p)} colaboradores por empresa</li>${(pc.recursos||[]).map(r=>`<li>${esc(r)}</li>`).join('')}</ul>
+  <div class="plan-actions"><button class="btn ${p===2?'gold':''}" onclick="abrirPagamentoPix(${p})">${p===atual?'Pagar ou renovar':'Escolher '+(pc.nome||'Plano '+p)}</button></div></article>`;}).join('')}</div>
   <div class="payment-note">Pagamento via PIX com confirmação pelo suporte</div>
   <div class="card" style="margin-top:18px"><div class="row"><div><b>Resumo da assinatura</b><div class="muted">Vencimento: ${l.estado==='cortesia'?'Cortesia sem cobrança':brD(l.data_vencimento)}</div></div>${l.aceite_termos?`<span class="muted right">Termos aceitos em ${new Date(l.aceite_termos.aceito_em).toLocaleString('pt-BR')}</span>`:''}</div></div>`;
 }
