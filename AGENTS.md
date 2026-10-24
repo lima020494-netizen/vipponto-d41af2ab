@@ -35,3 +35,7 @@
 - Schedule grid and legacy imports share lerCelulaEscala and canonical TIPOS_ESC values, so menu options and accepted rest-day aliases retain existing calculation semantics.
 - Monthly ZIP is an action inside the sheet and adds a BIFF8 analytical workbook; reporting codes and deduction minutes are not eSocial transmission or wage calculation.
 - Super Admin lives only at /admin (own layout, master email + admin role + reserve PIN checked by the license endpoint); the client HTML app has no developer screens. Install icons use versioned filenames so installed shortcuts refresh.
+- Plan definitions live in app_config key 'planos' (src/lib/plans.ts schema + PLANOS_PADRAO fallback 10/25/50); the license route serves them to the client app and only master+PIN writes them. No app_plans table: app_config is the established shared-config store.
+- Unjustified absence (explicit or implicit) is wage-deduction only: bank balance stays neutral (movimentoBancoDia falta branch); bank debits come only from Folga Compensatória or incomplete shift (early departure).
+- Late arrival (atrasoDia, 10-min tolerance) is a Dashboard-only operational metric: never a bank debit, never a sheet column; the sheet's Débito column shows only compensable absence/incomplete shift.
+- Support mode UI is a compact fixed bottom pill, never a top banner, so the manager header, drawer and kiosk stay fully usable.

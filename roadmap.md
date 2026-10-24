@@ -90,3 +90,8 @@
 - [x] Mover batidas do REP; editar/excluir batidas manuais e ocorrências com auditoria.
 - [x] Folha/PDF com ocorrências enxutas e quadro de Tratamentos e Justificativas.
 - [x] Estética VIP: exportações sob demanda (PDF/Excel/ZIP), janela inicial de batidas do mês corrente com histórico sob demanda, vibração e botão "Registrando..." no quiosque, modais em gaveta inferior no celular, cards de colaboradores no celular.
+- [x] Planos e limites dinâmicos (app_config 'planos'): painel /admin edita nome, preços, limites e status; app do cliente lê os limites do plano ativo com fallback 10/25/50.
+- [x] Ícones PWA regenerados a partir da logo oficial (192/512/apple-touch/favicon, versionados e simples).
+- [x] Modo Suporte virou pílula compacta fixa no rodapé, liberando topo, gaveta e quiosque.
+- [x] Falta injustificada sem débito no banco (só desconto salarial); banco debita apenas Folga Compensatória e carga incompleta.
+- [x] Atrasos removidos da folha e do banco; permanecem só no Dashboard gerencial.
