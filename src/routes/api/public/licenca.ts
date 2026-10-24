@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { canSaveDeveloperInfo, developerInfoSchema } from "@/lib/developer-info";
 import { conhecaSchema, resolveConheca } from "@/lib/conheca-content";
+import { planosSchema, resolvePlanos } from "@/lib/plans";
 
 const DAY = 86400000;
 const TOLERANCIA_DIAS = 7;
@@ -42,6 +43,12 @@ async function getConfig(db: any) {
   return ((data as { valor?: unknown } | null)?.valor as Record<string, unknown>) || {};
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getPlanos(db: any) {
+  const { data } = await db.from("app_config" as never).select("valor").eq("chave", "planos").maybeSingle();
+  return resolvePlanos((data as { valor?: unknown } | null)?.valor);
+}
+
 const adminSchema = z.discriminatedUnion("acao", [
   z.object({ acao: z.literal("dev_info"), pin: z.string(), info: developerInfoSchema }),
   z.object({ acao: z.literal("conheca"), pin: z.string(), conteudo: conhecaSchema }),
@@ -52,7 +59,8 @@ const adminSchema = z.discriminatedUnion("acao", [
   z.object({ acao: z.literal("plano"), pin: z.string(), email: z.string().email(), plano: z.number().int().min(1).max(3) }),
   z.object({ acao: z.literal("suporte_iniciar"), pin: z.string(), email: z.string().email(), motivo: z.string().trim().min(3).max(300) }),
   z.object({ acao: z.literal("config"), pin: z.string(), pix: z.string().max(140), whatsapp: z.string().max(40),
-    precos: z.record(z.string(), z.number().nonnegative().nullable()), precosAnuais: z.record(z.string(), z.number().nonnegative().nullable()) }),
+    precos: z.record(z.string(), z.number().nonnegative().nullable()).optional(), precosAnuais: z.record(z.string(), z.number().nonnegative().nullable()).optional() }),
+  z.object({ acao: z.literal("planos"), pin: z.string(), planos: planosSchema }),
 ]);
 
 export const Route = createFileRoute("/api/public/licenca")({
