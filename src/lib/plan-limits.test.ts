@@ -15,14 +15,14 @@ test("escala trava após 30 dias", () => assert.match(html, /const ESC_TRAVA_DIA
 
 test("configuração salva substitui os limites padrão dinamicamente", () => {
   const p = resolvePlanos({ "1": { nome: "Start", empresas: 1, colaboradores: 5, mensal: 39, anual: null, recursos: ["Folha MTE"], ativo: true } });
-  assert.equal(p["1"].colaboradores, 5);
-  assert.equal(p["1"].nome, "Start");
-  assert.equal(p["2"].colaboradores, 25); // não configurado: mantém padrão
+  assert.equal(p["1"]?.colaboradores, 5);
+  assert.equal(p["1"]?.nome, "Start");
+  assert.equal(p["2"]?.colaboradores, 25); // não configurado: mantém padrão
 });
 test("entrada inválida é ignorada e o padrão prevalece", () => {
   const p = resolvePlanos({ "2": { nome: "", colaboradores: -3 } });
-  assert.equal(p["2"].colaboradores, 25);
-  assert.equal(p["2"].ativo, true);
+  assert.equal(p["2"]?.colaboradores, 25);
+  assert.equal(p["2"]?.ativo, true);
 });
 test("plano inativo não é oferecido no app", () => {
   assert.match(html, /filter\(p=>pcs\[p\]\?\.ativo!==false\)/);

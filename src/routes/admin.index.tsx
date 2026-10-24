@@ -192,7 +192,10 @@ function Cobranca({ dados, api }: { dados: Lista; api: Api }) {
 
 function PlanosEditor({ inicial, api }: { inicial: Record<string, PlanoCfg>; api: Api }) {
   const [planos, setPlanos] = useState<Record<string, PlanoCfg>>(inicial);
-  const setP = (id: string, p: Partial<PlanoCfg>) => setPlanos({ ...planos, [id]: { ...planos[id], ...p } });
+  const setP = (id: string, patch: Partial<PlanoCfg>) => setPlanos((prev) => {
+    const cur = prev[id];
+    return cur ? { ...prev, [id]: { ...cur, ...patch } } : prev;
+  });
   const num = (v: string) => (v === "" ? null : Number(v));
   async function salvar() {
     try { await api({ acao: "planos", planos }); alert("Planos salvos. O app dos clientes já lê estes limites e preços."); } catch (e) { alert((e as Error).message); }
