@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MASTER_EMAIL } from "@/lib/developer-info";
+import { PLANOS_PADRAO, type PlanoCfg } from "@/lib/plans";
 
 const SUPA_REF = new URL(import.meta.env["VITE_SUPABASE_URL"] ?? "https://kvbidsfnisegtqjagsld.supabase.co").hostname.split(".")[0];
 
@@ -23,9 +24,9 @@ export const Route = createFileRoute("/admin/")({
 type Conta = { email_dono: string; razao: string; cnpj: string; created_at?: string; plano: number; colaboradores: number; data_vencimento: string; estado: string };
 type Plano = { name: string; price: string | null; caption: string; benefits: string[] };
 type Conheca = { whatsapp: string; tagline: string; headline: string; subtitle: string; plans: Plano[] };
-type Lista = { contas: Conta[]; config: { pix?: string; whatsapp?: string; precos?: Record<string, number | null>; precosAnuais?: Record<string, number | null> }; conheca: Conheca };
+type Lista = { contas: Conta[]; config: { pix?: string; whatsapp?: string; precos?: Record<string, number | null>; precosAnuais?: Record<string, number | null> }; planos: Record<string, PlanoCfg>; conheca: Conheca };
 
-const LIMITE: Record<number, number> = { 1: 10, 2: 25, 3: 50 };
+const limiteDe = (planos: Record<string, PlanoCfg>, p: number) => planos[p]?.colaboradores ?? PLANOS_PADRAO[p]?.colaboradores ?? 10;
 const ROT: Record<string, string> = { trial: "Teste", ativo: "Ativo", tolerancia: "Tolerância", bloqueado: "Bloqueado", cortesia: "Cortesia" };
 
 function AdminPage() {
@@ -129,6 +130,7 @@ function Painel() {
         <button className="admin-btn-ghost" onClick={() => supabase.auth.signOut()}>Sair</button>
       </header>
       <Cobranca dados={dados} api={api} />
+      <PlanosEditor inicial={dados.planos} api={api} />
       <ConhecaEditor inicial={dados.conheca} api={api} />
       <section className="admin-card">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -145,8 +147,8 @@ function Painel() {
                   <td>{c.cnpj || "—"}</td>
                   <td>{c.created_at ? new Date(c.created_at).toLocaleDateString("pt-BR") : "—"}</td>
                   <td><select className="admin-input" value={c.plano} onChange={(e) => acao("plano", c.email_dono, { plano: +e.target.value })}>
-                    {[1, 2, 3].map((p) => <option key={p} value={p}>Plano {p} · {LIMITE[p]} colab.</option>)}</select></td>
-                  <td>{c.colaboradores}/{LIMITE[c.plano]}</td>
+                    {[1, 2, 3].map((p) => <option key={p} value={p}>{dados.planos[p]?.nome || `Plano ${p}`} · {limiteDe(dados.planos, p)} colab.</option>)}</select></td>
+                  <td>{c.colaboradores}/{limiteDe(dados.planos, c.plano)}</td>
                   <td>{c.estado === "cortesia" ? "—" : new Date(c.data_vencimento).toLocaleDateString("pt-BR")}</td>
                   <td>{ROT[c.estado] ?? c.estado}</td>
                   <td className="flex flex-wrap gap-1">
