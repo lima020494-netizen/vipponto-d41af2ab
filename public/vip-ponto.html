@@ -977,7 +977,7 @@ async function fazerLogin(){
   if(!jaNoAparelho&&email!=='pontoprogestao@gmail.com'){
     let j=null; try{ j=await apiLic('GET'); localStorage.setItem('vip:lic:'+email,JSON.stringify(j)); }catch(e){}
     if(j&&!j.isDev){ // cortesia também respeita o nível de plano atribuído
-      const limite=Math.min(3,Math.max(1,j.licenca?.plano||1));
+      const pj=j.licenca?.plano||1, limite=j.config?.planos?.[pj]?.empresas??Math.min(3,Math.max(1,pj));
       const outras=cs.filter(c=>c.email!==email).length;
       if(outras>=limite){ try{await sb.auth.signOut();}catch(e){}
         return m.innerHTML=`<div class="alert err">O plano desta conta permite ${limite} empresa(s) neste aparelho e já há ${outras} salva(s). Faça upgrade com o suporte.</div>`; }
@@ -1763,7 +1763,7 @@ function regraOcorrencia(tipo){
  const afastado=t==='afastamento inss'||t==='licenca maternidade';
  const abonado=afastado||t==='ferias'||t.startsWith('atestado medico')||/^falta (justificada|abonada)(?:\s*\/\s*(?:justificada|abonada))?$/.test(t)||['licenca gala','licenca nojo','licenca paternidade','doacao de sangue','alistamento eleitoral'].includes(t);
  const compensacao=['folga compensatoria','compensacao de banco','folga de feriado/dsr trabalhado'].includes(t);
- return {abonado,afastado,compensacao,externo:t==='trabalho externo / viagem',suspensao:t==='suspensao disciplinar',manual:t==='esquecimento de marcacao',codigo:t==='afastamento inss'?'03':'',etiqueta:t==='afastamento inss'?'AFASTADO INSS - AUXÍLIO DOENÇA':t==='licenca maternidade'?'LICENÇA MATERNIDADE':String(tipo||'').toUpperCase(),pagador:t==='afastamento inss'?'Empresa: primeiros 15 dias; INSS: a partir do 16º, sujeito à concessão':t==='licenca maternidade'?'Empresa / compensação previdenciária conforme enquadramento':abonado?'Empresa / sem desconto':''};
+ return {abonado,afastado,compensacao,falta:t==='falta',externo:t==='trabalho externo / viagem',suspensao:t==='suspensao disciplinar',manual:t==='esquecimento de marcacao',codigo:t==='afastamento inss'?'03':'',etiqueta:t==='afastamento inss'?'AFASTADO INSS - AUXÍLIO DOENÇA':t==='licenca maternidade'?'LICENÇA MATERNIDADE':String(tipo||'').toUpperCase(),pagador:t==='afastamento inss'?'Empresa: primeiros 15 dias; INSS: a partir do 16º, sujeito à concessão':t==='licenca maternidade'?'Empresa / compensação previdenciária conforme enquadramento':abonado?'Empresa / sem desconto':''};
 }
 function ocorrenciaDia(pin,data){return (get('ocorrencias',[])||[]).find(o=>o.pin===pin&&o.data===data);}
 function validarPeriodoOcorrencia(tipo,ini,fim,pin,periodoId){
@@ -1784,11 +1784,25 @@ function descontoDsrDia(pin,data,prev){
  if(!dsr)return 0;
  const ini=addDias(data,-6);return (get('ocorrencias',[])||[]).some(o=>o.pin===pin&&o.data>=ini&&o.data<=data&&regraOcorrencia(o.tipo).suspensao)?cargaEscala(f.escala):0;
 }
-function movimentoBancoDia(pin,data,prev,trab){
- const regra=regraOcorrencia(ocorrenciaDia(pin,data)?.tipo),e=get('empregador',{})||{};
+/* Atraso de entrada: métrica operacional exclusiva do Dashboard. Nunca debita banco nem aparece na folha. */
+function atrasoDia(pin,data,bs,prev){
+ if(!(prev>0)||!bs.length)return 0;
+ const ent=bs.filter(b=>b.tipo==='Entrada')[0];if(!ent)return 0;
+ const inicio=horarioEscala(pin,data)||(get('empregador',{})||{}).hEntrada||'08:00';
+ let at=toMin(ent.hora)-toMin(inicio);if(at<-720)at+=1440;else if(at>720)at-=1440;
+ return at>10?at:0;
+}
+function movimentoBancoDia(pin,data,prev,trab,atraso=0){
+ const oc=ocorrenciaDia(pin,data),regra=regraOcorrencia(oc?.tipo),e=get('empregador',{})||{};
  const fator=Number(e.fatorBancoDomFeriado)===1?1:2,multiplica=trab>0&&(!!feriadoDe(data)||dow(data)===0);
- const saldo=regra.abonado?Math.max(0,trab-prev):regra.compensacao?-440:regra.externo?0:(multiplica?Math.round(trab*fator):trab)-prev;
- return {...regra,saldo,faltantes:regra.compensacao||regra.abonado||regra.externo?0:Math.max(0,prev-trab)};
+ // Falta injustificada (lançada ou dia previsto sem batida): desconto salarial na folha/holerite, saldo neutro no banco.
+ const falta=regra.falta||(trab===0&&prev>0&&!oc?.tipo);
+ const credito=(multiplica?Math.round(trab*fator):trab)-prev;
+ // O banco só debita saída antecipada/expediente parcial não abonado — nunca atraso de entrada.
+ const deficit=Math.max(0,prev-trab-Math.min(atraso,Math.max(0,prev-trab)));
+ const saldo=regra.abonado?Math.max(0,credito):regra.compensacao?-440:regra.externo?0:falta?0:(credito>0?credito:-deficit);
+ const faltantes=regra.compensacao||regra.abonado||regra.externo?0:falta?prev:deficit;
+ return {...regra,saldo,faltantes};
 }
 /* Linhas da folha + totais + banco de horas */
 function dadosFolha(pin,ini,fim){
@@ -1797,7 +1811,8 @@ function dadosFolha(pin,ini,fim){
   const just=[];
   for(let d=ini; d<=fim; d=addDias(d,1)){
     const bs=batidasDia(pin,d), prev=previstoDia(f,d), trab=trabalhoApuradoDia(f,d,bs), noct=calculaNoturna(bs);
-    const movimento=movimentoBancoDia(pin,d,prev,trab);
+    const atrasoMin=atrasoDia(pin,d,bs,prev); // só Dashboard; folha e banco não exibem nem debitam atraso
+    const movimento=movimentoBancoDia(pin,d,prev,trab,atrasoMin);
     const fer=feriadoDe(d), folga=folgaEscala(pin,d);
     let oc='', cls='';
     const por=b=>b?(b.hora):'';
@@ -1814,10 +1829,7 @@ function dadosFolha(pin,ini,fim){
     }
     if(!bs.length&&prev>0&&(!oc||oc==='FERIADO')){oc='FALTA';cls='t-falta';tot.faltas++;tot.faltasInj++;}
     if(!oc&&!bs.length&&prev===0){oc='FOLGA';cls='t-folga';tot.folgas++;}
-    // atraso com tolerância 10min
-    const prevEntrada=horarioEscala(pin,d)||(get('empregador',{})||{}).hEntrada||'08:00';
-    let atrasoMin=0;
-    if(prev>0&&bs.length&&g('Entrada')){let at=toMin(g('Entrada').hora)-toMin(prevEntrada);if(at<-720)at+=1440;else if(at>720)at-=1440;if(at>10){atrasoMin=at;tot.atrasos++;}}
+    if(atrasoMin>0)tot.atrasos++;
     if(bs.length||movimento.externo){
       tot.trabalhado+=trab;
       if(prev>0){ if(trab>prev){tot.extras+=trab-prev;tot.extras50+=trab-prev;} }
@@ -1847,21 +1859,21 @@ function resumoMensalFolha(d){return [
 function miniResumoFolha(d){
   const r=resumoMensalFolha(d);
   return [[['Horas Previstas',r[0][1]],['Horas Realizadas',r[1][1]],['Adicional Noturno',r[4][1]]],
-    [['Horas Extras 50%',toHHMM(d.tot.extras50||0)],['Horas Extras 100%',toHHMM(d.tot.extras100||0)],['Faltas e Atrasos',`${r[3][1]} / ${toHHMM(d.linhas.reduce((n,l)=>n+(l.atrasoMin||0),0))} atraso`]],
+    [['Horas Extras 50%',toHHMM(d.tot.extras50||0)],['Horas Extras 100%',toHHMM(d.tot.extras100||0)],['Faltas',r[3][1]]],
     [['Saldo Anterior',toSaldo(d.banco.anterior)],['Saldo do Mês',r[5][1]],['Saldo Acumulado',toSaldo(d.banco.atual)]]];
 }
 const FOLHA_RODAPE='Ponto Pro Gestão v1.0 · Sistema de Tratamento de Ponto · Emissão conforme Portaria MTE nº 671/2021';
 const FOLHA_CIENCIA='Declaro ciência das marcações e dos tratamentos apresentados neste espelho de ponto.';
 function modeloEspelho(d){
-  const head=['Dia','Entrada 1','Saída 1','Entrada 2','Saída 2','Prevista','Trabalhadas','Extras','Débito / Atraso','Noturno','Status'];
+  const head=['Dia','Entrada 1','Saída 1','Entrada 2','Saída 2','Prevista','Trabalhadas','Extras','Débito','Noturno','Status'];
   const just=[...d.just];
   const body=d.linhas.map(l=>{
     const bs=batidasDia(d.f.pin,l.data),marca=tipo=>{const b=bs.find(x=>x.tipo===tipo);if(!b)return '--:--';const tratada=!!(b.manual||b.movimento||b.fonte==='MANUAL');
       if(tratada){const motivo=b.movimento||b.motivo||'Marcação manual; justificativa não informada no registro.',nota=`${brOf(l.data)} ${b.hora} * ${motivo}`,original=`${brOf(l.data)} ${b.hora} - ${motivo}`,i=just.indexOf(original);if(i>=0)just[i]=nota;else if(!just.includes(nota))just.push(nota);}
       return b.hora+(tratada?'*':'');};
-    return [brOf(l.data).slice(0,5),marca('Entrada'),marca('Saída Intervalo'),marca('Entrada Intervalo'),marca('Saída'),toHHMM(l.previsto),toHHMM(l.trabalhado),toHHMM(Math.max(0,l.trabalhado-l.previsto)),`${toHHMM(Math.max(0,-l.saldo))} / ${toHHMM(l.atrasoMin||0)}`,toHHMM(l.noturno),l.ocorrencia||(bs.length%2?'INCOMPLETO':bs.length?'TRABALHADO':'—')];
+    return [brOf(l.data).slice(0,5),marca('Entrada'),marca('Saída Intervalo'),marca('Entrada Intervalo'),marca('Saída'),toHHMM(l.previsto),toHHMM(l.trabalhado),toHHMM(Math.max(0,l.trabalhado-l.previsto)),toHHMM(Math.max(0,-l.saldo)),toHHMM(l.noturno),l.ocorrencia||(bs.length%2?'INCOMPLETO':bs.length?'TRABALHADO':'—')];
   });
-  const notas=[`* Marcação manual/tratada. E1/S1/E2/S2: entrada, saída intervalo, retorno, saída. Extras 50%: além do previsto em dia útil; 100%: trabalho em folga/feriado (conferir enquadramento aplicável). Banco usa o fator configurado para domingo/feriado, distinto de remuneração e de horas extras realizadas. Faltantes e atrasos não são somados em duplicidade.`,...new Set(just)];
+  const notas=[`* Marcação manual/tratada. E1/S1/E2/S2: entrada, saída intervalo, retorno, saída. Extras 50%: além do previsto em dia útil; 100%: trabalho em folga/feriado (conferir enquadramento aplicável). Banco usa o fator configurado para domingo/feriado, distinto de remuneração e de horas extras realizadas. Atrasos de entrada não geram débito: são métrica gerencial exclusiva do Dashboard.`,...new Set(just)];
   if(preLegenda(d.f))notas.push(preLegenda(d.f));
   return {head,body,resumo:miniResumoFolha(d),notas};
 }
@@ -1877,7 +1889,7 @@ function horarioTrabalhoFolha(){
 }
 function totaisCartaoFolha(d){
   return {dias:d.linhas.filter(l=>l.trabalhado>0).length,faltas:d.tot.faltas,dsrs:d.linhas.filter(l=>/DSR/.test(l.ocorrencia)).length,folgas:d.linhas.filter(l=>/FOLGA/.test(l.ocorrencia)&&!/DSR/.test(l.ocorrencia)).length,
-    row:['Totais','—','—','—','—',toHHMM(d.linhas.reduce((n,l)=>n+l.previsto,0)),toHHMM(d.tot.trabalhado),toHHMM(d.tot.extras),`${toHHMM(d.tot.faltantes)} / ${toHHMM(d.linhas.reduce((n,l)=>n+(l.atrasoMin||0),0))}`,toHHMM(d.linhas.reduce((n,l)=>n+l.noturno,0)),'—']};
+    row:['Totais','—','—','—','—',toHHMM(d.linhas.reduce((n,l)=>n+l.previsto,0)),toHHMM(d.tot.trabalhado),toHHMM(d.tot.extras),toHHMM(d.tot.faltantes),toHHMM(d.linhas.reduce((n,l)=>n+l.noturno,0)),'—']};
 }
 function corCelulaFolha(col,value){if(col===7)return 'sheet-credit';if(col===8)return 'sheet-debit';if(col===10){if(/AFASTADO|AFASTAMENTO|MATERNIDADE/.test(value))return 'sheet-away';if(/FALTA/.test(value)&&!/JUSTIFICADA|ABONADA/.test(value)||/SUSPENSÃO/.test(value))return 'sheet-debit';if(/DSR|FOLGA/.test(value))return 'sheet-rest';if(/ATESTADO|AFASTAMENTO/.test(value))return 'sheet-credit';}return '';}
 function bancoCartaoFolha(d){return [['Crédito',toHHMM(d.banco.creditos),'sheet-credit'],['Débito',toHHMM(d.banco.debitos),'sheet-debit'],['Saldo do Mês',toSaldo(d.banco.creditos-d.banco.debitos),d.banco.creditos-d.banco.debitos<0?'sheet-debit':'sheet-credit'],['Saldo Acumulado',toSaldo(d.banco.atual),d.banco.atual<0?'sheet-debit':'sheet-credit']];}
@@ -1888,9 +1900,9 @@ function calcBanco(pin,ini,fim){
     let cred=0,deb=0,det=[];
     for(let d=de; d<=ate; d=addDias(d,1)){
       const bs=batidasDia(pin,d),prev=previstoDia(f,d),trab=trabalhoApuradoDia(f,d,bs);
-      const movimento=movimentoBancoDia(pin,d,prev,trab);
+      const movimento=movimentoBancoDia(pin,d,prev,trab,atrasoDia(pin,d,bs,prev));
       if(movimento.saldo>0){cred+=movimento.saldo;det.push(`Crédito - Hora Extra dia ${brOf(d)} - Previsto ${toHHMM(prev)} / Realizado ${toHHMM(trab)} / Banco ${toHHMM(movimento.saldo)}`);}
-      else if(movimento.saldo<0){deb-=movimento.saldo;det.push(`${movimento.compensacao?'Débito - Folga Compensatória':bs.length?'Débito - Carga incompleta':'Débito - Falta'} dia ${brOf(d)} - ${toHHMM(-movimento.saldo)}`);}
+      else if(movimento.saldo<0){deb-=movimento.saldo;det.push(`${movimento.compensacao?'Débito - Folga Compensatória':'Débito - Carga incompleta'} dia ${brOf(d)} - ${toHHMM(-movimento.saldo)}`);}
     }
     // Descanso cadastrado não prova compensação: nunca inferir débito por quantidade de folgas.
     // Créditos usam o fator configurado; banco não representa remuneração salarial.
@@ -2733,9 +2745,9 @@ async function iniciarSuporte(){
     const r=await apiLic('POST',{acao:'suporte_status'});
     SUPORTE=r.suporte; LIC=r.licenca?r:null; CONTA=String(SUPORTE.empresa_id).toLowerCase();
     const bar=document.createElement('div');bar.id='suporte-banner';bar.setAttribute('role','alert');
-    bar.style.cssText='position:fixed;top:0;left:0;right:0;z-index:100000;background:#b91c1c;color:#fff;font-weight:700;padding:8px 12px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:14px';
-    bar.innerHTML=`<span>MODO SUPORTE ATIVO - Acessando como: ${esc(SUPORTE.empresa_nome||CONTA)}</span><button type="button" style="min-height:36px;background:#fff;color:#b91c1c;border:0;border-radius:8px;padding:4px 12px;font-weight:700;cursor:pointer" onclick="sairSuporte()">Sair do Modo Suporte</button>`;
-    document.body.prepend(bar);document.body.style.paddingTop='48px';
+    bar.style.cssText='position:fixed;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:100000;background:#b91c1c;color:#fff;font-weight:700;padding:7px 14px;display:flex;gap:10px;align-items:center;font-size:13px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.35);max-width:calc(100vw - 24px);white-space:nowrap';
+    bar.innerHTML=`<span style="overflow:hidden;text-overflow:ellipsis">🛡️ Suporte: ${esc(SUPORTE.empresa_nome||CONTA)}</span><button type="button" aria-label="Sair do modo suporte" style="min-height:32px;background:#fff;color:#b91c1c;border:0;border-radius:999px;padding:3px 12px;font-weight:700;cursor:pointer" onclick="sairSuporte()">Sair ✕</button>`;
+    document.body.prepend(bar);
     await iniciarApp();return true;
   }catch(e){alert('Sessão de suporte inválida ou expirada: '+e.message);location.replace('/admin');return true;}
 }
@@ -3133,12 +3145,13 @@ async function executarExclusao(){
 </script>
 <script>
 /* ===================== LICENÇA, ASSINATURA E PAINEL DO DESENVOLVEDOR ===================== */
-const PLANO_LIMITES={1:10,2:25,3:50}, DIA_MS=86400000;
-const limitePlano=p=>PLANO_LIMITES[Math.min(3,Math.max(1,Number(p)||1))];
-function maxFuncAtual(){const l=LIC||licCache(CONTA);return limitePlano(l?.licenca?.plano);}
+const PLANO_LIMITES={1:10,2:25,3:50}, DIA_MS=86400000; // fallback quando a configuração dinâmica ainda não chegou
+const planosCfg=lic=>((lic||LIC||licCache(CONTA))?.config?.planos)||{};
+const limitePlano=(p,lic)=>{const c=planosCfg(lic)[p];return c?.colaboradores??PLANO_LIMITES[Math.min(3,Math.max(1,Number(p)||1))];};
+function maxFuncAtual(){const l=LIC||licCache(CONTA);return limitePlano(l?.licenca?.plano,l);}
 let LIC=null;
 const licCache=e=>{try{return JSON.parse(localStorage.getItem('vip:lic:'+e)||'null');}catch(x){return null;}};
-function limiteEmpresas(){const ps=contas().map(c=>licCache(c.email)?.licenca?.plano||0);return Math.min(3,Math.max(1,...ps));}
+function limiteEmpresas(){const ps=contas().map(c=>{const l=licCache(c.email),p=l?.licenca?.plano||0;return l?.config?.planos?.[p]?.empresas??p;});return Math.min(20,Math.max(1,...ps));}
 function estadoLocal(l){ // recalcula no aparelho (cache offline continua válido com o passar dos dias)
   if(l.status==='cortesia')return'cortesia'; if(l.status==='bloqueado')return'bloqueado';
   const v=new Date(l.data_vencimento).getTime(),n=Date.now();
@@ -3162,10 +3175,11 @@ const brD=iso=>iso?new Date(iso).toLocaleDateString('pt-BR'):'—';
 const moeda=v=>v==null||v===''?'a definir':Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const ROT_EST={trial:'Teste grátis',ativo:'Ativo',tolerancia:'Tolerância',bloqueado:'Bloqueado',cortesia:'Cortesia Especial'};
 function blocoPix(){
-  const c=LIC?.config||{},l=LIC?.licenca||{},p=l.plano||1, wa=String(c.whatsapp||'').replace(/\D/g,'');
-  return `<div class="grid g3"><div><label>Plano atual</label><b>${l.estado==='cortesia'?'Licença Cortesia Especial (Isento) · ':''}Plano ${p} — ${p} empresa(s), até ${limitePlano(p)} colaboradores cada</b></div>
+  const c=LIC?.config||{},l=LIC?.licenca||{},p=l.plano||1, wa=String(c.whatsapp||'').replace(/\D/g,''),pc=planosCfg()[p]||{};
+  const anual=pc.anual??c.precosAnuais?.[p];
+  return `<div class="grid g3"><div><label>Plano atual</label><b>${l.estado==='cortesia'?'Licença Cortesia Especial (Isento) · ':''}${pc.nome||'Plano '+p} — ${pc.empresas??p} empresa(s), até ${limitePlano(p)} colaboradores cada</b></div>
   <div><label>Vencimento</label><b>${l.estado==='cortesia'?'Isento':brD(l.data_vencimento)}</b></div>
-  <div><label>Mensalidade</label><b>${l.estado==='cortesia'?'Isento':moeda(l.valor_mensal??c.precos?.[p])}</b>${c.precosAnuais?.[p]!=null?`<div class="muted">Anual: ${moeda(c.precosAnuais[p])}</div>`:''}</div></div>
+  <div><label>Mensalidade</label><b>${l.estado==='cortesia'?'Isento':moeda(l.valor_mensal??pc.mensal??c.precos?.[p])}</b>${anual!=null?`<div class="muted">Anual: ${moeda(anual)}</div>`:''}</div></div>
   <div class="hr"></div><label>Chave PIX</label>
   ${c.pix?`<div class="row"><input id="pix-chave" value="${esc(c.pix)}" readonly style="max-width:420px"/><button class="btn gold" onclick="copiarPix()">📋 Copiar Chave PIX</button></div>`:'<div class="muted">Chave PIX ainda não cadastrada pelo suporte.</div>'}
   <div class="alert" style="margin-top:10px">Após o pagamento, envie o comprovante para o suporte/WhatsApp para ativação imediata.</div>
@@ -3173,10 +3187,10 @@ function blocoPix(){
 }
 function copiarPix(){const v=LIC?.config?.pix||'';(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>alert('Chave PIX copiada!')).catch(()=>{$('pix-chave').select();document.execCommand('copy');});}
 function abrirPagamentoPix(plano){
-  const c=LIC?.config||{},l=LIC?.licenca||{},p=Number(plano)||l.plano||1,wa=String(c.whatsapp||'').replace(/\D/g,''),pix=String(c.pix||''),valor=c.precos?.[p];
+  const c=LIC?.config||{},l=LIC?.licenca||{},p=Number(plano)||l.plano||1,wa=String(c.whatsapp||'').replace(/\D/g,''),pix=String(c.pix||''),pc=planosCfg()[p]||{},valor=pc.mensal??c.precos?.[p];
   if(!pix)return alert('A chave PIX ainda não foi cadastrada pelo suporte.');
-  const qr=qrDataUrl(pix),msg=encodeURIComponent(`Olá! Realizei o pagamento do Plano ${p} do Ponto Pro Gestão para a conta ${CONTA}. Segue o comprovante.`);
-  abrirModal(`<div class="card pix-modal-card"><div class="pix-modal-head"><div><h3>Pagamento via PIX</h3><div class="muted">Plano ${p} · ${moeda(valor)} por mês</div></div><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar pagamento">✕</button></div>
+  const qr=qrDataUrl(pix),msg=encodeURIComponent(`Olá! Realizei o pagamento do plano ${pc.nome||p} do Ponto Pro Gestão para a conta ${CONTA}. Segue o comprovante.`);
+  abrirModal(`<div class="card pix-modal-card"><div class="pix-modal-head"><div><h3>Pagamento via PIX</h3><div class="muted">${pc.nome||'Plano '+p} · ${moeda(valor)} por mês</div></div><button class="btn sm ghost right" onclick="fecharModal()" aria-label="Fechar pagamento">✕</button></div>
   <div class="pix-modal-grid"><img class="pix-qr" src="${qr}" alt="QR Code da chave PIX"/><div><div class="pix-summary"><b>Pagamento seguro e rápido</b><div class="muted" style="margin-top:5px">Abra o aplicativo do seu banco, escaneie o código ou copie a chave abaixo.</div></div>
   <label>PIX Copia e Cola</label><div class="pix-copy"><input id="pix-modal-chave" value="${esc(pix)}" readonly/><button class="btn gold" onclick="copiarPixModal()">📋 Copiar</button></div>
   <div class="alert">Após pagar, envie o comprovante para ativação imediata.</div>
@@ -3218,12 +3232,13 @@ async function aceitarTermos(){
 function abaAssinatura(){
   const l=LIC?.licenca;
   if(!l)return $('gestor-body').innerHTML='<div class="muted">Sem conexão para carregar a assinatura.</div>';
-  const c=LIC?.config||{}, atual=l.plano||1;
-  $('gestor-body').innerHTML=`<div class="plans-intro"><div><h3>Planos e Pagamento</h3><p>Escolha a capacidade ideal para sua operação. Plano 1 inclui até 10, Plano 2 até 25 e Plano 3 até 50 colaboradores, suporte ao quiosque e todos os relatórios legais.</p></div><span class="license-badge" data-state="${esc(l.estado)}">${ROT_EST[l.estado]||l.estado}</span></div>
-  <div class="plans-grid">${[1,2,3].map(p=>`<article class="plan-card ${p===2?'recommended':''} ${p===atual?'current':''}">${p===2?'<span class="plan-reco">Mais escolhido</span>':''}<div class="plan-kicker">PLANO ${p}</div><h4>${p===1?'Essencial':p===2?'Profissional':'Multiempresa'}</h4>
-  <div class="plan-price">${moeda(c.precos?.[p])}<small> / mês</small></div><div class="plan-annual">${c.precosAnuais?.[p]!=null?`${moeda(c.precosAnuais[p])} por ano`:'Plano anual a definir'}</div>
-  <ul class="plan-benefits"><li>${p} empresa${p>1?'s':''} no mesmo dispositivo</li><li>Até ${limitePlano(p)} colaboradores por empresa</li><li>Folha MTE, AFD e banco de horas</li><li>Operação offline com sincronização</li><li>Comprovante térmico e PDF oficial</li></ul>
-  <div class="plan-actions"><button class="btn ${p===2?'gold':''}" onclick="abrirPagamentoPix(${p})">${p===atual?'Pagar ou renovar':'Escolher Plano '+p}</button></div></article>`).join('')}</div>
+  const c=LIC?.config||{}, atual=l.plano||1, pcs=planosCfg();
+  const ids=(Object.keys(pcs).length?Object.keys(pcs):['1','2','3']).map(Number).sort((a,b)=>a-b).filter(p=>pcs[p]?.ativo!==false);
+  $('gestor-body').innerHTML=`<div class="plans-intro"><div><h3>Planos e Pagamento</h3><p>Escolha a capacidade ideal para sua operação. Todos os planos incluem suporte ao quiosque e todos os relatórios legais.</p></div><span class="license-badge" data-state="${esc(l.estado)}">${ROT_EST[l.estado]||l.estado}</span></div>
+  <div class="plans-grid">${ids.map(p=>{const pc=pcs[p]||{},mensal=pc.mensal??c.precos?.[p],anual=pc.anual??c.precosAnuais?.[p];return `<article class="plan-card ${p===2?'recommended':''} ${p===atual?'current':''}">${p===2?'<span class="plan-reco">Mais escolhido</span>':''}<div class="plan-kicker">PLANO ${p}</div><h4>${esc(pc.nome||'Plano '+p)}</h4>
+  <div class="plan-price">${moeda(mensal)}<small> / mês</small></div><div class="plan-annual">${anual!=null?`${moeda(anual)} por ano`:'Plano anual a definir'}</div>
+  <ul class="plan-benefits"><li>${pc.empresas??p} empresa${(pc.empresas??p)>1?'s':''} no mesmo dispositivo</li><li>Até ${limitePlano(p)} colaboradores por empresa</li>${(pc.recursos||[]).map(r=>`<li>${esc(r)}</li>`).join('')}</ul>
+  <div class="plan-actions"><button class="btn ${p===2?'gold':''}" onclick="abrirPagamentoPix(${p})">${p===atual?'Pagar ou renovar':'Escolher '+(pc.nome||'Plano '+p)}</button></div></article>`;}).join('')}</div>
   <div class="payment-note">Pagamento via PIX com confirmação pelo suporte</div>
   <div class="card" style="margin-top:18px"><div class="row"><div><b>Resumo da assinatura</b><div class="muted">Vencimento: ${l.estado==='cortesia'?'Cortesia sem cobrança':brD(l.data_vencimento)}</div></div>${l.aceite_termos?`<span class="muted right">Termos aceitos em ${new Date(l.aceite_termos.aceito_em).toLocaleString('pt-BR')}</span>`:''}</div></div>`;
 }

@@ -59,17 +59,18 @@ for (const day of ['2026-10-17', '2026-10-18']) {
     assert.equal(d.banco.creditos, 0);
   });
 }
-test('ordinary missing work still generates its actual scheduled debt', () => {
+test('ordinary missing work is a wage deduction, never a bank debit', () => {
   const d = calculate('2026-10-13', { shift: '5x2' });
   assert.equal(d.tot.faltas, 1);
-  assert.equal(d.banco.debitos, 480);
+  assert.equal(d.banco.debitos, 0);
+  assert.equal(d.tot.faltantes, 480); // horas da falta para desconto salarial, fora do banco
 });
 test('multiple explicit rest days do not imply compensatory debit', () => {
   const start = html.indexOf('function calcBanco('), end = html.indexOf('/* ============================== MÓDULO 3');
   const result = runInNewContext(`${html.slice(start, end)};calcBanco('1','2026-10-13','2026-10-19')`, {
     funcPorPin: () => ({ ...employee, bancoInicio: '2026-10-13' }),
     batidasDia: () => [], previstoDia: () => 0, trabalhadoDia: () => 0,
-    movimentoBancoDia: () => ({ saldo: 0, abonado: false, compensacao: false }),trabalhoApuradoDia:()=>0,
+    movimentoBancoDia: () => ({ saldo: 0, abonado: false, compensacao: false }),trabalhoApuradoDia:()=>0,atrasoDia:()=>0,
     folgaEscala: () => ({ tipo: 'DSR' }), cargaEscala: () => 480,
     addDias: (d: string, n: number) => new Date(Date.parse(d) + n * 86400000).toISOString().slice(0, 10),
   });

@@ -44,8 +44,22 @@ test('opening balance uses the same compensated and excused occurrence rules',()
 test('explicit compensation debits seven hours twenty even on a rest day, without absence',()=>{
   const d=calculate('Folga compensatória',undefined,false,true);assert.equal(d.banco.debitos,440);assert.equal(d.tot.faltas,0);
 });
-test('ordinary absence and partial work keep scheduled debits and excess work keeps its credit',()=>{
-  assert.equal(calculate('Falta').banco.debitos,480);
+test('unjustified absence never debits the bank: wage deduction only, neutral balance',()=>{
+  for(const tipo of ['Falta','']){
+    const d=calculate(tipo);
+    assert.equal(d.banco.debitos,0);assert.equal(d.banco.atual,0);assert.equal(d.linhas[0].saldo,0);
+    assert.equal(d.tot.faltas,1);assert.equal(d.tot.faltantes,480); // desconto salarial na folha, não no banco
+  }
+});
+test('late arrival never debits the bank; only early departure does',()=>{
+  const late=calculate('',['09:00','17:00']); // 1h de atraso, jornada completa de 8h
+  assert.equal(late.banco.debitos,0);assert.equal(late.linhas[0].saldo,0);assert.equal(late.linhas[0].atrasoMin,60);
+  const lateShort=calculate('',['09:00','15:00']); // atraso 1h + saída 1h antes: só a saída antecipada debita
+  assert.equal(lateShort.banco.debitos,60);assert.equal(lateShort.linhas[0].saldo,-60);
+  const early=calculate('',['08:00','15:00']); // sem atraso, saída 1h antes
+  assert.equal(early.banco.debitos,60);assert.equal(early.linhas[0].atrasoMin,0);
+});
+test('partial work keeps scheduled debits and excess work keeps its credit',()=>{
   assert.equal(calculate('', ['08:00','12:00']).banco.debitos,240);
-  assert.equal(calculate('Atestado médico',['08:00','17:00']).banco.creditos,60);
+   assert.equal(calculate('Atestado médico',['08:00','17:00']).banco.creditos,60);
 });

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MASTER_EMAIL } from "@/lib/developer-info";
+import { PLANOS_PADRAO, type PlanoCfg } from "@/lib/plans";
 
 const SUPA_REF = new URL(import.meta.env["VITE_SUPABASE_URL"] ?? "https://kvbidsfnisegtqjagsld.supabase.co").hostname.split(".")[0];
 
@@ -23,9 +24,9 @@ export const Route = createFileRoute("/admin/")({
 type Conta = { email_dono: string; razao: string; cnpj: string; created_at?: string; plano: number; colaboradores: number; data_vencimento: string; estado: string };
 type Plano = { name: string; price: string | null; caption: string; benefits: string[] };
 type Conheca = { whatsapp: string; tagline: string; headline: string; subtitle: string; plans: Plano[] };
-type Lista = { contas: Conta[]; config: { pix?: string; whatsapp?: string; precos?: Record<string, number | null>; precosAnuais?: Record<string, number | null> }; conheca: Conheca };
+type Lista = { contas: Conta[]; config: { pix?: string; whatsapp?: string; precos?: Record<string, number | null>; precosAnuais?: Record<string, number | null> }; planos: Record<string, PlanoCfg>; conheca: Conheca };
 
-const LIMITE: Record<number, number> = { 1: 10, 2: 25, 3: 50 };
+const limiteDe = (planos: Record<string, PlanoCfg>, p: number) => planos[p]?.colaboradores ?? PLANOS_PADRAO[p]?.colaboradores ?? 10;
 const ROT: Record<string, string> = { trial: "Teste", ativo: "Ativo", tolerancia: "Tolerância", bloqueado: "Bloqueado", cortesia: "Cortesia" };
 
 function AdminPage() {
@@ -129,6 +130,7 @@ function Painel() {
         <button className="admin-btn-ghost" onClick={() => supabase.auth.signOut()}>Sair</button>
       </header>
       <Cobranca dados={dados} api={api} />
+      <PlanosEditor inicial={dados.planos} api={api} />
       <ConhecaEditor inicial={dados.conheca} api={api} />
       <section className="admin-card">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -145,8 +147,8 @@ function Painel() {
                   <td>{c.cnpj || "—"}</td>
                   <td>{c.created_at ? new Date(c.created_at).toLocaleDateString("pt-BR") : "—"}</td>
                   <td><select className="admin-input" value={c.plano} onChange={(e) => acao("plano", c.email_dono, { plano: +e.target.value })}>
-                    {[1, 2, 3].map((p) => <option key={p} value={p}>Plano {p} · {LIMITE[p]} colab.</option>)}</select></td>
-                  <td>{c.colaboradores}/{LIMITE[c.plano]}</td>
+                    {[1, 2, 3].map((p) => <option key={p} value={p}>{dados.planos[p]?.nome || `Plano ${p}`} · {limiteDe(dados.planos, p)} colab.</option>)}</select></td>
+                  <td>{c.colaboradores}/{limiteDe(dados.planos, c.plano)}</td>
                   <td>{c.estado === "cortesia" ? "—" : new Date(c.data_vencimento).toLocaleDateString("pt-BR")}</td>
                   <td>{ROT[c.estado] ?? c.estado}</td>
                   <td className="flex flex-wrap gap-1">
@@ -172,11 +174,8 @@ function Cobranca({ dados, api }: { dados: Lista; api: Api }) {
   const c = dados.config;
   const [pix, setPix] = useState(c.pix ?? "");
   const [wa, setWa] = useState(c.whatsapp ?? "");
-  const [pm, setPm] = useState<Record<string, string>>(Object.fromEntries([1, 2, 3].map((p) => [p, String(c.precos?.[p] ?? "")])));
-  const [pa, setPa] = useState<Record<string, string>>(Object.fromEntries([1, 2, 3].map((p) => [p, String(c.precosAnuais?.[p] ?? "")])));
-  const num = (o: Record<string, string>) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, v === "" ? null : Number(v)]));
   async function salvar() {
-    try { await api({ acao: "config", pix: pix.trim(), whatsapp: wa.trim(), precos: num(pm), precosAnuais: num(pa) }); alert("Cobrança salva."); } catch (e) { alert((e as Error).message); }
+    try { await api({ acao: "config", pix: pix.trim(), whatsapp: wa.trim() }); alert("Cobrança salva."); } catch (e) { alert((e as Error).message); }
   }
   return (
     <section className="admin-card space-y-3">
@@ -185,15 +184,44 @@ function Cobranca({ dados, api }: { dados: Lista; api: Api }) {
         <label>Chave PIX<input className="admin-input" value={pix} onChange={(e) => setPix(e.target.value)} /></label>
         <label>WhatsApp de suporte<input className="admin-input" value={wa} onChange={(e) => setWa(e.target.value)} /></label>
       </div>
-      <div className="grid gap-3 md:grid-cols-3">
-        {[1, 2, 3].map((p) => (
-          <div key={p}>
-            <label>Plano {p} mensal (R$)<input className="admin-input" type="number" value={pm[p]} onChange={(e) => setPm({ ...pm, [p]: e.target.value })} /></label>
-            <label>Plano {p} anual (R$)<input className="admin-input" type="number" value={pa[p]} onChange={(e) => setPa({ ...pa, [p]: e.target.value })} /></label>
-          </div>
-        ))}
-      </div>
+      <p className="text-sm opacity-70">Os preços agora são definidos por plano na seção "Planos e Limites" abaixo.</p>
       <button className="admin-btn" onClick={salvar}>Salvar cobrança</button>
+    </section>
+  );
+}
+
+function PlanosEditor({ inicial, api }: { inicial: Record<string, PlanoCfg>; api: Api }) {
+  const [planos, setPlanos] = useState<Record<string, PlanoCfg>>(inicial);
+  const setP = (id: string, patch: Partial<PlanoCfg>) => setPlanos((prev) => {
+    const cur = prev[id];
+    return cur ? { ...prev, [id]: { ...cur, ...patch } } : prev;
+  });
+  const num = (v: string) => (v === "" ? null : Number(v));
+  async function salvar() {
+    try { await api({ acao: "planos", planos }); alert("Planos salvos. O app dos clientes já lê estes limites e preços."); } catch (e) { alert((e as Error).message); }
+  }
+  return (
+    <section className="admin-card space-y-3">
+      <h2 className="text-lg font-semibold">Planos e Limites</h2>
+      <p className="text-sm opacity-70">Nome, preços, limites e status lidos dinamicamente pelo app do cliente. Planos inativos deixam de ser oferecidos.</p>
+      <div className="grid gap-3 md:grid-cols-3">
+        {Object.keys(planos).sort().map((id) => {
+          const p = planos[id];
+          if (!p) return null;
+          return (
+            <div key={id} className="space-y-1">
+              <label className="flex items-center gap-2"><input type="checkbox" checked={p.ativo} onChange={(e) => setP(id, { ativo: e.target.checked })} /> Plano {id} ativo</label>
+              <label>Nome<input className="admin-input" value={p.nome} onChange={(e) => setP(id, { nome: e.target.value })} /></label>
+              <label>Empresas no aparelho<input className="admin-input" type="number" min={1} value={p.empresas} onChange={(e) => setP(id, { empresas: Math.max(1, +e.target.value || 1) })} /></label>
+              <label>Limite de colaboradores<input className="admin-input" type="number" min={1} value={p.colaboradores} onChange={(e) => setP(id, { colaboradores: Math.max(1, +e.target.value || 1) })} /></label>
+              <label>Mensal (R$, vazio = sob consulta)<input className="admin-input" type="number" value={p.mensal ?? ""} onChange={(e) => setP(id, { mensal: num(e.target.value) })} /></label>
+              <label>Anual (R$, vazio = sob consulta)<input className="admin-input" type="number" value={p.anual ?? ""} onChange={(e) => setP(id, { anual: num(e.target.value) })} /></label>
+              <label>Recursos (um por linha)<textarea rows={4} className="admin-input" value={p.recursos.join("\n")} onChange={(e) => setP(id, { recursos: e.target.value.split("\n").filter(Boolean).slice(0, 8) })} /></label>
+            </div>
+          );
+        })}
+      </div>
+      <button className="admin-btn" onClick={salvar}>Salvar planos</button>
     </section>
   );
 }

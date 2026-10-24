@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { canSaveDeveloperInfo, developerInfoSchema } from "@/lib/developer-info";
 import { conhecaSchema, resolveConheca } from "@/lib/conheca-content";
+import { planosSchema, resolvePlanos } from "@/lib/plans";
 
 const DAY = 86400000;
 const TOLERANCIA_DIAS = 7;
@@ -42,6 +43,12 @@ async function getConfig(db: any) {
   return ((data as { valor?: unknown } | null)?.valor as Record<string, unknown>) || {};
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getPlanos(db: any) {
+  const { data } = await db.from("app_config" as never).select("valor").eq("chave", "planos").maybeSingle();
+  return resolvePlanos((data as { valor?: unknown } | null)?.valor);
+}
+
 const adminSchema = z.discriminatedUnion("acao", [
   z.object({ acao: z.literal("dev_info"), pin: z.string(), info: developerInfoSchema }),
   z.object({ acao: z.literal("conheca"), pin: z.string(), conteudo: conhecaSchema }),
@@ -52,7 +59,8 @@ const adminSchema = z.discriminatedUnion("acao", [
   z.object({ acao: z.literal("plano"), pin: z.string(), email: z.string().email(), plano: z.number().int().min(1).max(3) }),
   z.object({ acao: z.literal("suporte_iniciar"), pin: z.string(), email: z.string().email(), motivo: z.string().trim().min(3).max(300) }),
   z.object({ acao: z.literal("config"), pin: z.string(), pix: z.string().max(140), whatsapp: z.string().max(40),
-    precos: z.record(z.string(), z.number().nonnegative().nullable()), precosAnuais: z.record(z.string(), z.number().nonnegative().nullable()) }),
+    precos: z.record(z.string(), z.number().nonnegative().nullable()).optional(), precosAnuais: z.record(z.string(), z.number().nonnegative().nullable()).optional() }),
+  z.object({ acao: z.literal("planos"), pin: z.string(), planos: planosSchema }),
 ]);
 
 export const Route = createFileRoute("/api/public/licenca")({
@@ -69,7 +77,7 @@ export const Route = createFileRoute("/api/public/licenca")({
           lic = ins.data;
         }
         const cfg = await getConfig(a.db);
-        return json({ licenca: view(lic as unknown as Lic), config: { pix: cfg["pix"] || "", whatsapp: cfg["whatsapp"] || "", precos: cfg["precos"] || {}, precosAnuais: cfg["precosAnuais"] || {} }, isDev: a.isDev, termosVersao: TERMOS_VERSAO });
+        return json({ licenca: view(lic as unknown as Lic), config: { pix: cfg["pix"] || "", whatsapp: cfg["whatsapp"] || "", precos: cfg["precos"] || {}, precosAnuais: cfg["precosAnuais"] || {}, planos: await getPlanos(a.db) }, isDev: a.isDev, termosVersao: TERMOS_VERSAO });
       },
       POST: async ({ request }) => {
         const a = await auth(request);
@@ -103,7 +111,7 @@ export const Route = createFileRoute("/api/public/licenca")({
           if (!sess) return json({ error: "Nenhuma sessão de suporte ativa." }, 404);
           const { data: lic } = await a.db.from("licencas" as never).select("*").eq("email_dono", sess.empresa_id).maybeSingle();
           const cfg = await getConfig(a.db);
-          return json({ suporte: sess, licenca: lic ? view(lic as unknown as Lic) : null, config: { pix: cfg["pix"] || "", whatsapp: cfg["whatsapp"] || "", precos: cfg["precos"] || {}, precosAnuais: cfg["precosAnuais"] || {} }, isDev: false, termosVersao: TERMOS_VERSAO });
+          return json({ suporte: sess, licenca: lic ? view(lic as unknown as Lic) : null, config: { pix: cfg["pix"] || "", whatsapp: cfg["whatsapp"] || "", precos: cfg["precos"] || {}, precosAnuais: cfg["precosAnuais"] || {}, planos: await getPlanos(a.db) }, isDev: false, termosVersao: TERMOS_VERSAO });
         }
         const p = adminSchema.safeParse(body);
         if (!p.success) return json({ error: "Dados inválidos." }, 400);
@@ -147,11 +155,16 @@ export const Route = createFileRoute("/api/public/licenca")({
           const qtd = new Map<string, number>();
           (f.data || []).forEach((x) => { const k = String(x.email_dono).toLowerCase(); qtd.set(k, (qtd.get(k) || 0) + 1); });
           const cfg = await getConfig(a.db);
-          return json({ config: cfg, conheca: resolveConheca(commercial.data?.valor), contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: emp.get(x.email_dono)?.["razao"] || emp.get(x.email_dono)?.["fantasia"] || "", cnpj: emp.get(x.email_dono)?.["cnpj"] || emp.get(x.email_dono)?.["doc"] || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
+          return json({ config: cfg, planos: await getPlanos(a.db), conheca: resolveConheca(commercial.data?.valor), contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: emp.get(x.email_dono)?.["razao"] || emp.get(x.email_dono)?.["fantasia"] || "", cnpj: emp.get(x.email_dono)?.["cnpj"] || emp.get(x.email_dono)?.["doc"] || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
         }
         if (d.acao === "config") {
-          const { error } = await a.db.from("app_config" as never).upsert({ chave: "cobranca", valor: { pix: d.pix, whatsapp: d.whatsapp, precos: d.precos, precosAnuais: d.precosAnuais } } as never);
+          const cfg = await getConfig(a.db);
+          const { error } = await a.db.from("app_config" as never).upsert({ chave: "cobranca", valor: { ...cfg, pix: d.pix, whatsapp: d.whatsapp, ...(d.precos ? { precos: d.precos } : {}), ...(d.precosAnuais ? { precosAnuais: d.precosAnuais } : {}) } } as never);
           return error ? json({ error: "Falha ao salvar." }, 500) : json({ ok: true });
+        }
+        if (d.acao === "planos") {
+          const { error } = await a.db.from("app_config" as never).upsert({ chave: "planos", valor: d.planos } as never);
+          return error ? json({ error: "Falha ao salvar os planos." }, 500) : json({ ok: true });
         }
         const { data: cur } = await tbl().select("*").eq("email_dono", d.email).maybeSingle();
         if (!cur) return json({ error: "Conta não encontrada." }, 404);
