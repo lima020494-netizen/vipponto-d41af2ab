@@ -1138,7 +1138,7 @@ function salvarEmpregador(){
   set('empregador',o); log('Empregador salvo/atualizado');
   $('e-msg').innerHTML='<div class="alert ok">Empregador salvo.</div>';
   if($('tela-gestor').classList.contains('hidden')) setTimeout(telaHome,700);
-  else { $('logo-empresa').src=o.logo||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg'; $('home-fantasia').textContent=o.fantasia||o.razao||''; }
+  else { $('logo-empresa').src=logoApp(); $('home-fantasia').textContent=o.fantasia||o.razao||''; }
 }
 const gerVisiveis=()=>get('gerenciadores',[]).map((g,i)=>({g,i})).filter(x=>!x.g.is_hidden);
 function renderGerenciadores(){
@@ -1519,7 +1519,7 @@ function abrirGestor(){
   const e=get('empregador',{})||{}, estado=LIC?.licenca?.estado||'ativo';
   $('gestor-quem').textContent=`${GERENCIADOR.nome} · ${GERENCIADOR.funcao}`;
   $('gestor-empresa').textContent=e.fantasia||e.razao||'Ponto Pro Gestão';
-  $('gestor-logo').src=e.logo||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg';
+  $('gestor-logo').src=logoApp();
   $('gestor-licenca').textContent=ROT_EST?.[estado]||estado;
   $('gestor-licenca').dataset.state=estado;
   prepararGestorLicenca();
