@@ -3,6 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MASTER_EMAIL } from "@/lib/developer-info";
 import { PLANOS_PADRAO, type PlanoCfg } from "@/lib/plans";
+import { APP_SETTINGS_DEFAULT, type AppSettings } from "@/lib/app-settings";
+import { AdminSettings } from "@/components/admin-settings";
+import { Button } from "@/components/ui/button";
+import { Building2, CreditCard, Megaphone, Settings } from "lucide-react";
 
 const SUPA_REF = new URL(import.meta.env["VITE_SUPABASE_URL"] ?? "https://kvbidsfnisegtqjagsld.supabase.co").hostname.split(".")[0];
 
@@ -24,7 +28,7 @@ export const Route = createFileRoute("/admin/")({
 type Conta = { email_dono: string; razao: string; cnpj: string; created_at?: string; plano: number; colaboradores: number; data_vencimento: string; estado: string };
 type Plano = { name: string; price: string | null; caption: string; benefits: string[] };
 type Conheca = { whatsapp: string; tagline: string; headline: string; subtitle: string; plans: Plano[] };
-type Lista = { contas: Conta[]; config: { pix?: string; whatsapp?: string; precos?: Record<string, number | null>; precosAnuais?: Record<string, number | null> }; planos: Record<string, PlanoCfg>; conheca: Conheca };
+type Lista = { settings: AppSettings; contas: Conta[]; config: { pix?: string; whatsapp?: string; precos?: Record<string, number | null>; precosAnuais?: Record<string, number | null> }; planos: Record<string, PlanoCfg>; conheca: Conheca };
 
 const limiteDe = (planos: Record<string, PlanoCfg>, p: number) => planos[p]?.colaboradores ?? PLANOS_PADRAO[p]?.colaboradores ?? 10;
 const ROT: Record<string, string> = { trial: "Teste", ativo: "Ativo", tolerancia: "Tolerância", bloqueado: "Bloqueado", cortesia: "Cortesia" };
@@ -63,8 +67,8 @@ function Login({ outraConta }: { outraConta: string | null }) {
         <h1 className="text-xl font-semibold">Super Admin</h1>
         <p className="text-sm opacity-80">{MASTER_EMAIL}</p>
         <input className="admin-input" type="password" placeholder="Senha" value={senha} onChange={(e) => setSenha(e.target.value)} />
-        <button className="admin-btn w-full">Entrar</button>
-        <button type="button" className="admin-btn-ghost w-full" onClick={primeiroAcesso}>Primeiro acesso / esqueci a senha</button>
+        <Button className="admin-btn w-full">Entrar</Button>
+        <Button type="button" className="admin-btn-ghost w-full" onClick={primeiroAcesso}>Primeiro acesso / esqueci a senha</Button>
         {msg && <p className="text-sm">{msg}</p>}
       </form>
     </main>
@@ -72,6 +76,7 @@ function Login({ outraConta }: { outraConta: string | null }) {
 }
 
 function Painel() {
+  const [tab, setTab] = useState("empresas");
   const [pin, setPin] = useState("");
   const [dados, setDados] = useState<Lista | null>(null);
   const [erro, setErro] = useState("");
@@ -116,9 +121,9 @@ function Painel() {
         <form className="admin-card w-full max-w-sm space-y-3" onSubmit={(e) => { e.preventDefault(); carregar(); }}>
           <h1 className="text-xl font-semibold">Confirmação de segurança</h1>
           <input className="admin-input" inputMode="numeric" type="password" placeholder="PIN mestre" value={pin} onChange={(e) => setPin(e.target.value)} />
-          <button className="admin-btn w-full">Abrir painel</button>
+          <Button className="admin-btn w-full">Abrir painel</Button>
           {erro && <p className="text-sm text-destructive">{erro}</p>}
-          <button type="button" className="admin-btn-ghost w-full" onClick={() => supabase.auth.signOut()}>Sair</button>
+          <Button type="button" className="admin-btn-ghost w-full" onClick={() => supabase.auth.signOut()}>Sair</Button>
         </form>
       </main>
     );
@@ -126,13 +131,14 @@ function Painel() {
   return (
     <main className="mx-auto max-w-6xl space-y-6 p-4">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Super Admin · Ponto Pro Gestão</h1>
-        <button className="admin-btn-ghost" onClick={() => supabase.auth.signOut()}>Sair</button>
+        <div className="flex min-w-0 items-center gap-3"><img src={dados.settings?.logo_url || "/vip-logo.png"} alt="Logo do app" className="h-12 w-12 object-contain" /><div><p className="text-xs text-muted-foreground">SUPER ADMIN</p><h1 className="text-xl font-semibold">{dados.settings?.app_name || "Ponto Pro Gestão"}</h1></div></div>
+        <Button className="admin-btn-ghost" onClick={() => supabase.auth.signOut()}>Sair</Button>
       </header>
-      <Cobranca dados={dados} api={api} />
-      <PlanosEditor inicial={dados.planos} api={api} />
-      <ConhecaEditor inicial={dados.conheca} api={api} />
-      <section className="admin-card">
+      <nav className="admin-tabs" aria-label="Seções do Super Admin">{[["empresas","Empresas e Suporte",Building2],["planos","Planos e Preços",CreditCard],["marketing","Marketing",Megaphone],["settings","Configurações Globais / Sobre",Settings]].map(([id,label,Icon]) => { const I = Icon as typeof Building2; return <Button key={String(id)} variant={tab===id?"default":"ghost"} aria-current={tab===id?"page":undefined} onClick={()=>setTab(String(id))}><I />{String(label)}</Button>; })}</nav>
+      {tab === "planos" && <><Cobranca dados={dados} api={api} /><PlanosEditor inicial={dados.planos} api={api} /></>}
+      {tab === "marketing" && <ConhecaEditor inicial={dados.conheca} api={api} planos={dados.planos} />}
+      {tab === "settings" && <AdminSettings initial={dados.settings || APP_SETTINGS_DEFAULT} api={api} onSave={settings => setDados(p=>p?{...p,settings}:p)} />}
+      {tab === "empresas" && <section className="admin-card">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-lg font-semibold">Empresas ({contas.length}/{dados.contas.length})</h2>
           <input className="admin-input max-w-xs" placeholder="Buscar por nome ou CNPJ" value={busca} onChange={(e) => setBusca(e.target.value)} />
@@ -152,18 +158,18 @@ function Painel() {
                   <td>{c.estado === "cortesia" ? "—" : new Date(c.data_vencimento).toLocaleDateString("pt-BR")}</td>
                   <td>{ROT[c.estado] ?? c.estado}</td>
                   <td className="flex flex-wrap gap-1">
-                    <button className="admin-btn" onClick={() => suporte(c)}>Acessar como esta empresa</button>
-                    <button className="admin-btn" onClick={() => acao("renovar", c.email_dono, { dias: 30 })}>+30 dias</button>
-                    <button className="admin-btn" onClick={() => acao("renovar", c.email_dono, { dias: 365 })}>+1 ano</button>
-                    <button className="admin-btn-ghost" onClick={() => acao("cortesia", c.email_dono)}>Cortesia</button>
-                    <button className="admin-btn-ghost" onClick={() => acao("bloquear", c.email_dono)}>Bloquear</button>
+                    <Button className="admin-btn" onClick={() => suporte(c)}>Acessar como esta empresa</Button>
+                    <Button className="admin-btn" onClick={() => acao("renovar", c.email_dono, { dias: 30 })}>+30 dias</Button>
+                    <Button className="admin-btn" onClick={() => acao("renovar", c.email_dono, { dias: 365 })}>+1 ano</Button>
+                    <Button className="admin-btn-ghost" onClick={() => acao("cortesia", c.email_dono)}>Cortesia</Button>
+                    <Button className="admin-btn-ghost" onClick={() => acao("bloquear", c.email_dono)}>Bloquear</Button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </section>
+      </section>}
     </main>
   );
 }
@@ -185,7 +191,7 @@ function Cobranca({ dados, api }: { dados: Lista; api: Api }) {
         <label>WhatsApp de suporte<input className="admin-input" value={wa} onChange={(e) => setWa(e.target.value)} /></label>
       </div>
       <p className="text-sm opacity-70">Os preços agora são definidos por plano na seção "Planos e Limites" abaixo.</p>
-      <button className="admin-btn" onClick={salvar}>Salvar cobrança</button>
+      <Button className="admin-btn" onClick={salvar}>Salvar cobrança</Button>
     </section>
   );
 }
@@ -221,14 +227,13 @@ function PlanosEditor({ inicial, api }: { inicial: Record<string, PlanoCfg>; api
           );
         })}
       </div>
-      <button className="admin-btn" onClick={salvar}>Salvar planos</button>
+      <Button className="admin-btn" onClick={salvar}>Salvar planos</Button>
     </section>
   );
 }
 
-function ConhecaEditor({ inicial, api }: { inicial: Conheca; api: Api }) {
+function ConhecaEditor({ inicial, api, planos }: { inicial: Conheca; api: Api; planos: Record<string, PlanoCfg> }) {
   const [k, setK] = useState<Conheca>(inicial);
-  const setPlano = (i: number, p: Partial<Plano>) => setK({ ...k, plans: k.plans.map((x, j) => (j === i ? { ...x, ...p } : x)) });
   async function salvar() {
     try {
       await api({ acao: "conheca", conteudo: { ...k, whatsapp: k.whatsapp.replace(/\D/g, ""), plans: k.plans.map((p) => ({ ...p, price: p.price || null, benefits: p.benefits.filter(Boolean).slice(0, 8) })) } });
@@ -244,17 +249,8 @@ function ConhecaEditor({ inicial, api }: { inicial: Conheca; api: Api }) {
       </div>
       <label>Título<input className="admin-input" value={k.headline} onChange={(e) => setK({ ...k, headline: e.target.value })} /></label>
       <label>Subtítulo<textarea className="admin-input" value={k.subtitle} onChange={(e) => setK({ ...k, subtitle: e.target.value })} /></label>
-      <div className="grid gap-3 md:grid-cols-3">
-        {k.plans.map((p, i) => (
-          <div key={i} className="space-y-1">
-            <label>Nome<input className="admin-input" value={p.name} onChange={(e) => setPlano(i, { name: e.target.value })} /></label>
-            <label>Preço (vazio = sob consulta)<input className="admin-input" value={p.price ?? ""} onChange={(e) => setPlano(i, { price: e.target.value })} /></label>
-            <label>Descrição<input className="admin-input" value={p.caption} onChange={(e) => setPlano(i, { caption: e.target.value })} /></label>
-            <label>Benefícios (um por linha)<textarea rows={5} className="admin-input" value={p.benefits.join("\n")} onChange={(e) => setPlano(i, { benefits: e.target.value.split("\n") })} /></label>
-          </div>
-        ))}
-      </div>
-      <button className="admin-btn" onClick={salvar}>Salvar página comercial</button>
+      <div className="grid gap-4 md:grid-cols-3">{Object.entries(planos).filter(([,p])=>p.ativo).map(([id,p])=><article key={id} className="border-t border-border pt-4"><h3 className="font-semibold">{p.nome}</h3><p className="my-2">{p.mensal===null?"Sob consulta":p.mensal.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})} / mês</p><p className="text-sm">{p.empresas} empresa(s) · {p.colaboradores} colaboradores</p><ul className="mt-3 space-y-2 text-sm">{p.recursos.map(r=><li key={r}>{r}</li>)}</ul></article>)}</div>
+      <Button className="admin-btn" onClick={salvar}>Salvar página comercial</Button>
     </section>
   );
 }

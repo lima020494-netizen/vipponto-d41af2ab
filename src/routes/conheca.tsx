@@ -5,8 +5,10 @@ import kioskImage from "@/assets/conheca-kiosk.jpg";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CONHECA_DEFAULT, resolveConheca } from "@/lib/conheca-content";
+import { PLANOS_PADRAO, resolvePlanos } from "@/lib/plans";
+import { APP_SETTINGS_DEFAULT, resolveAppSettings } from "@/lib/app-settings";
 
-const logo = "/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg";
+const defaultLogo = "/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg";
 
 export const Route = createFileRoute("/conheca")({
   head: () => ({
@@ -35,18 +37,29 @@ const resources = [
 
 function ConhecaPage() {
   const [k, setK] = useState(CONHECA_DEFAULT);
+  const [settings, setSettings] = useState(APP_SETTINGS_DEFAULT);
+  const [configuredPlans, setPlans] = useState(PLANOS_PADRAO);
   useEffect(() => {
-    supabase.from("app_config").select("valor").eq("chave", "conheca").maybeSingle()
-      .then(({ data }) => { if (data?.valor) setK(resolveConheca(data.valor)); }, () => {});
+    Promise.all([
+      supabase.from("marketing_site_content").select("content").eq("id","global").maybeSingle(),
+      supabase.from("app_config").select("chave,valor").in("chave",["planos","conheca"]),
+      supabase.from("app_settings").select("settings").eq("id","global").maybeSingle(),
+    ]).then(([marketing,config,global]) => {
+      const rows = config.data || [];
+      setK(resolveConheca(marketing.data?.content || rows.find(r=>r.chave==="conheca")?.valor));
+      setPlans(resolvePlanos(rows.find(r=>r.chave==="planos")?.valor));
+      setSettings(resolveAppSettings(global.data?.settings));
+    }, () => {});
   }, []);
+  const logo = settings.logo_url || defaultLogo;
   const whatsapp = `https://wa.me/${k.whatsapp}`;
-  const plans = k.plans.map((p, i) => ({ ...p, featured: i === 1 }));
+  const plans = Object.entries(configuredPlans).filter(([,p])=>p.ativo).map(([id,p],i)=>({name:p.nome,price:p.mensal===null?null:p.mensal.toLocaleString("pt-BR"),caption:`${p.empresas} empresa(s) · até ${p.colaboradores} colaboradores`,benefits:p.recursos,featured:i===1}));
   return <div className="commercial min-h-screen bg-background text-foreground">
     <header className="border-b border-border">
       <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-4 md:flex md:justify-between md:px-10">
         <Link to="/conheca" aria-label="Ponto Pro Gestão — Conheça" className="flex min-w-0 items-center gap-3">
           <img src={logo} alt="Logo Ponto Pro Gestão" width={76} height={52} className="h-13 w-19 object-contain" />
-          <span className="min-w-0 text-sm font-extrabold md:text-lg">Ponto Pro <span className="text-primary">Gestão</span></span>
+          <span className="min-w-0 text-sm font-extrabold md:text-lg">{settings.app_name}</span>
         </Link>
         <nav aria-label="Navegação comercial" className="order-3 col-span-2 flex w-full justify-center gap-7 text-sm font-semibold text-muted-foreground md:order-none md:w-auto">
           <a href="#recursos" className="hover:text-primary">Recursos</a><a href="#planos" className="hover:text-primary">Planos</a><a href="#contato" className="hover:text-primary">Contato</a>
@@ -55,11 +68,12 @@ function ConhecaPage() {
       </div>
     </header>
     <main>
+      {settings.maintenance && <p role="status" className="border-b border-border px-5 py-3 text-center text-sm">Manutenção em andamento · Registro de ponto permanece disponível.</p>}
       <section className="commercial-hero relative isolate overflow-hidden">
         <img src={kioskImage} alt="Registro de ponto em um quiosque com impressora térmica em um lounge" width={1536} height={1024} fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-right" />
         <div className="commercial-enter relative z-10 mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-22">
           <div className="mb-6 flex items-center gap-2 text-xs font-bold uppercase text-primary"><ShieldCheck size={18} /> {k.tagline}</div>
-          <div className="mb-5 text-lg font-bold">Ponto Pro Gestão</div>
+          <div className="mb-5 text-lg font-bold">{settings.app_name}</div>
           <h1 className="max-w-2xl text-3xl font-semibold leading-tight md:text-5xl">{k.headline}</h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">{k.subtitle}</p>
           <div className="mt-8 flex flex-wrap gap-3">
