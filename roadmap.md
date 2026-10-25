@@ -1,8 +1,8 @@
 # Roadmap
 
-- [ ] Etapa 4: quatro abas admin, marketing com planos dinâmicos, identidade/Sobre globais protegidos e refletidos no app/atestado.
-- [ ] Impressão: aviso temporário de 2s e conexão ESC/POS Bluetooth somente em hardware BLE compatível.
-- [ ] Manifesto com ícones separados, sincronização online imediata e manual fiel às regras; validar sem publicar.
+- [x] Etapa 4: quatro abas admin; marketing_site_content/app_settings criadas com grants/RLS, planos existentes compartilhados, identidade/Sobre protegidos e refletidos no app/atestado. Gravação autenticada real não verificável no Supabase externo.
+- [x] Impressão: aviso de 2s, sem card persistente; conexão ESC/POS BLE, envio em blocos conferido em simulação. InnerPrinter virtual não garantida; impressora física indisponível para validação.
+- [x] Manifesto any/maskable separado; id/scope/start_url preservados para instalações existentes. Online sincroniza fila imediatamente e atualiza nuvem; manual corrigido. 33 testes de identidade/cálculos passaram, prévia pública sem erros, API sem sessão 401; não publicado. WebAPK e painel autenticado real não verificáveis aqui.
 
 - [x] V3 operacional: ZIP somente na folha com PDFs/AFD/XLS analítico e CSV; quatro grupos de justificativas, períodos editáveis INSS/maternidade, autorização manual e fator da empresa. Prévia com dados isolados: gravação/edição/recarga, ZIP/XLS e PDF com 31 dias em uma A4 conferidos, sem sobreposição ou erros; férias neutralizadas (não debitadas), descontos em minutos não equivalem a folha salarial/eSocial. Acesso autenticado externo e impressora física não verificáveis; sem publicação ou alteração de dados reais.
 
