@@ -179,3 +179,13 @@
 .admin-input { display: block; width: 100%; margin-top: 4px; min-height: 40px; border-radius: 8px; padding: 6px 10px; background: var(--adm-bg); color: var(--adm-text); border: 1px solid rgb(255 255 255 / 0.2); }
 .admin-btn { min-height: 40px; padding: 6px 14px; border-radius: 8px; background: var(--adm-gold); color: var(--adm-bg); font-weight: 600; }
 .admin-btn-ghost { min-height: 40px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--adm-gold); color: var(--adm-text); }
+
+/* Four-section admin workspace: unframed sections and touch-sized controls. */
+.admin-shell { --background:var(--adm-bg); --foreground:var(--adm-text); --primary:var(--adm-gold); --primary-foreground:var(--adm-bg); --border:var(--adm-border); --input:var(--adm-border); --accent:var(--adm-card); --accent-foreground:var(--adm-text); --muted-foreground:var(--adm-muted); --adm-border:#385074; --adm-muted:#b8c8dc; }
+.admin-card { border-radius:8px; border-color:var(--adm-border); }
+.admin-shell section.admin-card { background:transparent; border:0; border-top:1px solid var(--adm-border); border-radius:0; padding:24px 0; }
+.admin-input,.admin-btn,.admin-btn-ghost,.admin-tabs [data-slot],.admin-shell button { min-height:44px; }
+.admin-tabs { display:flex; gap:8px; flex-wrap:wrap; border-bottom:1px solid var(--adm-border); padding-bottom:16px; }
+.admin-tabs button { white-space:normal; height:auto; text-align:left; justify-content:flex-start; }
+.admin-shell th,.admin-shell td { padding:12px 8px; }
+@media(max-width:640px) { .admin-tabs { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); } .admin-tabs button { font-size:12px;padding:8px; } .admin-shell header { gap:8px; } }

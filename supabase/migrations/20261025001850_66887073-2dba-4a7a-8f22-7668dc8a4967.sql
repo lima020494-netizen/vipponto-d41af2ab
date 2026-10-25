@@ -1,0 +1,14 @@
+CREATE TABLE public.marketing_site_content (id text PRIMARY KEY DEFAULT 'global', content jsonb NOT NULL DEFAULT '{}'::jsonb, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT ON public.marketing_site_content TO anon, authenticated;
+GRANT ALL ON public.marketing_site_content TO service_role;
+ALTER TABLE public.marketing_site_content ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public marketing read" ON public.marketing_site_content FOR SELECT TO anon, authenticated USING (id = 'global');
+CREATE TRIGGER marketing_content_updated BEFORE UPDATE ON public.marketing_site_content FOR EACH ROW EXECUTE FUNCTION public.vp_touch_updated_at();
+INSERT INTO public.marketing_site_content (id, content) SELECT 'global', valor FROM public.app_config WHERE chave = 'conheca' AND valor IS NOT NULL;
+CREATE TABLE public.app_settings (id text PRIMARY KEY DEFAULT 'global', settings jsonb NOT NULL DEFAULT '{}'::jsonb, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT ON public.app_settings TO anon, authenticated;
+GRANT ALL ON public.app_settings TO service_role;
+ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public app identity read" ON public.app_settings FOR SELECT TO anon, authenticated USING (id = 'global');
+CREATE TRIGGER app_settings_updated BEFORE UPDATE ON public.app_settings FOR EACH ROW EXECUTE FUNCTION public.vp_touch_updated_at();
+INSERT INTO public.app_settings (id, settings) SELECT 'global', jsonb_build_object('developer', valor) FROM public.app_config WHERE chave = 'dev_info' AND valor IS NOT NULL;
