@@ -884,7 +884,7 @@ async function sincronizarPendentes(){
   finally{ SINC=false; if(typeof atualizaStatus==='function') atualizaStatus(); }
 }
 function filaPonto(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);(b?filaAdd(b):Promise.resolve(salvaPendentes([...pendentesLS(),nsr]))).then(sincronizarPendentes);}
-window.addEventListener('online',()=>sincronizarPendentes());
+window.addEventListener('online',async()=>{await sincronizarPendentes();if(CONTA&&!CARREGANDO)await carregarNuvem();});
 setInterval(async()=>{ if(!CONTA) return; await sincronizarPendentes();
   if($('tela-gestor').classList.contains('hidden')&&$('modal-generico').classList.contains('hidden')) await carregarNuvem(); },120000);
 
@@ -1179,7 +1179,7 @@ function telaHome(){
   $('tela-empregador').classList.add('hidden'); $('tela-login').classList.add('hidden');
   $('tela-home').classList.remove('hidden');
   const e=get('empregador',{})||{};
-  $('logo-empresa').src=e.logo||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg'; $('logo-app').src=logoApp();
+  $('logo-empresa').src=logoApp(); $('logo-app').src=logoApp();
   $('home-fantasia').textContent=e.fantasia||e.razao||'Ponto Pro Gestão';
   pinLimpar();
 }
@@ -1339,7 +1339,8 @@ function confirmacaoRapida(f,b){
 let SUNMI=null;
 function detectarImpressora(tent=0){
   const el=$('status-impressora'); if(!el) return;
-  el.onclick=null;el.removeAttribute('role');el.removeAttribute('tabindex');el.setAttribute('aria-live','polite');
+  el.onclick=opcoesImpressao;el.setAttribute('role','button');el.setAttribute('tabindex','0');el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();opcoesImpressao();}};el.setAttribute('aria-live','polite');
+  if(BT_IMPRESSORA.caracteristica){el.textContent='🖨️ Bluetooth conectado · Opções';return;}
   if(window.woyouService||window.sunmiPrinterService){SUNMI=window.woyouService||window.sunmiPrinterService;el.innerHTML='🖨️ Impressora térmica nativa detectada (58mm)';return;}
   if(tent<5) return setTimeout(()=>detectarImpressora(tent+1),1200);
   el.innerHTML=rawbtAtivo()?(localStorage.getItem('vip_rawbt_falhou')==='1'?'🖨️ RawBT sem resposta — usando navegador':'🖨️ Impressão: RawBT (com opção do navegador)'):'🖨️ Impressão automática: navegador';
@@ -1375,26 +1376,44 @@ async function imprimirComprovante(b){
       SUNMI.printerInit&&SUNMI.printerInit();
       linhas.forEach(l=>SUNMI.printOriginalText?SUNMI.printOriginalText(l+'\n'):SUNMI.printText&&SUNMI.printText(l+'\n'));
       SUNMI.lineWrap&&SUNMI.lineWrap(3);
-      return toast('Comprovante enviado à impressora térmica.',3000);
+      return toast('Comprovante enviado à impressora térmica.',2000);
     }catch(err){ console.warn('Impressora nativa falhou, tentando RawBT/navegador',err); }
   }
+  if(BT_IMPRESSORA.caracteristica){try{await imprimirBluetooth(linhas);toast('Comprovante enviado à impressora Bluetooth.',2000);}catch(e){toast('Impressora desconectada. Use Imprimir para tentar novamente.',2000);}return;}
+  if(localStorage.getItem('vip_print_mode')==='bluetooth'){toast('Bluetooth desconectado. Conecte a impressora em Imprimir.',2000);return;}
   if(rawbtAtivo()&&imprimirRawBT(linhas)) return;
   imprimirNavegador();
 }
 function imprimirNavegador(){
   setTimeout(()=>{try{window.print();}catch(e){console.warn('print',e);}},120);
 }
-/* Opções explícitas exibidas quando a impressão não é garantida (RawBT ausente ou sem resposta). */
-function opcoesImpressao(msg){
-  let bar=$('print-opcoes');
-  if(!bar){bar=document.createElement('div');bar.id='print-opcoes';bar.setAttribute('role','dialog');bar.setAttribute('aria-label','Opções de impressão');
-    bar.style.cssText='position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999;background:#0c2246;color:#fff;border:1px solid #c9992b;border-radius:14px;padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:94vw;box-shadow:0 10px 30px rgba(0,0,0,.4)';
-    document.body.appendChild(bar);}
-  bar.innerHTML=`<span style="flex:1 1 100%;font-size:14px">${esc(msg)}</span>
-    <button type="button" style="min-height:44px" onclick="$('print-opcoes').remove();imprimirNavegador()">🖨️ Imprimir pelo navegador</button>
-    ${/Android/i.test(navigator.userAgent)?`<button type="button" style="min-height:44px" onclick="$('print-opcoes').remove();localStorage.setItem('vip_rawbt','1');reimprimirUltimo()">Tentar RawBT</button>`:''}
-    <button type="button" style="min-height:44px" onclick="$('print-opcoes').remove()">Fechar</button>`;
-  clearTimeout(bar._t);bar._t=setTimeout(()=>bar.isConnected&&bar.remove(),20000);
+/* Opções abertas apenas por ação explícita; nunca deixam aviso fixo após uma batida. */
+function opcoesImpressao(){
+  abrirModal(`<div class="row"><h3>Impressão térmica</h3><button class="btn ghost right" onclick="fecharModal()">✕</button></div>
+    <div class="row"><button class="btn" onclick="conectarBluetooth()">Conectar impressora Bluetooth BLE</button>
+    <button class="btn ghost" onclick="fecharModal();reimprimirUltimo()">Reimprimir último comprovante</button>
+    <button class="btn ghost" onclick="fecharModal();imprimirNavegador()">Imprimir pelo navegador</button></div>
+    <p id="bt-status" role="status" class="muted">${BT_IMPRESSORA.caracteristica?'Bluetooth conectado.':'Bluetooth desconectado.'}</p>`);
+}
+const BT_IMPRESSORA={dispositivo:null,caracteristica:null};
+const BT_SERVICOS=['0000ff00-0000-1000-8000-00805f9b34fb','0000ffe0-0000-1000-8000-00805f9b34fb','49535343-fe7d-4ae5-8fa9-9fafd205e455'];
+async function conectarBluetooth(){
+  const status=$('bt-status');
+  if(!navigator.bluetooth){if(status)status.textContent='Bluetooth BLE não está disponível neste navegador.';return;}
+  try{
+    const device=await navigator.bluetooth.requestDevice({filters:BT_SERVICOS.map(service=>({services:[service]})),optionalServices:BT_SERVICOS});
+    const server=await device.gatt.connect();let characteristic=null;
+    for(const serviceId of BT_SERVICOS){try{const service=await server.getPrimaryService(serviceId);const chars=await service.getCharacteristics();characteristic=chars.find(c=>c.properties.writeWithoutResponse||c.properties.write);if(characteristic)break;}catch(e){}}
+    if(!characteristic){device.gatt.disconnect();throw new Error('Nenhuma conexão de impressão BLE compatível encontrada.');}
+    BT_IMPRESSORA.dispositivo=device;BT_IMPRESSORA.caracteristica=characteristic;localStorage.setItem('vip_print_mode','bluetooth');
+    device.addEventListener('gattserverdisconnected',()=>{BT_IMPRESSORA.caracteristica=null;detectarImpressora(9);});
+    if(status)status.textContent='Impressora Bluetooth conectada.';detectarImpressora(9);
+  }catch(e){if(status)status.textContent=e.name==='NotFoundError'?'Conexão cancelada.':e.message;}
+}
+async function imprimirBluetooth(linhas){
+  const c=BT_IMPRESSORA.caracteristica;if(!c)throw new Error('Bluetooth desconectado.');
+  const raw=atob(escposComprovante(linhas)),bytes=Uint8Array.from(raw,ch=>ch.charCodeAt(0));
+  for(let i=0;i<bytes.length;i+=20){const chunk=bytes.slice(i,i+20);if(c.properties.writeWithoutResponse)await c.writeValueWithoutResponse(chunk);else await c.writeValueWithResponse(chunk);}
 }
 let ULTIMO_COMPROVANTE=null;
 function reimprimirUltimo(){if(ULTIMO_COMPROVANTE)imprimirComprovante(ULTIMO_COMPROVANTE);}
@@ -1416,16 +1435,7 @@ function imprimirRawBT(linhas){
     const b64=escposComprovante(linhas), alvo=(()=>{try{return window.top.location;}catch(e){return window.location;}})();
     // Sem browser_fallback_url para a Play Store: se o app não existir, o Chrome permanece na página.
     alvo.href=`intent:base64,${b64}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;S.browser_fallback_url=${encodeURIComponent('about:blank#rawbt-ausente')};end;`;
-    let saiu=false;const marca=()=>{if(document.visibilityState==='hidden')saiu=true;};
-    document.addEventListener('visibilitychange',marca);
-    // Intent disparado = impressão entregue ao RawBT. O RawBT costuma imprimir em segundo plano
-    // sem tirar a página de foco, então nunca abrimos o navegador automaticamente aqui:
-    // apenas oferecemos a opção explícita caso o cupom não tenha saído.
-    setTimeout(()=>{document.removeEventListener('visibilitychange',marca);
-      localStorage.removeItem('vip_rawbt_falhou');
-      if(!saiu) toast('Comprovante enviado ao RawBT.',2500);
-      opcoesImpressao('Comprovante enviado ao RawBT. Se não saiu impresso, toque em imprimir pelo navegador.');
-      detectarImpressora(9);},1800);
+    toast('Comprovante encaminhado ao RawBT.',2000);
     return true;
   }catch(err){console.warn('RawBT falhou, usando navegador',err);return false;}
 }
@@ -2782,7 +2792,7 @@ async function sairSuporte(){
 /* ===================== DESENVOLVEDOR / FABRICANTE (Portaria 671, art. 89-91) ===================== */
 const DEV={nome:'Henrique Lima',empresa:'Ponto Pro Gestão',doc:'',tipoDoc:'CPF',email:'',telefone:'',cidade:'Salinópolis-PA',
   programa:'Ponto Pro Gestão',versao:'1.0.0',tipoRep:'REP-P (Programa)',registroINPI:''};
-function devCfg(){let g={};try{g=JSON.parse(localStorage.getItem('vip_ponto_dev_info')||'{}');}catch(e){}return Object.assign({},DEV,g,{programa:DEV.programa});}
+function devCfg(){let g={},s={};try{g=JSON.parse(localStorage.getItem('vip_ponto_dev_info')||'{}');s=JSON.parse(localStorage.getItem('vip_ponto_app_settings')||'{}');}catch(e){}return Object.assign({},DEV,g,s.developer||{},{programa:s.app_name||DEV.programa,versao:s.version||g.versao||DEV.versao});}
 const logoApp=()=>localStorage.getItem('ponto_pro_gestao_logo_app')||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg';
 const ehMestre=()=>typeof GERENCIADOR!=='undefined'&&GERENCIADOR&&GERENCIADOR.pin==='1000';
 setTimeout(()=>{const l=document.getElementById('logo-app');if(l)l.src=logoApp();},50);
@@ -2795,14 +2805,22 @@ function aplicarDevGlobal(info){
   else localStorage.removeItem('ponto_pro_gestao_logo_app');
   const logo=$('logo-app');if(logo)logo.src=logoApp();
 }
+function aplicarIdentidadeGlobal(settings){
+  const root=document.documentElement;
+  if(/^#[0-9a-f]{6}$/i.test(settings.primary_color||''))root.style.setProperty('--navy',settings.primary_color);
+  if(/^#[0-9a-f]{6}$/i.test(settings.accent_color||''))root.style.setProperty('--gold',settings.accent_color);
+  const appLogo=logoApp();['logo-app','logo-empresa','gestor-logo'].forEach(id=>{const img=$(id);if(img)img.src=appLogo;});
+  document.title=(settings.app_name||DEV.programa)+' — Registro de Ponto';
+  let notice=$('maintenance-status');if(settings.maintenance&&!notice){notice=document.createElement('div');notice.id='maintenance-status';notice.setAttribute('role','status');notice.className='muted';$('tela-login').querySelector('.box').prepend(notice);}
+  if(notice){notice.textContent='Manutenção em andamento · Registro de ponto disponível.';notice.classList.toggle('hidden',!settings.maintenance);}
+}
 async function sincronizarDevGlobal(){
   if(DEV_SYNC)return DEV_SYNC;
   DEV_SYNC=(async()=>{try{
-    const {data,error}=await sb.from('app_config').select('valor').eq('chave','dev_info').maybeSingle();
-    if(error)throw error;
-    if(!data)return; // Preserva configurações legadas até o master salvar a primeira versão global.
-    const info=data?.valor||{},antes=JSON.stringify(devCfg());
-    aplicarDevGlobal(info);
+    const [legacy,global]=await Promise.all([sb.from('app_config').select('valor').eq('chave','dev_info').maybeSingle(),sb.from('app_settings').select('settings').eq('id','global').maybeSingle()]);
+    const antes=JSON.stringify(devCfg()),settings=global.data?.settings;
+    if(settings){localStorage.setItem('vip_ponto_app_settings',JSON.stringify(settings));aplicarDevGlobal(settings.developer||legacy.data?.valor||{});if(settings.logo_url)localStorage.setItem('ponto_pro_gestao_logo_app',settings.logo_url);aplicarIdentidadeGlobal(settings);}
+    else if(legacy.data)aplicarDevGlobal(legacy.data.valor||{});
     if(SOBRE_ABERTO&&$('sobre-sistema')&&!podeEditarDev()&&!$('modal-generico').classList.contains('hidden')&&antes!==JSON.stringify(devCfg()))renderSobre();
   }catch(e){/* Cache global compartilhado permanece disponível offline. */}finally{DEV_SYNC=null;}})();
   return DEV_SYNC;
@@ -2895,7 +2913,8 @@ function gerarAEJ(ini,fim){
 }
 
 /* ===================== ATESTADO TÉCNICO E TERMO DE RESPONSABILIDADE (art. 89) ===================== */
-function atestadoTecnico(){
+async function atestadoTecnico(){
+  await sincronizarDevGlobal();
   const e=get('empregador',{})||{},d=devCfg(),dt=getHoraOficial();
   const html=`<div class="folha" data-doc-completo="1" style="font-size:13px;line-height:1.55">
   ${cabecalhoDocumentoHTML('Atestado Técnico e Termo de Responsabilidade','Portaria MTP nº 671/2021 • Art. 89 a 91')}
@@ -2926,15 +2945,15 @@ async function pdfAtestadoTecnico(){
 
 /* ===================== MANUAL DO USUÁRIO ===================== */
 const MANUAL=[
- ['1. Primeiro acesso','Crie sua conta (até 3 por aparelho). A senha precisa de 8 caracteres com maiúscula, minúscula, número e símbolo (!@#$%&_). Depois preencha o cadastro do Empregador: CNPJ/CPF, razão social, nome fantasia, endereço, horário padrão e logo. Cadastre de 1 a 4 gerenciadores, cada um com PIN próprio.'],
- ['2. Bater o ponto','Na tela inicial o empregado digita o PIN de 4 números. Cada número aparece por 1 segundo e vira bolinha. O nome e as batidas do dia aparecem; toque em ✓ REGISTRAR. O sistema usa a hora oficial do servidor (🟢 NTP OK), gera o NSR e imprime o comprovante. Depois de 5 segundos a tela limpa sozinha.'],
- ['3. Comprovante','A cada batida o comprovante sai na impressora térmica (terminais POS Android ou impressoras USB 58/80mm). Se não imprimir, toque na batida no histórico para reimprimir ou enviar por e-mail.'],
+ ['1. Primeiro acesso','Crie sua conta. Os limites são definidos pelo plano ativo. A senha precisa de 8 caracteres com maiúscula, minúscula, número e símbolo (!@#$%&_). Depois preencha o cadastro do Empregador: CNPJ/CPF, razão social, nome fantasia, endereço, horário padrão e logo. Cadastre de 1 a 4 gerenciadores, cada um com PIN próprio.'],
+ ['2. Bater o ponto','Na tela inicial o empregado digita o PIN de 4 números. Cada número aparece por 1 segundo e vira bolinha. O nome e as batidas do dia aparecem; toque em ✓ REGISTRAR. O sistema usa a hora oficial do servidor (🟢 NTP OK), gera o NSR e imprime o comprovante. Depois de 2 segundos a confirmação desaparece e a tela fica livre.'],
+ ['3. Comprovante','A cada batida o comprovante fica disponível. A impressão depende da conexão nativa, RawBT ativado, impressora Bluetooth BLE compatível ou opção do navegador. O envio não comprova a saída física do papel. Se não imprimir, toque na batida no histórico para reimprimir ou enviar por e-mail.'],
  ['4. Portal do Empregado (👤)','O empregado digita o PIN e vê a própria folha de ponto, podendo enviá-la para o seu e-mail.'],
  ['5. Gestor de ponto (⚙️)','Toque na engrenagem e digite o PIN de gerenciador. A primeira aba é o Dashboard de Frequência, com presença, faltas, absenteísmo, atrasos e carga incompleta, com filtros por período e funcionário.'],
- ['6. Empregados','Até 10 (Plano 1), 25 (Plano 2) ou 50 (Plano 3) colaboradores por empresa. Informe nome, CPF, função, departamento, admissão, escala e o início da vigência do banco de horas. O PIN é criado automaticamente. Na aba "Funções, Cargos e Departamentos" você cadastra as listas. Status: Ativo, Desligado, Afastamento (com motivo) ou Férias.'],
+ ['6. Empregados','O limite de colaboradores por empresa é definido no plano ativo. Informe nome, CPF, função, departamento, admissão, escala e, opcionalmente, o início da vigência do banco de horas. O PIN é criado automaticamente. Na aba "Funções, Cargos e Departamentos" você cadastra as listas. Status: Ativo, Desligado, Afastamento (com motivo) ou Férias.'],
  ['7. Escala semanal','Escolha a semana (pode começar no domingo ou na segunda). Em cada dia marque Trabalhado (com hora de entrada), DSR, Folga Domingo ou Folga Compensada — até 3 folgas por semana. A escala manda na folha: se o DSR foi para terça, o domingo vira dia de trabalho. A hora de entrada da escala é usada para calcular atraso (tolerância de 10 min). Após 30 dias a escala trava 🔒. Baixe o CSV para Excel/Google Sheets.'],
- ['8. Batidas e ajustes','Data, hora e NSR originais nunca podem ser alterados. Você pode mudar o tipo da batida, incluir batida manual ou lançar ocorrência (Falta Justificada, Férias, Folga compensatória, Falta) — sempre com motivo de pelo menos 5 letras. Tudo fica registrado com o nome de quem alterou.'],
- ['9. Banco de horas','Calculado sozinho a partir da data de vigência: horas a mais geram crédito, horas a menos e faltas geram débito. Saldo Anterior + Créditos − Débitos = Saldo Atual.'],
+ ['8. Batidas e ajustes','Data, hora e NSR originais nunca podem ser alterados. Tratamentos são separados das marcações originais. Você pode incluir batida manual ou lançar ocorrência (Falta Justificada, Férias, Folga compensatória, Falta) — sempre com motivo de pelo menos 5 letras. Tudo fica registrado com o nome de quem alterou.'],
+ ['9. Banco de horas','Faltas injustificadas destinam-se ao desconto salarial e ficam neutras no banco. Débitos no banco são restritos à folga compensatória autorizada ou carga incompleta não abonada; atrasos de entrada aparecem apenas no Dashboard. Atestados, faltas abonadas, férias e afastamentos neutralizam o banco. Trabalho em domingos/feriados usa o fator configurado pelo empregador, sem presumir adicional salarial. Saldo Anterior + Créditos − Débitos = Saldo Atual.'],
  ['10. Folha de ponto MTE','Escolha o funcionário e o período e toque em Gerar. A folha traz logo, cabeçalho do empregador e do trabalhador, batidas, ocorrências coloridas, totais, banco de horas, legenda e assinaturas. Baixe o PDF para salvar, enviar ou imprimir; os arquivos fiscais ficam em Fiscal MTE. Na Exportação em Lote, marque vários funcionários de uma vez.'],
  ['11. Arquivos oficiais para fiscalização','Na Folha de Ponto use "AFD oficial" (Arquivo Fonte de Dados) e "AEJ oficial" (Arquivo Eletrônico de Jornada) — são os arquivos exigidos pelo auditor fiscal do trabalho. O "Atestado Técnico" é o documento do desenvolvedor que acompanha o programa.'],
  ['12. Dicas e segurança','O PIN nunca aparece em folhas, PDFs ou comprovantes. Os dados ficam na nuvem e também no aparelho (funciona sem internet e sobe sozinho quando a conexão volta). Para sair da conta, use o botão vermelho ⏻ na tela de ponto.']

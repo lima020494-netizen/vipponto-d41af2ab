@@ -24,14 +24,16 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const APP_SRC = "/vip-ponto.html?v=20261024-planos-faltas";
+const APP_SRC = "/vip-ponto.html?v=20261025-admin-global";
 
 /** E-mail do token de um link de recuperação (para separar Super Admin de clientes). */
 function emailDoLink(hash: string) {
   try {
     const tk = new URLSearchParams(hash.replace(/^#/, "")).get("access_token");
     if (!tk) return "";
-    const b = tk.split(".")[1]!.replace(/-/g, "+").replace(/_/g, "/");
+    const part = tk.split(".")[1];
+    if (!part) return "";
+    const b = part.replace(/-/g, "+").replace(/_/g, "/");
     return String(JSON.parse(atob(b)).email || "").toLowerCase();
   } catch { return ""; }
 }
@@ -49,6 +51,7 @@ function Index() {
     <iframe
       src={src}
       title="Ponto Pro Gestão"
+      allow="bluetooth"
       style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: 0 }}
     />
   );
