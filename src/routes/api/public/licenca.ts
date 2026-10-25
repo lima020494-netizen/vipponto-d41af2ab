@@ -3,6 +3,7 @@ import { z } from "zod";
 import { canSaveDeveloperInfo, developerInfoSchema } from "@/lib/developer-info";
 import { conhecaSchema, resolveConheca } from "@/lib/conheca-content";
 import { planosSchema, resolvePlanos } from "@/lib/plans";
+import { appSettingsSchema, resolveAppSettings } from "@/lib/app-settings";
 
 const DAY = 86400000;
 const TOLERANCIA_DIAS = 7;
@@ -61,6 +62,7 @@ const adminSchema = z.discriminatedUnion("acao", [
   z.object({ acao: z.literal("config"), pin: z.string(), pix: z.string().max(140), whatsapp: z.string().max(40),
     precos: z.record(z.string(), z.number().nonnegative().nullable()).optional(), precosAnuais: z.record(z.string(), z.number().nonnegative().nullable()).optional() }),
   z.object({ acao: z.literal("planos"), pin: z.string(), planos: planosSchema }),
+  z.object({ acao: z.literal("settings"), pin: z.string(), settings: appSettingsSchema }),
 ]);
 
 export const Route = createFileRoute("/api/public/licenca")({
@@ -117,6 +119,10 @@ export const Route = createFileRoute("/api/public/licenca")({
         if (!p.success) return json({ error: "Dados inválidos." }, 400);
         if (p.data.pin !== "1000") return json({ error: "PIN mestre inválido." }, 403);
         const d = p.data;
+        if (d.acao === "settings") {
+          const { error } = await a.db.from("app_settings").upsert({ id: "global", settings: d.settings });
+          return error ? json({ error: "Falha ao salvar configurações globais." }, 500) : json({ ok: true });
+        }
         if (d.acao === "suporte_iniciar") {
           const { data: emp } = await a.db.from("empregador").select("email_dono,dados").eq("email_dono", d.email).maybeSingle();
           const dd = (emp?.dados || {}) as Record<string, string>;
@@ -139,23 +145,26 @@ export const Route = createFileRoute("/api/public/licenca")({
         }
         if (d.acao === "conheca") {
           if (!canSaveDeveloperInfo(a.email, a.isDev, d.pin)) return json({ error: "Apenas a conta master pode alterar a página comercial." }, 403);
-          const { error } = await a.db.from("app_config" as never).upsert({ chave: "conheca", valor: d.conteudo } as never);
+          const { error } = await a.db.from("marketing_site_content").upsert({ id: "global", content: d.conteudo });
           return error ? json({ error: "Falha ao salvar a página comercial." }, 500) : json({ ok: true });
         }
         const tbl = () => a.db.from("licencas" as never);
         if (d.acao === "listar") {
-          const [l, e, f, commercial] = await Promise.all([
+          const [l, e, f, commercial, settings, legacy, developer] = await Promise.all([
             tbl().select("*").order("created_at", { ascending: false }),
             a.db.from("empregador").select("email_dono,dados"),
             a.db.from("funcionarios").select("email_dono").not("email_dono", "is", null),
+            a.db.from("marketing_site_content").select("content").eq("id", "global").maybeSingle(),
+            a.db.from("app_settings").select("settings").eq("id", "global").maybeSingle(),
             a.db.from("app_config").select("valor").eq("chave", "conheca").maybeSingle(),
+            a.db.from("app_config").select("valor").eq("chave", "dev_info").maybeSingle(),
           ]);
           if (commercial.error) return json({ error: "Não foi possível carregar a página comercial. Tente novamente." }, 500);
           const emp = new Map((e.data || []).map((x) => [x.email_dono.toLowerCase(), (x.dados || {}) as Record<string, string>]));
           const qtd = new Map<string, number>();
           (f.data || []).forEach((x) => { const k = String(x.email_dono).toLowerCase(); qtd.set(k, (qtd.get(k) || 0) + 1); });
           const cfg = await getConfig(a.db);
-          return json({ config: cfg, planos: await getPlanos(a.db), conheca: resolveConheca(commercial.data?.valor), contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: emp.get(x.email_dono)?.["razao"] || emp.get(x.email_dono)?.["fantasia"] || "", cnpj: emp.get(x.email_dono)?.["cnpj"] || emp.get(x.email_dono)?.["doc"] || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
+          return json({ config: cfg, planos: await getPlanos(a.db), settings: resolveAppSettings(settings.data?.settings || {developer:developer.data?.valor}), conheca: resolveConheca(commercial.data?.content || legacy.data?.valor), contas: ((l.data || []) as unknown as Lic[]).map((x) => ({ ...view(x), razao: emp.get(x.email_dono)?.["razao"] || emp.get(x.email_dono)?.["fantasia"] || "", cnpj: emp.get(x.email_dono)?.["cnpj"] || emp.get(x.email_dono)?.["doc"] || "", colaboradores: qtd.get(x.email_dono) || 0 })) });
         }
         if (d.acao === "config") {
           const cfg = await getConfig(a.db);
