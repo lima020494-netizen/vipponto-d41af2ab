@@ -51,6 +51,7 @@ function ConhecaPage() {
       setSettings(resolveAppSettings(global.data?.settings));
     }, () => {});
   }, []);
+  useEffect(()=>{const el=document.querySelector<HTMLElement>(".commercial");if(el){el.style.setProperty("--background",settings.primary_color);el.style.setProperty("--primary",settings.accent_color);}},[settings]);
   const logo = settings.logo_url || defaultLogo;
   const whatsapp = `https://wa.me/${k.whatsapp}`;
   const plans = Object.entries(configuredPlans).filter(([,p])=>p.ativo).map(([id,p],i)=>({name:p.nome,price:p.mensal===null?null:p.mensal.toLocaleString("pt-BR"),caption:`${p.empresas} empresa(s) · até ${p.colaboradores} colaboradores`,benefits:p.recursos,featured:i===1}));

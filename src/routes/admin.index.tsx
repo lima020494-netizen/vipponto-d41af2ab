@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MASTER_EMAIL } from "@/lib/developer-info";
 import { PLANOS_PADRAO, type PlanoCfg } from "@/lib/plans";
-import { APP_SETTINGS_DEFAULT, type AppSettings } from "@/lib/app-settings";
+import { APP_SETTINGS_DEFAULT, resolveAppSettings, type AppSettings } from "@/lib/app-settings";
 import { AdminSettings } from "@/components/admin-settings";
 import { Button } from "@/components/ui/button";
 import { Building2, CreditCard, Megaphone, Settings } from "lucide-react";
@@ -34,6 +34,9 @@ const limiteDe = (planos: Record<string, PlanoCfg>, p: number) => planos[p]?.col
 const ROT: Record<string, string> = { trial: "Teste", ativo: "Ativo", tolerancia: "Tolerância", bloqueado: "Bloqueado", cortesia: "Cortesia" };
 
 function AdminPage() {
+  const [identity,setIdentity] = useState(APP_SETTINGS_DEFAULT);
+  useEffect(()=>{supabase.from("app_settings").select("settings").eq("id","global").maybeSingle().then(({data})=>setIdentity(resolveAppSettings(data?.settings)));},[]);
+  useEffect(()=>{const shell=document.querySelector<HTMLElement>(".admin-shell");if(shell){shell.style.setProperty("--adm-bg",identity.primary_color);shell.style.setProperty("--adm-gold",identity.accent_color);}},[identity]);
   const [email, setEmail] = useState<string | null | undefined>(undefined);
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email?.toLowerCase() ?? null));
@@ -43,11 +46,11 @@ function AdminPage() {
     return () => data.subscription.unsubscribe();
   }, []);
   if (email === undefined) return <p className="p-8 text-center">Carregando…</p>;
-  if (email !== MASTER_EMAIL) return <Login outraConta={email} />;
+  if (email !== MASTER_EMAIL) return <Login outraConta={email} identity={identity} />;
   return <Painel />;
 }
 
-function Login({ outraConta }: { outraConta: string | null }) {
+function Login({ outraConta, identity }: { outraConta: string | null; identity: AppSettings }) {
   const [senha, setSenha] = useState("");
   const [msg, setMsg] = useState(outraConta ? "Esta conta não tem acesso à administração." : "");
   async function entrar(e: React.FormEvent) {
@@ -64,7 +67,7 @@ function Login({ outraConta }: { outraConta: string | null }) {
   return (
     <main className="grid min-h-screen place-items-center p-4">
       <form onSubmit={entrar} className="admin-card w-full max-w-sm space-y-3">
-        <h1 className="text-xl font-semibold">Super Admin</h1>
+        <img src={identity.logo_url || "/vip-logo.png"} alt="Logo do aplicativo" className="h-16 w-16 object-contain" /><h1 className="text-xl font-semibold">Super Admin</h1>
         <p className="text-sm opacity-80">{MASTER_EMAIL}</p>
         <input className="admin-input" type="password" placeholder="Senha" value={senha} onChange={(e) => setSenha(e.target.value)} />
         <Button className="admin-btn w-full">Entrar</Button>
@@ -137,7 +140,7 @@ function Painel() {
       <nav className="admin-tabs" aria-label="Seções do Super Admin">{[["empresas","Empresas e Suporte",Building2],["planos","Planos e Preços",CreditCard],["marketing","Marketing",Megaphone],["settings","Configurações Globais / Sobre",Settings]].map(([id,label,Icon]) => { const I = Icon as typeof Building2; return <Button key={String(id)} variant={tab===id?"default":"ghost"} aria-current={tab===id?"page":undefined} onClick={()=>setTab(String(id))}><I />{String(label)}</Button>; })}</nav>
       {tab === "planos" && <><Cobranca dados={dados} api={api} /><PlanosEditor inicial={dados.planos} api={api} /></>}
       {tab === "marketing" && <ConhecaEditor inicial={dados.conheca} api={api} planos={dados.planos} />}
-      {tab === "settings" && <AdminSettings initial={dados.settings || APP_SETTINGS_DEFAULT} api={api} onSave={settings => setDados(p=>p?{...p,settings}:p)} />}
+      {tab === "settings" && <AdminSettings initial={dados.settings || APP_SETTINGS_DEFAULT} api={api} onSave={settings => {setDados(p=>p?{...p,settings}:p);const shell=document.querySelector<HTMLElement>(".admin-shell");shell?.style.setProperty("--adm-bg",settings.primary_color);shell?.style.setProperty("--adm-gold",settings.accent_color);}} />}
       {tab === "empresas" && <section className="admin-card">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-lg font-semibold">Empresas ({contas.length}/{dados.contas.length})</h2>
