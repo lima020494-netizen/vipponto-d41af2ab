@@ -1340,10 +1340,10 @@ let SUNMI=null;
 function detectarImpressora(tent=0){
   const el=$('status-impressora'); if(!el) return;
   el.onclick=opcoesImpressao;el.setAttribute('role','button');el.setAttribute('tabindex','0');el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();opcoesImpressao();}};el.setAttribute('aria-live','polite');
-  if(BT_IMPRESSORA.caracteristica){el.textContent='🖨️ Bluetooth conectado · Opções';return;}
-  if(window.woyouService||window.sunmiPrinterService){SUNMI=window.woyouService||window.sunmiPrinterService;el.innerHTML='🖨️ Impressora térmica nativa detectada (58mm)';return;}
-  if(tent<5) return setTimeout(()=>detectarImpressora(tent+1),1200);
-  el.innerHTML=rawbtAtivo()?(localStorage.getItem('vip_rawbt_falhou')==='1'?'🖨️ RawBT sem resposta — usando navegador':'🖨️ Impressão: RawBT (com opção do navegador)'):'🖨️ Impressão automática: navegador';
+  SUNMI=sunmiNativo();
+  const m=modoImpressao();
+  if(m==='manual'&&tent<5) setTimeout(()=>detectarImpressora(tent+1),1200);
+  el.textContent={sunmi:'🖨️ Sunmi Nativo · Opções',rawbt:'🖨️ RawBT Android · Opções',bluetooth:'🖨️ Bluetooth conectado · Opções',manual:'🖨️ Manual (sem impressora) · Opções'}[m];
 }
 async function sha256Hex(text){
   const bytes=new TextEncoder().encode(text),hash=await crypto.subtle.digest('SHA-256',bytes);
@@ -1366,31 +1366,49 @@ async function comprovanteTexto(b){
     'SHA-256:',hashCurto.slice(0,16),hashCurto.slice(16),'Portaria MTE 671/2021'
   ].filter(Boolean)};
 }
-async function imprimirComprovante(b){
+async function imprimirComprovante(b,manual=false){
   ULTIMO_COMPROVANTE=b;
   const {linhas}=await comprovanteTexto(b);
   $('comprovante').innerHTML=`<div class="cp">
     ${linhas.map((l,i)=>`<div class="c ${i<2?'b':''} ${l==='DATA E HORA DA MARCACAO'||/^\d{2}\/\d{2}\/\d{4}/.test(l)?'cp-mark':''}">${esc(l)}</div>`).join('')}<div class="cp-feed" aria-hidden="true"></div></div>`;
-  if(SUNMI){
+  /* Cascata: 1 Sunmi nativo · 2 RawBT Android · 3 Bluetooth BLE · 4 manual.
+     Batida automática NUNCA abre window.print(); navegador só sob ação explícita (manual=true). */
+  const sunmi=sunmiNativo();
+  if(sunmi){
     try{
-      SUNMI.printerInit&&SUNMI.printerInit();
-      linhas.forEach(l=>SUNMI.printOriginalText?SUNMI.printOriginalText(l+'\n'):SUNMI.printText&&SUNMI.printText(l+'\n'));
-      SUNMI.lineWrap&&SUNMI.lineWrap(3);
-      return toast('Comprovante enviado à impressora térmica.',2000);
-    }catch(err){ console.warn('Impressora nativa falhou, tentando RawBT/navegador',err); }
+      if(sunmi.printerInit) sunmi.printerInit();
+      const metodo=sunmi.printOriginalText?'printOriginalText':sunmi.printText?'printText':sunmi.printString?'printString':null;
+      if(!metodo) throw new Error('SDK Sunmi sem método de texto');
+      linhas.forEach(l=>sunmi[metodo](l+'\n'));
+      if(sunmi.lineWrap) sunmi.lineWrap(3);
+      return toast('Comprovante enviado à impressora Sunmi.',2000);
+    }catch(err){ console.warn('Sunmi nativo falhou',err); }
   }
-  if(BT_IMPRESSORA.caracteristica){try{await imprimirBluetooth(linhas);toast('Comprovante enviado à impressora Bluetooth.',2000);}catch(e){toast('Impressora desconectada. Use Imprimir para tentar novamente.',2000);}return;}
-  if(localStorage.getItem('vip_print_mode')==='bluetooth'){toast('Bluetooth desconectado. Conecte a impressora em Imprimir.',2000);return;}
   if(rawbtAtivo()&&imprimirRawBT(linhas)) return;
-  imprimirNavegador();
+  if(BT_IMPRESSORA.caracteristica){try{await imprimirBluetooth(linhas);return toast('Comprovante enviado à impressora Bluetooth.',2000);}catch(e){console.warn('BLE falhou',e);}}
+  if(manual) return imprimirNavegador();
+  toast('Sem impressora conectada — ponto registrado. Reimprima pelo histórico se precisar.',2000);
+}
+function sunmiNativo(){
+  const w=window;return w.SunmiPrinter||w.woyouService||w.sunmiPrinterService||w.AndroidBridge||null;
+}
+function modoImpressao(){
+  if(sunmiNativo()) return 'sunmi';
+  if(rawbtAtivo()) return 'rawbt';
+  if(BT_IMPRESSORA.caracteristica) return 'bluetooth';
+  return 'manual';
 }
 function imprimirNavegador(){
   setTimeout(()=>{try{window.print();}catch(e){console.warn('print',e);}},120);
 }
 /* Opções abertas apenas por ação explícita; nunca deixam aviso fixo após uma batida. */
 function opcoesImpressao(){
+  const nomes={sunmi:'Sunmi Nativo',rawbt:'RawBT Android',bluetooth:'Bluetooth',manual:'Manual (sem impressora)'};
+  const android=/Android/i.test(navigator.userAgent);
   abrirModal(`<div class="row"><h3>Impressão térmica</h3><button class="btn ghost right" onclick="fecharModal()">✕</button></div>
+    <p class="muted">Modo detectado: <b>${nomes[modoImpressao()]}</b></p>
     <div class="row"><button class="btn" onclick="conectarBluetooth()">Conectar impressora Bluetooth BLE</button>
+    ${android?`<button class="btn ghost" onclick="fecharModal();alternarRawBT()">${rawbtAtivo()?'Desativar RawBT':'Ativar RawBT'}</button>`:''}
     <button class="btn ghost" onclick="fecharModal();reimprimirUltimo()">Reimprimir último comprovante</button>
     <button class="btn ghost" onclick="fecharModal();imprimirNavegador()">Imprimir pelo navegador</button></div>
     <p id="bt-status" role="status" class="muted">${BT_IMPRESSORA.caracteristica?'Bluetooth conectado.':'Bluetooth desconectado.'}</p>`);
