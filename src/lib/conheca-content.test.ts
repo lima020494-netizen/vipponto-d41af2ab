@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CONHECA_DEFAULT, resolveConheca } from "./conheca-content";
+import { CONHECA_DEFAULT, conhecaSchema, resolveConheca } from "./conheca-content";
 
 test("missing commercial configuration supplies all three editable plans and contact", () => {
   const config = resolveConheca(null);
