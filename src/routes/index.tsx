@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const APP_SRC = "/vip-ponto.html?v=20261025-admin-global";
+const APP_SRC = "/vip-ponto.html?v=20261026-impressao";
 
 /** E-mail do token de um link de recuperação (para separar Super Admin de clientes). */
 function emailDoLink(hash: string) {
