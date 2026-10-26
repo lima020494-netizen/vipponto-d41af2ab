@@ -1434,10 +1434,10 @@ async function imprimirBluetooth(linhas){
   for(let i=0;i<bytes.length;i+=20){const chunk=bytes.slice(i,i+20);if(c.properties.writeWithoutResponse)await c.writeValueWithoutResponse(chunk);else await c.writeValueWithResponse(chunk);}
 }
 let ULTIMO_COMPROVANTE=null;
-function reimprimirUltimo(){if(ULTIMO_COMPROVANTE)imprimirComprovante(ULTIMO_COMPROVANTE);}
-/* RawBT: somente quando ativado explicitamente no aparelho (?rawbt=1 ou botão).
+function reimprimirUltimo(){if(ULTIMO_COMPROVANTE)imprimirComprovante(ULTIMO_COMPROVANTE,true);}
+/* RawBT: padrão no Android; desativável no aparelho (?rawbt=0 ou botão).
    Sem RawBT instalado o intent abre a Google Play — isso nunca conta como impressão. */
-const rawbtAtivo=()=>localStorage.getItem('vip_rawbt')==='1'&&/Android/i.test(navigator.userAgent);
+const rawbtAtivo=()=>/Android/i.test(navigator.userAgent)&&localStorage.getItem('vip_rawbt')!=='0';
 (()=>{const q=new URLSearchParams(location.search).get('rawbt');if(q==='1'||q==='0')localStorage.setItem('vip_rawbt',q);})();
 function alternarRawBT(){localStorage.setItem('vip_rawbt',rawbtAtivo()?'0':'1');localStorage.removeItem('vip_rawbt_falhou');detectarImpressora(9);
   toast(rawbtAtivo()?'Impressão silenciosa RawBT ativada neste aparelho.':'RawBT desativado — impressão pelo navegador.',3500);}
@@ -1457,7 +1457,7 @@ function imprimirRawBT(linhas){
     return true;
   }catch(err){console.warn('RawBT falhou, usando navegador',err);return false;}
 }
-function reimprimir(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);if(b)imprimirComprovante(b);}
+function reimprimir(nsr){const b=get('batidas',[]).find(x=>x.nsr===nsr);if(b)imprimirComprovante(b,true);}
 async function comprovantePDF(b){
   await garantirLib('pdf');
   const {jsPDF}=window.jspdf,{linhas}=await comprovanteTexto(b),medida=new jsPDF({unit:'mm',format:[58,100]});
