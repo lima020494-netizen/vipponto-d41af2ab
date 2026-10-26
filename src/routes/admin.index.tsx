@@ -5,6 +5,8 @@ import { MASTER_EMAIL } from "@/lib/developer-info";
 import { PLANOS_PADRAO, type PlanoCfg } from "@/lib/plans";
 import { APP_SETTINGS_DEFAULT, resolveAppSettings, type AppSettings } from "@/lib/app-settings";
 import { AdminSettings } from "@/components/admin-settings";
+import { MarketingEditor } from "@/components/marketing-editor";
+import type { ConhecaContent } from "@/lib/conheca-content";
 import { Button } from "@/components/ui/button";
 import { Building2, CreditCard, Megaphone, Settings } from "lucide-react";
 
@@ -27,7 +29,7 @@ export const Route = createFileRoute("/admin/")({
 
 type Conta = { email_dono: string; razao: string; cnpj: string; created_at?: string; plano: number; colaboradores: number; data_vencimento: string; estado: string };
 type Plano = { name: string; price: string | null; caption: string; benefits: string[] };
-type Conheca = { whatsapp: string; tagline: string; headline: string; subtitle: string; plans: Plano[] };
+type Conheca = ConhecaContent;
 type Lista = { settings: AppSettings; contas: Conta[]; config: { pix?: string; whatsapp?: string; precos?: Record<string, number | null>; precosAnuais?: Record<string, number | null> }; planos: Record<string, PlanoCfg>; conheca: Conheca };
 
 const limiteDe = (planos: Record<string, PlanoCfg>, p: number) => planos[p]?.colaboradores ?? PLANOS_PADRAO[p]?.colaboradores ?? 10;
@@ -139,7 +141,7 @@ function Painel() {
       </header>
       <nav className="admin-tabs" aria-label="Seções do Super Admin">{[["empresas","Empresas e Suporte",Building2],["planos","Planos e Preços",CreditCard],["marketing","Marketing",Megaphone],["settings","Configurações Globais / Sobre",Settings]].map(([id,label,Icon]) => { const I = Icon as typeof Building2; return <Button key={String(id)} variant={tab===id?"default":"ghost"} aria-current={tab===id?"page":undefined} onClick={()=>setTab(String(id))}><I />{String(label)}</Button>; })}</nav>
       {tab === "planos" && <><Cobranca dados={dados} api={api} /><PlanosEditor inicial={dados.planos} api={api} /></>}
-      {tab === "marketing" && <ConhecaEditor inicial={dados.conheca} api={api} planos={dados.planos} />}
+      {tab === "marketing" && <MarketingEditor inicial={dados.conheca} api={api} planos={dados.planos} />}
       {tab === "settings" && <AdminSettings initial={dados.settings || APP_SETTINGS_DEFAULT} api={api} onSave={settings => {setDados(p=>p?{...p,settings}:p);const shell=document.querySelector<HTMLElement>(".admin-shell");shell?.style.setProperty("--adm-bg",settings.primary_color);shell?.style.setProperty("--adm-gold",settings.accent_color);}} />}
       {tab === "empresas" && <section className="admin-card">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -231,29 +233,6 @@ function PlanosEditor({ inicial, api }: { inicial: Record<string, PlanoCfg>; api
         })}
       </div>
       <Button className="admin-btn" onClick={salvar}>Salvar planos</Button>
-    </section>
-  );
-}
-
-function ConhecaEditor({ inicial, api, planos }: { inicial: Conheca; api: Api; planos: Record<string, PlanoCfg> }) {
-  const [k, setK] = useState<Conheca>(inicial);
-  async function salvar() {
-    try {
-      await api({ acao: "conheca", conteudo: { ...k, whatsapp: k.whatsapp.replace(/\D/g, ""), plans: k.plans.map((p) => ({ ...p, price: p.price || null, benefits: p.benefits.filter(Boolean).slice(0, 8) })) } });
-      alert("Página comercial salva.");
-    } catch (e) { alert((e as Error).message); }
-  }
-  return (
-    <section className="admin-card space-y-3">
-      <h2 className="text-lg font-semibold">Página comercial (/conheca)</h2>
-      <div className="grid gap-3 md:grid-cols-2">
-        <label>WhatsApp comercial<input className="admin-input" value={k.whatsapp} onChange={(e) => setK({ ...k, whatsapp: e.target.value })} /></label>
-        <label>Frase de destaque<input className="admin-input" value={k.tagline} onChange={(e) => setK({ ...k, tagline: e.target.value })} /></label>
-      </div>
-      <label>Título<input className="admin-input" value={k.headline} onChange={(e) => setK({ ...k, headline: e.target.value })} /></label>
-      <label>Subtítulo<textarea className="admin-input" value={k.subtitle} onChange={(e) => setK({ ...k, subtitle: e.target.value })} /></label>
-      <div className="grid gap-4 md:grid-cols-3">{Object.entries(planos).filter(([,p])=>p.ativo).map(([id,p])=><article key={id} className="border-t border-border pt-4"><h3 className="font-semibold">{p.nome}</h3><p className="my-2">{p.mensal===null?"Sob consulta":p.mensal.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})} / mês</p><p className="text-sm">{p.empresas} empresa(s) · {p.colaboradores} colaboradores</p><ul className="mt-3 space-y-2 text-sm">{p.recursos.map(r=><li key={r}>{r}</li>)}</ul></article>)}</div>
-      <Button className="admin-btn" onClick={salvar}>Salvar página comercial</Button>
     </section>
   );
 }
