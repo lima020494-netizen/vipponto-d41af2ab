@@ -28,7 +28,6 @@ export const Route = createFileRoute("/admin/")({
 });
 
 type Conta = { email_dono: string; razao: string; cnpj: string; created_at?: string; plano: number; colaboradores: number; data_vencimento: string; estado: string };
-type Plano = { name: string; price: string | null; caption: string; benefits: string[] };
 type Conheca = ConhecaContent;
 type Lista = { settings: AppSettings; contas: Conta[]; config: { pix?: string; whatsapp?: string; precos?: Record<string, number | null>; precosAnuais?: Record<string, number | null> }; planos: Record<string, PlanoCfg>; conheca: Conheca };
 
