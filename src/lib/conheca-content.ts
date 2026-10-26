@@ -6,7 +6,25 @@ const plan = z.object({
   caption: z.string().trim().max(120),
   benefits: z.array(z.string().trim().min(1).max(120)).max(8),
 });
+const imagem = z.string().max(900_000).refine((v) => v === "" || /^https:\/\//.test(v) || /^data:image\/(png|jpeg|webp);base64,/.test(v), "Imagem deve ser HTTPS ou arquivo PNG/JPG/WebP");
+/** Módulo "Topo e chamada principal": textos ficam no nível raiz por compatibilidade; aqui ficam imagem e chamadas. */
+export const heroModuleSchema = z.object({
+  image_url: imagem,
+  image_alt: z.string().trim().max(160),
+  cta_primary: z.string().trim().min(1).max(40),
+  cta_secondary: z.string().trim().min(1).max(40),
+  highlights: z.array(z.string().trim().min(1).max(60)).max(3),
+});
+export type HeroModule = z.infer<typeof heroModuleSchema>;
+export const HERO_DEFAULT: HeroModule = {
+  image_url: "",
+  image_alt: "Registro de ponto em um quiosque com impressora térmica",
+  cta_primary: "TESTAR 7 DIAS GRÁTIS",
+  cta_secondary: "FALAR NO WHATSAPP",
+  highlights: ["7 dias de teste", "Dados isolados por conta"],
+};
 export const conhecaSchema = z.object({
+  hero: heroModuleSchema.default(HERO_DEFAULT),
   whatsapp: z.string().trim().regex(/^\d{10,15}$/),
   headline: z.string().trim().min(1).max(200),
   subtitle: z.string().trim().max(300),
@@ -16,6 +34,7 @@ export const conhecaSchema = z.object({
 export type ConhecaContent = z.infer<typeof conhecaSchema>;
 
 export const CONHECA_DEFAULT: ConhecaContent = {
+  hero: HERO_DEFAULT,
   whatsapp: "5591999999999",
   tagline: "Jornada registrada. Gestão tranquila.",
   headline: "Ponto eletrônico para quiosques, tablets e terminais POS Android",
@@ -44,6 +63,7 @@ export function resolveConheca(raw: unknown): ConhecaContent {
     headline: neutralCommercialText(content.headline),
     subtitle: neutralCommercialText(content.subtitle),
     tagline: neutralCommercialText(content.tagline),
+    hero: { ...content.hero, cta_primary: neutralCommercialText(content.hero.cta_primary), highlights: content.hero.highlights.map(neutralCommercialText) },
     plans: content.plans.map((plan) => ({ ...plan, name: neutralCommercialText(plan.name), caption: neutralCommercialText(plan.caption), benefits: plan.benefits.map(neutralCommercialText) })),
   };
 }

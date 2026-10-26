@@ -71,17 +71,17 @@ function ConhecaPage() {
     <main>
       {settings.maintenance && <p role="status" className="border-b border-border px-5 py-3 text-center text-sm">Manutenção em andamento · Registro de ponto permanece disponível.</p>}
       <section className="commercial-hero relative isolate overflow-hidden">
-        <img src={kioskImage} alt="Registro de ponto em um quiosque com impressora térmica em um lounge" width={1536} height={1024} fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-right" />
+        <img src={k.hero.image_url || kioskImage} alt={k.hero.image_alt} width={1536} height={1024} fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-right" />
         <div className="commercial-enter relative z-10 mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-22">
           <div className="mb-6 flex items-center gap-2 text-xs font-bold uppercase text-primary"><ShieldCheck size={18} /> {k.tagline}</div>
           <div className="mb-5 text-lg font-bold">{settings.app_name}</div>
           <h1 className="max-w-2xl text-3xl font-semibold leading-tight md:text-5xl">{k.headline}</h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">{k.subtitle}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild size="lg" className="h-12 px-6 text-xs font-extrabold"><Link to="/">TESTAR 7 DIAS GRÁTIS <ArrowUpRight /></Link></Button>
-            <Button asChild size="lg" variant="outline" className="h-12 px-6 text-xs"><a href={whatsapp} target="_blank" rel="noopener noreferrer"><MessageCircle /> FALAR NO WHATSAPP</a></Button>
+            <Button asChild size="lg" className="h-12 px-6 text-xs font-extrabold"><Link to="/">{k.hero.cta_primary} <ArrowUpRight /></Link></Button>
+            <Button asChild size="lg" variant="outline" className="h-12 px-6 text-xs"><a href={whatsapp} target="_blank" rel="noopener noreferrer"><MessageCircle /> {k.hero.cta_secondary}</a></Button>
           </div>
-          <div className="mt-7 flex flex-wrap gap-5 text-xs text-muted-foreground"><span className="flex items-center gap-2"><Check className="commercial-check" size={15} /> 7 dias de teste</span><span className="flex items-center gap-2"><Check className="commercial-check" size={15} /> Dados isolados por conta</span></div>
+          <div className="mt-7 flex flex-wrap gap-5 text-xs text-muted-foreground">{k.hero.highlights.map(h=><span key={h} className="flex items-center gap-2"><Check className="commercial-check" size={15} /> {h}</span>)}</div>
         </div>
       </section>
       <section className="border-y border-border bg-secondary/40">
