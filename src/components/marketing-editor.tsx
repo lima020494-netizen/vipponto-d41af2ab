@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Upload, LayoutTemplate } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HERO_DEFAULT, type ConhecaContent, type HeroModule } from "@/lib/conheca-content";
+import { HERO_DEFAULT, FEATURES_DEFAULT, PLANS_MODULE_DEFAULT, FOOTER_DEFAULT, whatsappLink, type ConhecaContent, type HeroModule, type FeaturesModule, type PlansModule, type FooterModule } from "@/lib/conheca-content";
 import type { PlanoCfg } from "@/lib/plans";
 
 type Api = (b: Record<string, unknown>) => Promise<unknown>;
@@ -62,16 +62,77 @@ function HeroModuleEditor({ k, setK }: { k: ConhecaContent; setK: (c: ConhecaCon
   );
 }
 
-const MODULOS = [{ id: "hero", titulo: "Topo e chamada principal", Editor: HeroModuleEditor }] as const;
+type EdProps = { k: ConhecaContent; setK: (c: ConhecaContent) => void };
+
+function FeaturesModuleEditor({ k, setK }: EdProps) {
+  const f = k.features ?? FEATURES_DEFAULT;
+  const setF = (patch: Partial<FeaturesModule>) => setK({ ...k, features: { ...f, ...patch } });
+  const setItem = (i: number, patch: Partial<FeaturesModule["items"][number]>) => setF({ items: f.items.map((it, j) => (j === i ? { ...it, ...patch } : it)) });
+  return (
+    <div className="space-y-3">
+      <div className="grid gap-3 md:grid-cols-2">
+        <label>Chamada pequena<input className="admin-input" maxLength={60} value={f.eyebrow} onChange={(e) => setF({ eyebrow: e.target.value })} /></label>
+        <label>Título da seção<input className="admin-input" maxLength={120} value={f.title} onChange={(e) => setF({ title: e.target.value })} /></label>
+      </div>
+      {f.items.map((it, i) => (
+        <fieldset key={i} className="space-y-2 border-t border-border pt-3">
+          <legend className="font-semibold">Vantagem {i + 1}</legend>
+          <label>Título<input className="admin-input" maxLength={80} value={it.title} onChange={(e) => setItem(i, { title: e.target.value })} /></label>
+          <label>Descrição<textarea className="admin-input" maxLength={240} value={it.copy} onChange={(e) => setItem(i, { copy: e.target.value })} /></label>
+          {f.items.length > 1 && <Button variant="ghost" onClick={() => setF({ items: f.items.filter((_, j) => j !== i) })}>Remover vantagem</Button>}
+        </fieldset>
+      ))}
+      {f.items.length < 6 && <Button variant="outline" onClick={() => setF({ items: [...f.items, { title: "Nova vantagem", copy: "" }] })}>Adicionar vantagem</Button>}
+    </div>
+  );
+}
+
+function PlansModuleEditor({ k, setK }: EdProps) {
+  const p = k.plans_section ?? PLANS_MODULE_DEFAULT;
+  const setP = (patch: Partial<PlansModule>) => setK({ ...k, plans_section: { ...p, ...patch } });
+  return (
+    <div className="space-y-3">
+      <label>Título da seção<input className="admin-input" maxLength={120} value={p.title} onChange={(e) => setP({ title: e.target.value })} /></label>
+      <label>Subtítulo<input className="admin-input" maxLength={200} value={p.subtitle} onChange={(e) => setP({ subtitle: e.target.value })} /></label>
+      <label>Etiqueta do plano em destaque<input className="admin-input" maxLength={30} value={p.featured_label} onChange={(e) => setP({ featured_label: e.target.value })} /></label>
+      <p className="text-sm text-muted-foreground">Nomes, preços, limites e recursos dos planos são editados na aba Planos e Preços.</p>
+    </div>
+  );
+}
+
+function FooterModuleEditor({ k, setK }: EdProps) {
+  const f = k.footer ?? FOOTER_DEFAULT;
+  const setF = (patch: Partial<FooterModule>) => setK({ ...k, footer: { ...f, ...patch } });
+  return (
+    <div className="space-y-3">
+      <div className="grid gap-3 md:grid-cols-2">
+        <label>WhatsApp comercial (com DDD e país)<input className="admin-input" value={k.whatsapp} onChange={(e) => setK({ ...k, whatsapp: e.target.value })} /></label>
+        <label>Texto do botão<input className="admin-input" maxLength={40} value={f.contact_cta} onChange={(e) => setF({ contact_cta: e.target.value })} /></label>
+      </div>
+      <label>Mensagem inicial no WhatsApp<input className="admin-input" maxLength={200} value={f.whatsapp_message} onChange={(e) => setF({ whatsapp_message: e.target.value })} /></label>
+      <a className="text-sm underline" href={whatsappLink(k.whatsapp, f.whatsapp_message)} target="_blank" rel="noopener noreferrer">Testar link do WhatsApp</a>
+      <label>Título do contato<input className="admin-input" maxLength={120} value={f.contact_title} onChange={(e) => setF({ contact_title: e.target.value })} /></label>
+      <label>Texto do contato<textarea className="admin-input" maxLength={240} value={f.contact_text} onChange={(e) => setF({ contact_text: e.target.value })} /></label>
+      <label>Texto do rodapé<input className="admin-input" maxLength={200} value={f.footer_text} onChange={(e) => setF({ footer_text: e.target.value })} /></label>
+    </div>
+  );
+}
+
+const MODULOS = [
+  { id: "hero", titulo: "Topo e chamada principal", Editor: HeroModuleEditor },
+  { id: "features", titulo: "Vantagens e recursos", Editor: FeaturesModuleEditor },
+  { id: "plans", titulo: "Planos", Editor: PlansModuleEditor },
+  { id: "footer", titulo: "Rodapé e contato", Editor: FooterModuleEditor },
+] as const;
 
 export function MarketingEditor({ inicial, api, planos }: { inicial: ConhecaContent; api: Api; planos: Record<string, PlanoCfg> }) {
-  const [k, setK] = useState<ConhecaContent>({ ...inicial, hero: inicial.hero ?? HERO_DEFAULT });
+  const [k, setK] = useState<ConhecaContent>({ ...inicial, hero: inicial.hero ?? HERO_DEFAULT, features: inicial.features ?? FEATURES_DEFAULT, plans_section: inicial.plans_section ?? PLANS_MODULE_DEFAULT, footer: inicial.footer ?? FOOTER_DEFAULT });
   const [ativo, setAtivo] = useState<string>(MODULOS[0].id);
   const [salvando, setSalvando] = useState(false);
   async function salvar() {
     setSalvando(true);
     try {
-      await api({ acao: "conheca", conteudo: { ...k, whatsapp: k.whatsapp.replace(/\D/g, ""), hero: { ...k.hero, highlights: k.hero.highlights.map((s) => s.trim()).filter(Boolean) }, plans: k.plans.map((p) => ({ ...p, price: p.price || null, benefits: p.benefits.filter(Boolean).slice(0, 8) })) } });
+      await api({ acao: "conheca", conteudo: { ...k, whatsapp: k.whatsapp.replace(/\D/g, ""), hero: { ...k.hero, highlights: k.hero.highlights.map((s) => s.trim()).filter(Boolean) }, features: { ...k.features, items: k.features.items.filter((i) => i.title.trim()) }, plans: k.plans.map((p) => ({ ...p, price: p.price || null, benefits: p.benefits.filter(Boolean).slice(0, 8) })) } });
       alert("Página comercial salva.");
     } catch (e) { alert((e as Error).message); } finally { setSalvando(false); }
   }

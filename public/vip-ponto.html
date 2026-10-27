@@ -1138,7 +1138,7 @@ function salvarEmpregador(){
   set('empregador',o); log('Empregador salvo/atualizado');
   $('e-msg').innerHTML='<div class="alert ok">Empregador salvo.</div>';
   if($('tela-gestor').classList.contains('hidden')) setTimeout(telaHome,700);
-  else { $('logo-empresa').src=logoApp(); $('home-fantasia').textContent=o.fantasia||o.razao||''; }
+  else { $('logo-empresa').src=logoEmpresa(); $('home-fantasia').textContent=o.fantasia||o.razao||''; }
 }
 const gerVisiveis=()=>get('gerenciadores',[]).map((g,i)=>({g,i})).filter(x=>!x.g.is_hidden);
 function renderGerenciadores(){
@@ -1179,7 +1179,7 @@ function telaHome(){
   $('tela-empregador').classList.add('hidden'); $('tela-login').classList.add('hidden');
   $('tela-home').classList.remove('hidden');
   const e=get('empregador',{})||{};
-  $('logo-empresa').src=logoApp(); $('logo-app').src=logoApp();
+  $('logo-empresa').src=logoEmpresa(); $('logo-app').src=logoApp();
   $('home-fantasia').textContent=e.fantasia||e.razao||'Ponto Pro Gestão';
   pinLimpar();
 }
@@ -1537,7 +1537,7 @@ function abrirGestor(){
   const e=get('empregador',{})||{}, estado=LIC?.licenca?.estado||'ativo';
   $('gestor-quem').textContent=`${GERENCIADOR.nome} · ${GERENCIADOR.funcao}`;
   $('gestor-empresa').textContent=e.fantasia||e.razao||'Ponto Pro Gestão';
-  $('gestor-logo').src=logoApp();
+  $('gestor-logo').src=logoEmpresa();
   $('gestor-licenca').textContent=ROT_EST?.[estado]||estado;
   $('gestor-licenca').dataset.state=estado;
   prepararGestorLicenca();
@@ -1754,6 +1754,9 @@ function previstoDia(f,iso){
   return cargaEscala(f.escala);
 }
 function batidasDia(pin,iso){return batidasJornada(pin,iso);}
+/* Reordena as marcações da jornada por horário e reclassifica E1/S1/E2/S2 sem gerar logs em cascata. */
+function reordenarJornada(pin,iso){const all=get('batidas',[]),bs=all.filter(b=>!b.excluida&&b.pin===pin&&jornadaDe(b)===iso).sort((a,b)=>(a.data+' '+a.hora).localeCompare(b.data+' '+b.hora)),mud=[];
+  bs.forEach((b,i)=>{const t=TIPOS[i]||b.tipo;if(b.tipo!==t){b.tipo=t;mud.push(b.nsr);}});if(mud.length){set('batidas',all);mud.forEach(n=>filaPonto(n));}}
 /* Pares de batidas (máx. 4: Entrada | Intervalo Saída | Intervalo Volta | Saída) */
 function paresBatidas(bs){
   const g=tp=>bs.filter(b=>b.tipo===tp)[0];
@@ -2018,7 +2021,7 @@ function renderGestaoBatidas(){
   ${dados.linhas.slice().reverse().map(l=>{
     const oc=ocorrencias.find(o=>o.data===l.data),st=statusGestaoDia(l,oc),bs=batidasDia(pin,l.data);
     return `<tr><td class="day-cell"><strong>${brOf(l.data)}</strong><small>${esc(l.dia)}</small></td><td><span class="status-day ${st[1]}">${st[0]}</span>${oc?`<div class="muted" title="${esc(oc.motivo||'')}">${esc(oc.tipo)}</div>`:''}</td>
-      <td><div class="marks-cell">${bs.length?bs.map(b=>`<span class="mark-pill">${esc(b.hora)}</span>`).join(''):'<span class="muted">Sem marcações</span>'}</div></td>
+      <td><div class="marks-cell">${bs.length?bs.map(b=>`<span class="mark-pill">${esc(b.hora)}</span>`).join(''):'<span class="muted">Sem marcações</span>'}${bs.length%2?'<span class="status-day incompleto" title="Número ímpar de marcações: falta fechar um par">⚠ Par incompleto</span>':''}</div></td>
       <td>${toHHMM(l.previsto)}</td><td><b>${toHHMM(l.trabalhado)}</b></td><td>${toSaldo(l.saldo)}</td>
       <td><button type="button" class="btn sm ghost" onclick="abrirAcoesBatida('${pin}','${l.data}')" aria-label="Abrir ações de ${brOf(l.data)}">Ações ▾</button></td></tr>`;
   }).join('')}</tbody></table></div>`;
@@ -2049,17 +2052,16 @@ function editarBatidaManual(nsr){
   abrirModal(`<div class="row"><h3>Editar batida manual</h3><button class="btn sm ghost right" onclick="fecharModal()">✕</button></div>
   <div class="card grid g2"><div><label>Data</label><input value="${brOf(b.data)}" readonly/></div>
     <div><label>Hora</label><input type="time" id="eb-hora" value="${b.hora}"/></div>
-    <div><label>Tipo</label><select id="eb-tipo">${TIPOS.map(t=>`<option ${t===b.tipo?'selected':''}>${t}</option>`).join('')}</select></div>
     <div style="grid-column:1/-1"><label>Justificativa (obrigatória, mín. 5 caracteres)</label><textarea id="eb-motivo" rows="2"></textarea></div></div>
   <button class="btn gold" onclick="salvarEdicaoBatida('${nsr}')">Salvar alteração</button>`);
 }
 function salvarEdicaoBatida(nsr){
-  const hora=$('eb-hora').value,tipo=$('eb-tipo').value,motivo=$('eb-motivo').value.trim();
+  const hora=$('eb-hora').value,motivo=$('eb-motivo').value.trim();
   if(!hora)return alert('Informe a hora.');if(motivo.length<5)return alert('Justificativa obrigatória (mín. 5 caracteres).');
   const all=get('batidas',[]),b=all.find(x=>x.nsr===nsr);if(!b||b.fonte!=='MANUAL')return;
-  const antes=`${b.hora} ${b.tipo}`;b.hora=hora;b.tipo=tipo;
-  b.movimento=`Manual editada (${antes} → ${hora} ${tipo}) - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`;b.editadoEm=new Date().toISOString();
-  set('batidas',all);filaPonto(nsr);log(`Batida manual NSR ${nsr} editada de ${antes} para ${hora} ${tipo} - Motivo: ${motivo}`);
+  const antes=b.hora;b.hora=hora;
+  b.movimento=`Manual ajustada (${antes} → ${hora}) - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`;b.editadoEm=new Date().toISOString();
+  set('batidas',all);filaPonto(nsr);reordenarJornada(b.pin,jornadaDe(b));log(`${brOf(b.data)} ${hora} * Marcação Manual ajustada (antes ${antes}) - Motivo: ${motivo} - Autorizado por: ${GERENCIADOR.nome}`);
   fecharModal();window.__batFilt={pin:b.pin,ini:$('gb-ini')?.value||b.data,fim:$('gb-fim')?.value||b.data};subBatidas();
 }
 function excluirBatidaManual(nsr){
@@ -2067,7 +2069,7 @@ function excluirBatidaManual(nsr){
   if(!confirm(`Excluir a batida manual de ${brOf(b.data)} às ${b.hora}?\n\nEla deixará de contar na folha e no banco de horas. O registro fica guardado na auditoria.`))return;
   const motivo=(prompt('Justificativa obrigatória (mín. 5 caracteres):')||'').trim();if(motivo.length<5)return alert('Sem justificativa válida a exclusão não é feita.');
   b.excluida=true;b.movimento=`Manual excluída - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`;b.excluidaEm=new Date().toISOString();
-  set('batidas',all);filaPonto(nsr);log(`Batida manual NSR ${nsr} (${brOf(b.data)} ${b.hora}) excluída - Motivo: ${motivo}`);
+  set('batidas',all);filaPonto(nsr);reordenarJornada(b.pin,jornadaDe(b));log(`Batida manual NSR ${nsr} (${brOf(b.data)} ${b.hora}) excluída - Motivo: ${motivo}`);
   fecharModal();subBatidas();
 }
 function excluirOcorrencia(pin,data){
@@ -2090,13 +2092,13 @@ function inserirBatidaManual(pinSelecionado='',dataSelecionada=''){
     <div><label>Funcionário</label><select id="ib-pin" ${pinSelecionado?'disabled':''}>${fs.map(f=>`<option value="${f.pin}" ${f.pin===pinSelecionado?'selected':''}>${esc(f.nome)}</option>`).join('')}</select></div>
     <div><label>Data</label><input type="date" id="ib-data" value="${dataSelecionada||hojeISO()}" ${dataSelecionada?'readonly':''}/></div>
     <div><label>Hora</label><input type="time" id="ib-hora"/></div>
-    <div><label>Tipo</label><select id="ib-tipo">${TIPOS.map(t=>`<option>${t}</option>`).join('')}</select></div>
+    <div class="muted" style="align-self:end">As marcações do dia são ordenadas por horário automaticamente.</div>
     <div><label for="ib-autorizou">Quem autorizou *</label><input id="ib-autorizou" required/></div>
     <div style="grid-column:1/-1"><label>Motivo (obrigatório, mín. 5 caracteres)</label><textarea id="ib-motivo" rows="2"></textarea></div>
   </div><button class="btn gold" onclick="salvarBatidaManual()">Salvar batida manual</button>`);
 }
 function salvarBatidaManual(){
-  const pin=$('ib-pin').value,data=$('ib-data').value,hora=$('ib-hora').value,tipo=$('ib-tipo').value,motivo=$('ib-motivo').value.trim();
+  const pin=$('ib-pin').value,data=$('ib-data').value,hora=$('ib-hora').value,tipo=TIPOS[0],motivo=$('ib-motivo').value.trim();
   if(!data||!hora)return alert('Informe data e hora.');
   if(motivo.length<5)return alert('Motivo obrigatório (mín. 5 caracteres).');
   const autorizadoPor=$('ib-autorizou').value.trim();if(!autorizadoPor)return toast('Informe quem autorizou a marcação.',4000);
@@ -2105,7 +2107,7 @@ function salvarBatidaManual(){
   const nsrM=proximoNSR();
   all.push({pin,nome:f.nome,cpf:f.cpf,data,hora,tipo,nsr:nsrM,fonte:'MANUAL',sync:false,offset:get('ntpOffset',0),
     autorizadoPor,gerenciador:GERENCIADOR.nome,movimento:`Inserida manualmente - Autorizado por: ${autorizadoPor} - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`,criadoEm:new Date().toISOString()});
-  set('batidas',all); filaPonto(nsrM); log(`Batida manual inserida ${brOf(data)} ${hora} ${f.nome} - Autorizado por: ${autorizadoPor} - Motivo: ${motivo}`); fecharModal();window.__batFilt={pin,data,ini:$('gb-ini')?.value||data,fim:$('gb-fim')?.value||data};subBatidas();
+  set('batidas',all); filaPonto(nsrM); reordenarJornada(pin,data); log(`${brOf(data)} ${hora} * Marcação Manual (${f.nome}) - Motivo: ${motivo} - Autorizado por: ${autorizadoPor}`); fecharModal();window.__batFilt={pin,data,ini:$('gb-ini')?.value||data,fim:$('gb-fim')?.value||data};subBatidas();
 }
 function lancarOcorrencia(pinSelecionado='',dataSelecionada=''){
  const fs=get('funcionarios',[]),ex=ocorrenciaDia(pinSelecionado,dataSelecionada)||{};window.__ocEdit=ex;
@@ -2152,7 +2154,7 @@ function subEscala(){
       rows+=`<tr><td><b>${esc(f.nome)}</b><div class="muted">${esc(f.funcao)}</div></td>`+dias.map(d=>{
         const it=buscaNaEscala(f.pin,d)||{tipo:'Trabalhado',horarioEntrada:''};
         return `<td><select ${travada?'disabled':''} onchange="setCelula('${ini}','${f.pin}','${d}',this.value)">
-          ${TIPOS_ESC.map(t=>`<option ${it.tipo===t?'selected':''}>${t}</option>`).join('')}</select>
+          ${TIPOS_ESC.map(t=>`<option ${(it.tipo==='Folga Domingo'?'Folga Compensada':it.tipo)===t?'selected':''}>${t}</option>`).join('')}</select>
           ${it.tipo==='Trabalhado'?`<input ${travada?'disabled':''} type="time" value="${it.horarioEntrada||''}" onchange="setHora('${ini}','${f.pin}','${d}',this.value)" style="margin-top:4px"/>`:''}</td>`;
       }).join('')+'</tr>';
     });
@@ -2181,7 +2183,7 @@ function subEscala(){
   <div class="tbl-wrap"><table><tr><th>Registro</th></tr>${hist.map(h=>`<tr><td>${esc(h.texto)}</td></tr>`).join('')||'<tr><td class="muted">Sem alterações.</td></tr>'}</table></div>`;
 }
 const ESC_TRAVA_DIAS=30;
-const TIPOS_ESC=['Trabalhado','DSR','Folga Domingo','Folga Compensada'];
+const TIPOS_ESC=['Trabalhado','DSR','Folga Compensada']; // 'Folga Domingo' legado é exibido como Folga Compensada
 function setEscPeriodo(n){window.__escDias=Number(n);const i=$('escala-inicio').value||window.__escIni;window.__escIni=i;window.__escFim=addDias(i,Number(n)-1);subEscala();}
 function escIniChange(v){if(v)$('escala-fim').value=addDias(v,(window.__escDias||7)-1);}
 function filtrarEscala(){const i=$('escala-inicio').value,f=$('escala-fim').value;
@@ -2256,7 +2258,7 @@ function lerCelulaEscala(v){v=String(v??'').normalize('NFD').replace(/[\u0300-\u
   if(!v||v==='TRABALHADO')return {tipo:'Trabalhado',horarioEntrada:''};
   const m=v.match(/^(\d{1,2}):(\d{2})(?:\s*[-–às]+\s*(\d{1,2}):(\d{2}))?$/);
   if(m)return {tipo:'Trabalhado',horarioEntrada:pad(m[1])+':'+m[2],horarioSaida:m[3]?pad(m[3])+':'+m[4]:''};
-  const t=TIPOS_ESC.find(tipo=>tipo.toUpperCase()===v)||{FOLGA:'Folga Compensada','FOLGA COMPENSANDA':'Folga Compensada','FOLGA COMPENSATORIA':'Folga Compensada','FOLGA DE DOMINGO':'Folga Domingo'}[v];
+  const t=TIPOS_ESC.find(tipo=>tipo.toUpperCase()===v)||{FOLGA:'Folga Compensada','FOLGA COMPENSANDA':'Folga Compensada','FOLGA COMPENSATORIA':'Folga Compensada','FOLGA DE DOMINGO':'Folga Compensada','FOLGA DOMINGO':'Folga Compensada'}[v];
   return t?{tipo:t,horarioEntrada:''}:null;}
 function previewImport(rows){
   const hdr=(rows[0]||[]).map(x=>String(x??'').trim());
@@ -2811,6 +2813,8 @@ async function sairSuporte(){
 const DEV={nome:'Henrique Lima',empresa:'Ponto Pro Gestão',doc:'',tipoDoc:'CPF',email:'',telefone:'',cidade:'Salinópolis-PA',
   programa:'Ponto Pro Gestão',versao:'1.0.0',tipoRep:'REP-P (Programa)',registroINPI:''};
 function devCfg(){let g={},s={};try{g=JSON.parse(localStorage.getItem('vip_ponto_dev_info')||'{}');s=JSON.parse(localStorage.getItem('vip_ponto_app_settings')||'{}');}catch(e){}return Object.assign({},DEV,g,s.developer||{},{programa:s.app_name||DEV.programa,versao:s.version||g.versao||DEV.versao});}
+/* Hierarquia: logo da plataforma em login/Sobre; logo da empresa prevalece no quiosque, espelho e comprovantes. */
+const logoEmpresa=()=>(get('empregador',{})||{}).logo||logoApp();
 const logoApp=()=>localStorage.getItem('ponto_pro_gestao_logo_app')||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg';
 const ehMestre=()=>typeof GERENCIADOR!=='undefined'&&GERENCIADOR&&GERENCIADOR.pin==='1000';
 setTimeout(()=>{const l=document.getElementById('logo-app');if(l)l.src=logoApp();},50);
@@ -2827,7 +2831,7 @@ function aplicarIdentidadeGlobal(settings){
   const root=document.documentElement;
   if(/^#[0-9a-f]{6}$/i.test(settings.primary_color||''))root.style.setProperty('--navy',settings.primary_color);
   if(/^#[0-9a-f]{6}$/i.test(settings.accent_color||''))root.style.setProperty('--gold',settings.accent_color);
-  const appLogo=logoApp();['logo-app','logo-empresa','gestor-logo'].forEach(id=>{const img=$(id);if(img)img.src=appLogo;});
+  const appLogo=logoApp();const l0=$('logo-app');if(l0)l0.src=appLogo;['logo-empresa','gestor-logo'].forEach(id=>{const img=$(id);if(img)img.src=logoEmpresa();});
   document.title=(settings.app_name||DEV.programa)+' — Registro de Ponto';
   let notice=$('maintenance-status');if(settings.maintenance&&!notice){notice=document.createElement('div');notice.id='maintenance-status';notice.setAttribute('role','status');notice.className='muted';$('tela-login').querySelector('.box').prepend(notice);}
   if(notice){notice.textContent='Manutenção em andamento · Registro de ponto disponível.';notice.classList.toggle('hidden',!settings.maintenance);}
@@ -2969,7 +2973,7 @@ const MANUAL=[
  ['4. Portal do Empregado (👤)','O empregado digita o PIN e vê a própria folha de ponto, podendo enviá-la para o seu e-mail.'],
  ['5. Gestor de ponto (⚙️)','Toque na engrenagem e digite o PIN de gerenciador. A primeira aba é o Dashboard de Frequência, com presença, faltas, absenteísmo, atrasos e carga incompleta, com filtros por período e funcionário.'],
  ['6. Empregados','O limite de colaboradores por empresa é definido no plano ativo. Informe nome, CPF, função, departamento, admissão, escala e, opcionalmente, o início da vigência do banco de horas. O PIN é criado automaticamente. Na aba "Funções, Cargos e Departamentos" você cadastra as listas. Status: Ativo, Desligado, Afastamento (com motivo) ou Férias.'],
- ['7. Escala semanal','Escolha a semana (pode começar no domingo ou na segunda). Em cada dia marque Trabalhado (com hora de entrada), DSR, Folga Domingo ou Folga Compensada — até 3 folgas por semana. A escala manda na folha: se o DSR foi para terça, o domingo vira dia de trabalho. A hora de entrada da escala é usada para calcular atraso (tolerância de 10 min). Após 30 dias a escala trava 🔒. Baixe o CSV para Excel/Google Sheets.'],
+ ['7. Escala semanal','Escolha a semana (pode começar no domingo ou na segunda). Em cada dia marque Trabalhado (com hora de entrada), DSR ou Folga Compensada — até 3 folgas por semana. A escala manda na folha: se o DSR foi para terça, o domingo vira dia de trabalho. A hora de entrada da escala é usada para calcular atraso (tolerância de 10 min). Após 30 dias a escala trava 🔒. Baixe o CSV para Excel/Google Sheets.'],
  ['8. Batidas e ajustes','Data, hora e NSR originais nunca podem ser alterados. Tratamentos são separados das marcações originais. Você pode incluir batida manual ou lançar ocorrência (Falta Justificada, Férias, Folga compensatória, Falta) — sempre com motivo de pelo menos 5 letras. Tudo fica registrado com o nome de quem alterou.'],
  ['9. Banco de horas','Faltas injustificadas destinam-se ao desconto salarial e ficam neutras no banco. Débitos no banco são restritos à folga compensatória autorizada ou carga incompleta não abonada; atrasos de entrada aparecem apenas no Dashboard. Atestados, faltas abonadas, férias e afastamentos neutralizam o banco. Trabalho em domingos/feriados usa o fator configurado pelo empregador, sem presumir adicional salarial. Saldo Anterior + Créditos − Débitos = Saldo Atual.'],
  ['10. Folha de ponto MTE','Escolha o funcionário e o período e toque em Gerar. A folha traz logo, cabeçalho do empregador e do trabalhador, batidas, ocorrências coloridas, totais, banco de horas, legenda e assinaturas. Baixe o PDF para salvar, enviar ou imprimir; os arquivos fiscais ficam em Fiscal MTE. Na Exportação em Lote, marque vários funcionários de uma vez.'],
