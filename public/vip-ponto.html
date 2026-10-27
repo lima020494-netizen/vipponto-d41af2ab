@@ -1138,7 +1138,7 @@ function salvarEmpregador(){
   set('empregador',o); log('Empregador salvo/atualizado');
   $('e-msg').innerHTML='<div class="alert ok">Empregador salvo.</div>';
   if($('tela-gestor').classList.contains('hidden')) setTimeout(telaHome,700);
-  else { $('logo-empresa').src=logoApp(); $('home-fantasia').textContent=o.fantasia||o.razao||''; }
+  else { $('logo-empresa').src=logoEmpresa(); $('home-fantasia').textContent=o.fantasia||o.razao||''; }
 }
 const gerVisiveis=()=>get('gerenciadores',[]).map((g,i)=>({g,i})).filter(x=>!x.g.is_hidden);
 function renderGerenciadores(){
@@ -1179,7 +1179,7 @@ function telaHome(){
   $('tela-empregador').classList.add('hidden'); $('tela-login').classList.add('hidden');
   $('tela-home').classList.remove('hidden');
   const e=get('empregador',{})||{};
-  $('logo-empresa').src=logoApp(); $('logo-app').src=logoApp();
+  $('logo-empresa').src=logoEmpresa(); $('logo-app').src=logoApp();
   $('home-fantasia').textContent=e.fantasia||e.razao||'Ponto Pro Gestão';
   pinLimpar();
 }
@@ -1537,7 +1537,7 @@ function abrirGestor(){
   const e=get('empregador',{})||{}, estado=LIC?.licenca?.estado||'ativo';
   $('gestor-quem').textContent=`${GERENCIADOR.nome} · ${GERENCIADOR.funcao}`;
   $('gestor-empresa').textContent=e.fantasia||e.razao||'Ponto Pro Gestão';
-  $('gestor-logo').src=logoApp();
+  $('gestor-logo').src=logoEmpresa();
   $('gestor-licenca').textContent=ROT_EST?.[estado]||estado;
   $('gestor-licenca').dataset.state=estado;
   prepararGestorLicenca();
@@ -2813,6 +2813,8 @@ async function sairSuporte(){
 const DEV={nome:'Henrique Lima',empresa:'Ponto Pro Gestão',doc:'',tipoDoc:'CPF',email:'',telefone:'',cidade:'Salinópolis-PA',
   programa:'Ponto Pro Gestão',versao:'1.0.0',tipoRep:'REP-P (Programa)',registroINPI:''};
 function devCfg(){let g={},s={};try{g=JSON.parse(localStorage.getItem('vip_ponto_dev_info')||'{}');s=JSON.parse(localStorage.getItem('vip_ponto_app_settings')||'{}');}catch(e){}return Object.assign({},DEV,g,s.developer||{},{programa:s.app_name||DEV.programa,versao:s.version||g.versao||DEV.versao});}
+/* Hierarquia: logo da plataforma em login/Sobre; logo da empresa prevalece no quiosque, espelho e comprovantes. */
+const logoEmpresa=()=>(get('empregador',{})||{}).logo||logoApp();
 const logoApp=()=>localStorage.getItem('ponto_pro_gestao_logo_app')||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg';
 const ehMestre=()=>typeof GERENCIADOR!=='undefined'&&GERENCIADOR&&GERENCIADOR.pin==='1000';
 setTimeout(()=>{const l=document.getElementById('logo-app');if(l)l.src=logoApp();},50);
@@ -2829,7 +2831,7 @@ function aplicarIdentidadeGlobal(settings){
   const root=document.documentElement;
   if(/^#[0-9a-f]{6}$/i.test(settings.primary_color||''))root.style.setProperty('--navy',settings.primary_color);
   if(/^#[0-9a-f]{6}$/i.test(settings.accent_color||''))root.style.setProperty('--gold',settings.accent_color);
-  const appLogo=logoApp();['logo-app','logo-empresa','gestor-logo'].forEach(id=>{const img=$(id);if(img)img.src=appLogo;});
+  const appLogo=logoApp();const l0=$('logo-app');if(l0)l0.src=appLogo;['logo-empresa','gestor-logo'].forEach(id=>{const img=$(id);if(img)img.src=logoEmpresa();});
   document.title=(settings.app_name||DEV.programa)+' — Registro de Ponto';
   let notice=$('maintenance-status');if(settings.maintenance&&!notice){notice=document.createElement('div');notice.id='maintenance-status';notice.setAttribute('role','status');notice.className='muted';$('tela-login').querySelector('.box').prepend(notice);}
   if(notice){notice.textContent='Manutenção em andamento · Registro de ponto disponível.';notice.classList.toggle('hidden',!settings.maintenance);}
