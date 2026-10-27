@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import kioskImage from "@/assets/conheca-kiosk.jpg";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CONHECA_DEFAULT, resolveConheca } from "@/lib/conheca-content";
+import { CONHECA_DEFAULT, resolveConheca, whatsappLink } from "@/lib/conheca-content";
 import { PLANOS_PADRAO, resolvePlanos } from "@/lib/plans";
 import { APP_SETTINGS_DEFAULT, resolveAppSettings } from "@/lib/app-settings";
 
@@ -29,11 +29,6 @@ export const Route = createFileRoute("/conheca")({
   component: ConhecaPage,
 });
 
-const resources = [
-  { icon: WifiOff, title: "Sua jornada continua offline", copy: "Marcações guardadas no aparelho e sincronizadas quando a conexão retorna." },
-  { icon: Printer, title: "Comprovante na hora", copy: "Impressão térmica 58 mm com data, hora, NSR e hash de autenticidade." },
-  { icon: Smartphone, title: "Quiosques, tablets e PWA", copy: "Registro por PIN em terminais POS Android e acesso às folhas pelo celular." },
-];
 
 function ConhecaPage() {
   const [k, setK] = useState(CONHECA_DEFAULT);
@@ -53,7 +48,8 @@ function ConhecaPage() {
   }, []);
   useEffect(()=>{const el=document.querySelector<HTMLElement>(".commercial");if(el){el.style.setProperty("--background",settings.primary_color);el.style.setProperty("--primary",settings.accent_color);}},[settings]);
   const logo = settings.logo_url || defaultLogo;
-  const whatsapp = `https://wa.me/${k.whatsapp}`;
+  const whatsapp = whatsappLink(k.whatsapp, k.footer.whatsapp_message);
+  const icons = [WifiOff, Printer, Smartphone, ShieldCheck, Clock3, Headphones];
   const plans = Object.entries(configuredPlans).filter(([,p])=>p.ativo).map(([id,p],i)=>({name:p.nome,price:p.mensal===null?null:p.mensal.toLocaleString("pt-BR"),caption:`${p.empresas} empresa(s) · até ${p.colaboradores} colaboradores`,benefits:p.recursos,featured:i===1}));
   return <div className="commercial min-h-screen bg-background text-foreground">
     <header className="border-b border-border">
@@ -91,14 +87,14 @@ function ConhecaPage() {
         </div>
       </section>
       <section id="recursos" className="mx-auto max-w-7xl scroll-mt-8 px-5 py-16 md:px-10">
-        <p className="text-xs font-bold uppercase text-primary">Do registro ao fechamento</p><h2 className="mt-3 text-2xl font-semibold md:text-3xl">Tudo no ritmo da sua empresa.</h2>
-        <div className="mt-10 grid gap-8 md:grid-cols-3">{resources.map(({icon:Icon,title,copy})=><div key={title} className="border-t border-border pt-6"><Icon size={28} className="mb-5 text-primary"/><h3 className="text-lg font-semibold">{title}</h3><p className="mt-3 text-sm leading-7 text-muted-foreground">{copy}</p></div>)}</div>
+        <p className="text-xs font-bold uppercase text-primary">{k.features.eyebrow}</p><h2 className="mt-3 text-2xl font-semibold md:text-3xl">{k.features.title}</h2>
+        <div className="mt-10 grid gap-8 md:grid-cols-3">{k.features.items.map(({title,copy},i)=>{const Icon=icons[i%icons.length]!;return <div key={title+i} className="border-t border-border pt-6"><Icon size={28} className="mb-5 text-primary"/><h3 className="text-lg font-semibold">{title}</h3><p className="mt-3 text-sm leading-7 text-muted-foreground">{copy}</p></div>;})}</div>
       </section>
       <section id="planos" className="scroll-mt-8 border-y border-border bg-secondary/30">
         <div className="mx-auto max-w-7xl px-5 py-16 md:px-10">
-          <div className="mb-10 text-center"><p className="text-xs font-bold uppercase text-primary">Planos</p><h2 className="mt-3 text-2xl font-semibold md:text-3xl">O próximo passo da sua gestão.</h2><p className="mt-4 text-sm text-muted-foreground">Comece com 7 dias grátis. Escolha o plano para a sua rotina.</p></div>
+          <div className="mb-10 text-center"><p className="text-xs font-bold uppercase text-primary">Planos</p><h2 className="mt-3 text-2xl font-semibold md:text-3xl">{k.plans_section.title}</h2><p className="mt-4 text-sm text-muted-foreground">{k.plans_section.subtitle}</p></div>
           <div className="grid items-stretch gap-5 md:grid-cols-3">{plans.map(plan=><article key={plan.name} className={`relative flex flex-col rounded-lg border bg-card p-7 ${plan.featured?"border-primary":"border-border"}`}>
-            {plan.featured&&<span className="absolute -top-3 left-6 bg-primary px-3 py-1 text-xs font-extrabold text-primary-foreground">MAIS COMPLETO</span>}
+            {plan.featured&&<span className="absolute -top-3 left-6 bg-primary px-3 py-1 text-xs font-extrabold text-primary-foreground">{k.plans_section.featured_label}</span>}
             <h3 className="text-xl font-semibold">{plan.name}</h3><p className="mt-2 text-sm text-muted-foreground">{plan.caption}</p>
             <div className="mt-7 flex min-h-14 items-baseline gap-2">{plan.price?<><span className="text-sm text-muted-foreground">R$</span><strong className="text-5xl font-semibold">{plan.price}</strong><span className="text-sm text-muted-foreground">/mês</span></>:<strong className="text-3xl font-semibold">Sob Consulta</strong>}</div>
             <ul className="my-7 space-y-4 border-t border-border pt-6">{plan.benefits.map(b=><li key={b} className="flex gap-3 text-sm"><Check size={17} className="commercial-check shrink-0"/>{b}</li>)}</ul>
@@ -106,8 +102,8 @@ function ConhecaPage() {
           </article>)}</div>
         </div>
       </section>
-      <section id="contato" className="mx-auto flex max-w-7xl scroll-mt-8 flex-col items-start justify-between gap-6 px-5 py-14 md:flex-row md:items-center md:px-10"><div><p className="text-xs font-bold uppercase text-primary">Vamos conversar</p><h2 className="mt-3 text-2xl font-semibold">Sua empresa merece uma gestão tranquila.</h2><p className="mt-3 text-sm text-muted-foreground">Tire suas dúvidas e encontre o plano para a sua operação.</p></div><Button asChild size="lg"><a href={whatsapp} target="_blank" rel="noopener noreferrer"><MessageCircle/> Falar no WhatsApp <ArrowUpRight/></a></Button></section>
+      <section id="contato" className="mx-auto flex max-w-7xl scroll-mt-8 flex-col items-start justify-between gap-6 px-5 py-14 md:flex-row md:items-center md:px-10"><div><p className="text-xs font-bold uppercase text-primary">Vamos conversar</p><h2 className="mt-3 text-2xl font-semibold">{k.footer.contact_title}</h2><p className="mt-3 text-sm text-muted-foreground">{k.footer.contact_text}</p></div><Button asChild size="lg"><a href={whatsapp} target="_blank" rel="noopener noreferrer"><MessageCircle/> {k.footer.contact_cta} <ArrowUpRight/></a></Button></section>
     </main>
-    <footer className="border-t border-border"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-7 text-xs text-muted-foreground md:px-10"><div><strong className="text-sm text-foreground">Ponto Pro Gestão</strong><p className="mt-2 max-w-xl">Desenhado em conformidade com as diretrizes da Portaria MTE 671/2021.</p></div><Link to="/" className="flex items-center gap-2 font-semibold hover:text-primary">Acessar o sistema <ArrowUpRight size={15}/></Link></div></footer>
+    <footer className="border-t border-border"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-7 text-xs text-muted-foreground md:px-10"><div><strong className="text-sm text-foreground">Ponto Pro Gestão</strong><p className="mt-2 max-w-xl">{k.footer.footer_text}</p></div><Link to="/" className="flex items-center gap-2 font-semibold hover:text-primary">Acessar o sistema <ArrowUpRight size={15}/></Link></div></footer>
   </div>;
 }
