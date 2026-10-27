@@ -2021,7 +2021,7 @@ function renderGestaoBatidas(){
   ${dados.linhas.slice().reverse().map(l=>{
     const oc=ocorrencias.find(o=>o.data===l.data),st=statusGestaoDia(l,oc),bs=batidasDia(pin,l.data);
     return `<tr><td class="day-cell"><strong>${brOf(l.data)}</strong><small>${esc(l.dia)}</small></td><td><span class="status-day ${st[1]}">${st[0]}</span>${oc?`<div class="muted" title="${esc(oc.motivo||'')}">${esc(oc.tipo)}</div>`:''}</td>
-      <td><div class="marks-cell">${bs.length?bs.map(b=>`<span class="mark-pill">${esc(b.hora)}</span>`).join(''):'<span class="muted">Sem marcações</span>'}${bs.length%2?'<span class="status-day warn" title="Número ímpar de marcações: falta fechar um par">⚠ Par incompleto</span>':''}</div></td>
+      <td><div class="marks-cell">${bs.length?bs.map(b=>`<span class="mark-pill">${esc(b.hora)}</span>`).join(''):'<span class="muted">Sem marcações</span>'}${bs.length%2?'<span class="status-day incompleto" title="Número ímpar de marcações: falta fechar um par">⚠ Par incompleto</span>':''}</div></td>
       <td>${toHHMM(l.previsto)}</td><td><b>${toHHMM(l.trabalhado)}</b></td><td>${toSaldo(l.saldo)}</td>
       <td><button type="button" class="btn sm ghost" onclick="abrirAcoesBatida('${pin}','${l.data}')" aria-label="Abrir ações de ${brOf(l.data)}">Ações ▾</button></td></tr>`;
   }).join('')}</tbody></table></div>`;
