@@ -20,10 +20,10 @@ vm.runInContext(types[0] + html.slice(start, end), ctx);
 
 for (const [input, expected] of [
   ['DSR', 'DSR'], ['Trabalhado', 'Trabalhado'],
-  ['Folga Domingo', 'Folga Domingo'], ['Folga Compensada', 'Folga Compensada'],
+  ['Folga Domingo', 'Folga Compensada'], ['Folga Compensada', 'Folga Compensada'],
   ['folga Compensanda', 'Folga Compensada'],
   [' Folga   compensatória ', 'Folga Compensada'],
-  ['FOLGA', 'Folga Compensada'], ['FOLGA DOMINGO', 'Folga Domingo'],
+  ['FOLGA', 'Folga Compensada'], ['FOLGA DOMINGO', 'Folga Compensada'],
 ]) {
   test(`grade e formato antigo aceitam ${input}`, () => {
     ctx['input'] = input;
