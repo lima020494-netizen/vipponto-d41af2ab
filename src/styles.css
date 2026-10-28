@@ -145,11 +145,11 @@
 
 /* Scoped commercial palette: never changes the operational iframe. */
 .commercial {
-  --background: #0f172a;
+  --background: #1e3a8a;
   --foreground: #ffffff;
   --card: #162338;
   --card-foreground: #ffffff;
-  --primary: #38bdf8;
+  --primary: #0ea5e9;
   --primary-foreground: #0f172a;
   --secondary: #1c3046;
   --secondary-foreground: #ffffff;
@@ -174,7 +174,7 @@
 @keyframes commercial-enter { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 
 /* Super Admin (/admin) — paleta própria marinho/dourado */
-.admin-shell { --adm-bg: #0c2246; --adm-card: #132f5c; --adm-gold: #c9992b; --adm-text: #f4f6fa; background: var(--adm-bg); color: var(--adm-text); }
+.admin-shell { --adm-bg: #1e3a8a; --adm-card: #132f5c; --adm-gold: #0ea5e9; --adm-text: #f4f6fa; background: var(--adm-bg); color: var(--adm-text); }
 .admin-card { background: var(--adm-card); border: 1px solid rgb(201 153 43 / 0.35); border-radius: 14px; padding: 20px; }
 .admin-input { display: block; width: 100%; margin-top: 4px; min-height: 40px; border-radius: 8px; padding: 6px 10px; background: var(--adm-bg); color: var(--adm-text); border: 1px solid rgb(255 255 255 / 0.2); }
 .admin-btn { min-height: 40px; padding: 6px 14px; border-radius: 8px; background: var(--adm-gold); color: var(--adm-bg); font-weight: 600; }
@@ -189,3 +189,4 @@
 .admin-tabs button { white-space:normal; height:auto; text-align:left; justify-content:flex-start; }
 .admin-shell th,.admin-shell td { padding:12px 8px; }
 @media(max-width:640px) { .admin-tabs { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); } .admin-tabs button { font-size:12px;padding:8px; } .admin-shell header { gap:8px; } }
+.operational-frame { position:fixed;inset:0;width:100%;height:100%;border:0; }

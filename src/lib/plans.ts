@@ -5,6 +5,7 @@ export const planoSchema = z.object({
   nome: z.string().trim().min(1).max(40),
   empresas: z.number().int().min(1).max(20),
   colaboradores: z.number().int().min(1).max(500),
+  gerenciadores: z.number().int().min(1).max(100).default(4),
   mensal: z.number().nonnegative().nullable(),
   anual: z.number().nonnegative().nullable(),
   recursos: z.array(z.string().trim().min(1).max(80)).max(8),
@@ -17,9 +18,9 @@ const RECURSOS_PADRAO = ["Folha MTE, AFD e banco de horas", "Operação offline 
 
 /** Valores atuais como padrão: o app funciona mesmo sem configuração salva. */
 export const PLANOS_PADRAO: Record<string, PlanoCfg> = {
-  "1": { nome: "Essencial", empresas: 1, colaboradores: 10, mensal: null, anual: null, recursos: RECURSOS_PADRAO, ativo: true },
-  "2": { nome: "Profissional", empresas: 2, colaboradores: 25, mensal: null, anual: null, recursos: RECURSOS_PADRAO, ativo: true },
-  "3": { nome: "Multiempresa", empresas: 3, colaboradores: 50, mensal: null, anual: null, recursos: RECURSOS_PADRAO, ativo: true },
+  "1": { nome: "Essencial", empresas: 1, colaboradores: 10, gerenciadores: 4, mensal: null, anual: null, recursos: RECURSOS_PADRAO, ativo: true },
+  "2": { nome: "Profissional", empresas: 2, colaboradores: 25, gerenciadores: 4, mensal: null, anual: null, recursos: RECURSOS_PADRAO, ativo: true },
+  "3": { nome: "Multiempresa", empresas: 3, colaboradores: 50, gerenciadores: 4, mensal: null, anual: null, recursos: RECURSOS_PADRAO, ativo: true },
 };
 
 /** Mescla a configuração salva (app_config chave 'planos') com os padrões, ignorando entradas inválidas. */
