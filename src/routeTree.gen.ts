@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ConhecaRouteImport } from './routes/conheca'
+import { Route as GestorRouteImport } from './routes/gestor'
+import { Route as QuiosqueRouteImport } from './routes/quiosque'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminSenhaRouteImport } from './routes/admin.senha'
 import { Route as ApiPublicAdminAcessoRouteImport } from './routes/api/public/admin-acesso'
@@ -31,6 +33,16 @@ const AdminRoute = AdminRouteImport.update({
 const ConhecaRoute = ConhecaRouteImport.update({
   id: '/conheca',
   path: '/conheca',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GestorRoute = GestorRouteImport.update({
+  id: '/gestor',
+  path: '/gestor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuiosqueRoute = QuiosqueRouteImport.update({
+  id: '/quiosque',
+  path: '/quiosque',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -63,6 +75,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/conheca': typeof ConhecaRoute
+  '/gestor': typeof GestorRoute
+  '/quiosque': typeof QuiosqueRoute
   '/admin/senha': typeof AdminSenhaRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/admin-acesso': typeof ApiPublicAdminAcessoRoute
@@ -72,6 +86,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/conheca': typeof ConhecaRoute
+  '/gestor': typeof GestorRoute
+  '/quiosque': typeof QuiosqueRoute
   '/admin/senha': typeof AdminSenhaRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/admin-acesso': typeof ApiPublicAdminAcessoRoute
@@ -83,6 +99,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/conheca': typeof ConhecaRoute
+  '/gestor': typeof GestorRoute
+  '/quiosque': typeof QuiosqueRoute
   '/admin/senha': typeof AdminSenhaRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/admin-acesso': typeof ApiPublicAdminAcessoRoute
@@ -95,6 +113,8 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/conheca'
+    | '/gestor'
+    | '/quiosque'
     | '/admin/senha'
     | '/admin/'
     | '/api/public/admin-acesso'
@@ -104,6 +124,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/conheca'
+    | '/gestor'
+    | '/quiosque'
     | '/admin/senha'
     | '/admin'
     | '/api/public/admin-acesso'
@@ -114,6 +136,8 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/conheca'
+    | '/gestor'
+    | '/quiosque'
     | '/admin/senha'
     | '/admin/'
     | '/api/public/admin-acesso'
@@ -125,6 +149,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   ConhecaRoute: typeof ConhecaRoute
+  GestorRoute: typeof GestorRoute
+  QuiosqueRoute: typeof QuiosqueRoute
   ApiPublicAdminAcessoRoute: typeof ApiPublicAdminAcessoRoute
   ApiPublicFolhaLinkRoute: typeof ApiPublicFolhaLinkRoute
   ApiPublicLicencaRoute: typeof ApiPublicLicencaRoute
@@ -151,6 +177,20 @@ declare module '@tanstack/react-router' {
       path: '/conheca'
       fullPath: '/conheca'
       preLoaderRoute: typeof ConhecaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gestor': {
+      id: '/gestor'
+      path: '/gestor'
+      fullPath: '/gestor'
+      preLoaderRoute: typeof GestorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quiosque': {
+      id: '/quiosque'
+      path: '/quiosque'
+      fullPath: '/quiosque'
+      preLoaderRoute: typeof QuiosqueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -207,6 +247,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   ConhecaRoute: ConhecaRoute,
+  GestorRoute: GestorRoute,
+  QuiosqueRoute: QuiosqueRoute,
   ApiPublicAdminAcessoRoute: ApiPublicAdminAcessoRoute,
   ApiPublicFolhaLinkRoute: ApiPublicFolhaLinkRoute,
   ApiPublicLicencaRoute: ApiPublicLicencaRoute,
