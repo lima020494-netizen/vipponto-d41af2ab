@@ -190,3 +190,7 @@
 .admin-shell th,.admin-shell td { padding:12px 8px; }
 @media(max-width:640px) { .admin-tabs { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); } .admin-tabs button { font-size:12px;padding:8px; } .admin-shell header { gap:8px; } }
 .operational-frame { position:fixed;inset:0;width:100%;height:100%;border:0; }
+.commercial-hero { color:var(--hero-foreground); }
+.commercial article { color:var(--card-foreground); }
+.commercial-hero .text-primary { color:var(--hero-accent); }
+.admin-card { color:var(--adm-card-text,var(--adm-text)); }

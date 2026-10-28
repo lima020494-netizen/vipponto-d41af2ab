@@ -1035,7 +1035,7 @@ async function iniciarApp(){
   if(!get('funcionarios',[]).length) set('funcionarios',[]);
   sincronizarNTP();
   detectarImpressora();
-  if(!get('empregador',null)) return telaEmpregador();
+  if(!get('empregador',null)) return MODO_GESTOR?bloquearGestor():telaEmpregador();
   telaHome();
 }
 function feriadosNacionais(){

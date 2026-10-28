@@ -46,7 +46,7 @@ function ConhecaPage() {
       setSettings(resolveAppSettings(global.data?.settings));
     }, () => {});
   }, []);
-  useEffect(()=>{const el=document.querySelector<HTMLElement>(".commercial");if(el){el.style.setProperty("--background",settings.primary_color);el.style.setProperty("--primary",settings.accent_color);el.style.setProperty("--foreground",readableTextColor(settings.text_color,settings.primary_color));el.style.setProperty("--card-foreground",readableTextColor(settings.text_color,"#162338"));}},[settings]);
+  useEffect(()=>{const el=document.querySelector<HTMLElement>(".commercial");if(el){el.style.setProperty("--background",settings.primary_color);el.style.setProperty("--primary",settings.accent_color);el.style.setProperty("--primary-foreground",readableTextColor(settings.text_color,settings.accent_color));el.style.setProperty("--foreground",readableTextColor(settings.text_color,settings.primary_color));el.style.setProperty("--card-foreground",readableTextColor(settings.text_color,"#162338"));el.style.setProperty("--hero-foreground",readableTextColor(settings.text_color,"#0f172a"));el.style.setProperty("--hero-accent",readableTextColor(settings.accent_color,"#0f172a"));}},[settings]);
   const logo = resolvePlatformLogo(settings.logo_url);
   const whatsapp = whatsappLink(k.whatsapp, k.footer.whatsapp_message);
   const icons = [WifiOff, Printer, Smartphone, ShieldCheck, Clock3, Headphones];
