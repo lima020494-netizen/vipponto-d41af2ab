@@ -28,9 +28,10 @@ export function AdminSettings({ initial, api, onSave }: { initial: AppSettings; 
       <div className="flex flex-wrap items-center gap-4"><img src={s.logo_url || "/vip-logo.png"} alt="Logo do aplicativo" className="h-24 w-24 object-contain" /><label className="admin-btn-ghost flex cursor-pointer items-center gap-2"><Upload size={16} /> Escolher logo<input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={e => logo(e.target.files?.[0])} /></label></div>
       <div className="grid gap-4 md:grid-cols-2">
         <label>Nome do aplicativo<input className="admin-input" value={s.app_name} onChange={e => update("app_name", e.target.value)} required /></label>
-        <label>Endereço HTTPS da logo<input className="admin-input" type="url" value={s.logo_url.startsWith("data:") ? "" : s.logo_url} onChange={e => update("logo_url",e.target.value)} /></label>
+        <label>Endereço HTTPS da logo<input className="admin-input" type="url" value={s.logo_url.startsWith("https:") ? s.logo_url : ""} onChange={e => update("logo_url",e.target.value)} /></label>
         <label className="flex items-center gap-3">Cor principal<input aria-label="Cor principal" type="color" value={s.primary_color} onChange={e => update("primary_color",e.target.value)} /></label>
         <label className="flex items-center gap-3">Cor de destaque<input aria-label="Cor de destaque" type="color" value={s.accent_color} onChange={e => update("accent_color",e.target.value)} /></label>
+        <label className="flex items-center gap-3">Cor da fonte global<input aria-label="Cor da fonte global" type="color" value={s.text_color} onChange={e => update("text_color",e.target.value)} /></label>
         <label>Versão<input className="admin-input" value={s.version} onChange={e => setS(p => ({...p,version:e.target.value,developer:{...p.developer,versao:e.target.value}}))} required /></label>
         <label className="flex items-center gap-3"><input type="checkbox" checked={s.maintenance} onChange={e => update("maintenance",e.target.checked)} /> Aviso de manutenção</label>
       </div>

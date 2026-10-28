@@ -7,8 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { CONHECA_DEFAULT, resolveConheca, whatsappLink } from "@/lib/conheca-content";
 import { PLANOS_PADRAO, resolvePlanos } from "@/lib/plans";
 import { APP_SETTINGS_DEFAULT, resolveAppSettings } from "@/lib/app-settings";
+import { resolvePlatformLogo, readableTextColor } from "@/lib/platform-identity";
 
-const defaultLogo = "/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg";
 
 export const Route = createFileRoute("/conheca")({
   head: () => ({
@@ -46,8 +46,8 @@ function ConhecaPage() {
       setSettings(resolveAppSettings(global.data?.settings));
     }, () => {});
   }, []);
-  useEffect(()=>{const el=document.querySelector<HTMLElement>(".commercial");if(el){el.style.setProperty("--background",settings.primary_color);el.style.setProperty("--primary",settings.accent_color);}},[settings]);
-  const logo = settings.logo_url || defaultLogo;
+  useEffect(()=>{const el=document.querySelector<HTMLElement>(".commercial");if(el){el.style.setProperty("--background",settings.primary_color);el.style.setProperty("--primary",settings.accent_color);el.style.setProperty("--primary-foreground",readableTextColor(settings.text_color,settings.accent_color));el.style.setProperty("--foreground",readableTextColor(settings.text_color,settings.primary_color));el.style.setProperty("--card-foreground",readableTextColor(settings.text_color,"#162338"));el.style.setProperty("--hero-foreground",readableTextColor(settings.text_color,"#0f172a"));el.style.setProperty("--hero-accent",readableTextColor(settings.accent_color,"#0f172a"));}},[settings]);
+  const logo = resolvePlatformLogo(settings.logo_url);
   const whatsapp = whatsappLink(k.whatsapp, k.footer.whatsapp_message);
   const icons = [WifiOff, Printer, Smartphone, ShieldCheck, Clock3, Headphones];
   const plans = Object.entries(configuredPlans).filter(([,p])=>p.ativo).map(([id,p],i)=>({name:p.nome,price:p.mensal===null?null:p.mensal.toLocaleString("pt-BR"),caption:`${p.empresas} empresa(s) · até ${p.colaboradores} colaboradores`,benefits:p.recursos,featured:i===1}));
@@ -88,7 +88,7 @@ function ConhecaPage() {
       </section>
       <section id="recursos" className="mx-auto max-w-7xl scroll-mt-8 px-5 py-16 md:px-10">
         <p className="text-xs font-bold uppercase text-primary">{k.features.eyebrow}</p><h2 className="mt-3 text-2xl font-semibold md:text-3xl">{k.features.title}</h2>
-        <div className="mt-10 grid gap-8 md:grid-cols-3">{k.features.items.map(({title,copy},i)=>{const Icon=icons[i%icons.length]!;return <div key={title+i} className="border-t border-border pt-6"><Icon size={28} className="mb-5 text-primary"/><h3 className="text-lg font-semibold">{title}</h3><p className="mt-3 text-sm leading-7 text-muted-foreground">{copy}</p></div>;})}</div>
+        <div className="mt-10 grid gap-8 md:grid-cols-3">{k.features.items.map(({title,copy},i)=>{const Icon=icons[i%icons.length] ?? ShieldCheck;return <div key={title+i} className="border-t border-border pt-6"><Icon size={28} className="mb-5 text-primary"/><h3 className="text-lg font-semibold">{title}</h3><p className="mt-3 text-sm leading-7 text-muted-foreground">{copy}</p></div>;})}</div>
       </section>
       <section id="planos" className="scroll-mt-8 border-y border-border bg-secondary/30">
         <div className="mx-auto max-w-7xl px-5 py-16 md:px-10">

@@ -9,6 +9,7 @@ import { MarketingEditor } from "@/components/marketing-editor";
 import type { ConhecaContent } from "@/lib/conheca-content";
 import { Button } from "@/components/ui/button";
 import { Building2, CreditCard, Megaphone, Settings } from "lucide-react";
+import { readableTextColor, resolvePlatformLogo } from "@/lib/platform-identity";
 
 const SUPA_REF = new URL(import.meta.env["VITE_SUPABASE_URL"] ?? "https://kvbidsfnisegtqjagsld.supabase.co").hostname.split(".")[0];
 
@@ -37,7 +38,7 @@ const ROT: Record<string, string> = { trial: "Teste", ativo: "Ativo", tolerancia
 function AdminPage() {
   const [identity,setIdentity] = useState(APP_SETTINGS_DEFAULT);
   useEffect(()=>{supabase.from("app_settings").select("settings").eq("id","global").maybeSingle().then(({data})=>setIdentity(resolveAppSettings(data?.settings)));},[]);
-  useEffect(()=>{const shell=document.querySelector<HTMLElement>(".admin-shell");if(shell){shell.style.setProperty("--adm-bg",identity.primary_color);shell.style.setProperty("--adm-gold",identity.accent_color);}},[identity]);
+  useEffect(()=>{const shell=document.querySelector<HTMLElement>(".admin-shell");if(shell){shell.style.setProperty("--adm-bg",identity.primary_color);shell.style.setProperty("--adm-gold",identity.accent_color);shell.style.setProperty("--adm-text",readableTextColor(identity.text_color,identity.primary_color));}},[identity]);
   const [email, setEmail] = useState<string | null | undefined>(undefined);
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email?.toLowerCase() ?? null));
@@ -68,7 +69,7 @@ function Login({ outraConta, identity }: { outraConta: string | null; identity: 
   return (
     <main className="grid min-h-screen place-items-center p-4">
       <form onSubmit={entrar} className="admin-card w-full max-w-sm space-y-3">
-        <img src={identity.logo_url || "/vip-logo.png"} alt="Logo do aplicativo" className="h-16 w-16 object-contain" /><h1 className="text-xl font-semibold">Super Admin</h1>
+        <img src={resolvePlatformLogo(identity.logo_url)} alt="Logo do aplicativo" className="h-16 w-16 object-contain" /><h1 className="text-xl font-semibold">Super Admin</h1>
         <p className="text-sm opacity-80">{MASTER_EMAIL}</p>
         <input className="admin-input" type="password" placeholder="Senha" value={senha} onChange={(e) => setSenha(e.target.value)} />
         <Button className="admin-btn w-full">Entrar</Button>
@@ -113,7 +114,7 @@ function Painel() {
       // Compartilha a sessão do admin com o app do cliente (mesma origem, chave padrão do Supabase).
       const { data } = await supabase.auth.getSession();
       if (data.session) localStorage.setItem(`sb-${SUPA_REF}-auth-token`, JSON.stringify(data.session));
-      window.location.href = `/vip-ponto.html?suporte=1&v=${Date.now()}`;
+      window.location.href = "/gestor?suporte=1";
     } catch (e) { alert((e as Error).message); }
   }
   const q = busca.trim().toLowerCase(), qd = q.replace(/\D/g, "");
@@ -135,13 +136,13 @@ function Painel() {
   return (
     <main className="mx-auto max-w-6xl space-y-6 p-4">
       <header className="flex items-center justify-between">
-        <div className="flex min-w-0 items-center gap-3"><img src={dados.settings?.logo_url || "/vip-logo.png"} alt="Logo do app" className="h-12 w-12 object-contain" /><div><p className="text-xs text-muted-foreground">SUPER ADMIN</p><h1 className="text-xl font-semibold">{dados.settings?.app_name || "Ponto Pro Gestão"}</h1></div></div>
+        <div className="flex min-w-0 items-center gap-3"><img src={resolvePlatformLogo(dados.settings?.logo_url || "")} alt="Logo do app" className="h-12 w-12 object-contain" /><div><p className="text-xs text-muted-foreground">SUPER ADMIN</p><h1 className="text-xl font-semibold">{dados.settings?.app_name || "Ponto Pro Gestão"}</h1></div></div>
         <Button className="admin-btn-ghost" onClick={() => supabase.auth.signOut()}>Sair</Button>
       </header>
       <nav className="admin-tabs" aria-label="Seções do Super Admin">{[["empresas","Empresas e Suporte",Building2],["planos","Planos e Preços",CreditCard],["marketing","Marketing",Megaphone],["settings","Configurações Globais / Sobre",Settings]].map(([id,label,Icon]) => { const I = Icon as typeof Building2; return <Button key={String(id)} variant={tab===id?"default":"ghost"} aria-current={tab===id?"page":undefined} onClick={()=>setTab(String(id))}><I />{String(label)}</Button>; })}</nav>
       {tab === "planos" && <><Cobranca dados={dados} api={api} /><PlanosEditor inicial={dados.planos} api={api} /></>}
       {tab === "marketing" && <MarketingEditor inicial={dados.conheca} api={api} planos={dados.planos} />}
-      {tab === "settings" && <AdminSettings initial={dados.settings || APP_SETTINGS_DEFAULT} api={api} onSave={settings => {setDados(p=>p?{...p,settings}:p);const shell=document.querySelector<HTMLElement>(".admin-shell");shell?.style.setProperty("--adm-bg",settings.primary_color);shell?.style.setProperty("--adm-gold",settings.accent_color);}} />}
+      {tab === "settings" && <AdminSettings initial={dados.settings || APP_SETTINGS_DEFAULT} api={api} onSave={settings => {setDados(p=>p?{...p,settings}:p);const shell=document.querySelector<HTMLElement>(".admin-shell");shell?.style.setProperty("--adm-bg",settings.primary_color);shell?.style.setProperty("--adm-gold",settings.accent_color);shell?.style.setProperty("--adm-text",readableTextColor(settings.text_color,settings.primary_color));}} />}
       {tab === "empresas" && <section className="admin-card">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-lg font-semibold">Empresas ({contas.length}/{dados.contas.length})</h2>
@@ -224,6 +225,7 @@ function PlanosEditor({ inicial, api }: { inicial: Record<string, PlanoCfg>; api
               <label>Nome<input className="admin-input" value={p.nome} onChange={(e) => setP(id, { nome: e.target.value })} /></label>
               <label>Empresas no aparelho<input className="admin-input" type="number" min={1} value={p.empresas} onChange={(e) => setP(id, { empresas: Math.max(1, +e.target.value || 1) })} /></label>
               <label>Limite de colaboradores<input className="admin-input" type="number" min={1} value={p.colaboradores} onChange={(e) => setP(id, { colaboradores: Math.max(1, +e.target.value || 1) })} /></label>
+              <label>Limite de gerenciadores<input className="admin-input" type="number" min={1} max={100} value={p.gerenciadores} onChange={(e) => setP(id, { gerenciadores: Math.min(100, Math.max(1, +e.target.value || 1)) })} /></label>
               <label>Mensal (R$, vazio = sob consulta)<input className="admin-input" type="number" value={p.mensal ?? ""} onChange={(e) => setP(id, { mensal: num(e.target.value) })} /></label>
               <label>Anual (R$, vazio = sob consulta)<input className="admin-input" type="number" value={p.anual ?? ""} onChange={(e) => setP(id, { anual: num(e.target.value) })} /></label>
               <label>Recursos (um por linha)<textarea rows={4} className="admin-input" value={p.recursos.join("\n")} onChange={(e) => setP(id, { recursos: e.target.value.split("\n").filter(Boolean).slice(0, 8) })} /></label>

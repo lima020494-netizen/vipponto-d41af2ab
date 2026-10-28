@@ -1,10 +1,10 @@
 /* Only the kiosk shell and public static files. Never cache API/auth/company responses. */
-const CACHE = 'ponto-static-20261027-batidas-v1';
+const CACHE = 'ponto-static-20261028-identidade-v1';
 const SHELL = '/vip-ponto.html';
 const ASSETS = [SHELL, '/jspdf-2.5.1.umd.min.js', '/jspdf.plugin.autotable.min.js',
   '/jszip-3.10.1.min.js', '/xlsx-0.18.5.full.min.js', '/supabase-2.117.3.min.js',
   '/qrcode-generator.min.js', '/ponto-offline-register.js', '/vip-logo.png',
-  '/favicon-v20261022.png', '/pwa-icon-192-v20261022.png', '/pwa-icon-512-v20261022.png', '/apple-touch-icon-v20261022.png', '/manifest.webmanifest'];
+  '/favicon-v20261028.png', '/pwa-icon-192-v20261028.png', '/pwa-icon-512-v20261028.png', '/pwa-icon-maskable-192-v20261028.png', '/pwa-icon-maskable-512-v20261028.png', '/apple-touch-icon-v20261028.png', '/manifest.webmanifest'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });

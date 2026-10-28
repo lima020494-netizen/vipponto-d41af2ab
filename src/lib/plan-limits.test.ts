@@ -8,6 +8,11 @@ const html = readFileSync(new URL("../../public/vip-ponto.html", import.meta.url
 test("Plano 1 permite 10 colaboradores", () => assert.equal(PLANOS_PADRAO["1"]?.colaboradores, 10));
 test("Plano 2 permite 25 colaboradores", () => assert.equal(PLANOS_PADRAO["2"]?.colaboradores, 25));
 test("Plano 3 permite 50 colaboradores", () => assert.equal(PLANOS_PADRAO["3"]?.colaboradores, 50));
+test("legacy plans keep four managers until a limit is configured", () => assert.equal(resolvePlanos({})["1"]?.gerenciadores,4));
+test("manager capacity follows the contracted plan", () => {
+  const p=resolvePlanos({"1":{...PLANOS_PADRAO["1"],gerenciadores:2}});
+  assert.equal(p["1"]?.gerenciadores,2);
+});
 test("fallback do app mantém 10/25/50 sem configuração salva", () => {
   assert.match(html, /const PLANO_LIMITES=\{1:10,2:25,3:50\}/);
 });
