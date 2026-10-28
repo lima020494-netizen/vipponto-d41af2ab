@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>Ponto Pro Gestão — Registro Eletrônico de Ponto (Portaria MTE 671/2021)</title>
-<link rel="icon" href="/favicon-v20261022.png" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-v20261022.png" />
-<link rel="manifest" href="/manifest.webmanifest?v=20261022" />
+<link rel="icon" href="/favicon-v20261028.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-v20261028.png" />
+<link rel="manifest" href="/manifest.webmanifest?v=20261028" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Sora:wght@600;700;800&amp;display=swap" />
@@ -25,13 +25,13 @@ function garantirLib(grupo){
 }
 </script>
 <script src="/qrcode-generator.min.js"></script>
-<meta name="theme-color" content="#0f172a" />
+<meta name="theme-color" content="#1e3a8a" />
 <script src="/supabase-2.117.3.min.js"></script>
 <script src="/ponto-offline-register.js" defer></script>
 <style>
 /* ===================== DESIGN SYSTEM ===================== */
 :root{
-  --navy:#0c2246; --navy2:#123a73; --gold:#c9992b; --gold2:#e9c05a;
+  --navy:#1e3a8a; --navy2:#1e3a8a; --gold:#0ea5e9; --gold2:#38bdf8;
   --bg:#f4f6fb; --card:#ffffff; --txt:#12203a; --muted:#6b7a93;
   --green:#12823c; --red:#c62828; --orange:#e07c1f; --blue:#1565c0; --gray:#78849a;
   --line:#dfe5ef; --radius:14px; --shadow:0 6px 24px rgba(12,34,70,.09);
@@ -611,6 +611,9 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 /* Geometry only: receipt browser-print isolation remains unchanged. */
 @media print{.sheet-a4{width:190mm;max-width:190mm;padding:0;border:0;break-after:page;print-color-adjust:exact}.sheet-top{margin-bottom:2mm;padding-bottom:2mm}.sheet-top img{width:24mm;height:12mm}.sheet-title,#gestor-body .sheet-a4 .sheet-title{font-size:13pt}.sheet-issued{font-size:6pt}.sheet-identification{grid-template-columns:1.35fr 1fr;font-size:6.5pt;gap:2mm}.sheet-people{padding:1.5mm}.sheet-box-title{font-size:7pt;padding:1mm}.sheet-a4 .sheet-schedule td,.sheet-a4 .sheet-schedule th{font-size:6pt;padding:.5mm}.sheet-a4 .tbl-wrap{overflow:visible}.sheet-daily{min-width:0!important;width:100%}.sheet-a4 .sheet-daily th,.sheet-a4 .sheet-daily td{font-size:6.3pt!important;padding:.65mm!important;white-space:normal!important}.sheet-summary>div{font-size:6.5pt;padding:1mm}.sheet-bottom{grid-template-columns:1fr 1.35fr;gap:2mm}.sheet-bank,.sheet-notes,.sheet-awareness,.sheet-place,.sheet-a4 .sheet-away,#gestor-body .sheet-a4 .sheet-away{color:var(--sheet-away)!important;background:var(--sheet-heading)!important;font-weight:700}.folha-month-controls{margin-bottom:12px;align-items:end}.folha-month-controls .btn{white-space:normal}.sheet-day-counts{font-size:6pt}.sheet-footer{font-size:6pt}.sheet-a4 .assin{font-size:7pt;margin-top:6mm;break-inside:avoid}}
 
+.manager-lock{min-height:100dvh;display:grid;place-items:center;background:var(--manager-bg,var(--bg));color:var(--txt);padding:24px}.manager-lock section{width:min(460px,100%);text-align:center}.manager-lock img{width:140px;height:140px;object-fit:contain}.manager-lock .row{justify-content:center;margin-top:16px}.manager-lock h1{font:700 24px Sora,system-ui}.manager-lock .btn{min-height:44px}
+#tela-login h3,#gestor-body h3,#gestor-body h4,#gestor-body td,#gestor-body input,#gestor-body select,#gestor-body textarea,#modal-generico .inner,#modal-pin .inner{color:var(--global-text,var(--txt))}
+#gestor-body .sheet-a4,#gestor-body .sheet-a4 h3,#gestor-body .sheet-a4 td{color:var(--sheet-ink)}
 </style>
 </head>
 <body>
@@ -619,7 +622,7 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 <div id="tela-login">
   <div class="box">
     <a class="login-plans-banner" href="/conheca" target="_top">Quer usar na sua empresa? Conheça os planos ↗</a>
-    <img id="logo-app" src="/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg" alt="Ponto Pro Gestão" />
+    <img id="logo-app" src="/__l5e/assets-v1/1fd9a036-8b2e-4139-ad92-09df31f88a47/ponto-pro-gestao-logo-v20261028.png" alt="Ponto Pro Gestão" />
     <div id="login-view">
       <h3 style="text-align:center">Acesso ao sistema</h3>
       <div id="saudacao" class="muted" style="text-align:center;font-weight:800;color:var(--navy)"></div>
@@ -671,14 +674,13 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 <!-- ======================= TELA INICIAL ======================= -->
 <div id="tela-home" class="hidden">
   <div class="kiosk-rail" role="toolbar" aria-label="Ações do kiosk">
-    <button class="icon-btn" title="Gestor de ponto" onclick="pedirPinGestor()" aria-label="Gestor"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     <button class="icon-btn" title="Portal do Empregado" onclick="pedirPinPortal()" aria-label="Portal do Empregado"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></button>
     <button id="btn-logoff" class="icon-btn" title="⏻ Sair — voltar ao login multi-empresa" onclick="logoff()" aria-label="⏻ Sair"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 2v10"/><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/></svg></button>
   </div>
   <div id="tela-ponto" class="wrap kiosk-shell">
     <section class="kiosk-info-panel" aria-label="Empresa e informações do registro">
       <div class="kiosk-company">
-        <img id="logo-empresa" src="/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg" alt="Logo empresa"/>
+        <img id="logo-empresa" src="/__l5e/assets-v1/1fd9a036-8b2e-4139-ad92-09df31f88a47/ponto-pro-gestao-logo-v20261028.png" alt="Logo empresa"/>
         <div id="home-fantasia" class="kiosk-company-name"></div>
       </div>
       <div class="kiosk-info-title">Registro de hoje</div>
@@ -701,7 +703,10 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
   </div>
 </div>
 
-<!-- ======================= GESTOR (4 MÓDULOS) ======================= -->
+<div id="gestor-bloqueio" class="hidden manager-lock">
+  <section><img id="gestor-lock-logo" src="/vip-logo.png?v=20261028" alt="Logo da empresa"/><h1>Painel do Gestor</h1><p id="gestor-lock-empresa"></p><div class="row"><button class="btn" onclick="pedirPinGestor()">🔒 Desbloquear com PIN</button><button class="btn ghost" onclick="abrirSuporteGestor()">Suporte</button></div><div class="row"><a class="btn ghost" href="/quiosque" target="_top">Abrir Quiosque</a><button class="btn red" onclick="logoff()">Sair da conta</button></div></section>
+</div>
+<!-- ======================= GESTOR ======================= -->
 <div id="tela-gestor" class="modal hidden">
   <div class="manager-scrim" onclick="fecharMenuGestor()" aria-hidden="true"></div>
   <aside id="gestor-drawer" class="manager-drawer" aria-label="Menu do gestor" inert></aside>
@@ -709,7 +714,7 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
     <div class="gestor-head">
       <button id="gestor-menu-toggle" class="btn ghost" type="button" onclick="alternarMenuGestor()" aria-label="Abrir menu do gestor" aria-controls="gestor-drawer" aria-expanded="false" title="Menu do gestor">☰</button>
       <div class="gestor-brand">
-        <img id="gestor-logo" class="gestor-brand-logo" src="/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg" alt="Logo da empresa"/>
+        <img id="gestor-logo" class="gestor-brand-logo" src="/__l5e/assets-v1/1fd9a036-8b2e-4139-ad92-09df31f88a47/ponto-pro-gestao-logo-v20261028.png" alt="Logo da empresa"/>
         <div style="min-width:0"><div id="gestor-empresa" class="gestor-company">Ponto Pro Gestão</div><div id="gestor-quem" class="gestor-user"></div></div>
       </div>
       <span id="gestor-licenca" class="license-badge" data-state="ativo">Ativo</span>
@@ -718,7 +723,7 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
         <button id="gestor-voltar" class="btn sm ghost gestor-back" onclick="mostrarCentralGestor()" title="Voltar ao Dashboard" aria-label="Voltar ao Dashboard"><span class="action-icon" aria-hidden="true">←</span> Voltar</button>
         <button class="btn sm ghost" onclick="abrirSobre()" title="Sobre" aria-label="Sobre"><span class="action-icon" aria-hidden="true">ⓘ</span> Sobre</button>
         <button class="btn sm ghost manager-manual" onclick="abrirManual()" title="Manual" aria-label="Manual"><span class="action-icon" aria-hidden="true">📖</span> Manual</button>
-        <button class="btn sm ghost" onclick="fecharGestor()" title="Sair" aria-label="Sair da área do gestor"><span class="action-icon" aria-hidden="true">✕</span> Sair</button>
+        <button class="btn sm ghost" onclick="fecharGestor()" title="Bloquear painel" aria-label="Bloquear painel do gestor"><span class="action-icon" aria-hidden="true">🔒</span> Bloquear</button>
       </div>
     </div>
     <div class="tabs" id="gestor-tabs"></div>
@@ -747,6 +752,7 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 
 /* ---------- utilitários ---------- */
 const $ = id => document.getElementById(id);
+const MODO_GESTOR=new URLSearchParams(location.search).get('modo')==='gestor';
 const pad = (n,l=2) => String(n).padStart(l,'0');
 const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const hojeISO = () => isoOf(getHoraOficial());
@@ -1105,11 +1111,11 @@ function telaEmpregador(alvo){
     </div>
     <h4>Regras de Ponto</h4><div class="grid g2"><div><label for="e-fator-banco">Fator Multiplicação Domingos/Feriados no Banco</label><select id="e-fator-banco" title="Lei 605/1949, art. 9: feriado trabalhado exige descanso compensatório ou remuneração em dobro. O fator do banco depende do acordo aplicável e não substitui pagamento salarial."><option value="2" ${Number(e.fatorBancoDomFeriado)!==1?'selected':''}>2.0 Dobro Legal — validar acordo</option><option value="1" ${Number(e.fatorBancoDomFeriado)===1?'selected':''}>1.0 Crédito Simples</option></select></div><div><label for="e-cidada">Empresa Cidadã</label><select id="e-cidada"><option value="nao" ${!e.empresaCidada?'selected':''}>Não</option><option value="sim" ${e.empresaCidada?'selected':''}>Sim</option></select></div></div>
     <label>Logo da empresa (salva em base64)</label><input type="file" accept="image/*" id="e-logo-file" onchange="lerLogo(this)"/>
-    <img id="e-logo-prev" src="${e.logo||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg'}" style="height:60px;margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px"/>
+    <img id="e-logo-prev" src="${e.logo||'/__l5e/assets-v1/1fd9a036-8b2e-4139-ad92-09df31f88a47/ponto-pro-gestao-logo-v20261028.png'}" style="height:60px;margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px"/>
     <div id="e-msg"></div>
     <button class="btn big gold" style="margin-top:12px" onclick="salvarEmpregador()">SALVAR EMPREGADOR</button>
   </div>
-  <div class="card"><h3>Gerenciadores — Regra dos 4 (mín. 1 / máx. 4)</h3><div id="ger-lista"></div>
+  <div class="card"><h3>Gerenciadores — até ${maxGerAtual()} no plano</h3><div id="ger-lista"></div>
     <div class="hr"></div>
     <div class="grid g3">
       <div><label>Nome *</label><input id="g-nome"/></div>
@@ -1147,11 +1153,11 @@ function renderGerenciadores(){
   ${vis.map(({g,i})=>`<tr><td>${esc(g.nome)}</td><td>${esc(g.funcao)}</td><td>${esc(g.pin)}</td>
   <td class="row"><button class="btn sm ghost" onclick="editarGer(${i})">Editar</button>
   <button class="btn sm red" onclick="excluirGer(${i})">Excluir</button></td></tr>`).join('')||'<tr><td colspan=4 class="muted">Cadastre ao menos um gerenciador com PIN próprio.</td></tr>'}</table></div>`;
-  const b=$('btn-add-ger'); if(b){b.disabled=gs.length>=4;b.textContent=gs.length>=4?'Limite de 4 gerenciadores atingido':'+ Adicionar Novo Gerenciador';}
+  const b=$('btn-add-ger'); if(b){b.disabled=gs.length>=maxGerAtual();b.textContent=gs.length>=maxGerAtual()?`Limite de ${maxGerAtual()} gerenciadores atingido`:'+ Adicionar Novo Gerenciador';}
 }
 function addGerenciador(){
   const gs=get('gerenciadores',[]),nome=$('g-nome').value.trim(),funcao=$('g-funcao').value.trim(),pin=$('g-pin').value.trim();
-  if(gerVisiveis().length>=4) return $('g-msg').innerHTML='<div class="alert err">Limite de 4 gerenciadores atingido</div>';
+  if(gerVisiveis().length>=maxGerAtual()) return $('g-msg').innerHTML=`<div class="alert err">Seu plano permite até ${maxGerAtual()} gerenciadores. Fale com o suporte para ampliar.</div>`;
   if(!nome||!funcao||!/^\d{4}$/.test(pin)) return $('g-msg').innerHTML='<div class="alert err">Nome, Função e PIN de 4 dígitos são obrigatórios.</div>';
   if(gs.some(g=>g.pin===pin)||get('funcionarios',[]).some(f=>f.pin===pin)) return $('g-msg').innerHTML='<div class="alert err">PIN já utilizado.</div>';
   gs.push({nome,funcao,pin}); set('gerenciadores',gs); log(`Gerenciador cadastrado: ${nome} - ${funcao}`);
@@ -1176,6 +1182,7 @@ function excluirGer(i){
 /* ============================== TELA INICIAL — PIN ============================== */
 let PIN='', PIN_TIMERS=[], LIMPA_TIMER=null;
 function telaHome(){
+  if(MODO_GESTOR)return bloquearGestor();
   $('tela-empregador').classList.add('hidden'); $('tela-login').classList.add('hidden');
   $('tela-home').classList.remove('hidden');
   const e=get('empregador',{})||{};
@@ -1476,6 +1483,7 @@ async function emailComprovante(nsr){
 
 /* ============================== PIN GESTOR / PORTAL ============================== */
 function pedirPinGestor(){
+  if(!MODO_GESTOR||!CONTA)return;
   abrirPinModal('Gestor de Ponto','PIN do gerenciador',pin=>{
     const g=get('gerenciadores',[]).find(g=>g.pin===pin);
     if(!g) return 'PIN inválido.';
@@ -1533,6 +1541,8 @@ const MODULOS_GESTOR={
 
 };
 function abrirGestor(){
+  if(!MODO_GESTOR||!CONTA||!GERENCIADOR)return;
+  $('gestor-bloqueio').classList.add('hidden');
   $('tela-gestor').classList.remove('hidden');
   const e=get('empregador',{})||{}, estado=LIC?.licenca?.estado||'ativo';
   $('gestor-quem').textContent=`${GERENCIADOR.nome} · ${GERENCIADOR.funcao}`;
@@ -1544,12 +1554,23 @@ function abrirGestor(){
   renderMenuGestor();
   mostrarCentralGestor();
 }
-function fecharGestor(){trocaGestor++;fecharMenuGestor(false);$('tela-gestor').classList.add('hidden');pararRelogioGestor();GERENCIADOR=null;}
+function fecharGestor(){trocaGestor++;fecharMenuGestor(false);$('tela-gestor').classList.add('hidden');pararRelogioGestor();GERENCIADOR=null;fecharModal();fecharPinModal();if(MODO_GESTOR)bloquearGestor();}
+function bloquearGestor(){
+  GERENCIADOR=null;['tela-home','tela-login','tela-empregador','tela-gestor'].forEach(id=>$(id).classList.add('hidden'));
+  $('gestor-bloqueio').classList.remove('hidden');$('gestor-lock-logo').src=logoEmpresa();const e=get('empregador',{})||{};$('gestor-lock-empresa').textContent=e.fantasia||e.razao||'Ponto Pro Gestão';
+  pedirPinGestor();
+}
+function abrirSuporteGestor(){
+  const d=devCfg(),wa=String(LIC?.config?.whatsapp||d.telefone||'').replace(/\D/g,''),email=String(d.email||'').trim();
+  const msg=encodeURIComponent('Olá, preciso de suporte no Ponto Pro Gestão.');
+  abrirModal(`<div class="row"><h3>Suporte ao Gestor</h3><button class="btn ghost right" onclick="fecharModal()" aria-label="Fechar suporte">✕</button></div><div class="row">${wa?`<a class="btn" href="https://wa.me/${wa}?text=${msg}" target="_blank" rel="noopener">WhatsApp</a><a class="btn ghost" href="https://wa.me/${wa}?text=${encodeURIComponent('Olá, gostaria de abrir um chamado de suporte.') }" target="_blank" rel="noopener">Abrir chamado</a>`:'<p>Contato de suporte ainda não configurado.</p>'}${/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)?`<a class="btn ghost" href="mailto:${esc(email)}?subject=Chamado%20de%20suporte">Chamado por e-mail</a>`:''}</div>`);
+}
+function abrirQuiosque(){fecharGestor();(window.top||window).location.href='/quiosque';}
 function primeirosPassosVisiveis(){return !!CONTA&&localStorage.getItem(K('primeiros_passos_ocultos'))!=='1';}
 function dispensarPrimeirosPassos(){localStorage.setItem(K('primeiros_passos_ocultos'),'1');$('primeiros-passos')?.remove();}
 function primeirosPassosHTML(){
   if(!primeirosPassosVisiveis())return '';
-  return `<section id="primeiros-passos" class="onboarding" aria-label="Primeiros passos"><div class="onboarding-head"><h3>Primeiros passos</h3><button class="btn sm ghost" onclick="dispensarPrimeirosPassos()" aria-label="Ocultar primeiros passos" title="Ocultar primeiros passos">✕</button></div><div class="onboarding-steps"><button class="btn ghost" onclick="irAba('emp')">1. Configurar Empresa →</button><button class="btn ghost" onclick="irAba('func')">2. Cadastrar Equipe →</button><button class="btn ghost" onclick="fecharGestor()">3. Abrir Quiosque →</button></div></section>`;
+  return `<section id="primeiros-passos" class="onboarding" aria-label="Primeiros passos"><div class="onboarding-head"><h3>Primeiros passos</h3><button class="btn sm ghost" onclick="dispensarPrimeirosPassos()" aria-label="Ocultar primeiros passos" title="Ocultar primeiros passos">✕</button></div><div class="onboarding-steps"><button class="btn ghost" onclick="irAba('emp')">1. Configurar Empresa →</button><button class="btn ghost" onclick="irAba('func')">2. Cadastrar Equipe →</button><button class="btn ghost" onclick="abrirQuiosque()">3. Abrir Quiosque →</button></div></section>`;
 }
 const MENU_GESTOR=[['dash','🏠','Início'],['bat','⏱️','Batidas do Dia'],['folha','📄','Folha MTE'],['func','👥','Colaboradores'],['esc','📅','Escalas & Jornadas'],['ban','⏳','Banco de Horas'],['kiosk','🖥️','Terminal Quiosque'],['emp','⚙️','Empresa']];
 let MENU_ATUAL='dash',relogioGestor=null,trocaGestor=0;
@@ -1562,7 +1583,7 @@ function iconeGestor(k){
 function renderMenuGestor(){
   const g=GERENCIADOR||{},nome=g.nome||'Gestor',iniciais=nome.split(/\s+/).filter(Boolean).slice(0,2).map(n=>n[0]).join('');
   const l=LIC?.licenca,plano=l?.plano||1;
-  $('gestor-drawer').innerHTML=`<div class="drawer-brand"><div><img src="${esc(logoApp())}" alt="Ponto Pro Gestão"/><strong>Ponto Pro<br>Gestão</strong></div><button class="btn ghost" onclick="fecharMenuGestor()" aria-label="Fechar menu do gestor" title="Fechar menu">✕</button></div><div class="drawer-profile"><span class="drawer-avatar" aria-hidden="true">${esc(iniciais)}</span><div><strong>${esc(nome)}</strong><small>${esc(podeEditarDev()?'Gestor Master':g.funcao||'Gestor')}</small><span class="drawer-plan">${l?.estado==='cortesia'?'Licença Cortesia Especial · ':''}Plano ${esc(plano)} · ${maxFuncAtual()} colaboradores</span></div></div><div><div class="drawer-section-label">Menu</div><nav class="drawer-nav" aria-label="Módulos do gestor">${MENU_GESTOR.map(([k,i,n])=>`<button type="button" class="btn" data-menu="${k}" onclick="navegarGestor('${k}')"><span aria-hidden="true">${iconeGestor(k)}</span>${n}</button>`).join('')}${podeEditarDev()?'<button class="btn" data-menu="dev" onclick="navegarGestor(\'dev\')"><span aria-hidden="true">🛠️</span>Desenvolvedor</button>':''}<button class="btn" data-menu="logs" onclick="navegarGestor('logs')"><span aria-hidden="true">📜</span>Histórico / Auditoria</button></nav></div><div class="drawer-footer"><button class="btn" onclick="navegarGestor('assin')">💳 Licença e Assinatura</button><button class="btn" onclick="fecharMenuGestor();abrirSobre()" title="Desenhado em conformidade com as diretrizes da Portaria MTE 671/2021 — não representa homologação oficial">ⓘ Portaria MTE 671/2021</button><button class="btn" onclick="fecharMenuGestor();abrirManual()">📖 Manual</button></div>`;
+  $('gestor-drawer').innerHTML=`<div class="drawer-brand"><div><img src="${esc(logoApp())}" alt="Ponto Pro Gestão"/><strong>Ponto Pro<br>Gestão</strong></div><button class="btn ghost" onclick="fecharMenuGestor()" aria-label="Fechar menu do gestor" title="Fechar menu">✕</button></div><div class="drawer-profile"><span class="drawer-avatar" aria-hidden="true">${esc(iniciais)}</span><div><strong>${esc(nome)}</strong><small>${esc(podeEditarDev()?'Gestor Master':g.funcao||'Gestor')}</small><span class="drawer-plan">${l?.estado==='cortesia'?'Licença Cortesia Especial · ':''}Plano ${esc(plano)} · ${maxFuncAtual()} colaboradores</span></div></div><div><div class="drawer-section-label">Menu</div><nav class="drawer-nav" aria-label="Módulos do gestor">${MENU_GESTOR.map(([k,i,n])=>`<button type="button" class="btn" data-menu="${k}" onclick="navegarGestor('${k}')"><span aria-hidden="true">${iconeGestor(k)}</span>${n}</button>`).join('')}${podeEditarDev()?'<button class="btn" data-menu="dev" onclick="navegarGestor(\'dev\')"><span aria-hidden="true">🛠️</span>Desenvolvedor</button>':''}<button class="btn" data-menu="logs" onclick="navegarGestor('logs')"><span aria-hidden="true">📜</span>Histórico / Auditoria</button></nav></div><div class="drawer-footer"><button class="btn" onclick="fecharMenuGestor();abrirSuporteGestor()">💬 Suporte / Chamados</button><button class="btn" onclick="navegarGestor('assin')">💳 Licença e Assinatura</button><button class="btn" onclick="fecharMenuGestor();abrirSobre()" title="Desenhado em conformidade com as diretrizes da Portaria MTE 671/2021 — não representa homologação oficial">ⓘ Portaria MTE 671/2021</button><button class="btn" onclick="fecharMenuGestor();abrirManual()">📖 Manual</button></div>`;
   atualizarMenuGestor(MENU_ATUAL);
 }
 function atualizarMenuGestor(k){MENU_ATUAL=k;$('gestor-drawer').querySelectorAll('[data-menu]').forEach(el=>{if(el.dataset.menu===k)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});}
@@ -1571,7 +1592,7 @@ function fecharMenuGestor(foco=true){$('tela-gestor').classList.remove('drawer-o
 document.addEventListener('keydown',e=>{if(!$('tela-gestor').classList.contains('drawer-open'))return;if(e.key==='Escape'){e.preventDefault();fecharMenuGestor();}if(e.key==='Tab'&&matchMedia('(max-width:1100px)').matches){const itens=[...$('gestor-drawer').querySelectorAll('button')],primeiro=itens[0],ultimo=itens[itens.length-1];if(e.shiftKey&&document.activeElement===primeiro){e.preventDefault();ultimo?.focus();}else if(!e.shiftKey&&document.activeElement===ultimo){e.preventDefault();primeiro?.focus();}}});
 function navegarGestor(k){
   fecharMenuGestor();
-  if(k==='kiosk')return fecharGestor();
+  if(k==='kiosk')return abrirQuiosque();
   if(k==='dev'&&!podeEditarDev())return;
   if(['bat','esc','ban'].includes(k)){SUB=k;irAba('ponto');}
   else irAba(k);
@@ -2815,7 +2836,7 @@ const DEV={nome:'Henrique Lima',empresa:'Ponto Pro Gestão',doc:'',tipoDoc:'CPF'
 function devCfg(){let g={},s={};try{g=JSON.parse(localStorage.getItem('vip_ponto_dev_info')||'{}');s=JSON.parse(localStorage.getItem('vip_ponto_app_settings')||'{}');}catch(e){}return Object.assign({},DEV,g,s.developer||{},{programa:s.app_name||DEV.programa,versao:s.version||g.versao||DEV.versao});}
 /* Hierarquia: logo da plataforma em login/Sobre; logo da empresa prevalece no quiosque, espelho e comprovantes. */
 const logoEmpresa=()=>(get('empregador',{})||{}).logo||logoApp();
-const logoApp=()=>localStorage.getItem('ponto_pro_gestao_logo_app')||'/__l5e/assets-v1/798df0df-fee7-4f44-b98f-df1e096c0ace/ponto-pro-gestao-logo.jpg';
+const logoApp=()=>{const v=localStorage.getItem('ponto_pro_gestao_logo_app')||'';return !v||/798df0df|\/vip-logo\.png|ponto-pro-gestao-logo\.jpg/.test(v)?'/__l5e/assets-v1/1fd9a036-8b2e-4139-ad92-09df31f88a47/ponto-pro-gestao-logo-v20261028.png':v;};
 const ehMestre=()=>typeof GERENCIADOR!=='undefined'&&GERENCIADOR&&GERENCIADOR.pin==='1000';
 setTimeout(()=>{const l=document.getElementById('logo-app');if(l)l.src=logoApp();},50);
 document.addEventListener('DOMContentLoaded',()=>{const el=document.getElementById('dev-nome-login');if(el)el.textContent=devCfg().nome;});
@@ -2827,10 +2848,17 @@ function aplicarDevGlobal(info){
   else localStorage.removeItem('ponto_pro_gestao_logo_app');
   const logo=$('logo-app');if(logo)logo.src=logoApp();
 }
+function textoLegivel(text,bg){
+  const lum=h=>{const c=h.replace('#','').match(/.{2}/g).map(x=>{const n=parseInt(x,16)/255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4;});return c[0]*.2126+c[1]*.7152+c[2]*.0722;};
+  const ratio=(a,b)=>(Math.max(lum(a),lum(b))+.05)/(Math.min(lum(a),lum(b))+.05);
+  return ratio(text,bg)>=4.5?text:ratio('#ffffff',bg)>ratio('#12203a',bg)?'#ffffff':'#12203a';
+}
 function aplicarIdentidadeGlobal(settings){
   const root=document.documentElement;
   if(/^#[0-9a-f]{6}$/i.test(settings.primary_color||''))root.style.setProperty('--navy',settings.primary_color);
   if(/^#[0-9a-f]{6}$/i.test(settings.accent_color||''))root.style.setProperty('--gold',settings.accent_color);
+  if(/^#[0-9a-f]{6}$/i.test(settings.text_color||'')){const text=textoLegivel(settings.text_color,'#ffffff');root.style.setProperty('--txt',text);root.style.setProperty('--global-text',text);}
+  root.style.setProperty('--action-text',textoLegivel('#ffffff',settings.primary_color||'#1e3a8a'));
   const appLogo=logoApp();const l0=$('logo-app');if(l0)l0.src=appLogo;['logo-empresa','gestor-logo'].forEach(id=>{const img=$(id);if(img)img.src=logoEmpresa();});
   document.title=(settings.app_name||DEV.programa)+' — Registro de Ponto';
   let notice=$('maintenance-status');if(settings.maintenance&&!notice){notice=document.createElement('div');notice.id='maintenance-status';notice.setAttribute('role','status');notice.className='muted';$('tela-login').querySelector('.box').prepend(notice);}
@@ -2967,11 +2995,11 @@ async function pdfAtestadoTecnico(){
 
 /* ===================== MANUAL DO USUÁRIO ===================== */
 const MANUAL=[
- ['1. Primeiro acesso','Crie sua conta. Os limites são definidos pelo plano ativo. A senha precisa de 8 caracteres com maiúscula, minúscula, número e símbolo (!@#$%&_). Depois preencha o cadastro do Empregador: CNPJ/CPF, razão social, nome fantasia, endereço, horário padrão e logo. Cadastre de 1 a 4 gerenciadores, cada um com PIN próprio.'],
+ ['1. Primeiro acesso','Crie sua conta. Os limites são definidos pelo plano ativo. A senha precisa de 8 caracteres com maiúscula, minúscula, número e símbolo (!@#$%&_). Depois preencha o cadastro do Empregador: CNPJ/CPF, razão social, nome fantasia, endereço, horário padrão e logo. Cadastre gerenciadores até o limite contratado, cada um com PIN próprio.'],
  ['2. Bater o ponto','Na tela inicial o empregado digita o PIN de 4 números. Cada número aparece por 1 segundo e vira bolinha. O nome e as batidas do dia aparecem; toque em ✓ REGISTRAR. O sistema usa a hora oficial do servidor (🟢 NTP OK), gera o NSR e imprime o comprovante. Depois de 2 segundos a confirmação desaparece e a tela fica livre.'],
  ['3. Comprovante','A cada batida o comprovante fica disponível. A impressão depende da conexão nativa, RawBT ativado, impressora Bluetooth BLE compatível ou opção do navegador. O envio não comprova a saída física do papel. Se não imprimir, toque na batida no histórico para reimprimir ou enviar por e-mail.'],
  ['4. Portal do Empregado (👤)','O empregado digita o PIN e vê a própria folha de ponto, podendo enviá-la para o seu e-mail.'],
- ['5. Gestor de ponto (⚙️)','Toque na engrenagem e digite o PIN de gerenciador. A primeira aba é o Dashboard de Frequência, com presença, faltas, absenteísmo, atrasos e carga incompleta, com filtros por período e funcionário.'],
+ ['5. Gestor de ponto','Abra /gestor, faça login com e-mail e senha e digite o PIN de gerenciador. Bloquear retorna ao PIN; Sair da conta encerra a sessão. Suporte e chamados ficam na gaveta do gestor. A primeira aba é o Dashboard de Frequência, com presença, faltas, absenteísmo, atrasos e carga incompleta, com filtros por período e funcionário.'],
  ['6. Empregados','O limite de colaboradores por empresa é definido no plano ativo. Informe nome, CPF, função, departamento, admissão, escala e, opcionalmente, o início da vigência do banco de horas. O PIN é criado automaticamente. Na aba "Funções, Cargos e Departamentos" você cadastra as listas. Status: Ativo, Desligado, Afastamento (com motivo) ou Férias.'],
  ['7. Escala semanal','Escolha a semana (pode começar no domingo ou na segunda). Em cada dia marque Trabalhado (com hora de entrada), DSR ou Folga Compensada — até 3 folgas por semana. A escala manda na folha: se o DSR foi para terça, o domingo vira dia de trabalho. A hora de entrada da escala é usada para calcular atraso (tolerância de 10 min). Após 30 dias a escala trava 🔒. Baixe o CSV para Excel/Google Sheets.'],
  ['8. Batidas e ajustes','Data, hora e NSR originais nunca podem ser alterados. Tratamentos são separados das marcações originais. Você pode incluir batida manual ou lançar ocorrência (Falta Justificada, Férias, Folga compensatória, Falta) — sempre com motivo de pelo menos 5 letras. Tudo fica registrado com o nome de quem alterou.'],
@@ -3189,6 +3217,7 @@ async function executarExclusao(){
 const PLANO_LIMITES={1:10,2:25,3:50}, DIA_MS=86400000; // fallback quando a configuração dinâmica ainda não chegou
 const planosCfg=lic=>((lic||LIC||licCache(CONTA))?.config?.planos)||{};
 const limitePlano=(p,lic)=>{const c=planosCfg(lic)[p];return c?.colaboradores??PLANO_LIMITES[Math.min(3,Math.max(1,Number(p)||1))];};
+function maxGerAtual(){const l=LIC||licCache(CONTA),v=Number(planosCfg(l)[l?.licenca?.plano||1]?.gerenciadores);return Number.isInteger(v)&&v>=1&&v<=100?v:4;}
 function maxFuncAtual(){const l=LIC||licCache(CONTA);return limitePlano(l?.licenca?.plano,l);}
 let LIC=null;
 const licCache=e=>{try{return JSON.parse(localStorage.getItem('vip:lic:'+e)||'null');}catch(x){return null;}};
