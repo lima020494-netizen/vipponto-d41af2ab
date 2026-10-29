@@ -9,7 +9,7 @@ import { MarketingEditor } from "@/components/marketing-editor";
 import type { ConhecaContent } from "@/lib/conheca-content";
 import { Button } from "@/components/ui/button";
 import { Building2, CreditCard, Megaphone, Settings } from "lucide-react";
-import { readableTextColor, resolvePlatformLogo } from "@/lib/platform-identity";
+import { resolvePlatformLogo } from "@/lib/platform-identity";
 
 const SUPA_REF = new URL(import.meta.env["VITE_SUPABASE_URL"] ?? "https://kvbidsfnisegtqjagsld.supabase.co").hostname.split(".")[0];
 
@@ -38,7 +38,6 @@ const ROT: Record<string, string> = { trial: "Teste", ativo: "Ativo", tolerancia
 function AdminPage() {
   const [identity,setIdentity] = useState(APP_SETTINGS_DEFAULT);
   useEffect(()=>{supabase.from("app_settings").select("settings").eq("id","global").maybeSingle().then(({data})=>setIdentity(resolveAppSettings(data?.settings)));},[]);
-  useEffect(()=>{const shell=document.querySelector<HTMLElement>(".admin-shell");if(shell){shell.style.setProperty("--adm-bg",identity.primary_color);shell.style.setProperty("--adm-gold",identity.accent_color);shell.style.setProperty("--adm-text",readableTextColor(identity.text_color,identity.primary_color));}},[identity]);
   const [email, setEmail] = useState<string | null | undefined>(undefined);
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email?.toLowerCase() ?? null));
@@ -142,7 +141,7 @@ function Painel() {
       <nav className="admin-tabs" aria-label="Seções do Super Admin">{[["empresas","Empresas e Suporte",Building2],["planos","Planos e Preços",CreditCard],["marketing","Marketing",Megaphone],["settings","Configurações Globais / Sobre",Settings]].map(([id,label,Icon]) => { const I = Icon as typeof Building2; return <Button key={String(id)} variant={tab===id?"default":"ghost"} aria-current={tab===id?"page":undefined} onClick={()=>setTab(String(id))}><I />{String(label)}</Button>; })}</nav>
       {tab === "planos" && <><Cobranca dados={dados} api={api} /><PlanosEditor inicial={dados.planos} api={api} /></>}
       {tab === "marketing" && <MarketingEditor inicial={dados.conheca} api={api} planos={dados.planos} />}
-      {tab === "settings" && <AdminSettings initial={dados.settings || APP_SETTINGS_DEFAULT} api={api} onSave={settings => {setDados(p=>p?{...p,settings}:p);const shell=document.querySelector<HTMLElement>(".admin-shell");shell?.style.setProperty("--adm-bg",settings.primary_color);shell?.style.setProperty("--adm-gold",settings.accent_color);shell?.style.setProperty("--adm-text",readableTextColor(settings.text_color,settings.primary_color));}} />}
+      {tab === "settings" && <AdminSettings initial={resolveAppSettings(dados.settings)} api={api} onSave={settings => setDados(p=>p?{...p,settings}:p)} />}
       {tab === "empresas" && <section className="admin-card">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-lg font-semibold">Empresas ({contas.length}/{dados.contas.length})</h2>
@@ -153,7 +152,7 @@ function Painel() {
             <thead><tr className="text-left"><th>Empresa</th><th>CNPJ</th><th>Criada em</th><th>Plano</th><th>Colab.</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody>
               {contas.map((c) => (
-                <tr key={c.email_dono} className="border-t border-white/10 align-top">
+                <tr key={c.email_dono} className="border-t border-border align-top">
                   <td className="py-2"><b>{c.razao || "—"}</b><div className="opacity-70">{c.email_dono}</div></td>
                   <td>{c.cnpj || "—"}</td>
                   <td>{c.created_at ? new Date(c.created_at).toLocaleDateString("pt-BR") : "—"}</td>
