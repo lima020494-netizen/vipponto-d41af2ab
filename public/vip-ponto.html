@@ -32,7 +32,7 @@ function garantirLib(grupo){
 /* ===================== DESIGN SYSTEM ===================== */
 :root{
   --navy:#1e3a8a; --navy2:#1e3a8a; --gold:#0ea5e9; --gold2:#38bdf8;
-  --bg:#f4f6fb; --card:#ffffff; --txt:#12203a; --muted:#6b7a93;
+  --bg:#f8fafc; --card:#ffffff; --txt:#12203a; --muted:#64748b;
   --green:#12823c; --red:#c62828; --orange:#e07c1f; --blue:#1565c0; --gray:#78849a;
   --line:#dfe5ef; --radius:14px; --shadow:0 6px 24px rgba(12,34,70,.09);
 }
@@ -549,7 +549,7 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 }
 
 /* Executive manager presentation; fiscal and kiosk styles stay unchanged. */
-:root{--manager-bg:#e2e6ed;--manager-dark:var(--navy);--manager-dark-end:var(--navy2);--manager-text:#f8fafc;--manager-muted:#b8c5d6;--manager-panel:rgba(255,255,255,.06);--manager-rule:rgba(255,255,255,.14);--manager-overlay:rgba(15,23,42,.6);--manager-gold-bg:rgba(201,153,43,.12);--manager-gradient:linear-gradient(125deg,var(--manager-dark),var(--manager-dark-end));--manager-shadow:0 16px 40px rgba(15,23,42,.12);--manager-accent:#7ee4b6}
+:root{--manager-bg:var(--bg);--manager-dark:var(--navy);--manager-dark-end:var(--navy2);--manager-text:#f8fafc;--manager-muted:#b8c5d6;--manager-panel:rgba(255,255,255,.06);--manager-rule:rgba(255,255,255,.14);--manager-overlay:rgba(15,23,42,.6);--manager-gold-bg:rgba(201,153,43,.12);--manager-gradient:linear-gradient(125deg,var(--manager-dark),var(--manager-dark-end));--manager-shadow:0 16px 40px rgba(15,23,42,.12);--manager-accent:#7ee4b6}
 #tela-gestor{padding:0;background:var(--manager-bg);overflow-x:hidden}
 #tela-gestor .inner{width:100%;max-width:none;min-height:100dvh;overflow:visible;margin:0;border:0;border-radius:0;background:var(--manager-bg);color:var(--txt);box-shadow:none;transition:margin .24s ease,width .24s ease}
 #tela-gestor.modal:not(.hidden)>.inner{animation:none}
@@ -611,7 +611,9 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 /* Geometry only: receipt browser-print isolation remains unchanged. */
 @media print{.sheet-a4{width:190mm;max-width:190mm;padding:0;border:0;break-after:page;print-color-adjust:exact}.sheet-top{margin-bottom:2mm;padding-bottom:2mm}.sheet-top img{width:24mm;height:12mm}.sheet-title,#gestor-body .sheet-a4 .sheet-title{font-size:13pt}.sheet-issued{font-size:6pt}.sheet-identification{grid-template-columns:1.35fr 1fr;font-size:6.5pt;gap:2mm}.sheet-people{padding:1.5mm}.sheet-box-title{font-size:7pt;padding:1mm}.sheet-a4 .sheet-schedule td,.sheet-a4 .sheet-schedule th{font-size:6pt;padding:.5mm}.sheet-a4 .tbl-wrap{overflow:visible}.sheet-daily{min-width:0!important;width:100%}.sheet-a4 .sheet-daily th,.sheet-a4 .sheet-daily td{font-size:6.3pt!important;padding:.65mm!important;white-space:normal!important}.sheet-summary>div{font-size:6.5pt;padding:1mm}.sheet-bottom{grid-template-columns:1fr 1.35fr;gap:2mm}.sheet-bank,.sheet-notes,.sheet-awareness,.sheet-place,.sheet-a4 .sheet-away,#gestor-body .sheet-a4 .sheet-away{color:var(--sheet-away)!important;background:var(--sheet-heading)!important;font-weight:700}.folha-month-controls{margin-bottom:12px;align-items:end}.folha-month-controls .btn{white-space:normal}.sheet-day-counts{font-size:6pt}.sheet-footer{font-size:6pt}.sheet-a4 .assin{font-size:7pt;margin-top:6mm;break-inside:avoid}}
 
-.manager-lock{min-height:100dvh;display:grid;place-items:center;background:var(--manager-bg,var(--bg));color:var(--txt);padding:24px}.manager-lock section{width:min(460px,100%);text-align:center}.manager-lock img{width:140px;height:140px;object-fit:contain}.manager-lock .row{justify-content:center;margin-top:16px}.manager-lock h1{font:700 24px Sora,system-ui}.manager-lock .btn{min-height:44px}
+.manager-lock{min-height:100dvh;display:grid;place-items:center;background:var(--manager-bg);color:var(--txt);padding:24px 16px}.manager-lock section{width:min(440px,100%);text-align:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:32px 24px;box-shadow:var(--manager-shadow)}.manager-lock-logo{width:176px;height:112px;margin:0 auto 24px;border:1px solid var(--line);border-radius:8px;display:grid;place-items:center;background:var(--card);padding:12px}.manager-lock img{width:100%;height:100%;object-fit:contain}.manager-lock h1{font:600 22px Sora,system-ui;color:var(--navy);margin:0 0 8px}.manager-lock p{font-size:14px;color:var(--muted);overflow-wrap:anywhere;font-style:normal;margin:0 0 24px}.manager-lock .btn{min-height:48px;border-radius:8px}.manager-lock-primary{width:100%}.manager-lock-secondary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 24px}.manager-lock-secondary .btn{font-size:13px;padding:12px 8px}.manager-lock-logout{background:transparent;color:var(--muted);font-size:13px;border-top:1px solid var(--line);border-radius:0!important;width:100%;padding-top:20px!important}
+.terminal-section{border-top:1px solid var(--line);padding-top:24px;margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 160px;gap:24px;align-items:center}.terminal-section h3{font:600 18px Sora,system-ui;color:var(--navy);margin:0 0 16px}.terminal-link{display:flex;align-items:center;gap:8px;min-width:0;margin-bottom:16px}.terminal-link input{min-width:0;background:var(--card);font-size:13px}.terminal-link .btn{width:48px;height:48px;flex:none;padding:0}.terminal-qr{width:160px;height:160px;display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px}.terminal-help{margin:12px 0 0}.support-notice{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 24px;background:var(--card);border-bottom:1px solid var(--line);color:var(--navy);font-size:13px}.support-notice .btn{margin-left:auto;min-height:44px}.support-pill{position:fixed;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:100000;background:var(--navy);color:var(--manager-text);padding:6px 12px;display:flex;gap:8px;align-items:center;font-size:12px;border:1px solid var(--gold);border-radius:999px;box-shadow:var(--shadow);max-width:calc(100vw - 24px)}.support-pill span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.support-pill button{min-height:44px;flex:none;background:var(--card);color:var(--navy);border:0;border-radius:999px;padding:6px 12px;font-weight:700;cursor:pointer}
+@media(max-width:640px){.terminal-section{grid-template-columns:1fr;gap:16px}.terminal-qr{justify-self:center}.support-notice{padding:12px 16px}.manager-lock section{padding:28px 20px}}
 #tela-login h3,#gestor-body h3,#gestor-body h4,#gestor-body td,#gestor-body input,#gestor-body select,#gestor-body textarea,#modal-generico .inner,#modal-pin .inner{color:var(--global-text,var(--txt))}
 #gestor-body .sheet-a4,#gestor-body .sheet-a4 h3,#gestor-body .sheet-a4 td{color:var(--sheet-ink)}
 #tela-login .btn.gold{background:var(--navy);color:var(--action-text);border-color:var(--navy);box-shadow:none}
@@ -705,7 +707,7 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 </div>
 
 <div id="gestor-bloqueio" class="hidden manager-lock">
-  <section><img id="gestor-lock-logo" src="/vip-logo.png?v=20261028" alt="Logo da empresa"/><h1>Painel do Gestor</h1><p id="gestor-lock-empresa"></p><div class="row"><button class="btn" onclick="pedirPinGestor()">🔒 Desbloquear com PIN</button><button class="btn ghost" onclick="abrirSuporteGestor()">Suporte</button></div><div class="row"><a class="btn ghost" href="/quiosque" target="_top">Abrir Quiosque</a><button class="btn red" onclick="logoff()">Sair da conta</button></div></section>
+  <section aria-labelledby="gestor-lock-title"><div class="manager-lock-logo"><img id="gestor-lock-logo" src="/vip-logo.png?v=20261028" alt="Logo da empresa"/></div><h1 id="gestor-lock-title">Painel do Gestor</h1><p id="gestor-lock-empresa"></p><button class="btn manager-lock-primary" onclick="pedirPinGestor()">🔒 Acessar com PIN</button><div class="manager-lock-secondary"><button class="btn ghost" onclick="abrirSuporteGestor()">Suporte</button><a class="btn ghost" href="/quiosque" target="_top">Quiosque ↗</a></div><button class="btn manager-lock-logout" onclick="logoff()">⏻ Sair da conta</button></section>
 </div>
 <!-- ======================= GESTOR ======================= -->
 <div id="tela-gestor" class="modal hidden">
@@ -729,6 +731,7 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
       </div>
     </div>
     <div class="tabs" id="gestor-tabs"></div>
+    <div id="gestor-suporte-aviso" class="support-notice hidden" role="status" aria-live="polite"></div>
     <main id="gestor-hub"></main>
     <div class="card hidden" id="gestor-body" style="border-radius:0"></div>
   </div>
@@ -939,7 +942,7 @@ const salvaContas = c => localStorage.setItem('vip:contas',JSON.stringify(c));
 let GERENCIADOR = null;                              // gerenciador autenticado na sessão
 function log(acao){
   const l=get('logs',[]);
-  const g=GERENCIADOR?`${GERENCIADOR.nome} - Função ${GERENCIADOR.funcao}`:'Sistema';
+  const g=(typeof SUPORTE!=='undefined'&&SUPORTE?'Suporte técnico · ':'')+(GERENCIADOR?`${GERENCIADOR.nome} - Função ${GERENCIADOR.funcao}`:'Sistema');
   const item={quando:new Date().toISOString(),por:g,acao};
   l.unshift(item); localStorage.setItem(K('logs'),JSON.stringify(l.slice(0,3000))); // cache do histórico
   if(sb&&CONTA) sb.from('logs').upsert({email_dono:CONTA,...item},{onConflict:'email_dono,quando,acao',ignoreDuplicates:true})
@@ -1554,13 +1557,13 @@ function abrirGestor(){
   $('gestor-licenca').dataset.state=estado;
   prepararGestorLicenca();
   renderMenuGestor();
+  atualizarAvisoSuporte();
   mostrarCentralGestor();
 }
 function fecharGestor(){trocaGestor++;fecharMenuGestor(false);$('tela-gestor').classList.add('hidden');pararRelogioGestor();GERENCIADOR=null;fecharModal();fecharPinModal();if(MODO_GESTOR)bloquearGestor();}
 function bloquearGestor(){
   GERENCIADOR=null;['tela-home','tela-login','tela-empregador','tela-gestor'].forEach(id=>$(id).classList.add('hidden'));
   $('gestor-bloqueio').classList.remove('hidden');$('gestor-lock-logo').src=logoEmpresa();const e=get('empregador',{})||{};$('gestor-lock-empresa').textContent=e.fantasia||e.razao||'Ponto Pro Gestão';
-  pedirPinGestor();
 }
 function abrirSuporteGestor(){
   const d=devCfg(),wa=String(LIC?.config?.whatsapp||d.telefone||'').replace(/\D/g,''),email=String(d.email||'').trim();
@@ -1568,6 +1571,24 @@ function abrirSuporteGestor(){
   abrirModal(`<div class="row"><h3>Suporte ao Gestor</h3><button class="btn ghost right" onclick="fecharModal()" aria-label="Fechar suporte">✕</button></div><div class="row">${wa?`<a class="btn" href="https://wa.me/${wa}?text=${msg}" target="_blank" rel="noopener">WhatsApp</a><a class="btn ghost" href="https://wa.me/${wa}?text=${encodeURIComponent('Olá, gostaria de abrir um chamado de suporte.') }" target="_blank" rel="noopener">Abrir chamado</a>`:'<p>Contato de suporte ainda não configurado.</p>'}${/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)?`<a class="btn ghost" href="mailto:${esc(email)}?subject=Chamado%20de%20suporte">Chamado por e-mail</a>`:''}</div>`);
 }
 function abrirQuiosque(){fecharGestor();(window.top||window).location.href='/quiosque';}
+// Public connection URL only; the second device uses its own company session.
+function linkQuiosque(){return new URL('/quiosque',location.origin).href;}
+async function copiarLinkQuiosque(){
+  const link=linkQuiosque();
+  try{await navigator.clipboard.writeText(link);toast('Link do quiosque copiado.',2000);}
+  catch(e){const campo=$('terminal-link');if(campo){campo.focus();campo.select();}toast('Selecione e copie o link do quiosque.',3000);}
+}
+function terminalQuiosqueHTML(){const link=linkQuiosque(),qr=qrDataURL(link);return `<section class="terminal-section" aria-label="Terminal de ponto"><div><h3>Terminal de ponto</h3><div class="terminal-link"><input id="terminal-link" aria-label="Link do quiosque" readonly value="${esc(link)}"/><button class="btn ghost" onclick="copiarLinkQuiosque()" aria-label="Copiar link do quiosque" title="Copiar link">⧉</button></div><a class="btn" href="${esc(link)}" target="_top">Abrir Quiosque ↗</a><p class="muted terminal-help">No outro aparelho, entre com a conta da empresa.</p></div>${qr?`<img class="terminal-qr" src="${qr}" alt="QR Code para abrir o quiosque"/>`:''}</section>`;}
+function abaTerminalQuiosque(){ $('gestor-body').innerHTML=terminalQuiosqueHTML(); }
+async function atualizarAvisoSuporte(){
+  const aviso=$('gestor-suporte-aviso');if(!aviso||!CONTA)return;
+  try{
+    const {data,error}=await sb.from('support_sessions').select('id,iniciado_em').eq('empresa_id',CONTA).is('encerrado_em',null).gt('iniciado_em',new Date(Date.now()-2*3600000).toISOString()).order('iniciado_em',{ascending:false}).limit(1);
+    if(error)throw error;
+    const ativo=!!SUPORTE||!!data?.length;aviso.classList.toggle('hidden',!ativo);
+    if(ativo)aviso.innerHTML='<span>🛡️ Empresa em atendimento de suporte técnico.</span><button class="btn sm ghost" onclick="navegarGestor(\'logs\')">Histórico / Auditoria</button>';
+  }catch(e){if(SUPORTE){aviso.classList.remove('hidden');aviso.textContent='🛡️ Empresa em atendimento de suporte técnico.';}}
+}
 function primeirosPassosVisiveis(){return !!CONTA&&localStorage.getItem(K('primeiros_passos_ocultos'))!=='1';}
 function dispensarPrimeirosPassos(){localStorage.setItem(K('primeiros_passos_ocultos'),'1');$('primeiros-passos')?.remove();}
 function primeirosPassosHTML(){
@@ -1594,7 +1615,6 @@ function fecharMenuGestor(foco=true){$('tela-gestor').classList.remove('drawer-o
 document.addEventListener('keydown',e=>{if(!$('tela-gestor').classList.contains('drawer-open'))return;if(e.key==='Escape'){e.preventDefault();fecharMenuGestor();}if(e.key==='Tab'&&matchMedia('(max-width:1100px)').matches){const itens=[...$('gestor-drawer').querySelectorAll('button')],primeiro=itens[0],ultimo=itens[itens.length-1];if(e.shiftKey&&document.activeElement===primeiro){e.preventDefault();ultimo?.focus();}else if(!e.shiftKey&&document.activeElement===ultimo){e.preventDefault();primeiro?.focus();}}});
 function navegarGestor(k){
   fecharMenuGestor();
-  if(k==='kiosk')return abrirQuiosque();
   if(k==='dev'&&!podeEditarDev())return;
   if(['bat','esc','ban'].includes(k)){SUB=k;irAba('ponto');}
   else irAba(k);
@@ -1615,7 +1635,7 @@ function pararRelogioGestor(){if(relogioGestor)clearInterval(relogioGestor);relo
 function mostrarCentralGestor(){
   pararRelogioGestor();fecharMenuGestor(false);ABA='dash';atualizarMenuGestor('dash');
   $('gestor-body').classList.remove('hidden');$('gestor-hub').classList.remove('hidden');$('gestor-voltar').classList.remove('show');
-  $('gestor-hub').innerHTML=painelExecutivoHTML();
+  $('gestor-hub').innerHTML=painelExecutivoHTML()+terminalQuiosqueHTML();
   carregarTelaGestor('gestor-body','Dashboard de Frequência',()=>abaDash());
   atualizarPainelExecutivo();relogioGestor=setInterval(atualizarPainelExecutivo,30000);$('tela-gestor').scrollTop=0;
 }
@@ -1624,7 +1644,7 @@ function irAba(k){
   if(k==='dev'&&!podeEditarDev())return;
   fecharMenuGestor(false);pararRelogioGestor();atualizarMenuGestor(k);
   ABA=k;$('gestor-hub').classList.add('hidden');$('gestor-body').classList.remove('hidden');$('gestor-voltar').classList.add('show');
-  carregarTelaGestor('gestor-body',MODULOS_GESTOR[k]?.nome||'Carregando',()=>{({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs,assin:abaAssinatura})[k]?.();});$('tela-gestor').scrollTop=0;
+  carregarTelaGestor('gestor-body',k==='kiosk'?'Terminal de ponto':MODULOS_GESTOR[k]?.nome||'Carregando',()=>{({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs,assin:abaAssinatura,kiosk:abaTerminalQuiosque})[k]?.();});$('tela-gestor').scrollTop=0;
 }
 /* Empregador/Gerenciadores dentro do gestor (reutiliza o mesmo formulário) */
 function abaEmp(){ $('empregador-form').innerHTML=''; telaEmpregador('gestor-body'); }
@@ -2798,8 +2818,8 @@ async function iniciarSuporte(){
     const r=await apiLic('POST',{acao:'suporte_status'});
     SUPORTE=r.suporte; LIC=r.licenca?r:null; CONTA=String(SUPORTE.empresa_id).toLowerCase();
     const bar=document.createElement('div');bar.id='suporte-banner';bar.setAttribute('role','alert');
-    bar.style.cssText='position:fixed;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:100000;background:#b91c1c;color:#fff;font-weight:700;padding:7px 14px;display:flex;gap:10px;align-items:center;font-size:13px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.35);max-width:calc(100vw - 24px);white-space:nowrap';
-    bar.innerHTML=`<span style="overflow:hidden;text-overflow:ellipsis">🛡️ Suporte: ${esc(SUPORTE.empresa_nome||CONTA)}</span><button type="button" aria-label="Sair do modo suporte" style="min-height:32px;background:#fff;color:#b91c1c;border:0;border-radius:999px;padding:3px 12px;font-weight:700;cursor:pointer" onclick="sairSuporte()">Sair ✕</button>`;
+    bar.className='support-pill';
+    bar.innerHTML=`<span>🛡️ Suporte: ${esc(SUPORTE.empresa_nome||CONTA)}</span><button type="button" aria-label="Sair do modo suporte" onclick="sairSuporte()">Sair ✕</button>`;
     document.body.prepend(bar);
     await iniciarApp();return true;
   }catch(e){alert('Sessão de suporte inválida ou expirada: '+e.message);location.replace('/admin');return true;}
@@ -2857,10 +2877,9 @@ function textoLegivel(text,bg){
 }
 function aplicarIdentidadeGlobal(settings){
   const root=document.documentElement;
-  if(/^#[0-9a-f]{6}$/i.test(settings.primary_color||''))root.style.setProperty('--navy',settings.primary_color);
-  if(/^#[0-9a-f]{6}$/i.test(settings.accent_color||''))root.style.setProperty('--gold',settings.accent_color);
-  if(/^#[0-9a-f]{6}$/i.test(settings.text_color||'')){const text=textoLegivel(settings.text_color,'#ffffff');root.style.setProperty('--txt',text);root.style.setProperty('--global-text',text);}
-  root.style.setProperty('--action-text',textoLegivel('#ffffff',settings.primary_color||'#1e3a8a'));
+  root.style.setProperty('--navy','#1E3A8A');root.style.setProperty('--gold','#0EA5E9');
+  root.style.setProperty('--txt','#12203a');root.style.setProperty('--global-text','#12203a');
+  root.style.setProperty('--action-text','#ffffff');
   const appLogo=logoApp();const l0=$('logo-app');if(l0)l0.src=appLogo;['logo-empresa','gestor-logo'].forEach(id=>{const img=$(id);if(img)img.src=logoEmpresa();});
   document.title=(settings.app_name||DEV.programa)+' — Registro de Ponto';
   let notice=$('maintenance-status');if(settings.maintenance&&!notice){notice=document.createElement('div');notice.id='maintenance-status';notice.setAttribute('role','status');notice.className='muted';$('tela-login').querySelector('.box').prepend(notice);}
