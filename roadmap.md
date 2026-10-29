@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Pacote 6.2: identidade oficial fixa/admin claro, card de acesso do Gestor, link/QR do Quiosque e transparência/auditoria do suporte; preservar cálculos/impressão, testar na prévia sem publicar.
+
 - [x] Etapa 6.1: logo enviada/ícones versionados, text_color com contraste por superfície, /gestor com PIN/bloqueio/logoff e limites dinâmicos de gerenciadores, /quiosque e raiz sem engrenagem, suporte/chamados no gestor. 93 testes aprovados, páginas públicas e PIN com dados isolados conferidos em 390/768/1280, build OK. Sem publicar; login real, gravação autenticada global e hardware/PWA instalado não verificáveis no Supabase externo. Chamados usam WhatsApp/e-mail configurados, sem sistema separado de tickets.
 
 - [x] Etapa 4: quatro abas admin; marketing_site_content/app_settings criadas com grants/RLS, planos existentes compartilhados, identidade/Sobre protegidos e refletidos no app/atestado. Gravação autenticada real não verificável no Supabase externo.
