@@ -173,21 +173,26 @@
 @media(prefers-reduced-motion:no-preference) { .commercial-enter { animation:commercial-enter .7s ease-out both; } }
 @keyframes commercial-enter { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 
-/* Super Admin (/admin) — paleta própria marinho/dourado */
-.admin-shell { --adm-bg: #1e3a8a; --adm-card: #132f5c; --adm-gold: #0ea5e9; --adm-text: #f4f6fa; background: var(--adm-bg); color: var(--adm-text); }
-.admin-card { background: var(--adm-card); border: 1px solid rgb(201 153 43 / 0.35); border-radius: 14px; padding: 20px; }
-.admin-input { display: block; width: 100%; margin-top: 4px; min-height: 40px; border-radius: 8px; padding: 6px 10px; background: var(--adm-bg); color: var(--adm-text); border: 1px solid rgb(255 255 255 / 0.2); }
-.admin-btn { min-height: 40px; padding: 6px 14px; border-radius: 8px; background: var(--adm-gold); color: var(--adm-bg); font-weight: 600; }
-.admin-btn-ghost { min-height: 40px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--adm-gold); color: var(--adm-text); }
+/* Super Admin — fixed institutional light palette. */
+.admin-shell { --adm-bg:oklch(.984 .003 247.858); --adm-card:oklch(1 0 0); --adm-brand:oklch(.379 .146 265.522); --adm-cyan:oklch(.685 .169 237.323); --adm-text:oklch(.235 .049 260); --adm-border:oklch(.929 .013 255.508); --adm-muted:oklch(.554 .046 257.417); --adm-shadow:0 4px 20px color-mix(in oklab,var(--adm-brand) 8%,transparent); background:var(--adm-bg);color:var(--adm-text);font-family:Manrope,system-ui,sans-serif; }
+.admin-card { background:var(--adm-card);border:1px solid var(--adm-border);border-radius:8px;padding:24px;box-shadow:var(--adm-shadow); }
+.admin-input { display:block;width:100%;margin-top:8px;min-height:44px;border-radius:8px;padding:10px 12px;background:var(--adm-card);color:var(--adm-text);border:1px solid var(--adm-border); }
+.admin-input:focus-visible { outline:2px solid var(--adm-cyan);outline-offset:2px; }
+.admin-btn { min-height:44px;padding:10px 16px;border-radius:8px;background:var(--adm-brand);color:var(--adm-card);font-weight:600; }
+.admin-btn-ghost { min-height:44px;padding:10px 16px;border-radius:8px;border:1px solid var(--adm-border);background:var(--adm-card);color:var(--adm-brand); }
 
 /* Four-section admin workspace: unframed sections and touch-sized controls. */
-.admin-shell { --background:var(--adm-bg); --foreground:var(--adm-text); --primary:var(--adm-gold); --primary-foreground:var(--adm-bg); --border:var(--adm-border); --input:var(--adm-border); --accent:var(--adm-card); --accent-foreground:var(--adm-text); --muted-foreground:var(--adm-muted); --adm-border:#385074; --adm-muted:#b8c8dc; }
+.admin-shell { --background:var(--adm-bg); --foreground:var(--adm-text); --card:var(--adm-card); --card-foreground:var(--adm-text); --primary:var(--adm-brand); --primary-foreground:var(--adm-card); --border:var(--adm-border); --input:var(--adm-border); --accent:var(--adm-card); --accent-foreground:var(--adm-brand); --muted-foreground:var(--adm-muted); --ring:var(--adm-cyan); }
 .admin-card { border-radius:8px; border-color:var(--adm-border); }
 .admin-shell section.admin-card { background:transparent; border:0; border-top:1px solid var(--adm-border); border-radius:0; padding:24px 0; }
 .admin-input,.admin-btn,.admin-btn-ghost,.admin-tabs [data-slot],.admin-shell button { min-height:44px; }
 .admin-tabs { display:flex; gap:8px; flex-wrap:wrap; border-bottom:1px solid var(--adm-border); padding-bottom:16px; }
 .admin-tabs button { white-space:normal; height:auto; text-align:left; justify-content:flex-start; }
 .admin-shell th,.admin-shell td { padding:12px 8px; }
+.admin-shell th { color:var(--adm-brand);background:var(--adm-card); }
+.admin-shell tbody tr:nth-child(even) { background:var(--adm-card); }
+.admin-shell label { font-size:14px; }
+.admin-shell h1,.admin-shell h2 { color:var(--adm-brand); }
 @media(max-width:640px) { .admin-tabs { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); } .admin-tabs button { font-size:12px;padding:8px; } .admin-shell header { gap:8px; } }
 .operational-frame { position:fixed;inset:0;width:100%;height:100%;border:0; }
 .commercial-hero { color:var(--hero-foreground); }
