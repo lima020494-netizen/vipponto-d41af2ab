@@ -105,8 +105,10 @@ export const Route = createFileRoute("/api/public/licenca")({
           const sess = s as { id: string; empresa_id: string; empresa_nome: string | null } | null;
           if (body["acao"] === "suporte_encerrar") {
             if (sess) {
-              await a.db.from("support_sessions" as never).update({ encerrado_em: new Date().toISOString() } as never).eq("id", sess.id);
-              await audit(sess.empresa_id, "suporte_encerrado", { sessao: sess.id });
+              const recorded = await audit(sess.empresa_id, "suporte_encerrado", { sessao: sess.id });
+              if (recorded.error) return json({ error: "Não foi possível registrar o encerramento na auditoria." }, 500);
+              const closed = await a.db.from("support_sessions" as never).update({ encerrado_em: new Date().toISOString() } as never).eq("id", sess.id);
+              if (closed.error) return json({ error: "Não foi possível encerrar a sessão de suporte." }, 500);
             }
             return json({ ok: true });
           }
@@ -127,11 +129,16 @@ export const Route = createFileRoute("/api/public/licenca")({
           const { data: emp } = await a.db.from("empregador").select("email_dono,dados").eq("email_dono", d.email).maybeSingle();
           const dd = (emp?.dados || {}) as Record<string, string>;
           const nome = dd["razao"] || dd["fantasia"] || d.email;
-          await a.db.from("support_sessions" as never).update({ encerrado_em: new Date().toISOString() } as never).eq("super_admin_id", a.user.id).is("encerrado_em", null);
+          const closed = await a.db.from("support_sessions" as never).update({ encerrado_em: new Date().toISOString() } as never).eq("super_admin_id", a.user.id).is("encerrado_em", null);
+          if (closed.error) return json({ error: "Não foi possível encerrar o atendimento anterior." }, 500);
           const { data: s, error } = await a.db.from("support_sessions" as never)
             .insert({ super_admin_id: a.user.id, empresa_id: d.email.toLowerCase(), empresa_nome: nome, motivo: d.motivo, ip } as never).select("id").single();
           if (error) return json({ error: "Não foi possível iniciar o suporte (tabelas de suporte criadas no banco?)." }, 500);
-          await audit(d.email.toLowerCase(), "suporte_iniciado", { sessao: (s as { id: string }).id, motivo: d.motivo });
+          const recorded = await audit(d.email.toLowerCase(), "suporte_iniciado", { sessao: (s as { id: string }).id, motivo: d.motivo });
+          if (recorded.error) {
+            await a.db.from("support_sessions" as never).update({ encerrado_em: new Date().toISOString() } as never).eq("id", (s as {id:string}).id);
+            return json({ error: "Atendimento não liberado: falha ao registrar a auditoria." }, 500);
+          }
           return json({ ok: true, id: (s as { id: string }).id });
         }
         if (d.acao === "dev_info") {
