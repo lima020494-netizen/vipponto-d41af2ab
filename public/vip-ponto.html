@@ -1578,7 +1578,7 @@ async function copiarLinkQuiosque(){
   try{await navigator.clipboard.writeText(link);toast('Link do quiosque copiado.',2000);}
   catch(e){const campo=$('terminal-link');if(campo){campo.focus();campo.select();}toast('Selecione e copie o link do quiosque.',3000);}
 }
-function terminalQuiosqueHTML(){const link=linkQuiosque(),qr=qrDataURL(link);return `<section class="terminal-section" aria-label="Terminal de ponto"><div><h3>Terminal de ponto</h3><div class="terminal-link"><input id="terminal-link" aria-label="Link do quiosque" readonly value="${esc(link)}"/><button class="btn ghost" onclick="copiarLinkQuiosque()" aria-label="Copiar link do quiosque" title="Copiar link">⧉</button></div><a class="btn" href="${esc(link)}" target="_top">Abrir Quiosque ↗</a><p class="muted terminal-help">No outro aparelho, entre com a conta da empresa.</p></div>${qr?`<img class="terminal-qr" src="${qr}" alt="QR Code para abrir o quiosque"/>`:''}</section>`;}
+function terminalQuiosqueHTML(){const link=linkQuiosque(),qr=qrDataUrl(link);return `<section class="terminal-section" aria-label="Terminal de ponto"><div><h3>Terminal de ponto</h3><div class="terminal-link"><input id="terminal-link" aria-label="Link do quiosque" readonly value="${esc(link)}"/><button class="btn ghost" onclick="copiarLinkQuiosque()" aria-label="Copiar link do quiosque" title="Copiar link">⧉</button></div><a class="btn" href="${esc(link)}" target="_top">Abrir Quiosque ↗</a><p class="muted terminal-help">No outro aparelho, entre com a conta da empresa.</p></div>${qr?`<img class="terminal-qr" src="${qr}" alt="QR Code para abrir o quiosque"/>`:''}</section>`;}
 function abaTerminalQuiosque(){ $('gestor-body').innerHTML=terminalQuiosqueHTML(); }
 async function atualizarAvisoSuporte(){
   const aviso=$('gestor-suporte-aviso');if(!aviso||!CONTA)return;
@@ -1654,6 +1654,9 @@ async function abaLogs(){
   const conta=CONTA;
   if(!LOGS_CARGAS.has(conta))LOGS_CARGAS.set(conta,(async()=>{try{const r=await sb.from('logs').select('quando,por,acao').eq('email_dono',conta).order('quando',{ascending:false}).limit(3000);if(!r.error){localStorage.setItem(`vip:${conta}:logs`,JSON.stringify(r.data||[]));LOGS_SESSAO.add(conta);return r.data||[];}}finally{LOGS_CARGAS.delete(conta);}})());
   const dados=await LOGS_CARGAS.get(conta);if(dados&&CONTA===conta&&ABA==='logs')renderLogs(dados);
+  if(CONTA!==conta||ABA!=='logs')return;
+  const auditoria=await sb.from('audit_logs').select('criado_em,acao').eq('empresa_id',conta).eq('is_support_action',true).order('criado_em',{ascending:false}).limit(300);
+  if(CONTA===conta&&ABA==='logs'&&!auditoria.error){const base=get('logs',[]);renderLogs([...base,...(auditoria.data||[]).map(x=>({quando:x.criado_em,por:'Suporte técnico',acao:x.acao}))].sort((a,b)=>new Date(b.quando)-new Date(a.quando)));}
 }
 function renderLogs(l){
   $('gestor-body').innerHTML=`<h3>Histórico de ações (auditoria — nuvem)</h3><div class="tbl-wrap"><table><tr><th>Quando</th><th>Por</th><th>Ação</th></tr>
