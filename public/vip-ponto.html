@@ -1643,7 +1643,7 @@ function irAba(k){
   if(k==='dash')return mostrarCentralGestor();
   if(k==='dev'&&!podeEditarDev())return;
   fecharMenuGestor(false);pararRelogioGestor();atualizarMenuGestor(k);
-  ABA=k;$('gestor-hub').classList.add('hidden');$('gestor-body').classList.remove('hidden');$('gestor-voltar').classList.add('show');
+  ABA=k;$('gestor-hub').classList.add('hidden');$('gestor-hub').innerHTML='';$('gestor-body').classList.remove('hidden');$('gestor-voltar').classList.add('show');
   carregarTelaGestor('gestor-body',k==='kiosk'?'Terminal de ponto':MODULOS_GESTOR[k]?.nome||'Carregando',()=>{({dash:abaDash,func:abaFunc,ponto:abaPonto,folha:abaFolha,emp:abaEmp,logs:abaLogs,assin:abaAssinatura,kiosk:abaTerminalQuiosque})[k]?.();});$('tela-gestor').scrollTop=0;
 }
 /* Empregador/Gerenciadores dentro do gestor (reutiliza o mesmo formulário) */
