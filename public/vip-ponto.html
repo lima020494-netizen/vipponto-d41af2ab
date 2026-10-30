@@ -1650,7 +1650,7 @@ function irAba(k){
 function abaEmp(){ $('empregador-form').innerHTML=''; telaEmpregador('gestor-body'); }
 async function abaLogs(){
   renderLogs(get('logs',[]));
-  if(!sb||!CONTA||SHARE_DATA||LOGS_SESSAO.has(CONTA))return;
+  if(!sb||!CONTA||SHARE_DATA)return;
   const conta=CONTA;
   if(!LOGS_CARGAS.has(conta))LOGS_CARGAS.set(conta,(async()=>{try{const r=await sb.from('logs').select('quando,por,acao').eq('email_dono',conta).order('quando',{ascending:false}).limit(3000);if(!r.error){localStorage.setItem(`vip:${conta}:logs`,JSON.stringify(r.data||[]));LOGS_SESSAO.add(conta);return r.data||[];}}finally{LOGS_CARGAS.delete(conta);}})());
   const dados=await LOGS_CARGAS.get(conta);if(dados&&CONTA===conta&&ABA==='logs')renderLogs(dados);
@@ -2828,7 +2828,7 @@ async function iniciarSuporte(){
   }catch(e){alert('Sessão de suporte inválida ou expirada: '+e.message);location.replace('/admin');return true;}
 }
 async function sairSuporte(){
-  try{await apiLic('POST',{acao:'suporte_encerrar'});}catch(e){console.warn(e);}
+  try{await apiLic('POST',{acao:'suporte_encerrar'});}catch(e){console.warn(e);toast('Não foi possível encerrar o suporte. Tente novamente.',3000);return;}
   // Limpa o cache local da empresa acessada para não deixar dados dela no aparelho do suporte
   Object.keys(localStorage).filter(k=>k.startsWith('vip:'+CONTA+':')||k==='vip:lic:'+CONTA).forEach(k=>localStorage.removeItem(k));
   location.replace('/admin');
@@ -2903,6 +2903,7 @@ window.addEventListener('online',sincronizarDevGlobal);
 window.addEventListener('storage',e=>{if(e.key==='vip_ponto_dev_info'||e.key==='ponto_pro_gestao_logo_app'){const l=$('logo-app');if(l)l.src=logoApp();if(SOBRE_ABERTO&&$('sobre-sistema')&&!podeEditarDev()&&!$('modal-generico').classList.contains('hidden'))renderSobre();}});
 setTimeout(sincronizarDevGlobal,0);
 setInterval(()=>{if(!document.hidden)sincronizarDevGlobal();},30000);
+setInterval(()=>{if(!document.hidden&&GERENCIADOR&&MODO_GESTOR)atualizarAvisoSuporte();},30000);
 async function abrirSobre(){
   SOBRE_ABERTO=true;LOGO_APP_TMP=null;
   await sincronizarDevGlobal();renderSobre();
