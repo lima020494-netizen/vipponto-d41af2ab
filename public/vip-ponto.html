@@ -618,6 +618,9 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 #tela-login h3,#gestor-body h3,#gestor-body h4,#gestor-body td,#gestor-body input,#gestor-body select,#gestor-body textarea,#modal-generico .inner,#modal-pin .inner{color:var(--global-text,var(--txt))}
 #gestor-body .sheet-a4,#gestor-body .sheet-a4 h3,#gestor-body .sheet-a4 td{color:var(--sheet-ink)}
 #tela-login .btn.gold{background:var(--navy);color:var(--action-text);border-color:var(--navy);box-shadow:none}
+.manager-support-fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:10000;width:48px;height:48px;padding:0;border-radius:50%;background:var(--navy);color:var(--action-text);border:1px solid var(--gold);box-shadow:var(--shadow)}
+#tela-gestor>.inner{padding-bottom:80px}.manager-lock{padding-bottom:80px}
+@media(max-width:640px){body:has(.support-pill) .manager-support-fab{bottom:calc(80px + env(safe-area-inset-bottom,0px))}}
 </style>
 </head>
 <body>
@@ -708,7 +711,8 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 </div>
 
 <div id="gestor-bloqueio" class="hidden manager-lock">
-  <section aria-labelledby="gestor-lock-title"><div class="manager-lock-logo"><img id="gestor-lock-logo" src="/vip-logo.png?v=20261028" alt="Logo da empresa"/></div><h1 id="gestor-lock-title">Painel do Gestor</h1><p id="gestor-lock-empresa"></p><button class="btn manager-lock-primary" onclick="pedirPinGestor()">🔒 Acessar com PIN</button><div class="manager-lock-secondary"><button class="btn ghost" onclick="abrirSuporteGestor()">Suporte</button><a class="btn ghost" href="/quiosque" target="_top">Quiosque ↗</a></div><button class="btn manager-lock-logout" onclick="logoff()">⏻ Sair da conta</button></section>
+  <section aria-labelledby="gestor-lock-title"><div class="manager-lock-logo"><img id="gestor-lock-logo" src="/vip-logo.png?v=20261028" alt="Logo da empresa"/></div><h1 id="gestor-lock-title">Painel do Gestor</h1><p id="gestor-lock-empresa"></p><button class="btn manager-lock-primary" onclick="pedirPinGestor()">🔒 Acessar com PIN</button><div class="manager-lock-secondary"><a class="btn ghost" href="/quiosque" target="_top">Quiosque ↗</a></div><button class="btn manager-lock-logout" onclick="logoff()">⏻ Sair da conta</button></section>
+  <button class="btn manager-support-fab" onclick="abrirSuporteGestor()" aria-label="Suporte ao Gestor" title="Suporte ao Gestor"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 13v-1a8 8 0 0 1 16 0v1M4 12H2v7h4v-7zM20 12h2v7h-4v-7zM20 19c0 3-4 3-8 3"/></svg></button>
 </div>
 <!-- ======================= GESTOR ======================= -->
 <div id="tela-gestor" class="modal hidden">
@@ -723,10 +727,6 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
       </div>
       <span id="gestor-licenca" class="license-badge" data-state="ativo">Ativo</span>
       <div class="row right gestor-head-actions">
-        <button class="btn sm ghost manager-conformity" onclick="abrirSobre()" title="Desenhado em conformidade com as diretrizes da Portaria MTE 671/2021 — não representa homologação oficial" aria-label="Informações sobre a Portaria MTE 671/2021"><span class="action-icon" aria-hidden="true">♧</span> Portaria 671</button>
-        <button id="gestor-voltar" class="btn sm ghost gestor-back" onclick="mostrarCentralGestor()" title="Voltar ao Dashboard" aria-label="Voltar ao Dashboard"><span class="action-icon" aria-hidden="true">←</span> Voltar</button>
-        <button class="btn sm ghost" onclick="abrirSobre()" title="Sobre" aria-label="Sobre"><span class="action-icon" aria-hidden="true">ⓘ</span> Sobre</button>
-        <button class="btn sm ghost manager-manual" onclick="abrirManual()" title="Manual" aria-label="Manual"><span class="action-icon" aria-hidden="true">📖</span> Manual</button>
         <button class="btn sm ghost" onclick="fecharGestor()" title="Bloquear painel" aria-label="Bloquear painel do gestor"><span class="action-icon" aria-hidden="true">🔒</span> Bloquear</button>
         <button class="btn sm ghost" onclick="logoff()" title="Sair da conta" aria-label="Sair da conta"><span class="action-icon" aria-hidden="true">⏻</span> Sair da conta</button>
       </div>
@@ -736,6 +736,7 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
     <main id="gestor-hub"></main>
     <div class="card hidden" id="gestor-body" style="border-radius:0"></div>
   </div>
+  <button class="btn manager-support-fab" onclick="abrirSuporteGestor()" aria-label="Suporte ao Gestor" title="Suporte ao Gestor"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 13v-1a8 8 0 0 1 16 0v1M4 12H2v7h4v-7zM20 12h2v7h-4v-7zM20 19c0 3-4 3-8 3"/></svg></button>
 </div>
 
 <div id="modal-generico" class="modal hidden"><div class="inner" id="modal-generico-inner"></div></div>
@@ -1250,8 +1251,10 @@ function instanteBatida(b){
   if(c&&b.hora){
     const d=new Date(c);
     if(!isNaN(d)){
-      const dif=Math.abs(toMin(hhmm(d))-toMin(b.hora));
-      if(dif<=1||dif>=1439) return {civil:isoOf(d),key:isoOf(d)+'T'+b.hora+'#'+nsr};
+      const partes=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Belem',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d);
+      const v=t=>partes.find(p=>p.type===t)?.value||'', civil=v('year')+'-'+v('month')+'-'+v('day');
+      const dif=Math.abs(toMin(v('hour')+':'+v('minute'))-toMin(b.hora));
+      if(dif<=1||dif>=1439) return {civil,key:civil+'T'+b.hora+'#'+nsr};
     }
   }
   return {civil:b.data,key:String(b.data)+'T'+String(b.hora)+'#'+nsr};
@@ -1264,7 +1267,7 @@ function indiceJornadas(){
   const map=new Map(), cnt={};
   all.filter(b=>!b.excluida).map(b=>({b,i:instanteBatida(b)})).sort((x,y)=>x.i.key.localeCompare(y.i.key)).forEach(({b,i})=>{
     let j=b.data;
-    if(b.jornada) j=b.jornada;
+    if(b.jornada&&b.jornada!==b.data) j=b.jornada;
     else if(i.civil!==b.data) j=b.data; // legado: madrugada já gravada com a data da jornada
     else if(toMin(b.hora)<360){
       const ontem=addDias(b.data,-1),k=b.pin+'|'+ontem,n=cnt[k]||0;
@@ -1568,9 +1571,10 @@ function bloquearGestor(){
 }
 function abrirSuporteGestor(){
   const d=devCfg(),wa=String(LIC?.config?.whatsapp||d.telefone||'').replace(/\D/g,''),email=String(d.email||'').trim();
-  const msg=encodeURIComponent('Olá, preciso de suporte no Ponto Pro Gestão.');
-  abrirModal(`<div class="row"><h3>Suporte ao Gestor</h3><button class="btn ghost right" onclick="fecharModal()" aria-label="Fechar suporte">✕</button></div><div class="row">${wa?`<a class="btn" href="https://wa.me/${wa}?text=${msg}" target="_blank" rel="noopener">WhatsApp</a><a class="btn ghost" href="https://wa.me/${wa}?text=${encodeURIComponent('Olá, gostaria de abrir um chamado de suporte.') }" target="_blank" rel="noopener">Abrir chamado</a>`:'<p>Contato de suporte ainda não configurado.</p>'}${/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)?`<a class="btn ghost" href="mailto:${esc(email)}?subject=Chamado%20de%20suporte">Chamado por e-mail</a>`:''}</div>`);
+  const contexto=contextoSuporteGestor(),msg=encodeURIComponent('Olá, preciso de suporte no Ponto Pro Gestão.\n'+contexto);
+  abrirModal(`<div class="row"><h3>Suporte ao Gestor</h3><button class="btn ghost right" onclick="fecharModal()" aria-label="Fechar suporte">✕</button></div><p>${esc(contexto).replace(/\n/g,'<br>')}</p><div class="row">${wa?`<a class="btn" href="https://wa.me/${wa}?text=${msg}" target="_blank" rel="noopener">WhatsApp</a><a class="btn ghost" href="https://wa.me/${wa}?text=${encodeURIComponent('Olá, gostaria de abrir um chamado de suporte.\n'+contexto)}" target="_blank" rel="noopener">Abrir chamado</a>`:'<p>Contato de suporte ainda não configurado.</p>'}${/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)?`<a class="btn ghost" href="mailto:${esc(email)}?subject=Chamado%20de%20suporte&body=${msg}">Chamado por e-mail</a>`:''}</div>`);
 }
+function contextoSuporteGestor(){const e=get('empregador',{})||{},g=GERENCIADOR||{};return ['Empresa: '+(e.fantasia||e.razao||'Não informada'),e.doc?'CPF/CNPJ: '+e.doc:'','Gestor: '+(g.nome||'Painel bloqueado')].filter(Boolean).join('\n');}
 function abrirQuiosque(){fecharGestor();(window.top||window).location.href='/quiosque';}
 // Public connection URL only; the second device uses its own company session.
 function linkQuiosque(){return new URL('/quiosque',location.origin).href;}
@@ -1802,7 +1806,7 @@ function previstoDia(f,iso){
 }
 function batidasDia(pin,iso){return batidasJornada(pin,iso);}
 /* Reordena as marcações da jornada por horário e reclassifica E1/S1/E2/S2 sem gerar logs em cascata. */
-function reordenarJornada(pin,iso){const all=get('batidas',[]),bs=all.filter(b=>!b.excluida&&b.pin===pin&&jornadaDe(b)===iso).sort((a,b)=>(a.data+' '+a.hora).localeCompare(b.data+' '+b.hora)),mud=[];
+function reordenarJornada(pin,iso){const all=get('batidas',[]),bs=all.filter(b=>!b.excluida&&b.pin===pin&&jornadaDe(b)===iso).sort(ordemJornada),mud=[];
   bs.forEach((b,i)=>{const t=TIPOS[i]||b.tipo;if(b.tipo!==t){b.tipo=t;mud.push(b.nsr);}});if(mud.length){set('batidas',all);mud.forEach(n=>filaPonto(n));}}
 /* Pares de batidas (máx. 4: Entrada | Intervalo Saída | Intervalo Volta | Saída) */
 function paresBatidas(bs){
@@ -2627,6 +2631,19 @@ function acaoFiscalFolha(acao){
   const p=periodoFolhaValido();if(!p)return;
   if(acao==='afd')gerarAFDOficial(p.ini,p.fim);else if(acao==='aej')gerarAEJ(p.ini,p.fim);
 }
+function dadosFechamentoContador(d,hoje=hojeISO()){
+  const tot={...d.tot};
+  const linhas=d.linhas.map(l=>{
+    if(l.ocorrencia!=='FALTA')return {...l};
+    const bs=batidasDia(d.f.pin,l.data),oc=ocorrenciaDia(d.f.pin,l.data);
+    const faltaConcluida=l.data<hoje&&l.previsto>0&&!bs.length&&(!oc||regraOcorrencia(oc.tipo).falta);
+    if(faltaConcluida)return {...l};
+    tot.faltas=Math.max(0,tot.faltas-1);tot.faltasInj=Math.max(0,tot.faltasInj-1);
+    if(!bs.length)tot.faltantes=Math.max(0,tot.faltantes-l.previsto);
+    return {...l,ocorrencia:'',cls:'',descontoDia:0,descontoDsr:0};
+  });
+  return {...d,tot,linhas};
+}
 async function pacoteContador(){
   const mes=$('fl-mes')?.value;if(!/^\d{4}-\d{2}$/.test(mes||''))return toast('Selecione o mês do pacote.',4000);
   const [ano,m]=mes.split('-').map(Number),p={ini:mes+'-01',fim:mes+'-'+String(new Date(Date.UTC(ano,m,0)).getUTCDate()).padStart(2,'0')},fs=get('funcionarios',[]);
@@ -2639,7 +2656,7 @@ async function pacoteContador(){
     const zip=new JSZip(),folhas=[];
     for(let i=0;i<fs.length;i++){
       status.textContent=`Preparando folha ${i+1} de ${fs.length}…`;
-      const f=fs[i],d=dadosFolha(f.pin,p.ini,p.fim),pdf=await gerarPDFComLogo({folhas:[d]});folhas.push(d);
+      const f=fs[i],d=dadosFolha(f.pin,p.ini,p.fim),pdf=await gerarPDFComLogo({folhas:[d]});folhas.push(dadosFechamentoContador(d));
       const nome=(f.nome||'Colaborador').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,80);
       zip.file(`folhas/${String(i+1).padStart(3,'0')}_${nome}.pdf`,pdf.blob);
     }
