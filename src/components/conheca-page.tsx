@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Check, ShieldCheck, WifiOff, Printer, Smartphone, Clock3, Headphones, ChevronRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import kioskImage from "@/assets/conheca-kiosk.jpg";
@@ -10,27 +10,24 @@ import { APP_SETTINGS_DEFAULT, resolveAppSettings } from "@/lib/app-settings";
 import { resolvePlatformLogo, readableTextColor } from "@/lib/platform-identity";
 
 
-export const Route = createFileRoute("/conheca")({
-  head: () => ({
+export function conhecaHead(home = false) { return {
     meta: [
-      { title: "Conheça Ponto Pro Gestão — Ponto eletrônico para quiosques e tablets" },
+      { title: home ? "Ponto Pro Gestão — Gestão de jornada e ponto eletrônico" : "Conheça Ponto Pro Gestão — Ponto eletrônico para quiosques e tablets" },
       { name: "description", content: "Ponto Pro Gestão: desenhado em conformidade com as diretrizes da Portaria MTE 671/2021. Ponto offline, comprovantes e relatórios. Conheça os planos." },
       { property: "og:title", content: "Ponto Pro Gestão — Ponto eletrônico seguro para sua empresa" },
       { property: "og:description", content: "Ponto Pro Gestão para quiosques, tablets e terminais POS Android, desenhado em conformidade com as diretrizes da Portaria MTE 671/2021." },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://vippontopro.app/conheca" },
+      { property: "og:url", content: home ? "https://vippontopro.app/" : "https://vippontopro.app/conheca" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      { rel: "canonical", href: "https://vippontopro.app/conheca" },
+      { rel: "canonical", href: home ? "https://vippontopro.app/" : "https://vippontopro.app/conheca" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700&display=swap" },
     ],
-  }),
-  component: ConhecaPage,
-});
+  }; }
 
 
-function ConhecaPage() {
+export function ConhecaPage() {
   const [k, setK] = useState(CONHECA_DEFAULT);
   const [settings, setSettings] = useState(APP_SETTINGS_DEFAULT);
   const [configuredPlans, setPlans] = useState(PLANOS_PADRAO);
@@ -61,7 +58,7 @@ function ConhecaPage() {
         <nav aria-label="Navegação comercial" className="order-3 col-span-2 flex w-full justify-center gap-7 text-sm font-semibold text-muted-foreground md:order-none md:w-auto">
           <a href="#recursos" className="hover:text-primary">Recursos</a><a href="#planos" className="hover:text-primary">Planos</a><a href="#contato" className="hover:text-primary">Contato</a>
         </nav>
-        <Button asChild variant="outline" className="text-xs"><Link to="/">ACESSAR SISTEMA <ArrowUpRight /></Link></Button>
+        <Button asChild variant="outline" className="text-xs"><Link to="/gestor">ACESSAR SISTEMA <ArrowUpRight /></Link></Button>
       </div>
     </header>
     <main>
@@ -74,7 +71,7 @@ function ConhecaPage() {
           <h1 className="max-w-2xl text-3xl font-semibold leading-tight md:text-5xl">{k.headline}</h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">{k.subtitle}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild size="lg" className="h-12 px-6 text-xs font-extrabold"><Link to="/">{k.hero.cta_primary} <ArrowUpRight /></Link></Button>
+            <Button asChild size="lg" className="h-12 px-6 text-xs font-extrabold"><Link to="/gestor">{k.hero.cta_primary} <ArrowUpRight /></Link></Button>
             <Button asChild size="lg" variant="outline" className="h-12 px-6 text-xs"><a href={whatsapp} target="_blank" rel="noopener noreferrer"><MessageCircle /> {k.hero.cta_secondary}</a></Button>
           </div>
           <div className="mt-7 flex flex-wrap gap-5 text-xs text-muted-foreground">{k.hero.highlights.map(h=><span key={h} className="flex items-center gap-2"><Check className="commercial-check" size={15} /> {h}</span>)}</div>
@@ -98,12 +95,12 @@ function ConhecaPage() {
             <h3 className="text-xl font-semibold">{plan.name}</h3><p className="mt-2 text-sm text-muted-foreground">{plan.caption}</p>
             <div className="mt-7 flex min-h-14 items-baseline gap-2">{plan.price?<><span className="text-sm text-muted-foreground">R$</span><strong className="text-5xl font-semibold">{plan.price}</strong><span className="text-sm text-muted-foreground">/mês</span></>:<strong className="text-3xl font-semibold">Sob Consulta</strong>}</div>
             <ul className="my-7 space-y-4 border-t border-border pt-6">{plan.benefits.map(b=><li key={b} className="flex gap-3 text-sm"><Check size={17} className="commercial-check shrink-0"/>{b}</li>)}</ul>
-            <Button asChild size="lg" variant={plan.featured?"default":"outline"} className="mt-auto w-full">{plan.price?<Link to="/">Testar grátis <ChevronRight /></Link>:<a href={whatsapp} target="_blank" rel="noopener noreferrer">Falar com a equipe <ArrowUpRight /></a>}</Button>
+            <Button asChild size="lg" variant={plan.featured?"default":"outline"} className="mt-auto w-full">{plan.price?<Link to="/gestor">Testar grátis <ChevronRight /></Link>:<a href={whatsapp} target="_blank" rel="noopener noreferrer">Falar com a equipe <ArrowUpRight /></a>}</Button>
           </article>)}</div>
         </div>
       </section>
       <section id="contato" className="mx-auto flex max-w-7xl scroll-mt-8 flex-col items-start justify-between gap-6 px-5 py-14 md:flex-row md:items-center md:px-10"><div><p className="text-xs font-bold uppercase text-primary">Vamos conversar</p><h2 className="mt-3 text-2xl font-semibold">{k.footer.contact_title}</h2><p className="mt-3 text-sm text-muted-foreground">{k.footer.contact_text}</p></div><Button asChild size="lg"><a href={whatsapp} target="_blank" rel="noopener noreferrer"><MessageCircle/> {k.footer.contact_cta} <ArrowUpRight/></a></Button></section>
     </main>
-    <footer className="border-t border-border"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-7 text-xs text-muted-foreground md:px-10"><div><strong className="text-sm text-foreground">Ponto Pro Gestão</strong><p className="mt-2 max-w-xl">{k.footer.footer_text}</p></div><Link to="/" className="flex items-center gap-2 font-semibold hover:text-primary">Acessar o sistema <ArrowUpRight size={15}/></Link></div></footer>
+    <footer className="border-t border-border"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-7 text-xs text-muted-foreground md:px-10"><div><strong className="text-sm text-foreground">Ponto Pro Gestão</strong><p className="mt-2 max-w-xl">{k.footer.footer_text}</p></div><Link to="/gestor" className="flex items-center gap-2 font-semibold hover:text-primary">Acessar o sistema <ArrowUpRight size={15}/></Link></div></footer>
   </div>;
 }
