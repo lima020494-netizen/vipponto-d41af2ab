@@ -13,9 +13,9 @@ import { resolvePlatformLogo, readableTextColor } from "@/lib/platform-identity"
 export function conhecaHead(home = false) { return {
     meta: [
       { title: home ? "Ponto Pro Gestão — Gestão de jornada e ponto eletrônico" : "Conheça Ponto Pro Gestão — Ponto eletrônico para quiosques e tablets" },
-      { name: "description", content: "Ponto Pro Gestão: desenhado em conformidade com as diretrizes da Portaria MTE 671/2021. Ponto offline, comprovantes e relatórios. Conheça os planos." },
-      { property: "og:title", content: "Ponto Pro Gestão — Ponto eletrônico seguro para sua empresa" },
-      { property: "og:description", content: "Ponto Pro Gestão para quiosques, tablets e terminais POS Android, desenhado em conformidade com as diretrizes da Portaria MTE 671/2021." },
+      { name: "description", content: home ? "Ponto Pro Gestão: gestão de jornada, escalas e banco de horas. Conheça os planos e acesse o Gestor ou o Quiosque de ponto." : "Ponto Pro Gestão: desenhado em conformidade com as diretrizes da Portaria MTE 671/2021. Ponto offline, comprovantes e relatórios. Conheça os planos." },
+      { property: "og:title", content: home ? "Ponto Pro Gestão — Gestão de jornada e ponto eletrônico" : "Ponto Pro Gestão — Ponto eletrônico seguro para sua empresa" },
+      { property: "og:description", content: home ? "Gestão de frequência, escalas, banco de horas e comprovantes para sua empresa. Conheça Ponto Pro Gestão." : "Ponto Pro Gestão para quiosques, tablets e terminais POS Android, desenhado em conformidade com as diretrizes da Portaria MTE 671/2021." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: home ? "https://vippontopro.app/" : "https://vippontopro.app/conheca" },
       { name: "twitter:card", content: "summary_large_image" },
