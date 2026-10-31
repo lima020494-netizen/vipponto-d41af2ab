@@ -22,12 +22,7 @@ jobs:
         run: |
           npm install
           npm run build
-          npx cap sync android || true
-          if [ ! -d "android" ]; then
-            npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
-            npx cap init Vipponto com.vipponto.app --web-dir=dist
-            npx cap add android
-          fi
+          npx cap add android || true
           npx cap copy android
           cd android
           chmod +x gradlew
