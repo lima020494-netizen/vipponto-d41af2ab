@@ -85,14 +85,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Registro de ponto e gestão de frequência para empresas." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", type: "image/png", href: "/favicon-v20261028.png" },
+      { rel: "icon", type: "image/x-icon", href: "/favicon.ico?v=20261031" },
       { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon-v20261028.png" },
       { rel: "manifest", href: "/manifest.webmanifest?v=20261028" },
     ],
