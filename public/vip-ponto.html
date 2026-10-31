@@ -618,9 +618,9 @@ label:has(input[type=checkbox]){min-height:44px;cursor:pointer}
 #tela-login h3,#gestor-body h3,#gestor-body h4,#gestor-body td,#gestor-body input,#gestor-body select,#gestor-body textarea,#modal-generico .inner,#modal-pin .inner{color:var(--global-text,var(--txt))}
 #gestor-body .sheet-a4,#gestor-body .sheet-a4 h3,#gestor-body .sheet-a4 td{color:var(--sheet-ink)}
 #tela-login .btn.gold{background:var(--navy);color:var(--action-text);border-color:var(--navy);box-shadow:none}
-.manager-support-fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:10000;width:48px;height:48px;padding:0;border-radius:50%;background:var(--navy);color:var(--action-text);border:1px solid var(--gold);box-shadow:var(--shadow)}
+#tela-gestor .manager-support-fab,#gestor-bloqueio .manager-support-fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:10000;width:48px;height:48px;padding:0;border-radius:50%!important;background:var(--navy);color:var(--action-text);border:1px solid var(--gold);box-shadow:var(--shadow)}
 #tela-gestor>.inner{padding-bottom:80px}.manager-lock{padding-bottom:80px}
-@media(max-width:640px){body:has(.support-pill) .manager-support-fab{bottom:calc(80px + env(safe-area-inset-bottom,0px))}}
+@media(max-width:640px){body:has(.support-pill) #tela-gestor .manager-support-fab,body:has(.support-pill) #gestor-bloqueio .manager-support-fab{bottom:calc(80px + env(safe-area-inset-bottom,0px))}}
 </style>
 </head>
 <body>

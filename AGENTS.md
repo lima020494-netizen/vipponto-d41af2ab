@@ -33,6 +33,6 @@
 - Operational /gestor and /quiosque routes reuse the legacy HTML engine through a mode-aware iframe; the existing Supabase session and manager PIN remain the access boundaries, preventing duplicated calculation/auth engines.
 - Identity schemas normalize legacy color fields to the fixed institutional palette; surface tokens govern light admin/manager and dark kiosk without recoloring official sheets. Known legacy platform logos resolve to the current CDN asset; custom company logos remain untouched.
 - Manager kiosk links and QR contain only the same-origin /quiosque URL, never account identifiers or credentials; opening another device still requires the existing company sign-in.
-- Manager limits use dynamic plans with legacy fallback; hidden reserve records never count.
+- Manager limits use plans with legacy fallback; hidden reserves never count.
 - Accountant closing derives a separate view excluding open/future absences; shared PDF calculations remain unchanged.
 - Capacitor uses a hosted HTTPS /quiosque shell, not a static bundle or native printer bridge.
