@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Pacote operacional 31/10: simplificar cabeçalho/gaveta, suporte flutuante contextual, fechamento sem faltas em dias abertos/futuros, revisar madrugada, vitrine na raiz e favicon, base Capacitor Android no quiosque. Validar testes e prévia, sem publicar.
+
 - [x] Pacote 6.2 visual: identidade oficial fixa/admin claro sem seletores, card de acesso do Gestor, link/QR copiável do Quiosque e aviso de suporte. 107 testes passam e build OK; PIN/link/QR/aviso conferidos com dados isolados, sem validação autenticada real ou hardware; não publicado. Cálculos e rotina de impressão preservados.
 - [ ] Ativar auditoria 6.2 e leitura do aviso pelo dono da empresa: migração supabase-suporte-62.sql bloqueada por conexão Supabase expirada. Tabelas existem, mas consulta confirmou ausência dos triggers; reconexão necessária, sem alegar auditoria ativa. Histórico normal continua na nuvem; API agora verifica erros no início/encerramento do suporte.
 
