@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/download",
+      "destination": "https://github.com/lima020494-netizen/vipponto-d41af2ab/releases/download/v1.0.0/app-debug.apk",
+      "permanent": false
+    }
+  ]
+}
