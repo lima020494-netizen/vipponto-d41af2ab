@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ConhecaRouteImport } from './routes/conheca'
 import { Route as GestorRouteImport } from './routes/gestor'
 import { Route as QuiosqueRouteImport } from './routes/quiosque'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -27,6 +28,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConhecaRoute = ConhecaRouteImport.update({
+  id: '/conheca',
+  path: '/conheca',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GestorRoute = GestorRouteImport.update({
@@ -68,6 +74,7 @@ const ApiPublicLicencaRoute = ApiPublicLicencaRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/conheca': typeof ConhecaRoute
   '/gestor': typeof GestorRoute
   '/quiosque': typeof QuiosqueRoute
   '/admin/senha': typeof AdminSenhaRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/conheca': typeof ConhecaRoute
   '/gestor': typeof GestorRoute
   '/quiosque': typeof QuiosqueRoute
   '/admin/senha': typeof AdminSenhaRoute
@@ -90,6 +98,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/conheca': typeof ConhecaRoute
   '/gestor': typeof GestorRoute
   '/quiosque': typeof QuiosqueRoute
   '/admin/senha': typeof AdminSenhaRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/conheca'
     | '/gestor'
     | '/quiosque'
     | '/admin/senha'
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/conheca'
     | '/gestor'
     | '/quiosque'
     | '/admin/senha'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/conheca'
     | '/gestor'
     | '/quiosque'
     | '/admin/senha'
@@ -136,6 +148,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  ConhecaRoute: typeof ConhecaRoute
   GestorRoute: typeof GestorRoute
   QuiosqueRoute: typeof QuiosqueRoute
   ApiPublicAdminAcessoRoute: typeof ApiPublicAdminAcessoRoute
@@ -157,6 +170,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conheca': {
+      id: '/conheca'
+      path: '/conheca'
+      fullPath: '/conheca'
+      preLoaderRoute: typeof ConhecaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gestor': {
@@ -226,6 +246,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  ConhecaRoute: ConhecaRoute,
   GestorRoute: GestorRoute,
   QuiosqueRoute: QuiosqueRoute,
   ApiPublicAdminAcessoRoute: ApiPublicAdminAcessoRoute,
