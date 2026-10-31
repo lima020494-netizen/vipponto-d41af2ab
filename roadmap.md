@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Pacote operacional 31/10: cabeçalho/gaveta simplificados, suporte flutuante contextual, fechamento CSV/XLS sem faltas em dias abertos/futuros, madrugada com fuso Belém e correção de jornada civil legada, vitrine na raiz com recuperação preservada, favicon ICO e base Capacitor com.pontoprogestao.app em /quiosque. 116 testes passaram; prévia e ZIP real conferidos com dados isolados; build OK. Sem publicar. Android é configuração inicial, sem APK/assinatura ou validação física; conta autenticada externa não verificável. Auditoria 6.2 continua bloqueada como abaixo.
+
 - [x] Pacote 6.2 visual: identidade oficial fixa/admin claro sem seletores, card de acesso do Gestor, link/QR copiável do Quiosque e aviso de suporte. 107 testes passam e build OK; PIN/link/QR/aviso conferidos com dados isolados, sem validação autenticada real ou hardware; não publicado. Cálculos e rotina de impressão preservados.
 - [ ] Ativar auditoria 6.2 e leitura do aviso pelo dono da empresa: migração supabase-suporte-62.sql bloqueada por conexão Supabase expirada. Tabelas existem, mas consulta confirmou ausência dos triggers; reconexão necessária, sem alegar auditoria ativa. Histórico normal continua na nuvem; API agora verifica erros no início/encerramento do suporte.
 

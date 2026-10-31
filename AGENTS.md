@@ -15,9 +15,9 @@
 - All A4 outputs use shared local jsPDF AutoTable generators; screen/PDF calculations match. Thermal receipts alone use browser/native/RawBT printing; BLE ESC/POS needs a supported GATT service and never claims InnerPrinter compatibility.
 - Monthly sheet summary rows are derived once from existing daily and bank results and reused by the screen and official PDF; period bank movement stays distinct from accumulated balance to avoid divergent totals.
 - Sheets share presentation, company weekday/Saturday hours and palette with AutoTable; A4 signatures remain on the main sheet and overflowing notes go into an appendix.
-- Marketing uses marketing_site_content; identity/About use app_settings with legacy app_config fallback. Writes require master+admin+PIN through the license endpoint; /conheca reads existing app_config plans, never a duplicate plan store. Root keeps its operational iframe.
+- Marketing uses marketing_site_content; identity/About use app_settings with legacy app_config fallback. Writes require master+admin+PIN through the license endpoint; /conheca reads existing app_config plans, never a duplicate plan store. Root and /conheca share a storefront; root forwards legacy recovery tokens.
 - Dismissed manager onboarding is stored in an account-scoped legacy namespace key so one company's choice cannot hide another company's onboarding.
-- Hardware bridge identifiers remain unchanged while presentation text is neutralized; regulatory wording in legacy commercial content is normalized at read time without overwriting stored configuration.
+- Preserve hardware identifiers; normalize legacy regulatory copy at read time, not in storage.
 - Kiosk libraries are version-pinned static files; offline cache excludes API/auth/company data.
 - Drawer closes before deferred render; home uses gestor-hub and gestor-body without duplicate IDs or cloud-replacing session caches.
 - Holidays/rest use zero planned time; Sunday/holiday bank uses employer factor, never salary premiums. Generic rest never infers debt.
@@ -33,4 +33,6 @@
 - Operational /gestor and /quiosque routes reuse the legacy HTML engine through a mode-aware iframe; the existing Supabase session and manager PIN remain the access boundaries, preventing duplicated calculation/auth engines.
 - Identity schemas normalize legacy color fields to the fixed institutional palette; surface tokens govern light admin/manager and dark kiosk without recoloring official sheets. Known legacy platform logos resolve to the current CDN asset; custom company logos remain untouched.
 - Manager kiosk links and QR contain only the same-origin /quiosque URL, never account identifiers or credentials; opening another device still requires the existing company sign-in.
-- Manager limits are stored alongside other dynamic plan capacities with a legacy fallback, excluding hidden reserve records, so old licenses remain compatible.
+- Manager limits use plans with legacy fallback; hidden reserves never count.
+- Accountant closing derives a separate view excluding open/future absences; shared PDF calculations remain unchanged.
+- Capacitor uses a hosted HTTPS /quiosque shell, not a static bundle or native printer bridge.
