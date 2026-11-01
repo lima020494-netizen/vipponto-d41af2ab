@@ -1361,7 +1361,7 @@ function detectarImpressora(tent=0){
   SUNMI=sunmiNativo();
   const m=modoImpressao();
   if(m==='manual'&&tent<5) setTimeout(()=>detectarImpressora(tent+1),1200);
-  el.textContent={sunmi:'🖨️ Sunmi Nativo · Opções',rawbt:'🖨️ RawBT Android · Opções',bluetooth:'🖨️ Bluetooth conectado · Opções',manual:'🖨️ Manual (sem impressora) · Opções'}[m];
+  el.textContent={sunmi:'🖨️ Impressora Integrada (POS) · Opções',rawbt:'🖨️ Serviço de Impressão Direta · Opções',bluetooth:'🖨️ Bluetooth conectado · Opções',manual:'🖨️ Manual (sem impressora) · Opções'}[m];
 }
 async function sha256Hex(text){
   const bytes=new TextEncoder().encode(text),hash=await crypto.subtle.digest('SHA-256',bytes);
@@ -1399,7 +1399,7 @@ async function imprimirComprovante(b,manual=false){
       if(!metodo) throw new Error('SDK Sunmi sem método de texto');
       linhas.forEach(l=>sunmi[metodo](l+'\n'));
       if(sunmi.lineWrap) sunmi.lineWrap(3);
-      return toast('Comprovante enviado à impressora Sunmi.',2000);
+      return toast('Comprovante enviado à impressora térmica.',2000);
     }catch(err){ console.warn('Sunmi nativo falhou',err); }
   }
   if(rawbtAtivo()&&imprimirRawBT(linhas)) return;
@@ -1421,12 +1421,12 @@ function imprimirNavegador(){
 }
 /* Opções abertas apenas por ação explícita; nunca deixam aviso fixo após uma batida. */
 function opcoesImpressao(){
-  const nomes={sunmi:'Sunmi Nativo',rawbt:'RawBT Android',bluetooth:'Bluetooth',manual:'Manual (sem impressora)'};
+  const nomes={sunmi:'Impressora Integrada (POS)',rawbt:'Serviço de Impressão Direta',bluetooth:'Bluetooth',manual:'Manual (sem impressora)'};
   const android=/Android/i.test(navigator.userAgent);
   abrirModal(`<div class="row"><h3>Impressão térmica</h3><button class="btn ghost right" onclick="fecharModal()">✕</button></div>
     <p class="muted">Modo detectado: <b>${nomes[modoImpressao()]}</b></p>
     <div class="row"><button class="btn" onclick="conectarBluetooth()">Conectar impressora Bluetooth BLE</button>
-    ${android?`<button class="btn ghost" onclick="fecharModal();alternarRawBT()">${rawbtAtivo()?'Desativar RawBT':'Ativar RawBT'}</button>`:''}
+    ${android?`<button class="btn ghost" onclick="fecharModal();alternarRawBT()">${rawbtAtivo()?'Desativar Impressão Direta':'Ativar Impressão Direta'}</button>`:''}
     <button class="btn ghost" onclick="fecharModal();reimprimirUltimo()">Reimprimir último comprovante</button>
     <button class="btn ghost" onclick="fecharModal();imprimirNavegador()">Imprimir pelo navegador</button></div>
     <p id="bt-status" role="status" class="muted">${BT_IMPRESSORA.caracteristica?'Bluetooth conectado.':'Bluetooth desconectado.'}</p>`);
@@ -1458,7 +1458,7 @@ function reimprimirUltimo(){if(ULTIMO_COMPROVANTE)imprimirComprovante(ULTIMO_COM
 const rawbtAtivo=()=>/Android/i.test(navigator.userAgent)&&localStorage.getItem('vip_rawbt')!=='0';
 (()=>{const q=new URLSearchParams(location.search).get('rawbt');if(q==='1'||q==='0')localStorage.setItem('vip_rawbt',q);})();
 function alternarRawBT(){localStorage.setItem('vip_rawbt',rawbtAtivo()?'0':'1');localStorage.removeItem('vip_rawbt_falhou');detectarImpressora(9);
-  toast(rawbtAtivo()?'Impressão silenciosa RawBT ativada neste aparelho.':'RawBT desativado — impressão pelo navegador.',3500);}
+  toast(rawbtAtivo()?'Impressão direta ativada neste aparelho.':'Impressão direta desativada — impressão pelo navegador.',3500);}
 function escposComprovante(linhas){
   const B=[],txt=s=>{for(const c of String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,''))B.push(c.charCodeAt(0)<128?c.charCodeAt(0):63);};
   B.push(0x1B,0x40,0x1B,0x61,1,0x1B,0x4D,1); // centralizado + Font B condensada
@@ -1471,7 +1471,7 @@ function imprimirRawBT(linhas){
     const b64=escposComprovante(linhas), alvo=(()=>{try{return window.top.location;}catch(e){return window.location;}})();
     // Sem browser_fallback_url para a Play Store: se o app não existir, o Chrome permanece na página.
     alvo.href=`intent:base64,${b64}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;S.browser_fallback_url=${encodeURIComponent('about:blank#rawbt-ausente')};end;`;
-    toast('Comprovante encaminhado ao RawBT.',2000);
+    toast('Comprovante enviado à impressora térmica.',2000);
     return true;
   }catch(err){console.warn('RawBT falhou, usando navegador',err);return false;}
 }
@@ -1585,7 +1585,7 @@ async function copiarLinkQuiosque(){
   try{await navigator.clipboard.writeText(link);toast('Link do quiosque copiado.',2000);}
   catch(e){const campo=$('terminal-link');if(campo){campo.focus();campo.select();}toast('Selecione e copie o link do quiosque.',3000);}
 }
-function terminalQuiosqueHTML(){const link=linkQuiosque(),qr=qrDataUrl(link);return `<section class="terminal-section" aria-label="Terminal de ponto"><div><h3>Terminal de ponto</h3><div class="terminal-link"><input id="terminal-link" aria-label="Link do quiosque" readonly value="${esc(link)}"/><button class="btn ghost" onclick="copiarLinkQuiosque()" aria-label="Copiar link do quiosque" title="Copiar link">⧉</button></div><div class="row"><a class="btn" href="${esc(link)}" target="_top">Abrir Quiosque ↗</a><a class="btn ghost" href="/download" target="_blank" rel="noopener">⇩ Baixar Aplicativo Android (.APK)</a></div><p class="muted terminal-help">No Sunmi ou tablet Android, abra o APK baixado e autorize a instalação deste navegador quando solicitado. Depois, abra o aplicativo e entre com a conta da empresa.</p></div>${qr?`<img class="terminal-qr" src="${qr}" alt="QR Code para abrir o quiosque"/>`:''}</section>`;}
+function terminalQuiosqueHTML(){const link=linkQuiosque(),qr=qrDataUrl(link);return `<section class="terminal-section" aria-label="Terminal de ponto"><div><h3>Terminal de ponto</h3><div class="terminal-link"><input id="terminal-link" aria-label="Link do quiosque" readonly value="${esc(link)}"/><button class="btn ghost" onclick="copiarLinkQuiosque()" aria-label="Copiar link do quiosque" title="Copiar link">⧉</button></div><div class="row"><a class="btn" href="${esc(link)}" target="_top">Abrir Quiosque ↗</a><a class="btn ghost" href="/download" target="_blank" rel="noopener">⇩ Baixar Aplicativo Android (.APK)</a></div><p class="muted terminal-help">Em terminais Android com impressora térmica integrada (58mm/80mm) ou tablets Android, abra o APK baixado e autorize a instalação deste navegador quando solicitado. Depois, abra o aplicativo e entre com a conta da empresa.</p></div>${qr?`<img class="terminal-qr" src="${qr}" alt="QR Code para abrir o quiosque"/>`:''}</section>`;}
 function abaTerminalQuiosque(){ $('gestor-body').innerHTML=terminalQuiosqueHTML(); }
 async function atualizarAvisoSuporte(){
   const aviso=$('gestor-suporte-aviso');if(!aviso||!CONTA)return;
@@ -3051,7 +3051,7 @@ async function pdfAtestadoTecnico(){
 const MANUAL=[
  ['1. Primeiro acesso','Crie sua conta. Os limites são definidos pelo plano ativo. A senha precisa de 8 caracteres com maiúscula, minúscula, número e símbolo (!@#$%&_). Depois preencha o cadastro do Empregador: CNPJ/CPF, razão social, nome fantasia, endereço, horário padrão e logo. Cadastre gerenciadores até o limite contratado, cada um com PIN próprio.'],
  ['2. Bater o ponto','Na tela inicial o empregado digita o PIN de 4 números. Cada número aparece por 1 segundo e vira bolinha. O nome e as batidas do dia aparecem; toque em ✓ REGISTRAR. O sistema usa a hora oficial do servidor (🟢 NTP OK), gera o NSR e imprime o comprovante. Depois de 2 segundos a confirmação desaparece e a tela fica livre.'],
- ['3. Comprovante','A cada batida o comprovante fica disponível. A impressão depende da conexão nativa, RawBT ativado, impressora Bluetooth BLE compatível ou opção do navegador. O envio não comprova a saída física do papel. Se não imprimir, toque na batida no histórico para reimprimir ou enviar por e-mail.'],
+ ['3. Comprovante','A cada batida o comprovante fica disponível. A impressão depende da impressora integrada do terminal (POS), do serviço de impressão direta, de uma impressora Bluetooth BLE compatível ou da opção do navegador. O envio não comprova a saída física do papel. Se não imprimir, toque na batida no histórico para reimprimir ou enviar por e-mail.'],
  ['4. Portal do Empregado (👤)','O empregado digita o PIN e vê a própria folha de ponto, podendo enviá-la para o seu e-mail.'],
  ['5. Gestor de ponto','Abra /gestor, faça login com e-mail e senha e digite o PIN de gerenciador. Bloquear retorna ao PIN; Sair da conta encerra a sessão. Suporte e chamados ficam na gaveta do gestor. A primeira aba é o Dashboard de Frequência, com presença, faltas, absenteísmo, atrasos e carga incompleta, com filtros por período e funcionário.'],
  ['6. Empregados','O limite de colaboradores por empresa é definido no plano ativo. Informe nome, CPF, função, departamento, admissão, escala e, opcionalmente, o início da vigência do banco de horas. O PIN é criado automaticamente. Na aba "Funções, Cargos e Departamentos" você cadastra as listas. Status: Ativo, Desligado, Afastamento (com motivo) ou Férias.'],
