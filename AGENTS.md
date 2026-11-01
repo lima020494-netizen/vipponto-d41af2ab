@@ -17,7 +17,7 @@
 - Sheets share presentation, company weekday/Saturday hours and palette with AutoTable; A4 signatures remain on the main sheet and overflowing notes go into an appendix.
 - Marketing uses marketing_site_content; identity/About use app_settings with legacy app_config fallback. Writes require master+admin+PIN through the license endpoint; /conheca reads existing app_config plans, never a duplicate plan store. Root and /conheca share a storefront; root forwards legacy recovery tokens.
 - Dismissed manager onboarding is stored in an account-scoped legacy namespace key so one company's choice cannot hide another company's onboarding.
-- Preserve hardware identifiers; normalize legacy regulatory copy at read time, not in storage.
+- Preserve hardware IDs; normalize regulatory copy on read.
 - Kiosk libraries are version-pinned static files; offline cache excludes API/auth/company data.
 - Drawer closes before deferred render; home uses gestor-hub and gestor-body without duplicate IDs or cloud-replacing session caches.
 - Holidays/rest use zero planned time; Sunday/holiday bank uses employer factor, never salary premiums. Generic rest never infers debt.
@@ -29,10 +29,12 @@
 - Super Admin lives only at /admin (own layout, master email + admin role + reserve PIN checked by the license endpoint); the client HTML app has no developer screens. Install icons use versioned filenames so installed shortcuts refresh.
 - Plans remain in app_config 'planos', validated by plans.ts with default limits; both client and marketing read the same store, and only master+PIN writes.
 - Bank debits come only from Folga Compensatória or incomplete shift (early departure): unjustified absence is wage-deduction only with neutral bank balance, and late arrival (atrasoDia, 10-min tolerance) is a Dashboard-only metric, never a bank debit or sheet column.
-- Support mode UI is a compact fixed bottom pill, never a top banner, so the manager header, drawer and kiosk stay fully usable.
+- Support uses a bottom pill, never a top banner.
+- APK aliases share one redirect URL; terminal links to /download.
+- Manual overnight type/jornada persist in punch JSON; civil timestamps stay unchanged.
 - Operational /gestor and /quiosque routes reuse the legacy HTML engine through a mode-aware iframe; the existing Supabase session and manager PIN remain the access boundaries, preventing duplicated calculation/auth engines.
 - Identity schemas normalize legacy color fields to the fixed institutional palette; surface tokens govern light admin/manager and dark kiosk without recoloring official sheets. Known legacy platform logos resolve to the current CDN asset; custom company logos remain untouched.
 - Manager kiosk links and QR contain only the same-origin /quiosque URL, never account identifiers or credentials; opening another device still requires the existing company sign-in.
-- Manager limits use plans with legacy fallback; hidden reserves never count.
-- Accountant closing derives a separate view excluding open/future absences; shared PDF calculations remain unchanged.
-- Capacitor uses a hosted HTTPS /quiosque shell, not a static bundle or native printer bridge.
+- Manager limits follow plans; hidden reserves never count.
+- Accountant closing excludes open/future absences without altering PDF calculations.
+- Capacitor hosts HTTPS /quiosque; no native printer bridge.
