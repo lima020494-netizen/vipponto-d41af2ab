@@ -2145,7 +2145,7 @@ function inserirBatidaManual(pinSelecionado='',dataSelecionada=''){
     <div><label>Funcionário</label><select id="ib-pin" ${pinSelecionado?'disabled':''}>${fs.map(f=>`<option value="${f.pin}" ${f.pin===pinSelecionado?'selected':''}>${esc(f.nome)}</option>`).join('')}</select></div>
     <div><label>Data</label><input type="date" id="ib-data" value="${dataSelecionada||hojeISO()}" ${dataSelecionada?'readonly':''}/></div>
     <div><label for="ib-hora">Hora</label><input type="time" id="ib-hora" onchange="camposBatidaMadrugada()" oninput="camposBatidaMadrugada()"/></div>
-    <div id="ib-madrugada" class="hidden"><label for="ib-tipo">Tipo de marcação</label><select id="ib-tipo" onchange="camposBatidaMadrugada()">${TIPOS.map(t=>`<option>${esc(t)}</option>`).join('')}</select><label id="ib-anterior-campo" class="hidden"><input type="checkbox" id="ib-anterior"/> Saída da jornada da noite anterior</label></div>
+    <div id="ib-madrugada" class="hidden"><label for="ib-tipo">Tipo de marcação</label><select id="ib-tipo" onchange="camposBatidaMadrugada()">${TIPOS.map(t=>`<option>${esc(t)}</option>`).join('')}</select><label id="ib-anterior-campo" class="hidden" style="display:flex;align-items:center;gap:8px;min-height:44px"><input type="checkbox" id="ib-anterior" style="width:20px;height:20px;flex:none"/> Saída da jornada da noite anterior</label></div>
     <div class="muted" style="align-self:end">As marcações do dia são ordenadas por horário automaticamente.</div>
     <div><label for="ib-autorizou">Quem autorizou *</label><input id="ib-autorizou" required/></div>
     <div style="grid-column:1/-1"><label>Motivo (obrigatório, mín. 5 caracteres)</label><textarea id="ib-motivo" rows="2"></textarea></div>
