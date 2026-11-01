@@ -16,15 +16,21 @@ function manual(hora='00:20', tipo='Saída', previous=true, authorize='Gestor', 
   return {rows,logs,errors,ctx};
 }
 test('00:20 manual exit closes October 31 16:00 shift and preserves November 1 civil date',()=>{
-  const r=manual();const b=r.rows[1];assert.equal(b?.data,'2026-11-01');assert.equal(b?.hora,'00:20');assert.equal(b?.jornada,'2026-10-31');assert.equal(b?.tipo,'Saída');
+  const r=manual();const b=r.rows[1];assert.equal(b?.['data'],'2026-11-01');assert.equal(b?.['hora'],'00:20');assert.equal(b?.['jornada'],'2026-10-31');assert.equal(b?.['tipo'],'Saída');
   assert.equal(runInNewContext("batidasJornada('1','2026-10-31').length",r.ctx),2);
   assert.equal(runInNewContext("batidasJornada('1','2026-11-01').length",r.ctx),0);
   assert.deepEqual(r.logs,['2026-11-01 00:20 * Marcação Manual - Motivo: Esquecimento - Autorizado por: Gestor']);
 });
 for(const tipo of ['Entrada','Saída Intervalo','Entrada Intervalo','Saída'])test(`05:59 explicit ${tipo} stays on civil day when previous shift is not chosen`,()=>{
-  const r=manual('05:59',tipo,false);assert.equal(r.rows[1]?.jornada,'2026-11-01');assert.equal(r.rows[1]?.tipo,tipo);
+  const r=manual('05:59',tipo,false);assert.equal(r.rows[1]?.['jornada'],'2026-11-01');assert.equal(r.rows[1]?.['tipo'],tipo);
 });
-test('06:00 follows normal chronological auto classification',()=>{const r=manual('06:00','Saída',true);assert.equal(r.rows[1]?.jornadaManual,false);assert.equal(r.rows[1]?.tipo,'Entrada');});
+test('06:00 follows normal chronological auto classification',()=>{const r=manual('06:00','Saída',true);assert.equal(r.rows[1]?.['jornadaManual'],false);assert.equal(r.rows[1]?.['tipo'],'Entrada');});
+test('explicit overnight assignment survives cloud JSON roundtrip unchanged',()=>{
+  const r=manual(),before=JSON.stringify(r.rows);
+  const serialized=runInNewContext(slice('const linhaPonto=','async function garantirHistorico')+';JSON.stringify(rows.map(linhaPonto))',{...r.ctx,CONTA:'test@example.com'});
+  const restored=JSON.parse(serialized).map((row:{dados:unknown})=>row.dados);
+  assert.equal(JSON.stringify(restored),before);
+});
 test('previous shift limit of four punches prevents a fifth manual exit',()=>{assert.equal(manual('00:20','Saída',true,'Gestor','Esquecimento',4).rows.length,4);});
 test('manual punch requires authorizer',()=>{const r=manual('00:20','Saída',true,'');assert.equal(r.rows.length,1);assert.equal(r.logs.length,0);});
 test('manual punch requires reason',()=>{const r=manual('00:20','Saída',true,'Gestor','');assert.equal(r.rows.length,1);assert.equal(r.logs.length,0);});

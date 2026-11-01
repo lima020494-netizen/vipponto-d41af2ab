@@ -27,7 +27,7 @@ test('suspension records day and weekly DSR payroll adjustment separately',()=>{
 test('manual punch cannot be saved without authorizer',()=>{
  const values:Record<string,string>={'ib-pin':'1','ib-data':'2026-10-13','ib-hora':'08:00','ib-tipo':'Entrada','ib-motivo':'Esquecimento','ib-autorizou':''};let saves=0;
  const fn=html.slice(html.indexOf('function salvarBatidaManual('),html.indexOf('function lancarOcorrencia('));
- runInNewContext(fn+';salvarBatidaManual()',{TIPOS:['Entrada','Saída Intervalo','Entrada Intervalo','Saída'],$:(k:string)=>({value:values[k]||''}),toast:()=>{},alert:()=>{},set:()=>{saves++}});assert.equal(saves,0);
+  runInNewContext(fn+';salvarBatidaManual()',{TIPOS:['Entrada','Saída Intervalo','Entrada Intervalo','Saída'],toMin:(h:string)=>Number(h.slice(0,2))*60+Number(h.slice(3)),$:(k:string)=>({value:values[k]||''}),toast:()=>{},alert:()=>{},set:()=>{saves++}});assert.equal(saves,0);
 });
 test('INSS save expands all sixteen days without changing punches; period edit replaces old interval',()=>{
  const e=env(),values:Record<string,string>={'oc-pin':'1','oc-data':'2026-10-01','oc-fim':'2026-10-16','oc-tipo':'Afastamento INSS','oc-motivo':'Documento apresentado','oc-autorizou':''};
