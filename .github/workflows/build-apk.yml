@@ -6,6 +6,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -27,7 +29,7 @@ jobs:
           npm run build
           npx cap copy android
 
-          # 1. Liberar comunicacao com app de impressao no AndroidManifest.xml (Android 11+)
+          # 1. Liberar comunicacao com app de impressao
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           if grep -q "<queries>" "$MANIFEST"; then
             echo "queries já presente"
@@ -35,7 +37,7 @@ jobs:
             sed -i '/<\/manifest>/i \    <queries>\n        <package android:name="ru.a402d.rawbtprinter" />\n        <intent>\n            <action android:name="android.intent.action.VIEW" />\n            <data android:scheme="rawbt" />\n        </intent>\n    </queries>' "$MANIFEST"
           fi
 
-          # 2. Configurar MainActivity.java para liberar intent: e rawbt: na WebView
+          # 2. Configurar MainActivity para rawbt: e intent:
           MAIN_ACTIVITY="android/app/src/main/java/com/pontoprogestao/app/MainActivity.java"
           cat << 'EOF' > "$MAIN_ACTIVITY"
           package com.pontoprogestao.app;
@@ -74,26 +76,4 @@ jobs:
                       public boolean shouldOverrideUrlLoading(WebView view, String url) {
                           if (url.startsWith("intent:") || url.startsWith("rawbt:")) {
                               try {
-                                  Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
-                                  view.getContext().startActivity(intent);
-                                  return true;
-                              } catch (Exception e) {
-                                  e.printStackTrace();
-                                  return true;
-                              }
-                          }
-                          return super.shouldOverrideUrlLoading(view, url);
-                      }
-                  });
-              }
-          }
-          EOF
-
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
-          
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Ponto-Pro-Gestao-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+                                  Intent intent = Intent.parse
