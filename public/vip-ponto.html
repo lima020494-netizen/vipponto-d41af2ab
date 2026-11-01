@@ -1247,6 +1247,7 @@ function mostrarHistoricoDia(f){
    A ORDEM segue o instante real da marcação (criadoEm/timestamp + NSR), não data+hora:
    registros antigos gravaram a madrugada com a data da jornada (ex.: 09/10 00:23 batido em 10/10). */
 function instanteBatida(b){
+  if(b.fonte==='MANUAL')return {civil:b.data,key:String(b.data)+'T'+String(b.hora)+'#'+String(b.nsr||'').padStart(9,'0')};
   const nsr=String(b.nsr||'').padStart(9,'0'), c=b.criadoEm||b.timestamp;
   if(c&&b.hora){
     const d=new Date(c);
@@ -1262,12 +1263,13 @@ function instanteBatida(b){
 let __jIdx={sig:'',map:null};
 function indiceJornadas(){
   const all=get('batidas',[])||[];
-  const sig=all.length+'|'+all.map(b=>(b.nsr||'')+(b.excluida?'x':'')+(b.data||'')+(b.hora||'')+(b.jornada||'')+(b.criadoEm||'')).join(',');
+  const sig=all.length+'|'+all.map(b=>(b.nsr||'')+(b.excluida?'x':'')+(b.data||'')+(b.hora||'')+(b.jornada||'')+(b.jornadaManual?'m':'')+(b.criadoEm||'')).join(',');
   if(__jIdx.sig===sig&&__jIdx.map) return __jIdx.map;
   const map=new Map(), cnt={};
   all.filter(b=>!b.excluida).map(b=>({b,i:instanteBatida(b)})).sort((x,y)=>x.i.key.localeCompare(y.i.key)).forEach(({b,i})=>{
     let j=b.data;
-    if(b.jornada&&b.jornada!==b.data) j=b.jornada;
+    if(b.fonte==='MANUAL'&&b.jornadaManual&&b.jornada) j=b.jornada;
+    else if(b.jornada&&b.jornada!==b.data) j=b.jornada;
     else if(i.civil!==b.data) j=b.data; // legado: madrugada já gravada com a data da jornada
     else if(toMin(b.hora)<360){
       const ontem=addDias(b.data,-1),k=b.pin+'|'+ontem,n=cnt[k]||0;
@@ -1583,7 +1585,7 @@ async function copiarLinkQuiosque(){
   try{await navigator.clipboard.writeText(link);toast('Link do quiosque copiado.',2000);}
   catch(e){const campo=$('terminal-link');if(campo){campo.focus();campo.select();}toast('Selecione e copie o link do quiosque.',3000);}
 }
-function terminalQuiosqueHTML(){const link=linkQuiosque(),qr=qrDataUrl(link);return `<section class="terminal-section" aria-label="Terminal de ponto"><div><h3>Terminal de ponto</h3><div class="terminal-link"><input id="terminal-link" aria-label="Link do quiosque" readonly value="${esc(link)}"/><button class="btn ghost" onclick="copiarLinkQuiosque()" aria-label="Copiar link do quiosque" title="Copiar link">⧉</button></div><a class="btn" href="${esc(link)}" target="_top">Abrir Quiosque ↗</a><p class="muted terminal-help">No outro aparelho, entre com a conta da empresa.</p></div>${qr?`<img class="terminal-qr" src="${qr}" alt="QR Code para abrir o quiosque"/>`:''}</section>`;}
+function terminalQuiosqueHTML(){const link=linkQuiosque(),qr=qrDataUrl(link);return `<section class="terminal-section" aria-label="Terminal de ponto"><div><h3>Terminal de ponto</h3><div class="terminal-link"><input id="terminal-link" aria-label="Link do quiosque" readonly value="${esc(link)}"/><button class="btn ghost" onclick="copiarLinkQuiosque()" aria-label="Copiar link do quiosque" title="Copiar link">⧉</button></div><div class="row"><a class="btn" href="${esc(link)}" target="_top">Abrir Quiosque ↗</a><a class="btn ghost" href="/download" target="_blank" rel="noopener">⇩ Baixar Aplicativo Android (.APK)</a></div><p class="muted terminal-help">No Sunmi ou tablet Android, abra o APK baixado e autorize a instalação deste navegador quando solicitado. Depois, abra o aplicativo e entre com a conta da empresa.</p></div>${qr?`<img class="terminal-qr" src="${qr}" alt="QR Code para abrir o quiosque"/>`:''}</section>`;}
 function abaTerminalQuiosque(){ $('gestor-body').innerHTML=terminalQuiosqueHTML(); }
 async function atualizarAvisoSuporte(){
   const aviso=$('gestor-suporte-aviso');if(!aviso||!CONTA)return;
@@ -1807,7 +1809,7 @@ function previstoDia(f,iso){
 function batidasDia(pin,iso){return batidasJornada(pin,iso);}
 /* Reordena as marcações da jornada por horário e reclassifica E1/S1/E2/S2 sem gerar logs em cascata. */
 function reordenarJornada(pin,iso){const all=get('batidas',[]),bs=all.filter(b=>!b.excluida&&b.pin===pin&&jornadaDe(b)===iso).sort(ordemJornada),mud=[];
-  bs.forEach((b,i)=>{const t=TIPOS[i]||b.tipo;if(b.tipo!==t){b.tipo=t;mud.push(b.nsr);}});if(mud.length){set('batidas',all);mud.forEach(n=>filaPonto(n));}}
+  bs.forEach((b,i)=>{const t=b.fonte==='MANUAL'&&b.jornadaManual&&TIPOS.includes(b.tipoManual)?b.tipoManual:TIPOS[i]||b.tipo;if(b.tipo!==t){b.tipo=t;mud.push(b.nsr);}});if(mud.length){set('batidas',all);mud.forEach(n=>filaPonto(n));}}
 /* Pares de batidas (máx. 4: Entrada | Intervalo Saída | Intervalo Volta | Saída) */
 function paresBatidas(bs){
   const g=tp=>bs.filter(b=>b.tipo===tp)[0];
@@ -2142,23 +2144,32 @@ function inserirBatidaManual(pinSelecionado='',dataSelecionada=''){
   <div class="card grid g2">
     <div><label>Funcionário</label><select id="ib-pin" ${pinSelecionado?'disabled':''}>${fs.map(f=>`<option value="${f.pin}" ${f.pin===pinSelecionado?'selected':''}>${esc(f.nome)}</option>`).join('')}</select></div>
     <div><label>Data</label><input type="date" id="ib-data" value="${dataSelecionada||hojeISO()}" ${dataSelecionada?'readonly':''}/></div>
-    <div><label>Hora</label><input type="time" id="ib-hora"/></div>
+    <div><label for="ib-hora">Hora</label><input type="time" id="ib-hora" onchange="camposBatidaMadrugada()" oninput="camposBatidaMadrugada()"/></div>
+    <div id="ib-madrugada" class="hidden"><label for="ib-tipo">Tipo de marcação</label><select id="ib-tipo" onchange="camposBatidaMadrugada()">${TIPOS.map(t=>`<option>${esc(t)}</option>`).join('')}</select><label id="ib-anterior-campo" class="hidden"><input type="checkbox" id="ib-anterior"/> Saída da jornada da noite anterior</label></div>
     <div class="muted" style="align-self:end">As marcações do dia são ordenadas por horário automaticamente.</div>
     <div><label for="ib-autorizou">Quem autorizou *</label><input id="ib-autorizou" required/></div>
     <div style="grid-column:1/-1"><label>Motivo (obrigatório, mín. 5 caracteres)</label><textarea id="ib-motivo" rows="2"></textarea></div>
   </div><button class="btn gold" onclick="salvarBatidaManual()">Salvar batida manual</button>`);
 }
+function camposBatidaMadrugada(){
+  const hora=$('ib-hora').value,madrugada=!!hora&&toMin(hora)<360,saida=$('ib-tipo').value==='Saída';
+  $('ib-madrugada').classList.toggle('hidden',!madrugada);$('ib-anterior-campo').classList.toggle('hidden',!madrugada||!saida);
+  if(!madrugada||!saida)$('ib-anterior').checked=false;
+}
 function salvarBatidaManual(){
-  const pin=$('ib-pin').value,data=$('ib-data').value,hora=$('ib-hora').value,tipo=TIPOS[0],motivo=$('ib-motivo').value.trim();
+  const pin=$('ib-pin').value,data=$('ib-data').value,hora=$('ib-hora').value,madrugada=!!hora&&toMin(hora)<360,tipo=madrugada?$('ib-tipo').value:TIPOS[0],motivo=$('ib-motivo').value.trim();
   if(!data||!hora)return alert('Informe data e hora.');
+  if(!TIPOS.includes(tipo))return alert('Selecione um tipo de marcação válido.');
   if(motivo.length<5)return alert('Motivo obrigatório (mín. 5 caracteres).');
   const autorizadoPor=$('ib-autorizou').value.trim();if(!autorizadoPor)return toast('Informe quem autorizou a marcação.',4000);
   const f=funcPorPin(pin), all=get('batidas',[]);if(!f)return;
-  if(batidasJornada(pin,data).length>=4)return alert('Limite de 4 marcações no dia.');
+  const anterior=madrugada&&tipo==='Saída'&&$('ib-anterior').checked,jornada=anterior?addDias(data,-1):data;
+  if(anterior&&!batidasJornada(pin,jornada).some(b=>b.tipo==='Entrada'))return alert('Não há entrada na jornada da noite anterior. Confira a data da marcação.');
+  if(batidasJornada(pin,jornada).length>=4)return alert('Limite de 4 marcações na jornada.');
   const nsrM=proximoNSR();
-  all.push({pin,nome:f.nome,cpf:f.cpf,data,hora,tipo,nsr:nsrM,fonte:'MANUAL',sync:false,offset:get('ntpOffset',0),
+  all.push({pin,nome:f.nome,cpf:f.cpf,data,hora,tipo,jornada:madrugada?jornada:undefined,jornadaManual:madrugada,tipoManual:madrugada?tipo:undefined,nsr:nsrM,fonte:'MANUAL',sync:false,offset:get('ntpOffset',0),
     autorizadoPor,gerenciador:GERENCIADOR.nome,movimento:`Inserida manualmente - Autorizado por: ${autorizadoPor} - Motivo: ${motivo} - Por: ${GERENCIADOR.nome}`,criadoEm:new Date().toISOString()});
-  set('batidas',all); filaPonto(nsrM); reordenarJornada(pin,data); log(`${brOf(data)} ${hora} * Marcação Manual (${f.nome}) - Motivo: ${motivo} - Autorizado por: ${autorizadoPor}`); fecharModal();window.__batFilt={pin,data,ini:$('gb-ini')?.value||data,fim:$('gb-fim')?.value||data};subBatidas();
+  set('batidas',all); filaPonto(nsrM); reordenarJornada(pin,jornada); log(`${brOf(data)} ${hora} * Marcação Manual - Motivo: ${motivo} - Autorizado por: ${autorizadoPor}`); fecharModal();window.__batFilt={pin,data:jornada,ini:$('gb-ini')?.value||jornada,fim:$('gb-fim')?.value||data};subBatidas();
 }
 function lancarOcorrencia(pinSelecionado='',dataSelecionada=''){
  const fs=get('funcionarios',[]),ex=ocorrenciaDia(pinSelecionado,dataSelecionada)||{};window.__ocEdit=ex;
