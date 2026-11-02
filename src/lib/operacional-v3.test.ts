@@ -29,11 +29,11 @@ test('manual punch cannot be saved without authorizer',()=>{
  const fn=html.slice(html.indexOf('function salvarBatidaManual('),html.indexOf('function lancarOcorrencia('));
   runInNewContext(fn+';salvarBatidaManual()',{TIPOS:['Entrada','Saída Intervalo','Entrada Intervalo','Saída'],toMin:(h:string)=>Number(h.slice(0,2))*60+Number(h.slice(3)),$:(k:string)=>({value:values[k]||''}),toast:()=>{},alert:()=>{},set:()=>{saves++}});assert.equal(saves,0);
 });
-test('INSS save expands all sixteen days without changing punches; period edit replaces old interval',()=>{
- const e=env(),values:Record<string,string>={'oc-pin':'1','oc-data':'2026-10-01','oc-fim':'2026-10-16','oc-tipo':'Afastamento INSS','oc-motivo':'Documento apresentado','oc-autorizou':''};
- const fn=html.slice(html.indexOf('function salvarOcorrencia('),html.indexOf('/* Escala —'));
- const context={...e,$:(k:string)=>({value:values[k]||'',textContent:''}),window:{__ocEdit:{}},crypto:{randomUUID:()=> 'periodo-teste'},GERENCIADOR:{nome:'Gestor'},set:(k:string,v:unknown)=>{e.data[k]=v},log:()=>{},fecharModal:()=>{},subBatidas:()=>{}};
- const original=JSON.stringify(e.punches);runInNewContext(source+fn+';salvarOcorrencia()',context);
+test('INSS save expands all sixteen days without changing punches; period edit replaces old interval',async()=>{
+ const e=env(),values:Record<string,string>={'oc-pin':'1','oc-data':'2026-10-01','oc-fim':'2026-10-16','oc-tipo':'Afastamento INSS','oc-motivo':'Documento apresentado','oc-autorizou':'Gestor'};
+ const fn=html.slice(html.indexOf('function validarAuditoriaTratamento('),html.indexOf("document.addEventListener('keydown',e=>{const modal=$('modal-generico')"));
+ const context={...e,$:(k:string)=>({value:values[k]||'',textContent:''}),window:{__ocEdit:{}},crypto:{randomUUID:()=> 'periodo-teste'},GERENCIADOR:{nome:'Gestor'},set:(k:string,v:unknown)=>{e.data[k]=v},log:()=>{},fecharModal:()=>{},subBatidas:()=>{},toast:()=>{},TRAT_SELECAO:new Set()};
+ const original=JSON.stringify(e.punches);await runInNewContext(source+fn+';salvarOcorrencia()',context);
  const rows=e.data['ocorrencias'] as {data:string;inicio:string;fim:string;periodoId:string}[];assert.equal(rows.length,16);assert.equal(rows[0]?.data,'2026-10-01');assert.equal(rows[15]?.data,'2026-10-16');assert.equal(JSON.stringify(e.punches),original);
- values['oc-fim']='2026-10-17';runInNewContext(source+fn+';salvarOcorrencia()',{...context,window:{__ocEdit:rows[7]}});assert.equal((e.data['ocorrencias'] as unknown[]).length,17);
+ values['oc-fim']='2026-10-17';await runInNewContext(source+fn+';salvarOcorrencia()',{...context,window:{__ocEdit:rows[7]}});assert.equal((e.data['ocorrencias'] as unknown[]).length,17);
 });

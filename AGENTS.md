@@ -21,7 +21,7 @@
 - Kiosk libraries are version-pinned static files; offline cache excludes API/auth/company data.
 - Drawer closes before deferred render; home uses gestor-hub and gestor-body without duplicate IDs or cloud-replacing session caches.
 - Holidays/rest use zero planned time; Sunday/holiday bank uses employer factor, never salary premiums. Generic rest never infers debt.
-- Shared occurrence rules drive sheet/bank/XLS. Periods expand into dated synced records and edit/delete as a unit; external work never synthesizes fiscal punches. Vacation is neutral, explicit compensation distinct from absence.
+- Shared occurrence rules drive sheet/bank/XLS and treatment inbox/batch validation to avoid divergent calculations; periods sync/edit/delete as a unit. External work never synthesizes punches; vacation is neutral.
 - Export libraries (jspdf/autotable/jszip/xlsx) load on demand via garantirLib(), never in the initial head; every export entry point awaits it first.
 - Initial cloud punch load is windowed to the current month (NUVEM_DESDE); garantirHistorico(dataIni) back-fills older punches on demand for sheet, bank, batch and accountant exports.
 - Schedule grid and legacy imports share lerCelulaEscala and canonical TIPOS_ESC values, so menu options and accepted rest-day aliases retain existing calculation semantics.
@@ -32,7 +32,7 @@
 - Support uses a bottom pill, never a top banner.
 - APK aliases share one redirect URL; terminal links to /download.
 - Manual overnight type/jornada persist in punch JSON; civil timestamps stay unchanged.
-- Operational /gestor and /quiosque routes reuse the legacy HTML engine through a mode-aware iframe; the existing Supabase session and manager PIN remain the access boundaries, preventing duplicated calculation/auth engines.
+- /gestor and /quiosque reuse the HTML engine via mode-aware iframe and scoped semantic treatment styles; Supabase session and manager PIN guard access, avoiding duplicated fiscal/auth engines.
 - Identity schemas normalize legacy color fields to the fixed institutional palette; surface tokens govern light admin/manager and dark kiosk without recoloring official sheets. Known legacy platform logos resolve to the current CDN asset; custom company logos remain untouched.
 - Manager kiosk links and QR contain only the same-origin /quiosque URL, never account identifiers or credentials; opening another device still requires the existing company sign-in.
 - Manager limits follow plans; hidden reserves never count.
