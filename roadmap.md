@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Reorganizar Tratamento de Ponto: inbox, KPIs, timeline, seleção em massa e gaveta auditada com anexos privados; atualizar link permanente do APK e validar regras/prévia sem publicar.
+- [x] Tratamento de Ponto: inbox, KPIs, timeline por jornada, seleção em massa e gaveta com autorizador/motivo obrigatórios, períodos e anexo PDF/JPG/PNG até 1 MB no registro account-scoped existente. APK permanente em /download, /apk e configuração. 140 testes passaram; prévia desktop/celular, abono em lote até Tudo em dia, anexo e madrugada 00:20 conferidos com dados isolados, sem erros; redirects 302 corretos. Cálculos preservados, sem publicar. Gravação autenticada/sincronização externa não verificáveis; KPI de solicitações conta somente ocorrências realmente pendentes, sem inventar solicitações ou criar novo portal.
 
 - [x] /download e /apk redirecionam à release oficial; Terminal Quiosque oferece APK/instruções; madrugada manual permite tipo e fechamento da noite anterior, com data civil preservada e log único. 127 testes passaram, build OK e formulário/redirects conferidos com dados isolados; sem publicar. Login/sincronização autenticada externos e instalação física do APK não verificáveis; auditoria anterior segue bloqueada abaixo.
 
